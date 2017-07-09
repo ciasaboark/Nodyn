@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package io.phobotic.nodyn.database.model;
 
 import com.google.gson.annotations.SerializedName;
@@ -32,6 +49,15 @@ public class Asset {
 
     private String location;
 
+    public String getCategory() {
+        return category;
+    }
+
+    public Asset setCategory(String category) {
+        this.category = category;
+        return this;
+    }
+
     @HtmlEncoded
     private String category;
 
@@ -49,9 +75,9 @@ public class Asset {
     @SerializedName("last_checkout")
     private String lastCheckout;
     @SerializedName("expected_checkin")
-    private String expected_checkin;
+    private String expectedCheckin;
     @SerializedName("created_at")
-    private String created_at;
+    private String createdAt;
     private String companyName;
 
     public int getId() {
@@ -182,20 +208,20 @@ public class Asset {
         this.lastCheckout = lastCheckout;
     }
 
-    public String getExpected_checkin() {
-        return expected_checkin;
+    public String getExpectedCheckin() {
+        return expectedCheckin;
     }
 
-    public void setExpected_checkin(String expected_checkin) {
-        this.expected_checkin = expected_checkin;
+    public void setExpectedCheckin(String expectedCheckin) {
+        this.expectedCheckin = expectedCheckin;
     }
 
-    public String getCreated_at() {
-        return created_at;
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(String created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getCompanyName() {
@@ -204,5 +230,28 @@ public class Asset {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public class Columns {
+        public static final String ID = "id";
+        public static final String IMAGE = "";
+        public static final String NAME = "";
+        public static final String TAG = "";
+        public static final String SERIAL = "";
+        public static final String MODEL = "";
+        public static final String STATUS = "";
+        public static final String ASSIGNED_TO = "";
+        public static final String LOCATION = "";
+        public static final String CATEGORY = "";
+        public static final String MANUFACTURER = "";
+        public static final String EOL = "";
+        public static final String PURCHASE_COST = "";
+        public static final String PURCHASE_DATE = "";
+        public static final String NOTES = "";
+        public static final String ORDER_NUMBER = "";
+        public static final String LAST_CHECKOUT = "";
+        public static final String EXPECTED_CHECKIN = "";
+        public static final String CREATED_AT = "";
+        public static final String COMPANY_NAME = "";
     }
 }

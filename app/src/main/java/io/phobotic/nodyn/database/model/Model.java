@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package io.phobotic.nodyn.database.model;
 
 /**
@@ -104,5 +121,20 @@ public class Model {
 
     public void setFieldset(String fieldset) {
         this.fieldset = fieldset;
+    }
+
+
+    public class Columns {
+        public static final String ID = "id";
+        public static final String MANUFACTURER= "manufacturer";
+        public static final String NAME = "name";
+        public static final String IMAGE = "image";
+        public static final String MODEL_NUMBER = "modelnum";
+        public static final String NUM_ASSETS = "numassets";
+        public static final String DEPRECIATION = "depreciation";
+        public static final String CATEGORY = "category";
+        public static final String EOL = "eol";
+        public static final String NOTE = "note";
+        public static final String FIELDSET = "fieldset";
     }
 }

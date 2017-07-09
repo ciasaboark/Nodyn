@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package io.phobotic.nodyn.database.model;
 
 import com.google.gson.annotations.SerializedName;
@@ -130,5 +147,20 @@ public class User {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public class Columns {
+        public static final String ID = "id";
+        public static final String NAME = "name";
+        public static final String JOB_TITLE = "job";
+        public static final String EMAIL = "email";
+        public static final String USERNAME = "username";
+        public static final String LOCATION = "location";
+        public static final String MANAGER = "manager";
+        public static final String NUM_ASSETS = "numassets";
+        public static final String EMPLOYEE_NUM = "employeeNum";
+        public static final String GROUPS = "groups";
+        public static final String NOTES = "notes";
+        public static final String COMPANY_NAME = "company";
     }
 }

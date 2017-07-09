@@ -1,4 +1,21 @@
-package io.phobotic.nodyn.sync;
+/*
+ * Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.phobotic.nodyn.sync.adapter.snipeit3;
 
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -31,12 +48,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import io.phobotic.nodyn.database.model.Asset;
+import io.phobotic.nodyn.database.model.Category;
 import io.phobotic.nodyn.database.model.FullDataModel;
+import io.phobotic.nodyn.database.model.Group;
 import io.phobotic.nodyn.database.model.Model;
 import io.phobotic.nodyn.database.model.User;
+import io.phobotic.nodyn.sync.CheckinException;
+import io.phobotic.nodyn.sync.CheckoutException;
+import io.phobotic.nodyn.sync.HtmlEncoded;
+import io.phobotic.nodyn.sync.SyncException;
+import io.phobotic.nodyn.sync.adapter.SyncAdapter;
 
 /**
  * Created by Jonathan Nelson on 7/7/17.
@@ -294,6 +317,8 @@ public class SnipeItSyncAdapter extends SyncAdapter {
                             } else {
                                 Log.d(TAG, "Login required");
                             }
+
+                            break;
                         }
                     }
 
@@ -363,6 +388,55 @@ public class SnipeItSyncAdapter extends SyncAdapter {
             }
 
             return users;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            String message = "Unable to fetch users: " + e.getMessage();
+            throw new SyncException(message);
+        }
+    }
+
+
+    @Override
+    public List<Category> fetchCategories() throws SyncException {
+        String categoriesURL = "/api/categories/list?limit=20&offset=0";
+
+        try {
+            loginIfNeeded();
+            String categoriesResult = getPageContent(getUrl(categoriesURL));
+            CategoryResponse catoriesResponse = gson.fromJson(categoriesResult, CategoryResponse.class);
+            List<Category> categories = catoriesResponse.getCategories();
+
+            //the JSON returned by snipeit will have some properties wrapped in HTML.
+            for (Category category: categories) {
+                convertHtmlFields(category);
+            }
+
+            return categories;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            String message = "Unable to fetch users: " + e.getMessage();
+            throw new SyncException(message);
+        }
+    }
+
+    @Override
+    public List<Group> fetchGroups() throws SyncException {
+        String groupsUrl = "/api/groups/list?limit=9999&offset=0";
+
+        try {
+            loginIfNeeded();
+            String groupsResult = getPageContent(getUrl(groupsUrl));
+            GroupResponse groupResponse = gson.fromJson(groupsResult, GroupResponse.class);
+            List<Group> groups = groupResponse.getGroups();
+
+            //the JSON returned by snipeit will have some properties wrapped in HTML.
+            for (Group group: groups) {
+                convertHtmlFields(group);
+            }
+
+            return groups;
 
         } catch (Exception e) {
             e.printStackTrace();
