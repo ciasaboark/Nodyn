@@ -21,6 +21,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
+ * Fields annotated with HtmlEnocded will have go through additional processing during the sync
+ * process.  It is expected that the remote server will return these values wrapped in arbitrary
+ * HTML.  Annotated fields will have the HTML String value replaced with the text within the HTML
+ * tags during the sync process.
+ *
+ * For example if the remote server returned a value of <pre><div><span>foo</span></div></pre>"
+ * the field value will be converted into "foo"
+ *
+ * This annotiation will be ignored if the field is not of type String
  * Created by Jonathan Nelson on 7/7/17.
  */
 @Retention(RetentionPolicy.RUNTIME)

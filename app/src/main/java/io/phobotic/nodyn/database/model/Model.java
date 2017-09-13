@@ -22,117 +22,126 @@ package io.phobotic.nodyn.database.model;
  */
 
 public class Model {
-    private String id;
-    private String manufacturer;
+    private int id;
+    private int manufacturerID = -1;
     private String name;
     private String image;
     private String modelnumber;
     private int numassets;
     private String depreciation;
-    private String category;
+    private int categoryID = -1;
     private String eol;
     private String note;
     private String fieldset;
-//    private String actions;
+
+    public int getId() {
+        return id;
+    }
+
+    public Model setId(int id) {
+        this.id = id;
+        return this;
+    }
+
+    public int getManufacturerID() {
+        return manufacturerID;
+    }
+
+    public Model setManufacturerID(int manufacturerID) {
+        this.manufacturerID = manufacturerID;
+        return this;
+    }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Model setName(String name) {
         this.name = name;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getManufacturer() {
-        return manufacturer;
-    }
-
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
+        return this;
     }
 
     public String getImage() {
         return image;
     }
 
-    public void setImage(String image) {
+    public Model setImage(String image) {
         this.image = image;
+        return this;
     }
 
     public String getModelnumber() {
         return modelnumber;
     }
 
-    public void setModelnumber(String modelnumber) {
+    public Model setModelnumber(String modelnumber) {
         this.modelnumber = modelnumber;
+        return this;
     }
 
     public int getNumassets() {
         return numassets;
     }
 
-    public void setNumassets(int numassets) {
+    public Model setNumassets(int numassets) {
         this.numassets = numassets;
+        return this;
     }
 
     public String getDepreciation() {
         return depreciation;
     }
 
-    public void setDepreciation(String depreciation) {
+    public Model setDepreciation(String depreciation) {
         this.depreciation = depreciation;
+        return this;
     }
 
-    public String getCategory() {
-        return category;
+    public int getCategoryID() {
+        return categoryID;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public Model setCategoryID(int categoryID) {
+        this.categoryID = categoryID;
+        return this;
     }
 
     public String getEol() {
         return eol;
     }
 
-    public void setEol(String eol) {
+    public Model setEol(String eol) {
         this.eol = eol;
+        return this;
     }
 
     public String getNote() {
         return note;
     }
 
-    public void setNote(String note) {
+    public Model setNote(String note) {
         this.note = note;
+        return this;
     }
 
     public String getFieldset() {
         return fieldset;
     }
 
-    public void setFieldset(String fieldset) {
+    public Model setFieldset(String fieldset) {
         this.fieldset = fieldset;
+        return this;
     }
-
 
     public class Columns {
         public static final String ID = "id";
-        public static final String MANUFACTURER= "manufacturer";
+        public static final String MANUFACTURER_ID = "manufacturer";
         public static final String NAME = "name";
         public static final String IMAGE = "image";
         public static final String MODEL_NUMBER = "modelnum";
         public static final String NUM_ASSETS = "numassets";
         public static final String DEPRECIATION = "depreciation";
-        public static final String CATEGORY = "category";
+        public static final String CATEGORY_ID = "category";
         public static final String EOL = "eol";
         public static final String NOTE = "note";
         public static final String FIELDSET = "fieldset";

@@ -17,8 +17,6 @@
 
 package io.phobotic.nodyn.database.model;
 
-import com.google.gson.annotations.SerializedName;
-
 /**
  * Created by Jonathan Nelson on 7/8/17.
  */
@@ -27,8 +25,6 @@ public class Group {
     private int id;
     private String name;
     private int users;
-
-    @SerializedName("created_at")
     private String createdAt;
 
     public int getId() {
@@ -65,6 +61,11 @@ public class Group {
     public Group setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     public class Columns {

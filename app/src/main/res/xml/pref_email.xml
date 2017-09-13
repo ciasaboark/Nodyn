@@ -1,0 +1,84 @@
+<!--
+  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/pref_header_email">
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_email_enable"
+            android:key="@string/pref_key_email_enable"
+            android:summary="@string/pref_description_email_enable"
+            android:title="@string/pref_title_email_enable"/>
+
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_email_exceptions"
+            android:dependency="@string/pref_key_email_enable"
+            android:key="@string/pref_key_email_exceptions"
+            android:summary="@string/pref_summary_email_exceptions"
+            android:title="@string/pref_title_email_exceptions"/>
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dependency="@string/pref_key_email_exceptions"
+            android:key="@string/pref_key_email_exceptions_addresses"
+            android:title="@string/pref_title_email_exceptions_addresses"/>
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_email_sync_fail"
+            android:dependency="@string/pref_key_email_enable"
+            android:key="@string/pref_key_email_sync_fail"
+            android:summary="@string/pref_description_email_sync_fail"
+            android:title="@string/pref_title_email_sync_fail"/>
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dependency="@string/pref_key_email_sync_fail"
+            android:key="@string/pref_key_email_sync_fail_addresses"
+            android:title="@string/pref_title_email_sync_fail_addresses"/>
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dependency="@string/pref_key_email_enable"
+            android:key="@string/pref_key_email_server"
+            android:title="@string/pref_title_email_server"/>
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dependency="@string/pref_key_email_enable"
+            android:digits="0123456789"
+            android:inputType="number"
+            android:key="@string/pref_key_email_port"
+            android:title="@string/pref_title_email_port"/>
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dependency="@string/pref_key_email_enable"
+            android:inputType="textEmailAddress"
+            android:key="@string/pref_key_email_username"
+            android:title="@string/pref_title_email_username"/>
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dependency="@string/pref_key_email_enable"
+            android:inputType="textPassword"
+            android:key="@string/pref_key_email_password"
+            android:title="@string/pref_title_email_password"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

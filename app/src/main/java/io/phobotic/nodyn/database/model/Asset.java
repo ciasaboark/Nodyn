@@ -17,66 +17,32 @@
 
 package io.phobotic.nodyn.database.model;
 
-import com.google.gson.annotations.SerializedName;
-
-import io.phobotic.nodyn.sync.HtmlEncoded;
+import java.io.Serializable;
 
 /**
  * Created by Jonathan Nelson on 7/7/17.
  */
 
 
-public class Asset {
+public class Asset implements Serializable {
     private int id;
-    @HtmlEncoded
     private String image;
-    @HtmlEncoded
     private String name;
-
-    @HtmlEncoded
-    @SerializedName("asset_tag")
     private String tag;
-
     private String serial;
-    @HtmlEncoded
-    private String model;
-    @SerializedName("status_label")
-    private String status;
-
-    @HtmlEncoded
-    @SerializedName("assigned_to")
-    private String assignedTo;
-
-    private String location;
-
-    public String getCategory() {
-        return category;
-    }
-
-    public Asset setCategory(String category) {
-        this.category = category;
-        return this;
-    }
-
-    @HtmlEncoded
-    private String category;
-
-    @HtmlEncoded
-    private String manufacturer;
-
+    private int modelID;
+    private int statusID;
+    private int assignedToID;
+    private int locationID;
+    private int categoryID;
+    private int manufacturerID;
     private String eol;
-    @SerializedName("purchase_cost")
     private String purchaseCost;
-    @SerializedName("purchase_date")
     private String purchaseDate;
     private String notes;
-    @SerializedName("order_number")
     private String orderNumber;
-    @SerializedName("last_checkout")
     private String lastCheckout;
-    @SerializedName("expected_checkin")
     private String expectedCheckin;
-    @SerializedName("created_at")
     private String createdAt;
     private String companyName;
 
@@ -84,174 +50,217 @@ public class Asset {
         return id;
     }
 
-    public void setId(int id) {
+    public Asset setId(int id) {
         this.id = id;
+        return this;
     }
 
     public String getImage() {
         return image;
     }
 
-    public void setImage(String image) {
+    public Asset setImage(String image) {
         this.image = image;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Asset setName(String name) {
         this.name = name;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
+        return this;
     }
 
     public String getSerial() {
         return serial;
     }
 
-    public void setSerial(String serial) {
+    public Asset setSerial(String serial) {
         this.serial = serial;
+        return this;
     }
 
-    public String getModel() {
-        return model;
+    public int getModelID() {
+        return modelID;
     }
 
-    public void setModel(String model) {
-        this.model = model;
+    public Asset setModelID(int modelID) {
+        this.modelID = modelID;
+        return this;
     }
 
-    public String getStatus() {
-        return status;
+    public int getStatusID() {
+        return statusID;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public Asset setStatusID(int statusID) {
+        this.statusID = statusID;
+        return this;
     }
 
-    public String getAssignedTo() {
-        return assignedTo;
+    public int getAssignedToID() {
+        return assignedToID;
     }
 
-    public void setAssignedTo(String assignedTo) {
-        this.assignedTo = assignedTo;
+    public Asset setAssignedToID(int assignedToID) {
+        this.assignedToID = assignedToID;
+        return this;
     }
 
-    public String getLocation() {
-        return location;
+    public int getLocationID() {
+        return locationID;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public Asset setLocationID(int locationID) {
+        this.locationID = locationID;
+        return this;
     }
 
-    public String getManufacturer() {
-        return manufacturer;
+    public int getCategoryID() {
+        return categoryID;
     }
 
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
+    public Asset setCategoryID(int categoryID) {
+        this.categoryID = categoryID;
+        return this;
+    }
+
+    public int getManufacturerID() {
+        return manufacturerID;
+    }
+
+    public Asset setManufacturerID(int manufacturerID) {
+        this.manufacturerID = manufacturerID;
+        return this;
     }
 
     public String getEol() {
         return eol;
     }
 
-    public void setEol(String eol) {
+    public Asset setEol(String eol) {
         this.eol = eol;
+        return this;
     }
 
     public String getPurchaseCost() {
         return purchaseCost;
     }
 
-    public void setPurchaseCost(String purchaseCost) {
+    public Asset setPurchaseCost(String purchaseCost) {
         this.purchaseCost = purchaseCost;
+        return this;
     }
 
     public String getPurchaseDate() {
         return purchaseDate;
     }
 
-    public void setPurchaseDate(String purchaseDate) {
+    public Asset setPurchaseDate(String purchaseDate) {
         this.purchaseDate = purchaseDate;
+        return this;
     }
 
     public String getNotes() {
         return notes;
     }
 
-    public void setNotes(String notes) {
+    public Asset setNotes(String notes) {
         this.notes = notes;
+        return this;
     }
 
     public String getOrderNumber() {
         return orderNumber;
     }
 
-    public void setOrderNumber(String orderNumber) {
+    public Asset setOrderNumber(String orderNumber) {
         this.orderNumber = orderNumber;
+        return this;
     }
 
     public String getLastCheckout() {
         return lastCheckout;
     }
 
-    public void setLastCheckout(String lastCheckout) {
+    public Asset setLastCheckout(String lastCheckout) {
         this.lastCheckout = lastCheckout;
+        return this;
     }
 
     public String getExpectedCheckin() {
         return expectedCheckin;
     }
 
-    public void setExpectedCheckin(String expectedCheckin) {
+    public Asset setExpectedCheckin(String expectedCheckin) {
         this.expectedCheckin = expectedCheckin;
+        return this;
     }
 
     public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public Asset setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+        return this;
     }
 
     public String getCompanyName() {
         return companyName;
     }
 
-    public void setCompanyName(String companyName) {
+    public Asset setCompanyName(String companyName) {
         this.companyName = companyName;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        boolean equal = false;
+        if (obj instanceof Asset) {
+            equal = this.getTag().equals(((Asset) obj).getTag());
+        }
+
+        return equal;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public Asset setTag(String tag) {
+        this.tag = tag;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return tag;
     }
 
     public class Columns {
         public static final String ID = "id";
-        public static final String IMAGE = "";
-        public static final String NAME = "";
-        public static final String TAG = "";
-        public static final String SERIAL = "";
-        public static final String MODEL = "";
-        public static final String STATUS = "";
-        public static final String ASSIGNED_TO = "";
-        public static final String LOCATION = "";
-        public static final String CATEGORY = "";
-        public static final String MANUFACTURER = "";
-        public static final String EOL = "";
-        public static final String PURCHASE_COST = "";
-        public static final String PURCHASE_DATE = "";
-        public static final String NOTES = "";
-        public static final String ORDER_NUMBER = "";
-        public static final String LAST_CHECKOUT = "";
-        public static final String EXPECTED_CHECKIN = "";
-        public static final String CREATED_AT = "";
-        public static final String COMPANY_NAME = "";
+        public static final String IMAGE = "image";
+        public static final String NAME = "name";
+        public static final String TAG = "tag";
+        public static final String SERIAL = "serial";
+        public static final String MODEL_ID = "model";
+        public static final String STATUS_ID = "status";
+        public static final String ASSIGNED_TO_ID = "assigned_to";
+        public static final String LOCATION_ID = "location";
+        public static final String CATEGORY_ID = "category";
+        public static final String MANUFACTURER_ID = "manufacturer";
+        public static final String EOL = "eol";
+        public static final String PURCHASE_COST = "purchase_cost";
+        public static final String PURCHASE_DATE = "purchase_date";
+        public static final String NOTES = "notes";
+        public static final String ORDER_NUMBER = "order_number";
+        public static final String LAST_CHECKOUT = "last_checkout";
+        public static final String EXPECTED_CHECKIN = "expected_checkin";
+        public static final String CREATED_AT = "created_at";
+        public static final String COMPANY_NAME = "company_name";
     }
 }

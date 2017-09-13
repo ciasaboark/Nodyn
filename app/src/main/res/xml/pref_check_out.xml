@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/pref_header_check_out">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/pref_key_check_out_require_scan"
+            android:title="@string/pref_title_check_out_require_scan"/>
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/empty_array"
+            android:dependency="@string/pref_key_check_out_require_scan"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            android:key="@string/pref_key_check_out_scan_groups"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="OK"
+            android:title="@string/pref_title_check_out_scan_groups"/>
+
+        <ListPreference
+            android:defaultValue="Username"
+            android:dependency="@string/pref_key_check_out_require_scan"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            android:key="@string/pref_key_check_out_scan_field"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="OK"
+            android:summary="%s"
+            android:title="@string/pref_title_check_out_scan_field"/>
+
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_check_out_all_models"
+            android:disableDependentsState="true"
+            android:key="@string/pref_key_check_out_all_models"
+            android:summary="@string/pref_description_check_out_all_models"
+            android:title="@string/pref_title_check_out_all_models"/>
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/empty_array"
+            android:dependency="@string/pref_key_check_out_all_models"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            android:key="@string/pref_key_check_out_models"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="OK"
+            android:title="@string/pref_title_check_out_models"/>
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_check_out_verify"
+            android:key="@string/pref_key_check_out_verify"
+            android:summary="@string/pref_description_check_out_verify"
+            android:title="@string/pref_title_check_out_verify"/>
+    </PreferenceCategory>
+</PreferenceScreen>

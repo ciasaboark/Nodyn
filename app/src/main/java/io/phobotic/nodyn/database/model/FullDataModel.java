@@ -29,6 +29,16 @@ public class FullDataModel {
     private List<User> users;
     private List<Group> groups;
     private List<Category> categories;
+    private List<Status> statuses;
+
+    public List<Status> getStatuses() {
+        return statuses;
+    }
+
+    public FullDataModel setStatuses(List<Status> statuses) {
+        this.statuses = statuses;
+        return this;
+    }
 
     public List<Category> getCategories() {
         return categories;
@@ -73,5 +83,10 @@ public class FullDataModel {
     public FullDataModel setUsers(List<User> users) {
         this.users = users;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

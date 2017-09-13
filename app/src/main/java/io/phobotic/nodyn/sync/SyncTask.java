@@ -17,12 +17,14 @@
 
 package io.phobotic.nodyn.sync;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import io.phobotic.nodyn.database.model.FullDataModel;
-import io.phobotic.nodyn.sync.adapter.snipeit3.SnipeItSyncAdapter;
 import io.phobotic.nodyn.sync.adapter.SyncAdapter;
+import io.phobotic.nodyn.sync.adapter.SyncException;
+import io.phobotic.nodyn.sync.adapter.snipeit3.SnipeIt3SyncAdapter;
 
 /**
  * Created by Jonathan Nelson on 7/7/17.
@@ -30,12 +32,17 @@ import io.phobotic.nodyn.sync.adapter.SyncAdapter;
 
 public class SyncTask extends AsyncTask<SyncAdapter, Void, Void> {
     private static final String TAG = SyncTask.class.getSimpleName();
+    private final Context context;
+
+    public SyncTask(Context context) {
+        this.context = context;
+    }
 
     @Override
     protected Void doInBackground(SyncAdapter... params) {
-        SnipeItSyncAdapter adapter = new SnipeItSyncAdapter();
+        SnipeIt3SyncAdapter adapter = new SnipeIt3SyncAdapter();
         try {
-            FullDataModel model = adapter.fetchFullModel();
+            FullDataModel model = adapter.fetchFullModel(context);
         } catch (SyncException e) {
             e.printStackTrace();
             Log.e(TAG, "Caught SyncException: " + e.getMessage());

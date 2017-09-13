@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!-- Notifications settings -->
+<resources>
+    <string name="pref_header_notifications">Notifications</string>
+
+    <string name="pref_title_sync_exceptions">Send email for sync exceptions</string>
+    <string name="pref_description_sync_exceptions">Send a warning email if the local checkout/checkin actions could not be synced with the remote server.</string>
+
+    <string name="pref_title_exceptions_email">Email addresses</string>
+    <string name="pref_description_exceptions_email">These email addresses will receive sync exception emails. Separate multiple email addresses with a comma.</string>
+
+    <string name="sync_failed_message">Sync adapter could not fetch records</string>
+</resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!-- Check Out Settings -->
+<resources>
+    <string name="pref_header_check_out">Asset check Out</string>
+
+    <string name="pref_key_check_out_require_scan">check_out_require_scan</string>
+    <string name="pref_title_check_out_require_scan">Require badge scan</string>
+
+    <string name="pref_key_check_out_scan_groups">check_out_scan_group</string>
+    <string name="pref_title_check_out_scan_groups">Authenticating groups</string>
+
+    <string name="pref_key_check_out_scan_field">check_out_scan_field</string>
+    <string name="pref_title_check_out_scan_field">Validation field</string>
+
+    <string name="pref_description_check_out_scan_field">Validate scanned data on this user field</string>
+
+    <string name="pref_key_check_out_all_models">check_out_all_models</string>
+    <string name="pref_default_check_out_all_models">false</string>
+    <string name="pref_title_check_out_all_models">All asset models</string>
+    <string name="pref_description_check_out_all_models">Allow all asset models to be checked out</string>
+
+    <string name="pref_key_check_out_models">check_out_allowed_models</string>
+    <string name="pref_title_check_out_models">Allowed models</string>
+    <string name="pref_description_check_out_models">Allow only selected asset models to be checked out</string>
+
+    <string name="pref_key_check_out_verify">check_out_show_verify</string>
+    <string name="pref_default_check_out_verify">false</string>
+    <string name="pref_title_check_out_verify">Require verification</string>
+    <string name="pref_description_check_out_verify">Require acceptance of EULA</string>
+</resources>

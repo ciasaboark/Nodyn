@@ -17,23 +17,18 @@
 
 package io.phobotic.nodyn.database.model;
 
-import com.google.gson.annotations.SerializedName;
-
-import io.phobotic.nodyn.sync.HtmlEncoded;
-
 /**
  * Created by Jonathan Nelson on 7/8/17.
  */
 
 public class Category {
     private int id;
-    @HtmlEncoded
     private String name;
-    @SerializedName("category_type")
     private String categoryType;
     private int count;
-    private String acceptance;
-    private String eula;
+    private boolean acceptance;
+    private String eulaText;
+    private boolean useDefaultEula;
 
     public int getId() {
         return id;
@@ -71,30 +66,40 @@ public class Category {
         return this;
     }
 
-    public String getAcceptance() {
+    public boolean isAcceptance() {
         return acceptance;
     }
 
-    public Category setAcceptance(String acceptance) {
+    public Category setAcceptance(boolean acceptance) {
         this.acceptance = acceptance;
         return this;
     }
 
-    public String getEula() {
-        return eula;
+    public String getEulaText() {
+        return eulaText;
     }
 
-    public Category setEula(String eula) {
-        this.eula = eula;
+    public Category setEulaText(String eulaText) {
+        this.eulaText = eulaText;
+        return this;
+    }
+
+    public boolean isUseDefaultEula() {
+        return useDefaultEula;
+    }
+
+    public Category setUseDefaultEula(boolean useDefaultEula) {
+        this.useDefaultEula = useDefaultEula;
         return this;
     }
 
     public class Columns {
-        public static final String ID = "";
-        public static final String NAME = "";
-        public static final String CATEGORY_TYPE = "";
-        public static final String COUNT = "";
-        public static final String ACCEPTANCE = "";
-        public static final String EULA = "";
+        public static final String ID = "id";
+        public static final String NAME = "name";
+        public static final String CATEGORY_TYPE = "category_type";
+        public static final String COUNT = "count";
+        public static final String ACCEPTANCE = "acceptance";
+        public static final String EULA_TEXT = "eula_text";
+        public static final String USE_DEFAULT_EULA = "eula_default";
     }
 }

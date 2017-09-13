@@ -17,136 +17,152 @@
 
 package io.phobotic.nodyn.database.model;
 
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-import io.phobotic.nodyn.sync.HtmlEncoded;
+import io.phobotic.nodyn.database.Verifiable;
 
 /**
  * Created by Jonathan Nelson on 7/7/17.
  */
 
-public class User {
+public class User implements Serializable {
     private int id;
-
-    @HtmlEncoded
+    @Verifiable("Name")
     private String name;
 
-    @SerializedName("jobtitle")
     private String jobTitle;
 
-    @HtmlEncoded
+    @Verifiable("Email address")
     private String email;
 
+    @Verifiable("Username")
     private String username;
-    private String location;
-    private String manager;
 
+    private int locationID;
+    private String manager;
     private int numAssets;
 
-    @SerializedName("employee_num")
+    @Verifiable("Employee Number")
     private String employeeNum;
 
-    @HtmlEncoded
-    private String groups;
+    private int[] groupsIDs;
+
+    @Verifiable("Notes")
     private String notes;
 
-    @SerializedName("companyName")
-    private String companyName;
+    private int companyID;
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public User setId(int id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public User setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getJobTitle() {
         return jobTitle;
     }
 
-    public void setJobTitle(String jobTitle) {
+    public User setJobTitle(String jobTitle) {
         this.jobTitle = jobTitle;
+        return this;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public User setEmail(String email) {
         this.email = email;
+        return this;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
+    public User setUsername(String username) {
         this.username = username;
+        return this;
     }
 
-    public String getLocation() {
-        return location;
+    public int getLocationID() {
+        return locationID;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public User setLocationID(int locationID) {
+        this.locationID = locationID;
+        return this;
     }
 
     public String getManager() {
         return manager;
     }
 
-    public void setManager(String manager) {
+    public User setManager(String manager) {
         this.manager = manager;
+        return this;
     }
 
     public int getNumAssets() {
         return numAssets;
     }
 
-    public void setNumAssets(int numAssets) {
+    public User setNumAssets(int numAssets) {
         this.numAssets = numAssets;
+        return this;
     }
 
     public String getEmployeeNum() {
         return employeeNum;
     }
 
-    public void setEmployeeNum(String employeeNum) {
+    public User setEmployeeNum(String employeeNum) {
         this.employeeNum = employeeNum;
+        return this;
     }
 
-    public String getGroups() {
-        return groups;
+    public int[] getGroupsIDs() {
+        return groupsIDs;
     }
 
-    public void setGroups(String groups) {
-        this.groups = groups;
+    public User setGroupsIDs(int[] groupsIDs) {
+        this.groupsIDs = groupsIDs;
+        return this;
     }
 
     public String getNotes() {
         return notes;
     }
 
-    public void setNotes(String notes) {
+    public User setNotes(String notes) {
         this.notes = notes;
+        return this;
     }
 
-    public String getCompanyName() {
-        return companyName;
+    public int getCompanyID() {
+        return companyID;
     }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+    public User setCompanyID(int companyID) {
+        this.companyID = companyID;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     public class Columns {
@@ -155,12 +171,12 @@ public class User {
         public static final String JOB_TITLE = "job";
         public static final String EMAIL = "email";
         public static final String USERNAME = "username";
-        public static final String LOCATION = "location";
-        public static final String MANAGER = "manager";
+        public static final String LOCATION_ID = "location";
+        public static final String MANAGER_ID = "manager";
         public static final String NUM_ASSETS = "numassets";
         public static final String EMPLOYEE_NUM = "employeeNum";
-        public static final String GROUPS = "groups";
+        public static final String GROUP_IDS = "groups";
         public static final String NOTES = "notes";
-        public static final String COMPANY_NAME = "company";
+        public static final String COMPANY_ID = "company";
     }
 }

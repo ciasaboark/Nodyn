@@ -1,0 +1,52 @@
+<!--
+  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- These settings headers are only used on tablets. -->
+
+    <header
+        android:fragment="io.phobotic.nodyn.fragment.preference.UsersPreferenceFragment"
+        android:icon="@drawable/ic_info_black_24dp"
+        android:title="@string/pref_header_users"/>
+
+    <header
+        android:fragment="io.phobotic.nodyn.fragment.preference.CheckInPreferenceFragment"
+        android:icon="@drawable/ic_arrow_down_bold_hexagon_outline_black_24dp"
+        android:title="@string/pref_header_check_in"/>
+
+    <header
+        android:fragment="io.phobotic.nodyn.fragment.preference.CheckOutPreferenceFragment"
+        android:icon="@drawable/ic_arrow_down_bold_hexagon_outline_black_24dp"
+        android:title="@string/pref_header_check_out"/>
+
+    <header
+        android:fragment="io.phobotic.nodyn.fragment.preference.NotificationPreferenceFragment"
+        android:icon="@drawable/ic_notifications_black_24dp"
+        android:title="@string/pref_header_notifications"/>
+
+    <header
+        android:fragment="io.phobotic.nodyn.fragment.preference.DataSyncPreferenceFragment"
+        android:icon="@drawable/ic_sync_black_24dp"
+        android:title="@string/pref_header_data_sync"/>
+
+    <header
+        android:fragment="io.phobotic.nodyn.fragment.preference.EmailPreferenceFragment"
+        android:icon="@drawable/ic_email_black_24dp"
+        android:title="@string/pref_header_email"/>
+
+</preference-headers>

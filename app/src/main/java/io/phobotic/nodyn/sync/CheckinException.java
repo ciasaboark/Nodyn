@@ -22,4 +22,11 @@ package io.phobotic.nodyn.sync;
  */
 
 public class CheckinException extends Exception {
+    public CheckinException() {
+        super();
+    }
+
+    public CheckinException(String message) {
+        super(message);
+    }
 }

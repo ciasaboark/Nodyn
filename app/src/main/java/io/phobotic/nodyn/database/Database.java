@@ -18,16 +18,39 @@
 package io.phobotic.nodyn.database;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import io.phobotic.nodyn.database.exception.AssetNotFoundException;
+import io.phobotic.nodyn.database.exception.CategoryNotFoundException;
+import io.phobotic.nodyn.database.exception.GroupNotFoundException;
+import io.phobotic.nodyn.database.exception.ModelNotFoundException;
+import io.phobotic.nodyn.database.exception.StatusNotFoundException;
+import io.phobotic.nodyn.database.exception.UserNotFoundException;
+import io.phobotic.nodyn.database.helper.ActionTableHelper;
 import io.phobotic.nodyn.database.helper.AssetTableHelper;
+import io.phobotic.nodyn.database.helper.CategoryTableHelper;
+import io.phobotic.nodyn.database.helper.GroupTableHelper;
+import io.phobotic.nodyn.database.helper.ModelTableHelper;
+import io.phobotic.nodyn.database.helper.StatusTableHelper;
+import io.phobotic.nodyn.database.helper.UserTableHelper;
+import io.phobotic.nodyn.database.model.Action;
 import io.phobotic.nodyn.database.model.Asset;
 import io.phobotic.nodyn.database.model.Category;
 import io.phobotic.nodyn.database.model.FullDataModel;
 import io.phobotic.nodyn.database.model.Group;
 import io.phobotic.nodyn.database.model.Model;
+import io.phobotic.nodyn.database.model.Status;
 import io.phobotic.nodyn.database.model.User;
 
 /**
@@ -35,18 +58,20 @@ import io.phobotic.nodyn.database.model.User;
  */
 
 public class Database {
+    public static final String BROADCAST_ASSET_CHECKOUT = "asset_checkout";
+    public static final String BROADCASE_ASSET_CHECKIN = "asset_checkin";
     private static final String TAG = Database.class.getSimpleName();
-    private final Context context;
     private static Database instance;
+    private final Context context;
     private final SQLiteDatabase db;
+    private final CategoryTableHelper categoryHelper;
+    private final GroupTableHelper groupHelper;
+    private final UserTableHelper userHelper;
+    private final AssetTableHelper assetHelper;
+    private final ModelTableHelper modelHelper;
+    private final StatusTableHelper statusHelper;
 
-    private Database(Context context) {
-        this.context = context;
-        AssetDatabaseOpenHelper helper = new AssetDatabaseOpenHelper(context);
-        this.db = helper.getWritableDatabase();
-    }
-
-    private static Database getInstance(Context context) {
+    public static Database getInstance(Context context) {
         if (instance == null) {
             instance = new Database(context);
         }
@@ -54,38 +79,271 @@ public class Database {
         return instance;
     }
 
-    public void updateModel(FullDataModel model) {
+    private Database(Context context) {
+        this.context = context;
+        DatabaseOpenHelper helper = new DatabaseOpenHelper(context);
+        this.db = helper.getWritableDatabase();
+        categoryHelper = new CategoryTableHelper(db);
+        groupHelper = new GroupTableHelper(db);
+        userHelper = new UserTableHelper(db);
+        assetHelper = new AssetTableHelper(db);
+        modelHelper = new ModelTableHelper(db);
+        statusHelper = new StatusTableHelper(db);
+    }
 
+    public void updateModel(FullDataModel model) {
+        replaceAssets(model.getAssets());
+        replaceUsers(model.getUsers());
+        replaceGroups(model.getGroups());
+        replaceCategories(model.getCategories());
+        replaceModels(model.getModels());
+        replaceStatus(model.getStatuses());
     }
 
     private void replaceAssets(List<Asset> assets) {
-        AssetTableHelper helper = new AssetTableHelper(db);
+        assetHelper.replace(assets);
+    }
+
+    private void replaceUsers(List<User> users) {
+        userHelper.replace(users);
+    }
+
+    private void replaceGroups(List<Group> groups) {
+        groupHelper.replace(groups);
+    }
+
+    private void replaceCategories(List<Category> categories) {
+        categoryHelper.replace(categories);
+    }
+
+    private void replaceModels(List<Model> models) {
+        modelHelper.replace(models);
+    }
+
+    private void replaceStatus(List<Status> statuses) {
+        statusHelper.replace(statuses);
+    }
+
+    public void dumpModel() {
+        replaceAssets(new ArrayList<Asset>());
+        replaceUsers(new ArrayList<User>());
+        replaceGroups(new ArrayList<Group>());
+        replaceCategories(new ArrayList<Category>());
+        replaceModels(new ArrayList<Model>());
+        replaceStatus(new ArrayList<Status>());
+    }
+
+    public List<Action> getActions() {
+        ActionTableHelper helper = new ActionTableHelper(db);
+        List<Action> actions = helper.findAll();
+        return actions;
     }
 
     public List<Asset> getAssets() {
-        //// TODO: 7/8/17
-        return null;
+        List<Asset> assets = assetHelper.findAll();
+        return assets;
     }
 
     public List<User> getUsers() {
-        // TODO: 7/8/17
-        return null;
+        List<User> users = userHelper.findAll();
+        return users;
     }
 
     public List<Model> getModels() {
-        // TODO: 7/8/17
-        return null;
+        List<Model> models = modelHelper.findAll();
+        return models;
     }
 
-    private List<Group> getGroups() {
-        // TODO: 7/8/17
-        return null;
+    public List<Group> getGroups() {
+        List<Group> groups = groupHelper.findAll();
+        return groups;
     }
 
-    private List<Category> getCategories() {
-        // TODO: 7/8/17
-        return null;
+    public List<Category> getCategories() {
+        List<Category> categories = categoryHelper.findAll();
+        return categories;
+    }
+
+    public List<Status> getStatuses() {
+        List<Status> statuses = statusHelper.findAll();
+        return statuses;
+    }
+
+//    public User findUserByUsername(String login) throws UserNotFoundException {
+//        UserTableHelper helper = new UserTableHelper(db);
+//        User user = helper.findByUsername(login);
+//        if (user == null) {
+//            throw new UserNotFoundException();
+//        }
+//
+//        return user;
+//    }
+
+    public User findUserByID(int id) throws UserNotFoundException {
+        User user = userHelper.findByID(id);
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
+
+        return user;
+    }
+
+    public Asset findAssetByTag(@NotNull String tag) throws AssetNotFoundException {
+        Asset asset = assetHelper.findByTag(tag);
+        if (asset == null) {
+            throw new AssetNotFoundException();
+        }
+
+        return asset;
+    }
+
+    public Asset findAssetByID(int id) throws AssetNotFoundException {
+        Asset asset = assetHelper.findByID(id);
+        if (asset == null) {
+            throw new AssetNotFoundException();
+        }
+
+        return asset;
+    }
+
+    public Category findCategoryByID(int id) throws CategoryNotFoundException {
+        Category category = categoryHelper.findByID(id);
+        if (category == null) {
+            throw new CategoryNotFoundException();
+        }
+
+        return category;
+    }
+
+    public Status findStatusByID(int id) throws StatusNotFoundException {
+        Status status = statusHelper.findByID(id);
+        if (status == null) {
+            throw new StatusNotFoundException();
+        }
+
+        return status;
+    }
+
+    public Group findGroupByID(int id) throws GroupNotFoundException {
+        Group group = groupHelper.findByID(id);
+
+        if (group == null) {
+            throw new GroupNotFoundException();
+        }
+
+        return group;
+    }
+
+    public Model findModelByID(int id) throws ModelNotFoundException {
+        Model model = modelHelper.findByID(id);
+
+        if (model == null) {
+            throw new ModelNotFoundException();
+        }
+
+        return model;
+    }
+
+
+    public void checkoutAssetsToUser(@NotNull User user, @NotNull List<Asset> assetList,
+                                     long expectedCheckin, @Nullable User authorizingUser,
+                                     boolean isVerified) throws
+            UserNotFoundException, AssetNotFoundException {
+        if (assetList == null || user == null) {
+            throw new IllegalArgumentException("Asset list and user must not be null");
+        }
+
+        //write the action records to the database
+        for (Asset asset : assetList) {
+            Action action = new Action(asset, user,
+                    System.currentTimeMillis(), expectedCheckin, Action.Direction.CHECKOUT, false);
+            if (authorizingUser != null) {
+                action.setAuthorization(authorizingUser.getName());
+            }
+
+            action.setVerified(isVerified);
+            insertActionItem(action);
+        }
+
+
+        //update the internal asset data to reflect the checkout
+        for (Asset asset : assetList) {
+            checkoutAssetToUser(asset, user, expectedCheckin);
+        }
+
+        LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
+        Intent i = new Intent(BROADCAST_ASSET_CHECKOUT);
+        broadcastManager.sendBroadcast(i);
+    }
+
+    private void insertActionItem(Action action) {
+        ActionTableHelper helper = new ActionTableHelper(db);
+        helper.insert(action);
+    }
+
+    private void checkoutAssetToUser(@NotNull Asset asset, @NotNull User user,
+                                     long expectedCheckin) {
+        if (asset == null || user == null) {
+            throw new IllegalArgumentException("Asset and user must not be null");
+        }
+
+        AssetTableHelper helper = new AssetTableHelper(db);
+        Asset a = helper.findByTag(asset.getTag());
+        a.setAssignedToID(user.getId());
+        DateFormat df = new SimpleDateFormat();
+        String checkinDateString = df.format(new Date(expectedCheckin));
+        String lastCheckoutString = df.format(new Date());
+        a.setExpectedCheckin(checkinDateString);
+        a.setLastCheckout(lastCheckoutString);
+        // TODO: 8/24/17 how do we set the status now?
+//        a.setStatus("Deployed");
+        helper.insert(a);
+    }
+
+    public void checkinAssets(@NotNull List<Asset> assets, @Nullable User user,
+                              @Nullable long checkinTimestamp, @Nullable User authorizingUser,
+                              boolean isVerified) {
+        if (assets == null) {
+            throw new IllegalArgumentException("Asset list can not be null");
+        }
+
+        //write the action records to the database
+        for (Asset asset : assets) {
+            Action action = new Action(asset, user, checkinTimestamp, null,
+                    Action.Direction.CHECKIN, false);
+            if (authorizingUser != null) {
+                action.setAuthorization(authorizingUser.getName());
+            }
+            action.setVerified(isVerified);
+
+            insertActionItem(action);
+
+            //update the internal model to immediately reflect the new asset status
+            checkinAsset(asset, checkinTimestamp);
+        }
+    }
+
+    private void checkinAsset(@NotNull Asset asset, @Nullable Long checkinTimestamp) {
+        if (asset == null) {
+            throw new IllegalArgumentException("Asset must not be null");
+        }
+
+        AssetTableHelper helper = new AssetTableHelper(db);
+        Asset a = helper.findByTag(asset.getTag());
+        a.setAssignedToID(-1);
+        // TODO: 8/24/17 how do we set the status now?
+//        a.setStatus("Ready to Deploy");
+        a.setExpectedCheckin(null);
+        a.setLastCheckout(null);
+
+        helper.insert(a);
+    }
+
+    public void insertAction(Action action) {
+        ActionTableHelper helper = new ActionTableHelper(db);
+        helper.insert(action);
     }
 
 
 }
+
