@@ -17,7 +17,6 @@
 
 package io.phobotic.nodyn.fragment.preference;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v14.preference.MultiSelectListPreference;
@@ -25,17 +24,16 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
-import android.view.MenuItem;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import io.phobotic.nodyn.R;
-import io.phobotic.nodyn.activity.SettingsActivity;
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.database.Verifiable;
 import io.phobotic.nodyn.database.model.Group;
@@ -47,38 +45,70 @@ import io.phobotic.nodyn.database.model.User;
 
 public class CheckInPreferenceFragment extends PreferenceFragmentCompat {
     private static final String TAG = CheckInPreferenceFragment.class.getSimpleName();
+    private Database db;
+    private SharedPreferences prefs;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pref_check_in, rootKey);
         setHasOptionsMenu(true);
+        db = Database.getInstance(getContext());
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
+        initListeners();
+        initPreferences();
+    }
+
+    private void initListeners() {
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences
         // to their values. When their values change, their summaries are
         // updated to reflect the new value, per the Android Design
         // guidelines.
-//        SettingsActivity.bindPreferenceSummaryToValue(findPreference("check_in_scan_group"));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference("check_in_scan_field"));
-        MultiSelectListPreference p = (MultiSelectListPreference) findPreference("check_in_scan_group");
-        Database db = Database.getInstance(getContext());
-        List<Group> groupList = db.getGroups();
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_check_in_scan_field)));
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Set<String> chosenGroups = prefs.getStringSet("check_in_scan_group", null);
+        MultiSelectListPreference allowedGroups =
+                (MultiSelectListPreference) findPreference(
+                        getString(R.string.pref_key_check_in_authenticating_groups));
+        allowedGroups.setOnPreferenceChangeListener(PreferenceListeners.groupsChangeListener);
+        PreferenceListeners.groupsChangeListener.onPreferenceChange(allowedGroups,
+                prefs.getStringSet(allowedGroups.getKey(), new HashSet<String>()));
+    }
+
+    private void initPreferences() {
+        initGroupPreference();
+        initScanFieldPreference();
+    }
+
+    private void initGroupPreference() {
+        MultiSelectListPreference allowedGroups =
+                (MultiSelectListPreference) findPreference(
+                        getString(R.string.pref_key_check_in_authenticating_groups));
+        Set<String> chosenGroups = prefs.getStringSet(
+                getString(R.string.pref_key_check_in_authenticating_groups), null);
         Log.d(TAG, "chosen groups: " + String.valueOf(chosenGroups));
 
 
-        List<String> groupNamesList = new ArrayList<>();
-        for (Group group : groupList) {
-            groupNamesList.add(group.toString());
+        List<Group> groupList = db.getGroups();
+        String[] groupNames = new String[groupList.size()];
+        String[] groupValues = new String[groupList.size()];
+
+        for (int i = 0; i < groupList.size(); i++) {
+            Group group = groupList.get(i);
+            String name = group.getName();
+            String value = String.valueOf(group.getId());
+
+            groupNames[i] = name;
+            groupValues[i] = value;
         }
 
-        String[] groupNames = groupNamesList.toArray(new String[]{});
+        allowedGroups.setEntries(groupNames);
+        allowedGroups.setEntryValues(groupValues);
+    }
 
-        p.setEntries(groupNames);
-        p.setEntryValues(groupNames);
-
-        ListPreference lp = (ListPreference) findPreference("check_in_scan_field");
+    private void initScanFieldPreference() {
+        ListPreference lp = (ListPreference) findPreference(
+                getString(R.string.pref_key_check_in_scan_field));
         List<String> fieldStringList = new ArrayList<>();
         List<Field> fields = FieldUtils.getFieldsListWithAnnotation(User.class, Verifiable.class);
 
@@ -91,16 +121,4 @@ public class CheckInPreferenceFragment extends PreferenceFragmentCompat {
         lp.setEntries(selectableFields);
         lp.setEntryValues(selectableFields);
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            startActivity(new Intent(getActivity(), SettingsActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
 }

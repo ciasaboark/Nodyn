@@ -18,7 +18,7 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="@string/pref_header_check_out">
+        android:title="@string/pref_header_asset">
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
@@ -42,6 +42,23 @@
             android:negativeButtonText="@null"
             android:positiveButtonText="OK"
             android:title="@string/pref_title_asset_status_selected_statuses"/>
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:disableDependentsState="true"
+            android:key="@string/pref_key_asset_status_allow_all"
+            android:summary="@string/pref_description_asset_status_allow_all"
+            android:title="@string/pref_title_asset_status_allow_all"/>
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/empty_array"
+            android:dependency="@string/pref_key_asset_status_allow_all"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            android:key="@string/pref_key_asset_status_allowed_statuses"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="OK"
+            android:title="@string/pref_title_asset_status_allowed_statuses"/>
 
     </PreferenceCategory>
 

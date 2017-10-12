@@ -17,6 +17,8 @@
   -->
 
 <resources>
+    <string name="pref_header_asset">Assets</string>
+
     <string name="pref_key_asset_status_color">asset_status_color</string>
     <string name="pref_default_asset_status_color">true</string>
     <string name="pref_title_asset_status_color">Use asset status color</string>
@@ -31,4 +33,13 @@
 
     <string name="pref_key_asset_status_selected_statuses">asset_status_selected_status</string>
     <string name="pref_title_asset_status_selected_statuses">Selected statuses</string>
+
+    <string name="pref_key_asset_status_allow_all">asset_status_allow_all</string>
+    <string name="pref_default_asset_status_allow_all">true</string>
+    <string name="pref_title_asset_status_allow_all">Allow checkouts of every asset status</string>
+    <string name="pref_description_asset_status_allow_all"></string>
+
+
+    <string name="pref_key_asset_status_allowed_statuses">asset_status_allowed_status</string>
+    <string name="pref_title_asset_status_allowed_statuses">Allowed Statuses</string>
 </resources>
