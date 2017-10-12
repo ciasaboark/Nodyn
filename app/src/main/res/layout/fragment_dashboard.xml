@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<android.support.v4.widget.SwipeRefreshLayout android:id="@+id/swipe_refresh"
+                                              xmlns:android="http://schemas.android.com/apk/res/android"
+                                              xmlns:app="http://schemas.android.com/apk/res-auto"
+                                              android:layout_width="match_parent"
+                                              android:layout_height="match_parent"
+                                              android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <!-- Top most widget, show a grid of assets by category -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Available Models"
+                    android:textAppearance="@android:style/TextAppearance.Material.Title"
+                    android:textColor="@color/colorAccent"/>
+
+                <fragment
+                    android:id="@+id/overview_grid_fragment"
+                    android:name="io.phobotic.nodyn.fragment.dash.OverviewGridFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:tag=".OverviewGridFragment"/>
+
+            </LinearLayout>
+
+            <!-- Bar graph organized by status -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Assets by Status"
+                    android:textAppearance="@android:style/TextAppearance.Material.Title"
+                    android:textColor="@color/colorAccent"/>
+
+                <fragment
+                    android:id="@+id/status_chart_fragment"
+                    android:name="io.phobotic.nodyn.fragment.dash.AssetStatusChartFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:tag=".AssetStatusChartFragment"/>
+            </LinearLayout>
+
+            <!-- Line graph showing checkouts/checkins by day -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="30 Day Activity"
+                    android:textAppearance="@android:style/TextAppearance.Material.Title"
+                    android:textColor="@color/colorAccent"/>
+
+                <fragment
+                    android:name="io.phobotic.nodyn.fragment.dash.HistoryChartFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:tag=".HistoryChartFragment"/>
+            </LinearLayout>
+
+            <!-- Recent History -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Recent History"
+                    android:textAppearance="@android:style/TextAppearance.Material.Title"
+                    android:textColor="@color/colorAccent"/>
+
+                <fragment
+                    android:id="@+id/action_history_fragment"
+                    android:name="io.phobotic.nodyn.fragment.dash.ShortActionHistoryFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:tag=".ShortActionHistoryFragment"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </ScrollView>
+
+</android.support.v4.widget.SwipeRefreshLayout>
