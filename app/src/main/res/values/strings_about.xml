@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="about_intro">Nodyn is an asset tracking app that focuses on fast, fault-tolerant, user-driven check out and check ins</string>
+    <string name="about_intro_continued">Nody requires access to an asset tracking backend system.  For a list of available backend solutions please check the <a href="https://github.com/ciasaboark/Nodyn/wiki/Manual">online manual</a></string>
+
+    <string name="about_source_title">Source Code</string>
+    <string name="about_source_text">Nodyn is Free Software!  The source code is hosted on <a href="https://github.com/ciasaboark/Nodyn">Github</a></string>
+
+    <string name="about_bugs_title">Bugs and Feature Requests</string>
+    <string name="about_bugs_text">About bugs</string>
+
+    <string name="about_comments_title">Comments</string>
+    <string name="about_comments_text">About comments</string>
+    <string name="about_version">Version %1$s</string>
+</resources>
