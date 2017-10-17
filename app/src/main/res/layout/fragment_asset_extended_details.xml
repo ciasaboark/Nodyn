@@ -48,7 +48,7 @@
                     android:textStyle="bold"/>
 
                 <TextView
-                    android:id="@+id/name"
+                    android:id="@+id/model"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -142,7 +142,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/model_box"
+                android:id="@+id/model_name_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
@@ -157,7 +157,7 @@
                     android:textStyle="bold"/>
 
                 <TextView
-                    android:id="@+id/model"
+                    android:id="@+id/model_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"

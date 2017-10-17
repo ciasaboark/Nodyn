@@ -16,23 +16,37 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:animateLayoutChanges="true"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:orientation="vertical"
+                android:outlineProvider="bounds"
                 android:transitionName="check_out_root"
                 tools:context="io.phobotic.nodyn.fragment.CheckOutFragment">
 
 
     <LinearLayout
-        android:id="@+id/header"
+        android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/checkOut"
-        android:elevation="4dp"
+        android:layout_alignParentStart="true"
+        android:background="@color/colorSecondaryLight"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:outlineProvider="bounds"
+        android:paddingBottom="40dp"
+        android:paddingEnd="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="40dp"
+        android:visibility="gone">
 
 
         <TextSwitcher
@@ -43,7 +57,7 @@
             android:layout_marginBottom="16dp"
             android:text="@string/check_out_title_scan_an_asset"
             android:textAlignment="center"
-            android:textAppearance="@android:style/TextAppearance.Material.Large.Inverse"/>
+            android:textAppearance="@android:style/TextAppearance.Material.Large"/>
 
         <TextSwitcher
             android:id="@+id/message"
@@ -52,15 +66,34 @@
             android:layout_gravity="center_horizontal"
             android:text="@string/blank"
             android:textAlignment="center"
-            android:textColor="@android:color/white"
-            android:theme="@style/TextAppearance.AppCompat.Inverse"/>
+            android:theme="@style/TextAppearance.AppCompat"/>
     </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/checkout_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/footer"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="-26dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:elevation="4dp"
+        android:src="@drawable/ic_arrow_up_bold_hexagon_outline_white_24dp"
+        app:elevation="6dp"/>
+
 
     <RelativeLayout
         android:id="@+id/checkout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/header"
+        android:layout_above="@+id/footer"
+        android:layout_below="@+id/warning"
+        android:background="@color/white"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="4dp"
+        android:outlineProvider="bounds"
         android:visibility="visible">
 
         <!-- TODO: Update blank fragment layout -->
@@ -68,7 +101,9 @@
         <io.phobotic.nodyn.view.AssetScanList
             android:id="@+id/scan_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"/>
 
     </RelativeLayout>
 </RelativeLayout>

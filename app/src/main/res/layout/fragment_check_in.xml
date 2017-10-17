@@ -16,79 +16,105 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/checkIn"
+                android:animateLayoutChanges="true"
+                android:background="@color/white"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:orientation="vertical"
+                android:outlineProvider="bounds"
                 android:transitionName="check_in_root"
                 tools:context="io.phobotic.nodyn.fragment.CheckOutFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <RelativeLayout
-        android:id="@+id/bar"
+
+    <LinearLayout
+        android:id="@+id/footer"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#fcfcfc"
-        android:padding="16dp">
+        android:background="@color/checkIn"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:outlineProvider="bounds"
+        android:paddingBottom="40dp"
+        android:paddingEnd="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="40dp"
+        android:visibility="gone">
+
+
+        <TextSwitcher
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:theme="@style/TextAppearance.AppCompat.Large.Inverse"/>
+
+        <TextSwitcher
+            android:id="@+id/message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:theme="@style/TextAppearance.AppCompat.Medium.Inverse"/>
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/checkout_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/footer"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="-26dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:elevation="4dp"
+        android:src="@drawable/ic_arrow_down_bold_hexagon_outline_white_24dp"
+        app:elevation="6dp"/>
+
+    <RelativeLayout
+        android:id="@+id/warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#ec407a"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="5dp"
+        android:outlineProvider="bounds"
+        android:padding="16dp"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
+            android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Finish checkin"/>
-
-        <Button
-            android:id="@+id/button_end"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:text="End"
-            android:transitionName="check_in_button"/>
+            android:text="@string/check_in_warning"
+            android:textAppearance="@android:style/TextAppearance.Material.Inverse"/>
     </RelativeLayout>
 
-    <LinearLayout
+
+    <io.phobotic.nodyn.view.AssetScanList
+        android:id="@+id/scan_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bar"
-        android:background="@color/checkIn"
-        android:orientation="vertical">
+        android:layout_above="@id/footer"
+        android:layout_below="@id/warning"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:outlineProvider="bounds">
 
-        <LinearLayout
-            android:id="@+id/header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/checkIn"
-            android:orientation="vertical"
-            android:padding="16dp">
+    </io.phobotic.nodyn.view.AssetScanList>
 
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Begin scanning assets now"
-                android:theme="@style/TextAppearance.AppCompat.Large.Inverse"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="When complete scan your associate badge"
-                android:theme="@style/TextAppearance.AppCompat.Medium.Inverse"/>
-        </LinearLayout>
-
-        <io.phobotic.nodyn.view.AssetScanList
-            android:id="@+id/scan_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-
-    </LinearLayout>
 </RelativeLayout>

@@ -21,36 +21,34 @@
         android:title="Asset Check In">
 
         <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="check_in_require_scan"
+            android:defaultValue="pref_default_check_in_require_scan"
+            android:key="@string/pref_key_check_in_require_scan"
             android:title="@string/pref_title_check_in_require_scan"/>
 
         <MultiSelectListPreference
             android:defaultValue="@array/empty_array"
-            android:dependency="check_in_require_scan"
+            android:dependency="@string/pref_key_check_in_require_scan"
             android:entries="@array/empty_array"
             android:entryValues="@array/empty_array"
-            android:key="check_in_scan_group"
+            android:key="@string/pref_key_check_in_authenticating_groups"
             android:negativeButtonText="@null"
             android:positiveButtonText="OK"
-            android:summary="Require scans from a user of this group"
-            android:title="@string/pref_title_check_in_scan_groups"/>
+            android:title="@string/pref_title_check_in_authenticating_groups"/>
 
         <ListPreference
             android:defaultValue=""
-            android:dependency="check_in_require_scan"
+            android:dependency="@string/pref_key_check_in_require_scan"
             android:entries="@array/empty_array"
             android:entryValues="@array/empty_array"
-            android:key="check_in_scan_field"
+            android:key="@string/pref_key_check_in_scan_field"
             android:negativeButtonText="@null"
             android:positiveButtonText="OK"
-            android:summary="Validate scanned data on this field"
             android:title="@string/pref_title_check_in_scan_field"/>
 
         <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:dependency="check_in_require_scan"
-            android:key="check_in_show_verify"
+            android:defaultValue="@string/pref_default_check_in_show_verify"
+            android:dependency="@string/pref_key_check_in_require_scan"
+            android:key="@string/pref_key_check_in_show_verify"
             android:summary="@string/pref_description_check_in_verify"
             android:title="@string/pref_title_check_in_verify"/>
     </PreferenceCategory>

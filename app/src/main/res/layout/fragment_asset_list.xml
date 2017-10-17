@@ -22,7 +22,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
 
     <android.support.v7.widget.Toolbar
@@ -30,6 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/colorAccent"
+        android:elevation="8dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme">
 
@@ -68,6 +71,7 @@
         android:layout_height="0dp"
         android:layout_below="@id/inner_toolbar"
         android:background="@color/colorPrimaryDark"
+        android:elevation="4dp"
         android:padding="16dp">
 
         <TextSwitcher
@@ -75,6 +79,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/busy_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:translationZ="1000dp"
+        >
+
+        <ProgressBar
+            android:id="@+id/fabProgress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
+            android:elevation="1000dp"
+            android:indeterminate="true"
+            android:indeterminateTint="?attr/colorAccent"
+            android:visibility="visible"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/newReportButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="visible"
+            app:backgroundTint="@color/white"
+            app:fabSize="normal"/>
 
     </RelativeLayout>
 
@@ -90,6 +128,7 @@
         app:layoutManager="LinearLayoutManager"
         tools:context="io.phobotic.nodyn.fragment.AssetListFragment"
         tools:listitem="@layout/view_asset"/>
+
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/empty_list"

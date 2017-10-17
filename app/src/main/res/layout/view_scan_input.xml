@@ -28,9 +28,11 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="8dp"
-        android:hint="Scan Input"
+        android:text="Scan Input"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/colorAccent"
+        android:visibility="visible"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -41,7 +43,7 @@
 
         <EditText
             android:id="@+id/edit_text"
-            android:layout_width="1dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="center_vertical"

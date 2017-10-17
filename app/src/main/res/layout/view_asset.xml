@@ -38,7 +38,7 @@
             >
 
             <RelativeLayout
-                android:id="@+id/header"
+                android:id="@+id/footer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
@@ -67,12 +67,12 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_margin="8dp"
-                android:layout_toEndOf="@+id/header"
-                android:layout_toRightOf="@+id/header"
+                android:layout_toEndOf="@+id/footer"
+                android:layout_toRightOf="@+id/footer"
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:id="@+id/model_box"
+                    android:id="@+id/model_name_box"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
@@ -87,7 +87,7 @@
                         app:srcCompat="@drawable/ic_devices_other_black_24dp"/>
 
                     <TextView
-                        android:id="@+id/model"
+                        android:id="@+id/model_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"

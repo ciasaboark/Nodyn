@@ -35,6 +35,12 @@
         android:visibility="visible"/>
 
 
+    <!--<RelativeLayout-->
+    <!--android:id="@+id/clouds"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="100dp"-->
+    <!--android:background="@drawable/about_clouds"/>-->
+
     <RelativeLayout
         android:id="@+id/logo_box"
         android:layout_width="300dp"

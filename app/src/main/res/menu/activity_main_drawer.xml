@@ -20,9 +20,20 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_check_in_out"
+            android:id="@+id/nav_dash"
+            android:icon="@drawable/ic_gauge_black_24dp"
+            android:title="Dash"/>
+
+        <item
+            android:id="@+id/nav_check_out"
+            android:icon="@drawable/arrow_up_bold_hexagon_outline"
+            android:title="Check Out"/>
+
+        <item
+            android:id="@+id/nav_check_in"
             android:icon="@drawable/arrow_down_bold_hexagon_outline"
-            android:title="Checkin"/>
+            android:title="Check In"/>
+
         <item
             android:id="@+id/nav_assets"
             android:icon="@drawable/ic_important_devices_black_24dp"
@@ -53,9 +64,10 @@
                 android:icon="@drawable/information"
                 android:title="About"/>
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send"/>
+                android:id="@+id/nav_share"
+                android:actionProviderClass="android.widget.ShareActionProvider"
+                android:icon="@drawable/share_variant"
+                android:title="Share"/>
         </menu>
     </item>
 

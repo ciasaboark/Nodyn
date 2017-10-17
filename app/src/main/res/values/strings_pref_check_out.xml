@@ -20,11 +20,12 @@
 <resources>
     <string name="pref_header_check_out">Asset check Out</string>
 
-    <string name="pref_key_check_out_require_scan">check_out_require_scan</string>
-    <string name="pref_title_check_out_require_scan">Require badge scan</string>
+    <string name="pref_key_check_out_require_authorization">check_out_require_authorization</string>
+    <string name="pref_default_check_out_require_authorization">false</string>
+    <string name="pref_title_check_out_require_authorization">Require authorization to check out assets</string>
 
-    <string name="pref_key_check_out_scan_groups">check_out_scan_group</string>
-    <string name="pref_title_check_out_scan_groups">Authenticating groups</string>
+    <string name="pref_key_check_out_authorization_groups">check_out_authorization_group</string>
+    <string name="pref_title_check_out_authorization_groups">Authorizing groups</string>
 
     <string name="pref_key_check_out_scan_field">check_out_scan_field</string>
     <string name="pref_title_check_out_scan_field">Validation field</string>
@@ -44,4 +45,9 @@
     <string name="pref_default_check_out_verify">false</string>
     <string name="pref_title_check_out_verify">Require verification</string>
     <string name="pref_description_check_out_verify">Require acceptance of EULA</string>
+
+    <string name="pref_key_check_out_eula">check_out_eula</string>
+    <string name="pref_title_check_out_eula">Change EULA text</string>
+    <string name="pref_description_check_out_eula">Github flavored Markdown supported</string>
+    <string name="pref_default_check_out_eula">Equipment may be provided to certain employees for the purpose of performing job related tasks. All employees receiving equipment must abide by this agreement.\n\nEquipment may be checked out to employees in order to perform their assigned job duties. Equipment shall not be used by non-employees or for non-work related purposes. By checking out the equipment the employee certifies that he/she is authorized to check out the equipment and agrees to abide by all posted responsibilities.</string>
 </resources>

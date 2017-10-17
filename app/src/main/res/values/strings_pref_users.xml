@@ -20,7 +20,7 @@
     <!-- User settings -->
     <string name="pref_header_users">Users</string>
 
-    <string name="pref_key_users_gravitar">pref_gravitar</string>
+    <string name="pref_key_users_gravitar">users_gravitar</string>
     <string name="pref_default_users_gravitar">false</string>
     <string name="pref_title_users_gravitar">Enable Gravitar</string>
     <string name="pref_description_users_gravitar">Fetch user avitars from Gravitar</string>

@@ -25,80 +25,30 @@
     android:layout_height="match_parent"
     android:transitionName="check_out_root"
     android:visibility="visible"
-    tools:context="io.phobotic.nodyn.fragment.CheckOutAuthenticatorFragment">
+    tools:context="io.phobotic.nodyn.fragment.CheckOutAuthorizationFragment">
 
     <RelativeLayout
         android:id="@+id/input_box"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
-        android:visibility="gone">
+        android:padding="16dp"
+        android:visibility="visible">
 
-        <RelativeLayout
-            android:id="@+id/relativeLayout"
+        <io.phobotic.nodyn.view.BadgeScanView
+            android:id="@+id/badge_scanner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@color/checkOut"
-            android:elevation="15dp"
-            android:padding="16dp">
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"/>
 
-            <TextView
-                android:id="@+id/intro"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="16dp"
-                android:text="Scan associate badge"
-                android:textAlignment="center"
-                android:textAllCaps="false"
-                android:textAppearance="@android:style/TextAppearance.Material.Large.Inverse"/>
-
-            <TextView
-                android:id="@+id/groups"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/message"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="16dp"
-                android:text="@string/placeholder"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"/>
-
-            <TextView
-                android:id="@+id/message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/intro"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="16dp"
-                android:text="Asset checkouts must be authorized by a member of these groups"
-                android:textAlignment="center"
-                android:textAppearance="@android:style/TextAppearance.Material.Inverse"/>
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/relativeLayout"
-            android:padding="16dp">
-
-            <ImageView
-                android:id="@+id/card_image"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:src="@drawable/barcode_scan_large"/>
-
-            <io.phobotic.nodyn.view.ScanInputView
-                android:id="@+id/input"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/card_image"
-                android:layout_centerHorizontal="true"
-                android:layout_gravity="center_horizontal"/>
-        </RelativeLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/badge_scanner"
+            android:layout_centerHorizontal="true"
+            android:text="Asset check outs must be authorized"
+            android:textAppearance="@android:style/TextAppearance.Material.Large"/>
 
     </RelativeLayout>
 
@@ -110,7 +60,7 @@
         android:layout_centerVertical="true"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:visibility="visible">
+        android:visibility="gone">
 
 
         <RelativeLayout

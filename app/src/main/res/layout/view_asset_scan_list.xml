@@ -33,15 +33,27 @@
         android:id="@+id/error"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/input">
+        android:layout_above="@id/input"
+        android:visibility="visible">
+
+        <ImageView
+            android:id="@+id/devices"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/devices_1"/>
 
         <TextView
             android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/devices"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="No assets scanned yet.  Scan an asset to begin"/>
+            android:layout_marginTop="16dp"
+            android:text="@string/asset_scan_list_scan_first_item"
+            android:textAppearance="@android:style/TextAppearance.Material.Large"
+            android:textColor="@color/colorAccent"/>
     </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView

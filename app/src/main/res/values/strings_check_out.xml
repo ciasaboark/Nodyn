@@ -20,5 +20,10 @@
     <string name="check_out_authorized_message" formatted="false">Assets check outs will be authorized by %1$s</string>
     <string name="check_out_title_scan_an_asset">Scan an asset to begin</string>
     <string name="check_out_title_scan_more_assets">Continue scanning assets</string>
-    <string name="check_out_message_scan_user">When complete scan your associate badge to check out</string>
+    <string name="check_out_message_scan_user">After scanning all assets you may checkout</string>
+    <string name="check_out_cancel">Cancel Checkout</string>
+
+    <string name="check_out_no_eula_set">No EULA set</string>
+
+    <string name="model_unavailable">This asset model can not be checked out or checked in from this kiosk.  Please contact your equipment manager if you need access to this asset.</string>
 </resources>

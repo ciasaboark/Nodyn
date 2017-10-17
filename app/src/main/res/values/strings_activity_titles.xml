@@ -21,4 +21,6 @@
     <string name="title_activity_about">About</string>
     <string name="title_activity_user_details">User Details</string>
     <string name="title_activity_asset_details">Asset Details</string>
+    <string name="title_activity_check_out">Asset Check Out</string>
+    <string name="title_activity_check_in">Asset Check In</string>
 </resources>

@@ -17,44 +17,47 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
-        android:defaultValue="http://"
+        android:defaultValue="@string/pref_default_snipeit_3_protocol"
+        android:hint="@string/pref_hint_snipeit_3_protocol"
         android:inputType="text"
-        android:key="pref_protocol"
-        android:maxLength="1"
+        android:key="@string/pref_key_snipeit_3_protocol"
+        android:maxLines="1"
         android:singleLine="true"
-        android:title="protocol"
+        android:title="@string/pref_title_snipeit_3_protocol"
         />
 
     <EditTextPreference
-        android:defaultValue="nohost"
+        android:hint="@string/pref_hint_snipeit_3_host"
         android:inputType="text"
-        android:key="pref_host"
-        android:maxLength="1"
+        android:key="@string/pref_key_snipeit_3_host"
+        android:maxLines="1"
         android:singleLine="true"
-        android:title="Backend hostname"
+        android:title="@string/pref_title_snipeit_3_host"
         />
 
     <EditTextPreference
-        android:defaultValue="80"
+        android:defaultValue="@string/pref_default_snipeit_3_port"
+        android:hint="@string/pref_hint_snipeit_3_port"
         android:inputType="numberDecimal"
-        android:key="pref_port"
-        android:title="Backend port number"/>
-
-    <EditTextPreference
-        android:defaultValue="user"
-        android:inputType="text"
-        android:key="pref_username"
-        android:maxLength="1"
-        android:singleLine="true"
-        android:title="Login user"
+        android:key="@string/pref_key_snipeit_3_port"
+        android:title="@string/pref_title_snipeit_3_port"
         />
 
     <EditTextPreference
-        android:defaultValue=""
-        android:inputType="textPassword"
-        android:key="pref_password"
-        android:maxLength="1"
+        android:hint="@string/pref_hint_snipeit_3_username"
+        android:inputType="text"
+        android:key="@string/pref_key_snipeit_3_username"
+        android:maxLines="1"
         android:singleLine="true"
-        android:title="Password"
+        android:title="@string/pref_title_snipeit_3_username"
+        />
+
+    <EditTextPreference
+        android:hint="@string/pref_hint_snipeit_3_password"
+        android:inputType="textPassword"
+        android:key="@string/pref_key_snipeit_3_password"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:title="@string/pref_title_snipeit_3_password"
         />
 </PreferenceScreen>

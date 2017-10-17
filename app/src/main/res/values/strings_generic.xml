@@ -22,4 +22,6 @@
     <string name="i_agree">I Agree</string>
     <string name="more">More</string>
     <string name="blank"></string>
+    <string name="close">Close</string>
+    <string name="refresh">Refresh</string>
 </resources>

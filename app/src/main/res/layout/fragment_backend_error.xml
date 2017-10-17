@@ -33,7 +33,7 @@
         android:layout_height="0dp"
         android:layout_weight="3"
         android:scaleType="fitCenter"
-        android:src="@drawable/devices"/>
+        android:src="@drawable/devices_1"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

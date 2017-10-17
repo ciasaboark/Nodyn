@@ -19,13 +19,20 @@
 <!-- Check In Settings -->
 <resources>
     <string name="pref_header_check_in">Asset check In</string>
-    <string name="pref_title_check_in_require_scan">Require badge scan</string>
 
-    <string name="pref_title_check_in_scan_groups">Allowed groups</string>
+    <string name="pref_key_check_in_require_scan">check_in_require_scan</string>
+    <string name="pref_default_check_in_require_scan">false</string>
+    <string name="pref_title_check_in_require_scan">Require authorization to check in assets</string>
+
+    <string name="pref_key_check_in_authenticating_groups">check_in_allowed_groups</string>
+    <string name="pref_title_check_in_authenticating_groups">Approved authorizing groups</string>
+
+
+    <string name="pref_key_check_in_scan_field">check_in_validation_field</string>
     <string name="pref_title_check_in_scan_field">Validation field</string>
-    <string name="pref_description_check_in_scan_field">Validate scanned data on this user field</string>
 
-
-    <string name="pref_title_check_in_verify">Require verification</string>
+    <string name="pref_key_check_in_show_verify">check_in_require_verification</string>
+    <string name="pref_default_check_in_show_verify">false</string>
+    <string name="pref_title_check_in_verify">Require asset verification</string>
     <string name="pref_description_check_in_verify">Require associate to verify equipment returned undamaged</string>
 </resources>

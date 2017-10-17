@@ -51,6 +51,8 @@
                     android:name="io.phobotic.nodyn.fragment.dash.OverviewGridFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:tag=".OverviewGridFragment"/>
 
             </LinearLayout>
@@ -94,6 +96,7 @@
                     android:textColor="@color/colorAccent"/>
 
                 <fragment
+                    android:id="@+id/history_chart_fragment"
                     android:name="io.phobotic.nodyn.fragment.dash.HistoryChartFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

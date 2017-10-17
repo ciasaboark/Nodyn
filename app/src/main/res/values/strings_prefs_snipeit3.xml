@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+
+    <string name="pref_key_snipeit_3_protocol">pref_snipeit_3_protocol</string>
+    <string name="pref_default_snipeit_3_protocol">https://</string>
+    <string name="pref_title_snipeit_3_protocol">Protocol</string>
+    <string name="pref_hint_snipeit_3_protocol">No protocol set</string>
+
+
+    <string name="pref_key_snipeit_3_host">pref_snipeit_3_host</string>
+    <string name="pref_title_snipeit_3_host">Backend hostname</string>
+    <string name="pref_hint_snipeit_3_host">No hostname set</string>
+
+
+    <string name="pref_key_snipeit_3_port">pref_snipeit_3_port</string>
+    <string name="pref_default_snipeit_3_port">443</string>
+    <string name="pref_title_snipeit_3_port">Port Number</string>
+    <string name="pref_hint_snipeit_3_port">No port number set</string>
+
+
+    <string name="pref_key_snipeit_3_username">pref_snipeit_3_username</string>
+    <string name="pref_title_snipeit_3_username">Username</string>
+    <string name="pref_hint_snipeit_3_username">No username set</string>
+
+
+    <string name="pref_key_snipeit_3_password">pref_snipeit_3_password</string>
+    <string name="pref_title_snipeit_3_password">Password</string>
+    <string name="pref_hint_snipeit_3_password">No password set</string>
+</resources>
