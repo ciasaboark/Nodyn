@@ -19,17 +19,19 @@
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:allowBackup="true"
+        android:configChanges="keyboard"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.MainActivity"
-            android:configChanges="keyboard|keyboardHidden"
+            android:configChanges="keyboard|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize">
@@ -72,16 +74,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.phobotic.nodyn.activity.MainActivity"/>
         </activity>
-
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".activity.MainActivity">
+            android:parentActivityName=".activity.MainActivity"
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.phobotic.nodyn.activity.MainActivity"/>
         </activity>
-
         <activity
             android:name=".activity.UserDetailsActivity"
             android:label="@string/title_activity_user_details"
@@ -90,10 +91,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.phobotic.nodyn.activity.MainActivity"/>
         </activity>
-
         <activity
             android:name=".activity.AboutActivity"
-            android:label="@string/title_activity_about">
+            android:label="@string/title_activity_about"
+            android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.phobotic.nodyn.activity.MainActivity"/>
@@ -102,6 +103,19 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="3a8beb947bb71118e0b546ad35a311f886cf00c8"/>
+
+        <activity
+            android:name=".activity.CheckoutActivity"
+            android:label="@string/title_activity_check_out"
+            android:parentActivityName=".activity.MainActivity"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+        <activity
+            android:name=".activity.CheckinActivity"
+            android:label="@string/title_activity_check_in"
+            android:parentActivityName=".activity.MainActivity"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
     </application>
 
 </manifest>
