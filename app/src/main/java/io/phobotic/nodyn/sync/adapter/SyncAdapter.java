@@ -26,16 +26,10 @@ import java.util.List;
 import io.phobotic.nodyn.database.model.Action;
 import io.phobotic.nodyn.database.model.Asset;
 import io.phobotic.nodyn.database.model.AssetHistoryRecord;
-import io.phobotic.nodyn.database.model.Category;
 import io.phobotic.nodyn.database.model.FullDataModel;
-import io.phobotic.nodyn.database.model.Group;
 import io.phobotic.nodyn.database.model.MaintenanceRecord;
-import io.phobotic.nodyn.database.model.Model;
-import io.phobotic.nodyn.database.model.Status;
 import io.phobotic.nodyn.database.model.User;
 import io.phobotic.nodyn.database.model.UserHistoryRecord;
-import io.phobotic.nodyn.sync.CheckinException;
-import io.phobotic.nodyn.sync.CheckoutException;
 import io.phobotic.nodyn.sync.SyncErrorListener;
 
 /**
@@ -43,26 +37,14 @@ import io.phobotic.nodyn.sync.SyncErrorListener;
  */
 
 public interface SyncAdapter {
-    List<Asset> fetchAssets(Context context) throws SyncException;
-
-    List<Model> fetchModels(Context context) throws SyncException;
-
-    List<User> fetchUsers(Context context) throws SyncException;
-
-    List<Group> fetchGroups(Context context) throws SyncException;
-
-    List<Category> fetchCategories(Context context) throws SyncException;
-
-    List<Status> fetchStatuses(Context context) throws SyncException;
-
     FullDataModel fetchFullModel(Context context) throws SyncException;
 
     void checkoutAssetTo(Context context, int assetID, String assetTag, int userID, @Nullable Long checkout,
                          @Nullable Long expectedCheckin, @Nullable String notes)
-            throws CheckoutException;
+            throws Exception;
 
     void checkinAsset(Context context, int assetID, String assetTag, @Nullable Long checkinDate,
-                      @Nullable String notes) throws CheckinException;
+                      @Nullable String notes) throws Exception;
 
     void syncActionItems(Context context, SyncErrorListener listener) throws SyncException;
 

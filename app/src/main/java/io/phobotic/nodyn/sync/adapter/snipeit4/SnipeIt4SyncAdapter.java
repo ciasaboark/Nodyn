@@ -27,11 +27,25 @@ import android.util.Log;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
+import io.phobotic.nodyn.R;
+import io.phobotic.nodyn.database.Database;
+import io.phobotic.nodyn.database.exception.AssetNotFoundException;
+import io.phobotic.nodyn.database.exception.UserNotFoundException;
 import io.phobotic.nodyn.database.model.Action;
 import io.phobotic.nodyn.database.model.Asset;
 import io.phobotic.nodyn.database.model.AssetHistoryRecord;
@@ -39,6 +53,7 @@ import io.phobotic.nodyn.database.model.Category;
 import io.phobotic.nodyn.database.model.FullDataModel;
 import io.phobotic.nodyn.database.model.Group;
 import io.phobotic.nodyn.database.model.MaintenanceRecord;
+import io.phobotic.nodyn.database.model.Manufacturer;
 import io.phobotic.nodyn.database.model.Model;
 import io.phobotic.nodyn.database.model.Status;
 import io.phobotic.nodyn.database.model.User;
@@ -49,7 +64,22 @@ import io.phobotic.nodyn.sync.SyncErrorListener;
 import io.phobotic.nodyn.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn.sync.adapter.SyncException;
 import io.phobotic.nodyn.sync.adapter.SyncNotSupportedException;
-import io.phobotic.nodyn.sync.adapter.snipeit3.response.AssetResponse;
+import io.phobotic.nodyn.sync.adapter.snipeit4.response.AssetResponse;
+import io.phobotic.nodyn.sync.adapter.snipeit4.response.CategoryResponse;
+import io.phobotic.nodyn.sync.adapter.snipeit4.response.CheckoutResponse;
+import io.phobotic.nodyn.sync.adapter.snipeit4.response.GroupResponse;
+import io.phobotic.nodyn.sync.adapter.snipeit4.response.ManufacturersResponse;
+import io.phobotic.nodyn.sync.adapter.snipeit4.response.ModelResponse;
+import io.phobotic.nodyn.sync.adapter.snipeit4.response.StatusesResponse;
+import io.phobotic.nodyn.sync.adapter.snipeit4.response.UserResponse;
+import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Asset;
+import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Category;
+import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Group;
+import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Manufacturer;
+import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Model;
+import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Status;
+import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4User;
+
 
 /**
  * Created by Jonathan Nelson on 9/12/17.
@@ -57,43 +87,27 @@ import io.phobotic.nodyn.sync.adapter.snipeit3.response.AssetResponse;
 
 public class SnipeIt4SyncAdapter implements SyncAdapter {
     public static final String TAG = SnipeIt4SyncAdapter.class.getSimpleName();
-    private static final String API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjhkMjJlOTk1NDkwNDlkNmUyNmQzYTEzNzQ0NTFiZDU0ODhlZDQ2ZjE5MDI0NmM0Y2IwYmRmOGI4NzU0MjQ2YTUwMDE1NzdiNmQ2NTQ3YTYzIn0.eyJhdWQiOiIyIiwianRpIjoiOGQyMmU5OTU0OTA0OWQ2ZTI2ZDNhMTM3NDQ1MWJkNTQ4OGVkNDZmMTkwMjQ2YzRjYjBiZGY4Yjg3NTQyNDZhNTAwMTU3N2I2ZDY1NDdhNjMiLCJpYXQiOjE1MDUyNTc4MzcsIm5iZiI6MTUwNTI1NzgzNywiZXhwIjoxODIwNzkwNjM3LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.o22lbB8gZsJQZkuh01riSMWMeFkWRUkPyrq93WlG_GmFVcufYWaXVrbTBSeFAnyceZXzE2v3H1XJaq-7GZciEXWBfXUXKmGnHHuWDjDhg4UapizxGh241xSQ_nUzQp0afzQV-gJDaKAx8p0EtqageVKD8hPrcl5ZPpDMFK7YLfL6Eqq5UDYSeuntaqmA1aCHd86jWkzxcYzbjlGdDmHM8jV1MjPoLqbh0MEwZ-WfAkzAoLZ3Aml15dKgS_sWSBDJzrSc2wpEnwBu0yD1RMP1I9QpdU9yssZfCWf40XG5VwiDklAi_fG5hn_raqfX-txGvNBa-k1QsnYXrZsPH6Ee7KxfX2yT45q-Q5F90N-MXptac_xPWODR5rj2VRjTgZSNh-PVJOwrAarzjanMUWhiI9T5a8SubusHi8wiwGUgiYvFFA3QAbR3GaqEXTJffyLSCTMmRXkq0y403MV2izvNm7nfRCfrauDVM3AxYYPUclRNuspNBZm7jQ0oAB3U-Q0BMqZ-xR3QnmSh7kaMapi3VwPx2CI58T9MxxiPPtYLiqRsyJ6b_nTkEhFMbGGXkFhDdl1lfAUwm7DdhaVx1B2xQDXMCT3QPgdPBTQMwi7_9n2WYGaZ6-l5WzcVkZtP1idnTl8dykWVj7NKeA4ja-Ar2wBIUTvaeXzCw20AP_zkZQU";
     private Gson gson = new Gson();
     private HttpURLConnection conn;
 
-    @Override
-    public List<Asset> fetchAssets(Context context) throws SyncException {
-        String assetsUrl = "/api/v1/hardware/";
-        List<Asset> assets = null;
+    private List<Asset> fetchAssets(Context context) throws SyncException {
+        String assetsUrl = "/api/v1/hardware?limit=9999";
+        List<Asset> assets = new ArrayList<>();
 
         try {
-            String assetResult = getPageContent(getUrl(context, assetsUrl));
+            String assetResult = getPageContent(context, getUrl(context, assetsUrl));
             AssetResponse assetResponse = gson.fromJson(assetResult, AssetResponse.class);
-            assets = assetResponse.getAssets();
+            List<Snipeit4Asset> snipeit4Assets = assetResponse.getAssets();
+
+            for (Snipeit4Asset snipeit4Asset : snipeit4Assets) {
+                assets.add(snipeit4Asset.toAsset());
+            }
         } catch (Exception e) {
-            throw new SyncException("Unable to fetch assets");
+            e.printStackTrace();
+            throw new SyncException("Unable to fetch assets: " + e.getMessage());
         }
 
         return assets;
-    }
-
-    private String getProtocol(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String protocol = prefs.getString("pref_protocol", "http://");
-        return protocol;
-    }
-
-    private String getHost(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String host = prefs.getString("pref_host", "nohost");
-        return host;
-    }
-
-    private int getPort(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String portString = prefs.getString("pref_port", "80");
-        int port = Integer.valueOf(portString);
-        return port;
     }
 
     private String getUrl(Context context, String url) {
@@ -101,7 +115,35 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         return completeUrl;
     }
 
-    private String getPageContent(String url) throws Exception {
+    private String getProtocol(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String protocol = prefs.getString(context.getString(R.string.pref_key_snipeit_4_protocol),
+                context.getString(R.string.pref_default_snipeit_4_protocol));
+        return protocol;
+    }
+
+    private String getHost(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String host = prefs.getString(context.getString(R.string.pref_key_snipeit_4_host), "");
+        return host;
+    }
+
+    private int getPort(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String portString = prefs.getString(context.getString(R.string.pref_key_snipeit_4_port),
+                context.getString(R.string.pref_default_snipeit_4_port));
+        int port = Integer.valueOf(portString);
+        return port;
+    }
+
+    private String getAPIKey(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String key = prefs.getString(context.getString(R.string.pref_key_snipeit_4_api_key),
+                context.getString(R.string.pref_default_snipeit_4_api_key));
+        return key;
+    }
+
+    private String getPageContent(Context context, String url) throws Exception {
 
         URL obj = new URL(url);
         conn = (HttpURLConnection) obj.openConnection();
@@ -110,7 +152,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         conn.setRequestMethod("GET");
 
         conn.setUseCaches(false);
-        conn.setRequestProperty("Authorization", "Bearer " + API_KEY);
+        conn.setRequestProperty("Authorization", "Bearer " + getAPIKey(context));
         conn.setRequestProperty("Accept", "application/json");
         conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
@@ -130,29 +172,130 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         return response.toString();
     }
 
-    @Override
-    public List<Model> fetchModels(Context context) throws SyncException {
-        return null;
+    private List<Model> fetchModels(Context context) throws SyncException {
+        String modelsURL = "/api/v1/models?limit9999";
+
+        List<Model> models = new ArrayList<>();
+
+        try {
+            String modelResult = getPageContent(context, getUrl(context, modelsURL));
+            ModelResponse modelResponse = gson.fromJson(modelResult, ModelResponse.class);
+            List<Snipeit4Model> snipeit4Models = modelResponse.getModels();
+
+            for (Snipeit4Model snipeit4Model : snipeit4Models) {
+                models.add(snipeit4Model.toModel());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SyncException("Unable to fetch models");
+        }
+
+        return models;
     }
 
-    @Override
-    public List<User> fetchUsers(Context context) throws SyncException {
-        return null;
+    private List<User> fetchUsers(Context context) throws SyncException {
+        String usersURL = "/api/v1/users?limit=9999";
+
+        List<User> users = new ArrayList<>();
+
+        try {
+            String modelResult = getPageContent(context, getUrl(context, usersURL));
+            UserResponse userResponse = gson.fromJson(modelResult, UserResponse.class);
+            List<Snipeit4User> snipeit4Users = userResponse.getUsers();
+
+            for (Snipeit4User snipeit4User : snipeit4Users) {
+                users.add(snipeit4User.toUser());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SyncException("Unable to fetch users");
+        }
+
+        return users;
     }
 
-    @Override
-    public List<Group> fetchGroups(Context context) throws SyncException {
-        return null;
+    private List<Group> fetchGroups(Context context) throws SyncException {
+        String groupsURL = "/api/v1/groups?limit=9999";
+
+        List<Group> groups = new ArrayList<>();
+
+        try {
+            String groupResult = getPageContent(context, getUrl(context, groupsURL));
+            GroupResponse groupResponse = gson.fromJson(groupResult, GroupResponse.class);
+            List<Snipeit4Group> snipeit4Groups = groupResponse.getGroups();
+
+            for (Snipeit4Group snipeit4Group : snipeit4Groups) {
+                groups.add(snipeit4Group.toGroup());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SyncException("Unable to fetch groups");
+        }
+
+        return groups;
     }
 
-    @Override
-    public List<Category> fetchCategories(Context context) throws SyncException {
-        return null;
+    private List<Category> fetchCategories(Context context) throws SyncException {
+        String categoriesURL = "/api/v1/categories?limit=9999";
+
+        List<Category> categories = new ArrayList<>();
+
+        try {
+            String categoryResult = getPageContent(context, getUrl(context, categoriesURL));
+            CategoryResponse groupResponse = gson.fromJson(categoryResult, CategoryResponse.class);
+            List<Snipeit4Category> shadowCategories = groupResponse.getCategories();
+
+            for (Snipeit4Category snipeit4Category : shadowCategories) {
+                categories.add(snipeit4Category.toCategory());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SyncException("Unable to fetch categories");
+        }
+
+        return categories;
     }
 
-    @Override
-    public List<Status> fetchStatuses(Context context) throws SyncException {
-        return null;
+    private List<Status> fetchStatuses(Context context) throws SyncException {
+        String statusURL = "/api/v1/statuslabels?limit=9999";
+
+        List<Status> statuses = new ArrayList<>();
+
+        try {
+            String statusResult = getPageContent(context, getUrl(context, statusURL));
+            StatusesResponse statusesResponse = gson.fromJson(statusResult, StatusesResponse.class);
+            List<Snipeit4Status> snipeit4Statuses = statusesResponse.getStatuses();
+
+            for (Snipeit4Status snipeit4Status : snipeit4Statuses) {
+                statuses.add(snipeit4Status.toStatus());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SyncException("Unable to fetch statuses");
+        }
+
+        return statuses;
+    }
+
+    private List<Manufacturer> fetchManufacturers(Context context) throws SyncException {
+        String manufacturersURL = "/api/v1/manufacturers?limit=9999";
+
+        List<Manufacturer> manufacturers = new ArrayList<>();
+
+        try {
+            String manufacturerResult = getPageContent(context, getUrl(context, manufacturersURL));
+            ManufacturersResponse manufacturersResponse = gson.fromJson(manufacturerResult, ManufacturersResponse.class);
+            List<Snipeit4Manufacturer> snipeit4Manufacturers = manufacturersResponse.getManufacturers();
+
+            for (Snipeit4Manufacturer snipeit4Manufacturer : snipeit4Manufacturers) {
+                manufacturers.add(snipeit4Manufacturer.toManufacturer());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SyncException("Unable to fetch manufacturers");
+        }
+
+        return manufacturers;
     }
 
     @Override
@@ -163,54 +306,287 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 .setGroups(fetchGroups(context))
                 .setModels(fetchModels(context))
                 .setUsers(fetchUsers(context))
-                .setStatuses(fetchStatuses(context));
+                .setStatuses(fetchStatuses(context))
+                .setManufacturers(fetchManufacturers(context));
 
         return fullDataModel;
     }
 
     @Override
-    public void checkoutAssetTo(Context context, int assetID, String assetTag, int userID, @Nullable Long checkout, @Nullable Long expectedCheckin, @Nullable String notes) throws CheckoutException {
+    public void checkoutAssetTo(Context context, int assetID, String assetTag, int userID,
+                                @Nullable Long checkout, @Nullable Long expectedCheckin,
+                                @Nullable String notes) throws Exception {
+        String checkoutURL = "/api/v1/hardware/" + assetID + "/checkout";
+        String params = "user_id=" + userID;
 
+        if (notes != null) {
+            try {
+                params += "&note=" + URLEncoder.encode(notes, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                Log.e(TAG, "Unable to encode notes as query param '" + notes + "', will not be " +
+                        "included with checkout data");
+            }
+        }
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        if (checkout != null) {
+            Date d = new Date(checkout);
+            String checkoutDateString = df.format(d);
+            try {
+                checkoutDateString = URLEncoder.encode(checkoutDateString, "UTF-8");
+                params += "&checkout_at=" + checkoutDateString;
+            } catch (UnsupportedEncodingException e) {
+                Log.e(TAG, "Unable to encode checkout date as query parm '" + checkoutDateString +
+                        "', will not be included with checkout data");
+            }
+        }
+
+        if (expectedCheckin != null) {
+            Date d = new Date(expectedCheckin);
+            String expectedCheckinString = df.format(d);
+            try {
+                expectedCheckinString = URLEncoder.encode(expectedCheckinString, "UTF-8");
+                params += "&expected_checkin=" + expectedCheckinString;
+            } catch (UnsupportedEncodingException e) {
+                Log.e(TAG, "Unable to encode expected checkin date as qury parm '" +
+                        expectedCheckinString + "', will not be included with checkout data");
+            }
+        }
+
+
+        String result = sendPost(context, getUrl(context, checkoutURL), params);
+        Gson gson = new Gson();
+        CheckoutResponse response = gson.fromJson(result, CheckoutResponse.class);
+        if (response.getStatus().equals("success")) {
+            //Yea!
+        } else if (response.getStatus().equals("error")) {
+            Log.e(TAG, "Caught exception checking out asset id '" + assetID + "' to user id '" +
+                    userID + "': " + "message: " + response.getMessages());
+            throw new CheckoutException(response.getMessages());
+        } else {
+            throw new CheckoutException("Unknown error '" + result + "'");
+        }
     }
 
     @Override
-    public void checkinAsset(Context context, int assetID, String assetTag, @Nullable Long checkinDate, @Nullable String notes) throws CheckinException {
+    public void checkinAsset(Context context, int assetID, String assetTag,
+                             @Nullable Long checkinDate, @Nullable String notes)
+            throws Exception {
+        String checkoutURL = "/api/v1/hardware/" + assetID + "/checkin";
+        String params = "";
 
+        if (notes != null) {
+            try {
+                params += "&note=" + URLEncoder.encode(notes, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                Log.e(TAG, "Unable to encode notes as query param '" + notes + "', will not be " +
+                        "included with checkout data");
+            }
+        }
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        if (checkinDate != null) {
+            Date d = new Date(checkinDate);
+            String checkoutDateString = df.format(d);
+            try {
+                checkoutDateString = URLEncoder.encode(checkoutDateString, "UTF-8");
+                params += "&checkout_at=" + checkoutDateString;
+            } catch (UnsupportedEncodingException e) {
+                Log.e(TAG, "Unable to encode checkout date as query parm '" + checkoutDateString +
+                        "', will not be included with checkout data");
+            }
+        }
+
+
+        String result = sendPost(context, getUrl(context, checkoutURL), params);
+        Gson gson = new Gson();
+        CheckoutResponse response = gson.fromJson(result, CheckoutResponse.class);
+        if (response.getStatus().equals("success")) {
+            //Yea!
+        } else if (response.getStatus().equals("error")) {
+            throw new CheckinException(response.getMessages());
+        } else {
+            throw new CheckinException("Unknown error '" + result + "'");
+        }
     }
 
     @Override
     public void syncActionItems(Context context, SyncErrorListener listener) throws SyncException {
+        Database db = Database.getInstance(context);
+        List<Action> actionList = db.getActions();
+        Iterator<Action> it = actionList.iterator();
 
+        //remove all of the action items that have already been synced
+        while (it.hasNext()) {
+            Action a = it.next();
+            if (a.isSynced()) {
+                it.remove();
+            }
+        }
+
+        //sort the remaining list by the timestamp
+        Collections.sort(actionList, new Comparator<Action>() {
+            @Override
+            public int compare(Action o1, Action o2) {
+                return ((Long) o1.getTimestamp()).compareTo(o2.getTimestamp());
+            }
+        });
+
+        for (Action action : actionList) {
+            try {
+
+                Asset asset = db.findAssetByID(action.getAssetID());
+                StringBuilder notes = new StringBuilder("Nodyn ");
+                switch (action.getDirection()) {
+                    case CHECKIN:
+                        notes.append("checkin.");
+
+                        //who (if anyone) authorized the asset check in?
+                        if (action.getAuthorization() != null) {
+                            notes.append(" Authorization: '" + action.getAuthorization() + "'.");
+                        }
+
+                        //did the authorizing user verify the asset was undamaged during checkin?
+                        notes.append(" Asset verified undamaged: " + action.isVerified() + ".");
+
+                        checkinAsset(context, asset.getId(), asset.getTag(), action.getTimestamp(),
+                                notes.toString());
+                        break;
+                    case CHECKOUT:
+                        notes.append("checkout.");
+
+                        //who (if anyone) authorized the asset check out?
+                        if (action.getAuthorization() != null) {
+                            notes.append(" Authorization: '" + action.getAuthorization() + "'.");
+                        }
+
+                        User user = db.findUserByID(action.getUserID());
+                        //did the associate checking out the asset have to agree to the eula?
+                        notes.append(" EULA accepted: " + action.isVerified() + ".");
+                        checkoutAssetTo(context, asset.getId(), asset.getTag(), user.getId(),
+                                action.getTimestamp(), action.getExpectedCheckin(), notes.toString());
+                        break;
+                    default:
+                        listener.onActionSyncError(action, null, "Unknown direction " +
+                                action.getDirection());
+                }
+
+                action.setSynced(true);
+                db.insertAction(action);
+            } catch (UserNotFoundException e) {
+                e.printStackTrace();
+                listener.onActionSyncError(action, e, "Unable to find user in database with " +
+                        "username: '" + action.getUserID() + "'");
+            } catch (AssetNotFoundException e) {
+                e.printStackTrace();
+                listener.onActionSyncError(action, e, "Unable to find asset in database with " +
+                        "tag: '" + action.getAssetID() + "'");
+            } catch (CheckinException e) {
+                e.printStackTrace();
+                listener.onActionSyncError(action, e, "Unable to check in asset with tag: '" +
+                        action.getAssetID() + "'");
+            } catch (CheckoutException e) {
+                e.printStackTrace();
+                listener.onActionSyncError(action, e, "Unable to check out asset with tag: '" +
+                        action.getAssetID() + "' to user ID " + action.getUserID());
+            } catch (Exception e) {
+                //all other exceptions we will keep the action un-synced so we can try again later
+                Log.d(TAG, "Caught non-fatal error pusing action item, this action will " +
+                        "remain unsynced " + action.toString() +
+                        ": [" + e.getClass().getSimpleName() + "->" + e.getMessage() + "]");
+                action.setSynced(false);
+                db.insertAction(action);
+            }
+        }
     }
 
     @Override
     public void markActionItemsSynced(Context context, List<Action> actions) {
+        Database db = Database.getInstance(context);
+
+        for (Action action : actions) {
+            action.setSynced(true);
+            db.insertAction(action);
+        }
+    }
+
+    @Override
+    public List<MaintenanceRecord> getMaintenanceRecords(Context context, Asset asset) throws SyncException,
+            SyncNotSupportedException {
+        throw new SyncNotSupportedException("Sync adapter does not support pulling maintenance records",
+                "SnipeIt version 4.x does not support pulling maintenance records");
 
     }
 
     @Override
-    public List<MaintenanceRecord> getMaintenanceRecords(Context context, Asset asset) throws SyncException, SyncNotSupportedException {
-        return null;
-    }
-
-    @Override
-    public List<AssetHistoryRecord> getHistory(Context context, Asset asset) throws SyncException, SyncNotSupportedException {
-        return null;
+    public List<AssetHistoryRecord> getHistory(Context context, Asset asset) throws SyncException,
+            SyncNotSupportedException {
+        throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
+                "SnipeIt version 4.x does not support pulling asset history records");
     }
 
     @Override
     public List<UserHistoryRecord> getHistory(Context context, User user) throws SyncException, SyncNotSupportedException {
-        return null;
+        throw new SyncNotSupportedException("Sync adapter does not support pulling user history records",
+                "SnipeIt version 4.x does not support pulling user history records");
     }
 
     @Override
     public List<Asset> getAssets(Context context, User user) throws SyncException, SyncNotSupportedException {
-        return null;
+        throw new SyncNotSupportedException("Sync adapter does not support pulling user asset records",
+                "SnipeIt version 4.x does not support pulling user asset records");
     }
 
     @Nullable
     @Override
     public DialogFragment getConfigurationDialogFragment(Context context) {
-        return null;
+        ConfigurationDialogFragment d = ConfigurationDialogFragment.newInstance();
+        return d;
+    }
+
+    private String sendPost(Context context, String url, String postParams) throws Exception {
+        Log.d(TAG, "Sending 'POST' request to URL : " + url);
+        URL obj = new URL(url);
+        conn = (HttpURLConnection) obj.openConnection();
+
+        // Acts like a browser
+        conn.setUseCaches(false);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Authorization", "Bearer " + getAPIKey(context));
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+
+        String requestProperties = conn.getRequestProperties().toString();
+
+        // Send post request
+        DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+        wr.writeBytes(postParams);
+        wr.flush();
+        wr.close();
+
+        int responseCode = conn.getResponseCode();
+
+        Log.d(TAG, "Request properties: " + requestProperties);
+        Log.d(TAG, "Post parameters : " + postParams);
+        Log.d(TAG, "Response Code : " + responseCode);
+
+        BufferedReader in =
+                new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        return response.toString();
     }
 }
