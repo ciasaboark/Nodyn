@@ -49,6 +49,7 @@ import com.crashlytics.android.Crashlytics;
 import org.jetbrains.annotations.NotNull;
 
 import io.fabric.sdk.android.Fabric;
+import io.phobotic.nodyn.BuildConfig;
 import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.model.Asset;
 import io.phobotic.nodyn.database.model.User;
@@ -84,7 +85,11 @@ public class MainActivity extends AppCompatActivity
         PreferenceManager.setDefaultValues(this, R.xml.pref_email, false);
 
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
+
+        //start crashlytics only if not a debug build
+        Crashlytics crashlytics = new Crashlytics.Builder().disabled(BuildConfig.DEBUG).build();
+        Fabric.with(this, crashlytics);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
