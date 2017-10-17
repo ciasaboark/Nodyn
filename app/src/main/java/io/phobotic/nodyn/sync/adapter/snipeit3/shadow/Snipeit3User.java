@@ -26,7 +26,7 @@ import io.phobotic.nodyn.sync.HtmlEncoded;
  * Created by Jonathan Nelson on 9/12/17.
  */
 
-public class ShadowUser {
+public class Snipeit3User {
     private int id;
 
     @Verifiable("Name")
@@ -66,7 +66,7 @@ public class ShadowUser {
         return id;
     }
 
-    public ShadowUser setId(int id) {
+    public Snipeit3User setId(int id) {
         this.id = id;
         return this;
     }
@@ -75,7 +75,7 @@ public class ShadowUser {
         return name;
     }
 
-    public ShadowUser setName(String name) {
+    public Snipeit3User setName(String name) {
         this.name = name;
         return this;
     }
@@ -84,7 +84,7 @@ public class ShadowUser {
         return jobTitle;
     }
 
-    public ShadowUser setJobTitle(String jobTitle) {
+    public Snipeit3User setJobTitle(String jobTitle) {
         this.jobTitle = jobTitle;
         return this;
     }
@@ -93,7 +93,7 @@ public class ShadowUser {
         return email;
     }
 
-    public ShadowUser setEmail(String email) {
+    public Snipeit3User setEmail(String email) {
         this.email = email;
         return this;
     }
@@ -102,7 +102,7 @@ public class ShadowUser {
         return username;
     }
 
-    public ShadowUser setUsername(String username) {
+    public Snipeit3User setUsername(String username) {
         this.username = username;
         return this;
     }
@@ -111,7 +111,7 @@ public class ShadowUser {
         return location;
     }
 
-    public ShadowUser setLocation(String location) {
+    public Snipeit3User setLocation(String location) {
         this.location = location;
         return this;
     }
@@ -120,7 +120,7 @@ public class ShadowUser {
         return manager;
     }
 
-    public ShadowUser setManager(String manager) {
+    public Snipeit3User setManager(String manager) {
         this.manager = manager;
         return this;
     }
@@ -129,7 +129,7 @@ public class ShadowUser {
         return numAssets;
     }
 
-    public ShadowUser setNumAssets(int numAssets) {
+    public Snipeit3User setNumAssets(int numAssets) {
         this.numAssets = numAssets;
         return this;
     }
@@ -138,7 +138,7 @@ public class ShadowUser {
         return employeeNum;
     }
 
-    public ShadowUser setEmployeeNum(String employeeNum) {
+    public Snipeit3User setEmployeeNum(String employeeNum) {
         this.employeeNum = employeeNum;
         return this;
     }
@@ -147,7 +147,7 @@ public class ShadowUser {
         return groups;
     }
 
-    public ShadowUser setGroups(String groups) {
+    public Snipeit3User setGroups(String groups) {
         this.groups = groups;
         return this;
     }
@@ -156,7 +156,7 @@ public class ShadowUser {
         return notes;
     }
 
-    public ShadowUser setNotes(String notes) {
+    public Snipeit3User setNotes(String notes) {
         this.notes = notes;
         return this;
     }
@@ -165,7 +165,7 @@ public class ShadowUser {
         return companyName;
     }
 
-    public ShadowUser setCompanyName(String companyName) {
+    public Snipeit3User setCompanyName(String companyName) {
         this.companyName = companyName;
         return this;
     }

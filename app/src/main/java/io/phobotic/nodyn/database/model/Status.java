@@ -52,15 +52,6 @@ public class Status {
         return this;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Status setName(String name) {
-        this.name = name;
-        return this;
-    }
-
     public String getType() {
         return type;
     }
@@ -76,6 +67,29 @@ public class Status {
 
     public Status setColor(String color) {
         this.color = color;
+        return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Status)) {
+            return false;
+        } else {
+            return name.equals(((Status) obj).getName());
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Status setName(String name) {
+        this.name = name;
         return this;
     }
 

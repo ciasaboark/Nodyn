@@ -104,7 +104,7 @@ public class ActionTableHelper extends TableHelper<Action> {
     public List<Action> findAll() {
         List<Action> actions = new ArrayList<>();
 
-        Cursor cursor;
+        Cursor cursor = null;
 
         try {
             cursor = db.query(DatabaseOpenHelper.TABLE_ACTIONS, DB_PROJECTION, null, null,
@@ -128,12 +128,15 @@ public class ActionTableHelper extends TableHelper<Action> {
                 a.setAuthorization(authorization);
 
                 actions.add(a);
-
             }
         } catch (Exception e) {
             Log.e(TAG, "Caught exception while searching for actions: " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return actions;

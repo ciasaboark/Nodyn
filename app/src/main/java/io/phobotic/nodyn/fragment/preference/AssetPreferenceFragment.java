@@ -18,24 +18,22 @@
 package io.phobotic.nodyn.fragment.preference;
 
 import android.annotation.TargetApi;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v14.preference.MultiSelectListPreference;
+import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
-import android.view.MenuItem;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import io.phobotic.nodyn.R;
-import io.phobotic.nodyn.activity.SettingsActivity;
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.database.model.Status;
 
@@ -45,61 +43,112 @@ import io.phobotic.nodyn.database.model.Status;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class AssetPreferenceFragment extends PreferenceFragmentCompat {
     private static final String TAG = AssetPreferenceFragment.class.getSimpleName();
+    private SharedPreferences prefs;
+    private Database db;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pref_assets, rootKey);
         setHasOptionsMenu(true);
 
+
+        db = Database.getInstance(getActivity());
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        initListeners();
+        initPreferences();
+    }
+
+    private void initListeners() {
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences
         // to their values. When their values change, their summaries are
         // updated to reflect the new value, per the Android Design
         // guidelines.
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
-                getString(R.string.pref_key_asset_status_selected_statuses)));
+        Preference visibleStatuses = findPreference(getString(
+                R.string.pref_key_asset_status_selected_statuses));
+        visibleStatuses.setOnPreferenceChangeListener(PreferenceListeners.statusChangeListener);
 
-        initStatusesSelect();
+        Preference allowedStatuses = findPreference(getString(
+                R.string.pref_key_asset_status_allowed_statuses));
+        visibleStatuses.setOnPreferenceChangeListener(PreferenceListeners.statusChangeListener);
+
+        //set the summary now
+        PreferenceListeners.statusChangeListener.onPreferenceChange(visibleStatuses,
+                prefs.getStringSet(visibleStatuses.getKey(), new HashSet<String>()));
+
+        //set the summary now
+        PreferenceListeners.statusChangeListener.onPreferenceChange(allowedStatuses,
+                prefs.getStringSet(allowedStatuses.getKey(), new HashSet<String>()));
     }
 
-    private void initStatusesSelect() {
-        Database db = Database.getInstance(getContext());
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+    private void initPreferences() {
+        initVisibleStatusesSelect();
+        initAllowedStatusesSelect();
+    }
 
-        List<Status> statuses = db.getStatuses();
+    private void initVisibleStatusesSelect() {
         Set<String> chosenStatuses = prefs.getStringSet(getString(
                 R.string.pref_key_asset_status_selected_statuses), null);
-        Log.d(TAG, "chosen statuses: " + String.valueOf(chosenStatuses));
+        Log.d(TAG, "visible statuses: " + String.valueOf(chosenStatuses));
 
-        List<String> statusList = new ArrayList<>();
-        for (Status status : statuses) {
-            statusList.add(status.getName());
-        }
-
+        List<Status> statuses = db.getStatuses();
         //sort the status alphabetically so the list stays in the same general order after every sync
-        Collections.sort(statusList, new Comparator<String>() {
+        Collections.sort(statuses, new Comparator<Status>() {
             @Override
-            public int compare(String o1, String o2) {
-                return o1.compareTo(o2);
+            public int compare(Status o1, Status o2) {
+                return o1.getName().compareTo(o2.getName());
             }
         });
 
-        String[] statusNames = statusList.toArray(new String[]{});
+        String[] statusNames = new String[statuses.size()];
+        String[] statusValues = new String[statuses.size()];
 
-        MultiSelectListPreference modelSelect = (MultiSelectListPreference) findPreference(
-                getString(R.string.pref_key_asset_status_selected_statuses));
-        modelSelect.setEntries(statusNames);
-        modelSelect.setEntryValues(statusNames);
-    }
+        for (int i = 0; i < statuses.size(); i++) {
+            Status status = statuses.get(i);
+            String name = status.getName();
+            String value = String.valueOf(status.getId());
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            startActivity(new Intent(getActivity(), SettingsActivity.class));
-            return true;
+            statusNames[i] = name;
+            statusValues[i] = value;
         }
-        return super.onOptionsItemSelected(item);
+
+        MultiSelectListPreference statusSelect = (MultiSelectListPreference) findPreference(
+                getString(R.string.pref_key_asset_status_selected_statuses));
+        statusSelect.setEntries(statusNames);
+        statusSelect.setEntryValues(statusValues);
+
     }
 
+    private void initAllowedStatusesSelect() {
+        Set<String> chosenStatuses = prefs.getStringSet(getString(
+                R.string.pref_key_asset_status_allowed_statuses), null);
+        Log.d(TAG, "allowed statuses: " + String.valueOf(chosenStatuses));
 
+        List<Status> statuses = db.getStatuses();
+        //sort the status alphabetically so the list stays in the same general order after every sync
+        Collections.sort(statuses, new Comparator<Status>() {
+            @Override
+            public int compare(Status o1, Status o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+        String[] statusNames = new String[statuses.size()];
+        String[] statusValues = new String[statuses.size()];
+
+        for (int i = 0; i < statuses.size(); i++) {
+            Status status = statuses.get(i);
+            String name = status.getName();
+            String value = String.valueOf(status.getId());
+
+            statusNames[i] = name;
+            statusValues[i] = value;
+        }
+
+        MultiSelectListPreference statusSelect = (MultiSelectListPreference) findPreference(
+                getString(R.string.pref_key_asset_status_allowed_statuses));
+        statusSelect.setEntries(statusNames);
+        statusSelect.setEntryValues(statusValues);
+
+    }
 }

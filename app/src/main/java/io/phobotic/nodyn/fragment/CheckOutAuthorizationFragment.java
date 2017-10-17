@@ -24,7 +24,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,56 +40,57 @@ import java.util.List;
 
 import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.Database;
-import io.phobotic.nodyn.database.UserHelper;
-import io.phobotic.nodyn.database.exception.UserNotFoundException;
+import io.phobotic.nodyn.database.exception.GroupNotFoundException;
+import io.phobotic.nodyn.database.model.Group;
 import io.phobotic.nodyn.database.model.User;
 import io.phobotic.nodyn.fragment.listener.CheckInOutListener;
-import io.phobotic.nodyn.view.ScanInputView;
+import io.phobotic.nodyn.view.BadgeScanView;
 import io.phobotic.nodyn.view.UserCardView;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link CheckOutAuthenticatorFragment.OnFragmentInteractionListener} interface
+ * {@link CheckOutAuthorizationFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link CheckOutAuthenticatorFragment#newInstance} factory method to
+ * Use the {@link CheckOutAuthorizationFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CheckOutAuthenticatorFragment extends Fragment {
+public class CheckOutAuthorizationFragment extends Fragment {
     private static final String ALLOWED_GROUPS = "allowed_groups";
-    private static final String TAG = CheckOutAuthenticatorFragment.class.getSimpleName();
+    private static final String TAG = CheckOutAuthorizationFragment.class.getSimpleName();
 
-    private List<String> allowedGroups = new ArrayList<>();
+    private List<Integer> allowedGroups = new ArrayList<>();
 
     private CheckInOutListener listener;
     private View rootView;
     private FloatingActionButton fabGo;
-    private ScanInputView input;
     private TextView groups;
     private TextView authenticatedMessage;
     private View cardBox;
-    private View inputBox;
     private UserCardView card;
     private User authorizedUser;
     private FloatingActionButton deauthorizeButton;
+    private Database db;
+    private BadgeScanView badgeScanner;
+    private View inputBox;
 
-    public static CheckOutAuthenticatorFragment newInstance(ArrayList<String> allowedGroups) {
-        CheckOutAuthenticatorFragment fragment = new CheckOutAuthenticatorFragment();
+    public static CheckOutAuthorizationFragment newInstance(ArrayList<Integer> allowedGroups) {
+        CheckOutAuthorizationFragment fragment = new CheckOutAuthorizationFragment();
         Bundle args = new Bundle();
         if (allowedGroups == null) {
             allowedGroups = new ArrayList<>();
         }
 
-        args.putStringArrayList(ALLOWED_GROUPS, allowedGroups);
+        args.putIntegerArrayList(ALLOWED_GROUPS, allowedGroups);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public CheckOutAuthenticatorFragment() {
+    public CheckOutAuthorizationFragment() {
         // Required empty public constructor
     }
 
-    public CheckOutAuthenticatorFragment setListener(CheckInOutListener listener) {
+    public CheckOutAuthorizationFragment setListener(CheckInOutListener listener) {
         this.listener = listener;
         return this;
     }
@@ -94,6 +98,10 @@ public class CheckOutAuthenticatorFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("Check Out Authorization");
+        }
 //        if (context instanceof OnFragmentInteractionListener) {
 //            listener = (OnFragmentInteractionListener) context;
 //        } else {
@@ -105,8 +113,9 @@ public class CheckOutAuthenticatorFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db = Database.getInstance(getContext());
         if (getArguments() != null) {
-            allowedGroups = getArguments().getStringArrayList(ALLOWED_GROUPS);
+            allowedGroups = getArguments().getIntegerArrayList(ALLOWED_GROUPS);
         }
     }
 
@@ -114,7 +123,7 @@ public class CheckOutAuthenticatorFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        rootView = inflater.inflate(R.layout.fragment_check_out_authenticator, container, false);
+        rootView = inflater.inflate(R.layout.fragment_check_out_authorization, container, false);
         init();
 
         return rootView;
@@ -123,7 +132,7 @@ public class CheckOutAuthenticatorFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        input.requestFocus();
+        badgeScanner.requestFocus();
     }
 
     @Override
@@ -139,6 +148,7 @@ public class CheckOutAuthenticatorFragment extends Fragment {
 
         inputBox = rootView.findViewById(R.id.input_box);
         inputBox.setVisibility(View.VISIBLE);
+        badgeScanner = (BadgeScanView) rootView.findViewById(R.id.badge_scanner);
         authenticatedMessage = (TextView) rootView.findViewById(R.id.authenticated_message);
 
         deauthorizeButton = (FloatingActionButton) rootView.findViewById(R.id.unauthorize_button);
@@ -169,7 +179,7 @@ public class CheckOutAuthenticatorFragment extends Fragment {
 
                             @Override
                             public void onAnimationEnd(Animation animation) {
-                                input.requestFocus();
+                                badgeScanner.requestFocus();
                             }
 
                             @Override
@@ -216,74 +226,60 @@ public class CheckOutAuthenticatorFragment extends Fragment {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         String prefix = "";
-        for (String str : allowedGroups) {
-            sb.append(prefix + str);
-            prefix = ", ";
+        for (Integer groupID : allowedGroups) {
+            try {
+                Group g = db.findGroupByID(groupID);
+                sb.append(prefix + g.getName());
+                prefix = ", ";
+            } catch (GroupNotFoundException e) {
+                Log.d(TAG, "Unable to find group with ID '" + groupID + "', skipping");
+            }
         }
         sb.append("]");
         groups.setText(sb.toString());
     }
 
     private void initInput() {
-        input = (ScanInputView) rootView.findViewById(R.id.input);
-
-        input.setListener(new ScanInputView.OnTextInputListener() {
+        badgeScanner.setOnUserScannedListener(new BadgeScanView.OnUserScannedListener() {
             @Override
-            public void onTextInput(String inputString) {
-                authorizedUser = null;
-                if (inputString == null || inputString.equals("")) {
-                    showError("Input string empty");
-                } else {
-                    processInputString(inputString);
-                }
+            public void onUserScanned(User user) {
+                processUserScan(user);
+            }
+
+            @Override
+            public void onUserScanError(String message) {
+                //let the BadgeScanView handle the errors
             }
         });
-
-    }
-
-    private void showError(String errMsg) {
-        AlertDialog a = new AlertDialog.Builder(getContext())
-                .setTitle("Errror")
-                .setMessage(errMsg)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
-                    }
-                })
-                .create();
-        a.show();
-    }
-
-    private void processInputString(String inputString) {
-        Database db = Database.getInstance(getContext());
-        fabGo.hide();
-
-        try {
-            User user = UserHelper.getUserByInputString(getContext(), inputString);
-            processUserScan(user);
-        } catch (UserNotFoundException e) {
-            showError("Unknown user: '" + inputString + "'");
-        }
     }
 
     private void processUserScan(final User user) {
+        badgeScanner.reset();
+
         //if the user is a member of the allowed groups then proceede
-        String groupString = user.getGroups();
-        if (groupString == null) {
-            groupString = "";
+        int[] groups = user.getGroupsIDs();
+        if (groups == null) {
+            groups = new int[]{};
         }
-        String[] userGroups = groupString.split(",");
+
         boolean userAuthenticated = false;
-        for (String userGroup : userGroups) {
-            if (allowedGroups.contains(userGroup)) {
+        for (int groupID : groups) {
+            List<Integer> unionGroups = new ArrayList<>();
+            unionGroups.addAll(allowedGroups);
+            List<Integer> userGroups = new ArrayList<>();
+            for (int i : groups) {
+                userGroups.add(i);
+            }
+
+            unionGroups.retainAll(userGroups);
+            if (unionGroups.size() > 0) {
                 userAuthenticated = true;
                 break;
             }
         }
 
         if (!userAuthenticated) {
-            showError("User " + user.getName() + " is not authenticated to check out assets");
+            showError("User " + user.getName() + " can not authorize asset check outs.");
         } else {
             Resources res = getResources();
             String message = res.getString(R.string.check_out_authorized_message, user.getName());
@@ -335,6 +331,20 @@ public class CheckOutAuthenticatorFragment extends Fragment {
 
 
         }
+    }
+
+    private void showError(String errMsg) {
+        AlertDialog a = new AlertDialog.Builder(getContext())
+                .setTitle("Errror")
+                .setMessage(errMsg)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do nothing
+                    }
+                })
+                .create();
+        a.show();
     }
 
     /**

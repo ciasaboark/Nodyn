@@ -34,30 +34,7 @@ import io.phobotic.nodyn.database.model.Asset;
  */
 
 public class AssetTableHelper extends TableHelper<Asset> {
-    public static final String[] DB_PROJECTION = new String[]{
-            Asset.Columns.ID,
-            Asset.Columns.IMAGE,
-            Asset.Columns.NAME,
-            Asset.Columns.TAG,
-            Asset.Columns.SERIAL,
-            Asset.Columns.MODEL_ID,
-            Asset.Columns.STATUS_ID,
-            Asset.Columns.ASSIGNED_TO_ID,
-            Asset.Columns.LOCATION_ID,
-            Asset.Columns.CATEGORY_ID,
-            Asset.Columns.MANUFACTURER_ID,
-            Asset.Columns.EOL,
-            Asset.Columns.PURCHASE_COST,
-            Asset.Columns.PURCHASE_DATE,
-            Asset.Columns.NOTES,
-            Asset.Columns.ORDER_NUMBER,
-            Asset.Columns.LAST_CHECKOUT,
-            Asset.Columns.EXPECTED_CHECKIN,
-            Asset.Columns.CREATED_AT,
-            Asset.Columns.COMPANY_NAME
-    };
     private static final String TAG = AssetTableHelper.class.getSimpleName();
-
 
     public AssetTableHelper(SQLiteDatabase db) {
         super(db);
@@ -86,12 +63,12 @@ public class AssetTableHelper extends TableHelper<Asset> {
         cv.put(Asset.Columns.NAME, asset.getName());
         cv.put(Asset.Columns.TAG, asset.getTag());
         cv.put(Asset.Columns.SERIAL, asset.getSerial());
-        cv.put(Asset.Columns.MODEL_ID, asset.getModel());
-        cv.put(Asset.Columns.STATUS_ID, asset.getStatus());
-        cv.put(Asset.Columns.ASSIGNED_TO_ID, asset.getAssignedTo());
-        cv.put(Asset.Columns.LOCATION_ID, asset.getLocation());
-        cv.put(Asset.Columns.CATEGORY_ID, asset.getCategory());
-        cv.put(Asset.Columns.MANUFACTURER_ID, asset.getManufacturer());
+        cv.put(Asset.Columns.MODEL_ID, asset.getModelID());
+        cv.put(Asset.Columns.STATUS_ID, asset.getStatusID());
+        cv.put(Asset.Columns.ASSIGNED_TO_ID, asset.getAssignedToID());
+        cv.put(Asset.Columns.LOCATION_ID, asset.getLocationID());
+        cv.put(Asset.Columns.CATEGORY_ID, asset.getCategoryID());
+        cv.put(Asset.Columns.MANUFACTURER_ID, asset.getManufacturerID());
         cv.put(Asset.Columns.EOL, asset.getEol());
         cv.put(Asset.Columns.PURCHASE_COST, asset.getPurchaseCost());
         cv.put(Asset.Columns.PURCHASE_DATE, asset.getPurchaseDate());
@@ -100,7 +77,7 @@ public class AssetTableHelper extends TableHelper<Asset> {
         cv.put(Asset.Columns.LAST_CHECKOUT, asset.getLastCheckout());
         cv.put(Asset.Columns.EXPECTED_CHECKIN, asset.getExpectedCheckin());
         cv.put(Asset.Columns.CREATED_AT, asset.getCreatedAt());
-        cv.put(Asset.Columns.COMPANY_NAME, asset.getCompanyName());
+        cv.put(Asset.Columns.COMPANY_ID, asset.getCompanyID());
 
         long rowID = db.insertWithOnConflict(DatabaseOpenHelper.TABLE_ASSETS, null, cv,
                 SQLiteDatabase.CONFLICT_REPLACE);
@@ -111,63 +88,72 @@ public class AssetTableHelper extends TableHelper<Asset> {
     public Asset findByID(int id) {
         String[] args = {String.valueOf(id)};
         String selection = Asset.Columns.ID + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Asset asset = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_ASSETS, DB_PROJECTION, selection, args,
+            cursor = db.query(DatabaseOpenHelper.TABLE_ASSETS, null, selection, args,
                     null, null, Asset.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int cid = cursor.getInt(cursor.getColumnIndex(Asset.Columns.ID));
-                String image = cursor.getString(cursor.getColumnIndex(Asset.Columns.IMAGE));
-                String name = cursor.getString(cursor.getColumnIndex(Asset.Columns.NAME));
-                String tag = cursor.getString(cursor.getColumnIndex(Asset.Columns.TAG));
-                String serial = cursor.getString(cursor.getColumnIndex(Asset.Columns.SERIAL));
-                String model = cursor.getString(cursor.getColumnIndex(Asset.Columns.MODEL_ID));
-                String status = cursor.getString(cursor.getColumnIndex(Asset.Columns.STATUS_ID));
-                String assignedTo = cursor.getString(cursor.getColumnIndex(Asset.Columns.ASSIGNED_TO_ID));
-                String location = cursor.getString(cursor.getColumnIndex(Asset.Columns.LOCATION_ID));
-                String category = cursor.getString(cursor.getColumnIndex(Asset.Columns.CATEGORY_ID));
-                String manucaturer = cursor.getString(cursor.getColumnIndex(Asset.Columns.MANUFACTURER_ID));
-                String eol = cursor.getString(cursor.getColumnIndex(Asset.Columns.EOL));
-                String purchaseCost = cursor.getString(cursor.getColumnIndex(Asset.Columns.PURCHASE_COST));
-                String purchaseDate = cursor.getString(cursor.getColumnIndex(Asset.Columns.PURCHASE_DATE));
-                String notes = cursor.getString(cursor.getColumnIndex(Asset.Columns.NOTES));
-                String orderNumber = cursor.getString(cursor.getColumnIndex(Asset.Columns.ORDER_NUMBER));
-                String lastCheckout = cursor.getString(cursor.getColumnIndex(Asset.Columns.LAST_CHECKOUT));
-                String expectedCheckin = cursor.getString(cursor.getColumnIndex(Asset.Columns.EXPECTED_CHECKIN));
-                String createdAt = cursor.getString(cursor.getColumnIndex(Asset.Columns.CREATED_AT));
-                String companyName = cursor.getString(cursor.getColumnIndex(Asset.Columns.COMPANY_NAME));
-
-                asset = new Asset()
-                        .setId(cid)
-                        .setImage(image)
-                        .setName(name)
-                        .setTag(tag)
-                        .setSerial(serial)
-                        .setModel(model)
-                        .setStatus(status)
-                        .setAssignedTo(assignedTo)
-                        .setLocation(location)
-                        .setCategory(category)
-                        .setManufacturer(manucaturer)
-                        .setEol(eol)
-                        .setPurchaseCost(purchaseCost)
-                        .setPurchaseDate(purchaseDate)
-                        .setNotes(notes)
-                        .setOrderNumber(orderNumber)
-                        .setLastCheckout(lastCheckout)
-                        .setExpectedCheckin(expectedCheckin)
-                        .setCreatedAt(createdAt)
-                        .setCompanyName(companyName);
+                asset = getAssetFromCursor(cursor);
 
             }
         } catch (Exception e) {
             Log.e(TAG, "Caught exception while searching for asset with ID " + id + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
+        return asset;
+    }
+
+    private Asset getAssetFromCursor(Cursor cursor) {
+        int cid = cursor.getInt(cursor.getColumnIndex(Asset.Columns.ID));
+        String image = cursor.getString(cursor.getColumnIndex(Asset.Columns.IMAGE));
+        String name = cursor.getString(cursor.getColumnIndex(Asset.Columns.NAME));
+        String tag = cursor.getString(cursor.getColumnIndex(Asset.Columns.TAG));
+        String serial = cursor.getString(cursor.getColumnIndex(Asset.Columns.SERIAL));
+        int modelID = cursor.getInt(cursor.getColumnIndex(Asset.Columns.MODEL_ID));
+        int statusID = cursor.getInt(cursor.getColumnIndex(Asset.Columns.STATUS_ID));
+        int assignedToID = cursor.getInt(cursor.getColumnIndex(Asset.Columns.ASSIGNED_TO_ID));
+        int locationID = cursor.getInt(cursor.getColumnIndex(Asset.Columns.LOCATION_ID));
+        int categoryID = cursor.getInt(cursor.getColumnIndex(Asset.Columns.CATEGORY_ID));
+        int manucaturerID = cursor.getInt(cursor.getColumnIndex(Asset.Columns.MANUFACTURER_ID));
+        String eol = cursor.getString(cursor.getColumnIndex(Asset.Columns.EOL));
+        String purchaseCost = cursor.getString(cursor.getColumnIndex(Asset.Columns.PURCHASE_COST));
+        String purchaseDate = cursor.getString(cursor.getColumnIndex(Asset.Columns.PURCHASE_DATE));
+        String notes = cursor.getString(cursor.getColumnIndex(Asset.Columns.NOTES));
+        String orderNumber = cursor.getString(cursor.getColumnIndex(Asset.Columns.ORDER_NUMBER));
+        long lastCheckout = cursor.getLong(cursor.getColumnIndex(Asset.Columns.LAST_CHECKOUT));
+        long expectedCheckin = cursor.getLong(cursor.getColumnIndex(Asset.Columns.EXPECTED_CHECKIN));
+        long createdAt = cursor.getLong(cursor.getColumnIndex(Asset.Columns.CREATED_AT));
+        int companyID = cursor.getInt(cursor.getColumnIndex(Asset.Columns.COMPANY_ID));
+
+        Asset asset = new Asset()
+                .setId(cid)
+                .setImage(image)
+                .setName(name)
+                .setTag(tag)
+                .setSerial(serial)
+                .setModelID(modelID)
+                .setStatusID(statusID)
+                .setAssignedToID(assignedToID)
+                .setLocationID(locationID)
+                .setCategoryID(categoryID)
+                .setManufacturerID(manucaturerID)
+                .setEol(eol)
+                .setPurchaseCost(purchaseCost)
+                .setPurchaseDate(purchaseDate)
+                .setNotes(notes)
+                .setOrderNumber(orderNumber)
+                .setLastCheckout(lastCheckout)
+                .setExpectedCheckin(expectedCheckin)
+                .setCreatedAt(createdAt)
+                .setCompanyID(companyID);
         return asset;
     }
 
@@ -175,60 +161,24 @@ public class AssetTableHelper extends TableHelper<Asset> {
     public Asset findByName(String name) {
         String[] args = {name};
         String selection = Asset.Columns.NAME + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Asset asset = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_ASSETS, DB_PROJECTION, selection, args,
+            cursor = db.query(DatabaseOpenHelper.TABLE_ASSETS, null, selection, args,
                     null, null, Asset.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int id = cursor.getInt(cursor.getColumnIndex(Asset.Columns.ID));
-                String image = cursor.getString(cursor.getColumnIndex(Asset.Columns.IMAGE));
-                String tag = cursor.getString(cursor.getColumnIndex(Asset.Columns.TAG));
-                String serial = cursor.getString(cursor.getColumnIndex(Asset.Columns.SERIAL));
-                String model = cursor.getString(cursor.getColumnIndex(Asset.Columns.MODEL_ID));
-                String status = cursor.getString(cursor.getColumnIndex(Asset.Columns.STATUS_ID));
-                String assignedTo = cursor.getString(cursor.getColumnIndex(Asset.Columns.ASSIGNED_TO_ID));
-                String location = cursor.getString(cursor.getColumnIndex(Asset.Columns.LOCATION_ID));
-                String category = cursor.getString(cursor.getColumnIndex(Asset.Columns.CATEGORY_ID));
-                String manucaturer = cursor.getString(cursor.getColumnIndex(Asset.Columns.MANUFACTURER_ID));
-                String eol = cursor.getString(cursor.getColumnIndex(Asset.Columns.EOL));
-                String purchaseCost = cursor.getString(cursor.getColumnIndex(Asset.Columns.PURCHASE_COST));
-                String purchaseDate = cursor.getString(cursor.getColumnIndex(Asset.Columns.PURCHASE_DATE));
-                String notes = cursor.getString(cursor.getColumnIndex(Asset.Columns.NOTES));
-                String orderNumber = cursor.getString(cursor.getColumnIndex(Asset.Columns.ORDER_NUMBER));
-                String lastCheckout = cursor.getString(cursor.getColumnIndex(Asset.Columns.LAST_CHECKOUT));
-                String expectedCheckin = cursor.getString(cursor.getColumnIndex(Asset.Columns.EXPECTED_CHECKIN));
-                String createdAt = cursor.getString(cursor.getColumnIndex(Asset.Columns.CREATED_AT));
-                String companyName = cursor.getString(cursor.getColumnIndex(Asset.Columns.COMPANY_NAME));
-
-                asset = new Asset()
-                        .setId(id)
-                        .setImage(image)
-                        .setName(name)
-                        .setTag(tag)
-                        .setSerial(serial)
-                        .setModel(model)
-                        .setStatus(status)
-                        .setAssignedTo(assignedTo)
-                        .setLocation(location)
-                        .setCategory(category)
-                        .setManufacturer(manucaturer)
-                        .setEol(eol)
-                        .setPurchaseCost(purchaseCost)
-                        .setPurchaseDate(purchaseDate)
-                        .setNotes(notes)
-                        .setOrderNumber(orderNumber)
-                        .setLastCheckout(lastCheckout)
-                        .setExpectedCheckin(expectedCheckin)
-                        .setCreatedAt(createdAt)
-                        .setCompanyName(companyName);
+                asset = getAssetFromCursor(cursor);
 
             }
         } catch (Exception e) {
             Log.e(TAG, "Caught exception while searching for asset with name " + name + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return asset;
@@ -238,55 +188,13 @@ public class AssetTableHelper extends TableHelper<Asset> {
     public List<Asset> findAll() {
         List<Asset> assets = new ArrayList<>();
 
-        Cursor cursor;
+        Cursor cursor = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_ASSETS, DB_PROJECTION, null, null,
+            cursor = db.query(DatabaseOpenHelper.TABLE_ASSETS, null, null, null,
                     null, null, Asset.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int id = cursor.getInt(cursor.getColumnIndex(Asset.Columns.ID));
-                String image = cursor.getString(cursor.getColumnIndex(Asset.Columns.IMAGE));
-                String name = cursor.getString(cursor.getColumnIndex(Asset.Columns.NAME));
-                String tag = cursor.getString(cursor.getColumnIndex(Asset.Columns.TAG));
-                String serial = cursor.getString(cursor.getColumnIndex(Asset.Columns.SERIAL));
-                String model = cursor.getString(cursor.getColumnIndex(Asset.Columns.MODEL_ID));
-                String status = cursor.getString(cursor.getColumnIndex(Asset.Columns.STATUS_ID));
-                String assignedTo = cursor.getString(cursor.getColumnIndex(Asset.Columns.ASSIGNED_TO_ID));
-                String location = cursor.getString(cursor.getColumnIndex(Asset.Columns.LOCATION_ID));
-                String category = cursor.getString(cursor.getColumnIndex(Asset.Columns.CATEGORY_ID));
-                String manucaturer = cursor.getString(cursor.getColumnIndex(Asset.Columns.MANUFACTURER_ID));
-                String eol = cursor.getString(cursor.getColumnIndex(Asset.Columns.EOL));
-                String purchaseCost = cursor.getString(cursor.getColumnIndex(Asset.Columns.PURCHASE_COST));
-                String purchaseDate = cursor.getString(cursor.getColumnIndex(Asset.Columns.PURCHASE_DATE));
-                String notes = cursor.getString(cursor.getColumnIndex(Asset.Columns.NOTES));
-                String orderNumber = cursor.getString(cursor.getColumnIndex(Asset.Columns.ORDER_NUMBER));
-                String lastCheckout = cursor.getString(cursor.getColumnIndex(Asset.Columns.LAST_CHECKOUT));
-                String expectedCheckin = cursor.getString(cursor.getColumnIndex(Asset.Columns.EXPECTED_CHECKIN));
-                String createdAt = cursor.getString(cursor.getColumnIndex(Asset.Columns.CREATED_AT));
-                String companyName = cursor.getString(cursor.getColumnIndex(Asset.Columns.COMPANY_NAME));
-
-                Asset asset = new Asset()
-                        .setId(id)
-                        .setImage(image)
-                        .setName(name)
-                        .setTag(tag)
-                        .setSerial(serial)
-                        .setModel(model)
-                        .setStatus(status)
-                        .setAssignedTo(assignedTo)
-                        .setLocation(location)
-                        .setCategory(category)
-                        .setManufacturer(manucaturer)
-                        .setEol(eol)
-                        .setPurchaseCost(purchaseCost)
-                        .setPurchaseDate(purchaseDate)
-                        .setNotes(notes)
-                        .setOrderNumber(orderNumber)
-                        .setLastCheckout(lastCheckout)
-                        .setExpectedCheckin(expectedCheckin)
-                        .setCreatedAt(createdAt)
-                        .setCompanyName(companyName);
-
+                Asset asset = getAssetFromCursor(cursor);
                 assets.add(asset);
 
             }
@@ -294,6 +202,10 @@ public class AssetTableHelper extends TableHelper<Asset> {
             Log.e(TAG, "Caught exception while searching for assets: " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return assets;
@@ -302,60 +214,24 @@ public class AssetTableHelper extends TableHelper<Asset> {
     public Asset findByTag(String tag) {
         String[] args = {tag};
         String selection = Asset.Columns.TAG + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Asset asset = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_ASSETS, DB_PROJECTION, selection, args,
+            cursor = db.query(DatabaseOpenHelper.TABLE_ASSETS, null, selection, args,
                     null, null, Asset.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int id = cursor.getInt(cursor.getColumnIndex(Asset.Columns.ID));
-                String image = cursor.getString(cursor.getColumnIndex(Asset.Columns.IMAGE));
-                String name = cursor.getString(cursor.getColumnIndex(Asset.Columns.NAME));
-                String serial = cursor.getString(cursor.getColumnIndex(Asset.Columns.SERIAL));
-                String model = cursor.getString(cursor.getColumnIndex(Asset.Columns.MODEL_ID));
-                String status = cursor.getString(cursor.getColumnIndex(Asset.Columns.STATUS_ID));
-                String assignedTo = cursor.getString(cursor.getColumnIndex(Asset.Columns.ASSIGNED_TO_ID));
-                String location = cursor.getString(cursor.getColumnIndex(Asset.Columns.LOCATION_ID));
-                String category = cursor.getString(cursor.getColumnIndex(Asset.Columns.CATEGORY_ID));
-                String manucaturer = cursor.getString(cursor.getColumnIndex(Asset.Columns.MANUFACTURER_ID));
-                String eol = cursor.getString(cursor.getColumnIndex(Asset.Columns.EOL));
-                String purchaseCost = cursor.getString(cursor.getColumnIndex(Asset.Columns.PURCHASE_COST));
-                String purchaseDate = cursor.getString(cursor.getColumnIndex(Asset.Columns.PURCHASE_DATE));
-                String notes = cursor.getString(cursor.getColumnIndex(Asset.Columns.NOTES));
-                String orderNumber = cursor.getString(cursor.getColumnIndex(Asset.Columns.ORDER_NUMBER));
-                String lastCheckout = cursor.getString(cursor.getColumnIndex(Asset.Columns.LAST_CHECKOUT));
-                String expectedCheckin = cursor.getString(cursor.getColumnIndex(Asset.Columns.EXPECTED_CHECKIN));
-                String createdAt = cursor.getString(cursor.getColumnIndex(Asset.Columns.CREATED_AT));
-                String companyName = cursor.getString(cursor.getColumnIndex(Asset.Columns.COMPANY_NAME));
-
-                asset = new Asset()
-                        .setId(id)
-                        .setImage(image)
-                        .setName(name)
-                        .setTag(tag)
-                        .setSerial(serial)
-                        .setModel(model)
-                        .setStatus(status)
-                        .setAssignedTo(assignedTo)
-                        .setLocation(location)
-                        .setCategory(category)
-                        .setManufacturer(manucaturer)
-                        .setEol(eol)
-                        .setPurchaseCost(purchaseCost)
-                        .setPurchaseDate(purchaseDate)
-                        .setNotes(notes)
-                        .setOrderNumber(orderNumber)
-                        .setLastCheckout(lastCheckout)
-                        .setExpectedCheckin(expectedCheckin)
-                        .setCreatedAt(createdAt)
-                        .setCompanyName(companyName);
+                asset = getAssetFromCursor(cursor);
 
             }
         } catch (Exception e) {
             Log.e(TAG, "Caught exception while searching for asset with TAG " + tag + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return asset;

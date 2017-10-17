@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowUser;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3User;
 
 /**
  * Created by Jonathan Nelson on 7/7/17.
@@ -31,7 +31,7 @@ public class UserResponse {
     private int total;
 
     @SerializedName("rows")
-    private List<ShadowUser> users;
+    private List<Snipeit3User> users;
 
     public int getTotal() {
         return total;
@@ -41,11 +41,11 @@ public class UserResponse {
         this.total = total;
     }
 
-    public List<ShadowUser> getUsers() {
+    public List<Snipeit3User> getUsers() {
         return users;
     }
 
-    public void setUsers(List<ShadowUser> users) {
+    public void setUsers(List<Snipeit3User> users) {
         this.users = users;
     }
 }

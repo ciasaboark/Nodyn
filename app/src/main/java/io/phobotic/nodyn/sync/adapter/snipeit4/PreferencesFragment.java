@@ -15,43 +15,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.phobotic.nodyn.fragment.preference;
+package io.phobotic.nodyn.sync.adapter.snipeit4;
 
-import android.annotation.TargetApi;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.view.MenuItem;
 
 import io.phobotic.nodyn.R;
-import io.phobotic.nodyn.activity.SettingsActivity;
+import io.phobotic.nodyn.fragment.preference.PreferenceListeners;
 
 /**
- * This fragment shows notification preferences only. It is used when the
- * activity is showing a two-pane settings UI.
+ * Created by Jonathan Nelson on 7/27/17.
  */
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class NotificationPreferenceFragment extends PreferenceFragmentCompat {
+
+public class PreferencesFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.pref_notification, rootKey);
+        setPreferencesFromResource(R.xml.pref_sync_snipeit_4, rootKey);
         setHasOptionsMenu(true);
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences
         // to their values. When their values change, their summaries are
         // updated to reflect the new value, per the Android Design
         // guidelines.
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference("notifications_exceptions_email"));
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            startActivity(new Intent(getActivity(), SettingsActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_snipeit_4_protocol)));
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_snipeit_4_host)));
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_snipeit_4_port)));
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_snipeit_4_api_key)));
     }
 }

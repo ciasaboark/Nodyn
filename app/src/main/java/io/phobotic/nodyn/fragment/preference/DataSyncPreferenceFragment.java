@@ -19,7 +19,6 @@ package io.phobotic.nodyn.fragment.preference;
 
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -27,10 +26,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.view.MenuItem;
 
 import io.phobotic.nodyn.R;
-import io.phobotic.nodyn.activity.SettingsActivity;
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.sync.SyncManager;
 import io.phobotic.nodyn.sync.adapter.SyncAdapter;
@@ -51,9 +48,9 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
         // to their values. When their values change, their summaries are
         // updated to reflect the new value, per the Android Design
         // guidelines.
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_sync_frequency)));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_sync_backend)));
 
         Preference backendConfigurePreference = findPreference(
@@ -78,7 +75,7 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
                     AlertDialog d = b.create();
                     d.show();
                 } else {
-                    // TODO: 7/27/17 find a way to use the support fragments librart to display the FragmentDialog
+                    // TODO: 7/27/17 find a way to use the support fragments library to display the FragmentDialog
                     dialog.show(fm, "dialog");
                 }
                 return true;
@@ -94,21 +91,9 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
                 db.dumpModel();
 
                 //Let the static listener update the summary.  This is ugly, but it will do
-                SettingsActivity.sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, newValue);
+                PreferenceListeners.sGenericPreferenceListener.onPreferenceChange(preference, newValue);
                 return true;
             }
         });
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            startActivity(new Intent(getActivity(), SettingsActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
 }

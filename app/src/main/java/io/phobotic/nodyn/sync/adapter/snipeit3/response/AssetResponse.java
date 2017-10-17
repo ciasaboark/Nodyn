@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowAsset;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3Asset;
 
 /**
  * Created by Jonathan Nelson on 7/7/17.
@@ -31,7 +31,7 @@ public class AssetResponse {
     private int total;
 
     @SerializedName("rows")
-    private List<ShadowAsset> assets;
+    private List<Snipeit3Asset> assets;
 
     public int getTotal() {
         return total;
@@ -41,11 +41,11 @@ public class AssetResponse {
         this.total = total;
     }
 
-    public List<ShadowAsset> getAssets() {
+    public List<Snipeit3Asset> getAssets() {
         return assets;
     }
 
-    public void setAssets(List<ShadowAsset> assets) {
+    public void setAssets(List<Snipeit3Asset> assets) {
         this.assets = assets;
     }
 }

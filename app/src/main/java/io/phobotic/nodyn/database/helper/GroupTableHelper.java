@@ -27,8 +27,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.database.DatabaseOpenHelper;
+import io.phobotic.nodyn.database.exception.GroupNotFoundException;
 import io.phobotic.nodyn.database.model.Group;
+import io.phobotic.nodyn.database.model.User;
 
 
 /**
@@ -38,17 +41,32 @@ import io.phobotic.nodyn.database.model.Group;
 public class GroupTableHelper extends TableHelper<Group> {
     private static final String TAG = GroupTableHelper.class.getSimpleName();
 
-    private static final String[] DB_PROJECTION = {
-            Group.Columns.ID,
-            Group.Columns.NAME,
-            Group.Columns.USERS,
-            Group.Columns.CREATED_AT
-    };
+    /**
+     * Returns the user's groups formatted by name
+     *
+     * @return
+     */
+    public static String getGroupString(User user, Database db) {
+        String groupsString = null;
+        int[] groupIDs = user.getGroupsIDs();
+        if (groupIDs == null || groupIDs.length == 0) {
+            //just return a null string
+        } else {
+            groupsString = "";
+            String prefix = "";
+            for (int id : groupIDs) {
+                try {
+                    Group g = db.findGroupByID(id);
+                    groupsString += prefix + g.getName();
+                    prefix = ", ";
+                } catch (GroupNotFoundException e) {
+                    Log.d(TAG, "Unable to find group with ID: '" + id + "', skipping");
+                }
+            }
+        }
 
-    private static final int DB_PROJECTION_ID = 0;
-    private static final int DB_PROJECTION_NAME = 1;
-    private static final int DB_PROJECTION_USERS = 2;
-    private static final int DB_PROJECTION_CREATED_AT = 3;
+        return groupsString;
+    }
 
     public GroupTableHelper(SQLiteDatabase db) {
         super(db);
@@ -72,7 +90,7 @@ public class GroupTableHelper extends TableHelper<Group> {
         ContentValues cv = new ContentValues();
         cv.put(Group.Columns.ID, item.getId());
         cv.put(Group.Columns.NAME, item.getName());
-        cv.put(Group.Columns.USERS, item.getUsers());
+        cv.put(Group.Columns.USER_COUNT, item.getUserCount());
         cv.put(Group.Columns.CREATED_AT, item.getCreatedAt());
 
         long rowID = db.insertWithOnConflict(DatabaseOpenHelper.TABLE_GROUP, null, cv,
@@ -85,28 +103,23 @@ public class GroupTableHelper extends TableHelper<Group> {
     public Group findByID(int id) {
         String[] args = {String.valueOf(id)};
         String selection = Group.Columns.ID + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Group group = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_GROUP, DB_PROJECTION, selection, args,
+            cursor = db.query(DatabaseOpenHelper.TABLE_GROUP, null, selection, args,
                     null, null, Group.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int cid = cursor.getInt(cursor.getColumnIndex(Group.Columns.ID));
-                String name = cursor.getString(cursor.getColumnIndex(Group.Columns.NAME));
-                int users = cursor.getInt(cursor.getColumnIndex(Group.Columns.USERS));
-                String createdAt = cursor.getString(cursor.getColumnIndex(Group.Columns.CREATED_AT));
-
-                group = new Group()
-                        .setId(cid)
-                        .setName(name)
-                        .setUsers(users)
-                        .setCreatedAt(createdAt);
+                group = getGroupFromCursor(cursor);
             }
         } catch (Exception e) {
             Log.e(TAG, "Caught exception while searching for group with ID " + id + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return group;
@@ -115,28 +128,23 @@ public class GroupTableHelper extends TableHelper<Group> {
     public Group findByName(String name) {
         String[] args = {name};
         String selection = Group.Columns.NAME + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Group group = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_GROUP, DB_PROJECTION, selection, args,
+            cursor = db.query(DatabaseOpenHelper.TABLE_GROUP, null, selection, args,
                     null, null, Group.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int id = cursor.getInt(DB_PROJECTION_ID);
-                String cname = cursor.getString(DB_PROJECTION_NAME);
-                int users = cursor.getInt(DB_PROJECTION_USERS);
-                String createdAt = cursor.getString(DB_PROJECTION_CREATED_AT);
-
-                group = new Group()
-                        .setId(id)
-                        .setName(cname)
-                        .setUsers(users)
-                        .setCreatedAt(createdAt);
+                group = getGroupFromCursor(cursor);
             }
         } catch (Exception e) {
             Log.e(TAG, "Caught exception while searching for group with name " + name + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return group;
@@ -147,32 +155,41 @@ public class GroupTableHelper extends TableHelper<Group> {
     public List<Group> findAll() {
         List<Group> groups = new ArrayList<>();
 
-        Cursor cursor;
+        Cursor cursor = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_GROUP, DB_PROJECTION, null, null,
+            cursor = db.query(DatabaseOpenHelper.TABLE_GROUP, null, null, null,
                     null, null, Group.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int id = cursor.getInt(DB_PROJECTION_ID);
-                String cname = cursor.getString(DB_PROJECTION_NAME);
-                int users = cursor.getInt(DB_PROJECTION_USERS);
-                String createdAt = cursor.getString(DB_PROJECTION_CREATED_AT);
-
-                Group group = new Group()
-                        .setId(id)
-                        .setName(cname)
-                        .setUsers(users)
-                        .setCreatedAt(createdAt);
+                Group group = getGroupFromCursor(cursor);
                 groups.add(group);
             }
         } catch (Exception e) {
             Log.e(TAG, "Caught exception while searching for groups: " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return groups;
     }
 
+    private Group getGroupFromCursor(Cursor cursor) {
+        int id = cursor.getInt(cursor.getColumnIndex(Group.Columns.ID));
+        String cname = cursor.getString(cursor.getColumnIndex(Group.Columns.NAME));
+        int users = cursor.getInt(cursor.getColumnIndex(Group.Columns.USER_COUNT));
+        String createdAt = cursor.getString(cursor.getColumnIndex(Group.Columns.CREATED_AT));
+
+        Group group = new Group()
+                .setId(id)
+                .setName(cname)
+                .setUserCount(users)
+                .setCreatedAt(createdAt);
+
+        return group;
+    }
 
 }

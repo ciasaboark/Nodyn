@@ -31,6 +31,7 @@ import io.phobotic.nodyn.database.model.Category;
 import io.phobotic.nodyn.database.model.FullDataModel;
 import io.phobotic.nodyn.database.model.Group;
 import io.phobotic.nodyn.database.model.MaintenanceRecord;
+import io.phobotic.nodyn.database.model.Manufacturer;
 import io.phobotic.nodyn.database.model.Model;
 import io.phobotic.nodyn.database.model.Status;
 import io.phobotic.nodyn.database.model.User;
@@ -47,34 +48,12 @@ import io.phobotic.nodyn.sync.adapter.SyncNotSupportedException;
  */
 
 public class DummyAdapter implements SyncAdapter {
-    @Override
-    public List<Asset> fetchAssets(Context context) throws SyncException {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<Model> fetchModels(Context context) throws SyncException {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<User> fetchUsers(Context context) throws SyncException {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<Group> fetchGroups(Context context) throws SyncException {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<Category> fetchCategories(Context context) throws SyncException {
-        return new ArrayList<>();
-    }
-
-    @Override
     public List<Status> fetchStatuses(Context context) throws SyncException {
         return new ArrayList<>();
+    }
+
+    public List<Manufacturer> fetchManufacturers(Context context) throws SyncException {
+        return null;
     }
 
     @Override
@@ -85,6 +64,26 @@ public class DummyAdapter implements SyncAdapter {
                 .setCategories(fetchCategories(context))
                 .setAssets(fetchAssets(context))
                 .setGroups(fetchGroups(context));
+    }
+
+    public List<Model> fetchModels(Context context) throws SyncException {
+        return new ArrayList<>();
+    }
+
+    public List<User> fetchUsers(Context context) throws SyncException {
+        return new ArrayList<>();
+    }
+
+    public List<Category> fetchCategories(Context context) throws SyncException {
+        return new ArrayList<>();
+    }
+
+    public List<Asset> fetchAssets(Context context) throws SyncException {
+        return new ArrayList<>();
+    }
+
+    public List<Group> fetchGroups(Context context) throws SyncException {
+        return new ArrayList<>();
     }
 
     @Override

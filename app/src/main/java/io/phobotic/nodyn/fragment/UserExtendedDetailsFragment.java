@@ -27,6 +27,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.phobotic.nodyn.R;
+import io.phobotic.nodyn.database.Database;
+import io.phobotic.nodyn.database.exception.UserNotFoundException;
+import io.phobotic.nodyn.database.helper.GroupTableHelper;
 import io.phobotic.nodyn.database.model.User;
 
 public class UserExtendedDetailsFragment extends Fragment {
@@ -50,6 +53,7 @@ public class UserExtendedDetailsFragment extends Fragment {
     private View companyBox;
     private TextView jobTitle;
     private View jobTitleBox;
+    private Database db;
 
     public static UserExtendedDetailsFragment newInstance(User user) {
         UserExtendedDetailsFragment fragment = new UserExtendedDetailsFragment();
@@ -76,6 +80,7 @@ public class UserExtendedDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_user_extended_details, container, false);
+        db = Database.getInstance(getContext());
         init();
         return rootView;
     }
@@ -113,13 +118,30 @@ public class UserExtendedDetailsFragment extends Fragment {
         unhideAllViews();
         if (user != null) {
             setTextOrHide(jobTitleBox, jobTitle, user.getJobTitle());
-            setTextOrHide(locationBox, location, user.getLocation());
-            setTextOrHide(managerBox, manager, user.getManager());
+
+            // TODO: 9/14/17 update this to use Location once class has been created
+//            String locationName = null;
+//            try {
+//
+//            }
+            setTextOrHide(locationBox, location, null);
+
+            String managerName = null;
+            try {
+                User u = db.findUserByID(user.getManagerID());
+                managerName = u.getName();
+            } catch (UserNotFoundException e) {
+            }
+
+            setTextOrHide(managerBox, manager, managerName);
             setTextOrHide(numAssetsBox, numAssets, String.valueOf(user.getNumAssets()));
             setTextOrHide(employeeNoBox, employeeNo, user.getEmployeeNum());
-            setTextOrHide(groupsBox, groups, user.getGroups());
+            setTextOrHide(groupsBox, groups, GroupTableHelper.getGroupString(user, db));
             setTextOrHide(notesBox, notes, user.getNotes());
-            setTextOrHide(companyBox, company, user.getCompanyName());
+
+            // TODO: 9/14/17 update this to use company info once class has been created
+            String companyName = null;
+            setTextOrHide(companyBox, company, companyName);
         }
     }
 

@@ -38,6 +38,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 import io.phobotic.nodyn.R;
+import io.phobotic.nodyn.database.Database;
+import io.phobotic.nodyn.database.helper.GroupTableHelper;
 import io.phobotic.nodyn.database.model.User;
 
 /**
@@ -47,6 +49,7 @@ import io.phobotic.nodyn.database.model.User;
 public class UserCardView extends LinearLayout {
     private static final String TAG = UserCardView.class.getSimpleName();
     private final Context context;
+    private final Database db;
     private User user;
     private View rootView;
     private TextView name;
@@ -65,13 +68,13 @@ public class UserCardView extends LinearLayout {
     public UserCardView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
-
+        this.db = Database.getInstance(context);
         init();
     }
 
     private void init() {
         rootView = inflate(context, R.layout.view_user_card, this);
-        name = (TextView) rootView.findViewById(R.id.name);
+        name = (TextView) rootView.findViewById(R.id.model);
 
         username = (TextView) rootView.findViewById(R.id.username);
         usernameBox = rootView.findViewById(R.id.username_box);
@@ -93,7 +96,8 @@ public class UserCardView extends LinearLayout {
             if (user != null) {
                 setTextOrHide(name, name, user.getName());
                 setTextOrHide(usernameBox, username, user.getUsername());
-                setTextOrHide(groupsBox, groups, user.getGroups());
+                // TODO: 9/13/17 this will need to be updated to use group name
+                setTextOrHide(groupsBox, groups, getGroupString());
                 setTextOrHide(employeeNoBox, employeeNo, user.getEmployeeNum());
                 loadImage();
             }
@@ -116,6 +120,10 @@ public class UserCardView extends LinearLayout {
         }
     }
 
+    private String getGroupString() {
+        return GroupTableHelper.getGroupString(user, db);
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void loadImage() {
         String email = user.getEmail();
@@ -123,7 +131,9 @@ public class UserCardView extends LinearLayout {
 
         String hash = null;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean useGravitar = prefs.getBoolean("pref_gravitar", false);
+        boolean useGravitar = prefs.getBoolean(context.getString(
+                R.string.pref_key_users_gravitar), Boolean.parseBoolean(
+                context.getString(R.string.pref_default_users_gravitar)));
 
         if (email != null && !email.equals("") && useGravitar) {
             try {

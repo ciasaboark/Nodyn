@@ -60,7 +60,6 @@ public class StatusTableHelper extends TableHelper<Status> {
         ContentValues cv = new ContentValues();
         cv.put(Status.Columns.ID, item.getId());
         cv.put(Status.Columns.NAME, item.getName());
-        ;
         cv.put(Status.Columns.TYPE, item.getType());
         cv.put(Status.Columns.COLOR, item.getColor());
 
@@ -74,7 +73,7 @@ public class StatusTableHelper extends TableHelper<Status> {
     public Status findByID(int id) {
         String[] args = {String.valueOf(id)};
         String selection = Status.Columns.ID + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Status status = null;
 
         try {
@@ -87,6 +86,10 @@ public class StatusTableHelper extends TableHelper<Status> {
             Log.e(TAG, "Caught exception while searching for status with ID " + id + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return status;
@@ -96,7 +99,7 @@ public class StatusTableHelper extends TableHelper<Status> {
     public Status findByName(String name) {
         String[] args = {name};
         String selection = Status.Columns.ID + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Status status = null;
 
         try {
@@ -109,6 +112,10 @@ public class StatusTableHelper extends TableHelper<Status> {
             Log.e(TAG, "Caught exception while searching for status name " + name + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return status;
@@ -119,7 +126,7 @@ public class StatusTableHelper extends TableHelper<Status> {
     public List<Status> findAll() {
         List<Status> statuses = new ArrayList<>();
 
-        Cursor cursor;
+        Cursor cursor = null;
 
         try {
             cursor = db.query(DatabaseOpenHelper.TABLE_STATUS, null, null, null,
@@ -133,6 +140,10 @@ public class StatusTableHelper extends TableHelper<Status> {
             Log.e(TAG, "Caught exception while searching for statuses: " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return statuses;

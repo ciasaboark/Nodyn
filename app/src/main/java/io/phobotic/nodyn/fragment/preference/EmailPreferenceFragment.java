@@ -18,14 +18,11 @@
 package io.phobotic.nodyn.fragment.preference;
 
 import android.annotation.TargetApi;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.view.MenuItem;
 
 import io.phobotic.nodyn.R;
-import io.phobotic.nodyn.activity.SettingsActivity;
 
 /**
  * Created by Jonathan Nelson on 8/20/17.
@@ -43,29 +40,17 @@ public class EmailPreferenceFragment extends PreferenceFragmentCompat {
         // to their values. When their values change, their summaries are
         // updated to reflect the new value, per the Android Design
         // guidelines.
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_email_exceptions_addresses)));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_email_sync_fail_addresses)));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_email_server)));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_email_port)));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_email_username)));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_email_password)));
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            startActivity(new Intent(getActivity(), SettingsActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
 }

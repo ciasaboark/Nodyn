@@ -22,35 +22,18 @@ package io.phobotic.nodyn.database.model;
  */
 
 public class Model {
-    private int id;
+    private int id = -1;
     private int manufacturerID = -1;
     private String name;
     private String image;
-    private String modelnumber;
+    private String modelNumber;
     private int numassets;
     private String depreciation;
     private int categoryID = -1;
     private String eol;
     private String note;
-    private String fieldset;
-
-    public int getId() {
-        return id;
-    }
-
-    public Model setId(int id) {
-        this.id = id;
-        return this;
-    }
-
-    public int getManufacturerID() {
-        return manufacturerID;
-    }
-
-    public Model setManufacturerID(int manufacturerID) {
-        this.manufacturerID = manufacturerID;
-        return this;
-    }
+    private int fieldsetID;
+    private String createdAt;
 
     public String getName() {
         return name;
@@ -70,12 +53,12 @@ public class Model {
         return this;
     }
 
-    public String getModelnumber() {
-        return modelnumber;
+    public String getModelNumber() {
+        return modelNumber;
     }
 
-    public Model setModelnumber(String modelnumber) {
-        this.modelnumber = modelnumber;
+    public Model setModelNumber(String modelNumber) {
+        this.modelNumber = modelNumber;
         return this;
     }
 
@@ -124,14 +107,63 @@ public class Model {
         return this;
     }
 
-    public String getFieldset() {
-        return fieldset;
+    public int getFieldsetID() {
+        return fieldsetID;
     }
 
-    public Model setFieldset(String fieldset) {
-        this.fieldset = fieldset;
+    public Model setFieldsetID(int fieldsetID) {
+        this.fieldsetID = fieldsetID;
         return this;
     }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public Model setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode() + manufacturerID;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Model)) {
+            return false;
+        } else {
+            return this.getId() == ((Model) obj).getId() &&
+                    this.manufacturerID == ((Model) obj).getManufacturerID();
+        }
+    }
+
+    public int getManufacturerID() {
+        return manufacturerID;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public Model setId(int id) {
+        this.id = id;
+        return this;
+    }
+
+    public Model setManufacturerID(int manufacturerID) {
+        this.manufacturerID = manufacturerID;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+
 
     public class Columns {
         public static final String ID = "id";
@@ -143,7 +175,8 @@ public class Model {
         public static final String DEPRECIATION = "depreciation";
         public static final String CATEGORY_ID = "category";
         public static final String EOL = "eol";
-        public static final String NOTE = "note";
-        public static final String FIELDSET = "fieldset";
+        public static final String NOTES = "note";
+        public static final String FIELDSET_ID = "fieldset";
+        public static final String CREATED_AT = "createdAt";
     }
 }

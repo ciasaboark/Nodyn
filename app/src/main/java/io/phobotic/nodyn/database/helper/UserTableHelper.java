@@ -35,34 +35,7 @@ import io.phobotic.nodyn.database.model.User;
  */
 
 public class UserTableHelper extends TableHelper<User> {
-
     private static final String TAG = UserTableHelper.class.getSimpleName();
-    private static final String[] DB_PROJECTION = {
-            User.Columns.ID,
-            User.Columns.NAME,
-            User.Columns.JOB_TITLE,
-            User.Columns.EMAIL,
-            User.Columns.USERNAME,
-            User.Columns.LOCATION_ID,
-            User.Columns.MANAGER_ID,
-            User.Columns.NUM_ASSETS,
-            User.Columns.EMPLOYEE_NUM,
-            User.Columns.GROUP_IDS,
-            User.Columns.NOTES,
-            User.Columns.COMPANY_ID
-    };
-    private static final int DB_PROJECTION_ID = 1;
-    private static final int DB_PROJECTION_NAME = 2;
-    private static final int DB_PROJECTION_JOB_TITLE = 3;
-    private static final int DB_PROJECTION_EMAIL = 4;
-    private static final int DB_PROJECTION_USERNAME = 5;
-    private static final int DB_PROJECTION_LOCATION = 6;
-    private static final int DB_PROJECTION_MANAGER = 7;
-    private static final int DB_PROJECTION_NUM_ASSETS = 8;
-    private static final int DB_PROJECTION_EMPLOYEE_NUM = 9;
-    private static final int DB_PROJECTION_GROUPS = 10;
-    private static final int DB_PROJECTION_NOTES = 11;
-    private static final int DB_PROJECTION_COMPANY_NAME = 12;
 
     public UserTableHelper(SQLiteDatabase db) {
         super(db);
@@ -84,13 +57,24 @@ public class UserTableHelper extends TableHelper<User> {
         cv.put(User.Columns.JOB_TITLE, item.getJobTitle());
         cv.put(User.Columns.EMAIL, item.getEmail());
         cv.put(User.Columns.USERNAME, item.getUsername());
-        cv.put(User.Columns.LOCATION_ID, item.getLocation());
-        cv.put(User.Columns.MANAGER_ID, item.getManager());
+        cv.put(User.Columns.LOCATION_ID, item.getLocationID());
+        cv.put(User.Columns.MANAGER_ID, item.getManagerID());
         cv.put(User.Columns.NUM_ASSETS, item.getNumAssets());
         cv.put(User.Columns.EMPLOYEE_NUM, item.getEmployeeNum());
-        cv.put(User.Columns.GROUP_IDS, item.getGroups());
+
+        String groupsString = "";
+        String prefix = "";
+        int[] groupIDs = item.getGroupsIDs();
+        if (groupIDs != null) {
+            for (int g : groupIDs) {
+                groupsString += prefix + String.valueOf(g);
+                prefix = ",";
+            }
+        }
+
+        cv.put(User.Columns.GROUP_IDS, groupsString);
         cv.put(User.Columns.NOTES, item.getNotes());
-        cv.put(User.Columns.COMPANY_ID, item.getCompanyName());
+        cv.put(User.Columns.COMPANY_ID, item.getCompanyID());
 
         long rowID = db.insertWithOnConflict(DatabaseOpenHelper.TABLE_USER, null, cv,
                 SQLiteDatabase.CONFLICT_REPLACE);
@@ -102,11 +86,11 @@ public class UserTableHelper extends TableHelper<User> {
     public User findByID(int id) {
         String[] args = {String.valueOf(id)};
         String selection = User.Columns.ID + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         User user = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_USER, DB_PROJECTION, selection, args,
+            cursor = db.query(DatabaseOpenHelper.TABLE_USER, null, selection, args,
                     null, null, User.Columns.ID, null);
             while (cursor.moveToNext()) {
                 user = getUserFromCursor(cursor);
@@ -115,6 +99,10 @@ public class UserTableHelper extends TableHelper<User> {
             Log.e(TAG, "Caught exception while searching for user with ID " + id + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return user;
@@ -123,11 +111,11 @@ public class UserTableHelper extends TableHelper<User> {
     public User findByName(String name) {
         String[] args = {name};
         String selection = User.Columns.NAME + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         User user = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_USER, DB_PROJECTION, selection, args,
+            cursor = db.query(DatabaseOpenHelper.TABLE_USER, null, selection, args,
                     null, null, User.Columns.ID, null);
             while (cursor.moveToNext()) {
                 user = getUserFromCursor(cursor);
@@ -136,6 +124,10 @@ public class UserTableHelper extends TableHelper<User> {
             Log.e(TAG, "Caught exception while searching for user with name " + name + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return user;
@@ -146,10 +138,10 @@ public class UserTableHelper extends TableHelper<User> {
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
 
-        Cursor cursor;
+        Cursor cursor = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_USER, DB_PROJECTION, null, null,
+            cursor = db.query(DatabaseOpenHelper.TABLE_USER, null, null, null,
                     null, null, User.Columns.ID, null);
             while (cursor.moveToNext()) {
                 User user = getUserFromCursor(cursor);
@@ -159,6 +151,10 @@ public class UserTableHelper extends TableHelper<User> {
             Log.e(TAG, "Caught exception while searching for users: " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return users;
@@ -170,12 +166,27 @@ public class UserTableHelper extends TableHelper<User> {
         String jobTitle = cursor.getString(cursor.getColumnIndex(User.Columns.JOB_TITLE));
         String email = cursor.getString(cursor.getColumnIndex(User.Columns.EMAIL));
         String username = cursor.getString(cursor.getColumnIndex(User.Columns.USERNAME));
-        String location = cursor.getString(cursor.getColumnIndex(User.Columns.LOCATION_ID));
-        String manager = cursor.getString(cursor.getColumnIndex(User.Columns.MANAGER_ID));
+        int locationID = cursor.getInt(cursor.getColumnIndex(User.Columns.LOCATION_ID));
+        int managerID = cursor.getInt(cursor.getColumnIndex(User.Columns.MANAGER_ID));
         int numAssets = cursor.getInt(cursor.getColumnIndex(User.Columns.NUM_ASSETS));
-        String groups = cursor.getString(cursor.getColumnIndex(User.Columns.GROUP_IDS));
+        String groupsString = cursor.getString(cursor.getColumnIndex(User.Columns.GROUP_IDS));
         String notes = cursor.getString(cursor.getColumnIndex(User.Columns.NOTES));
-        String companyName = cursor.getString(cursor.getColumnIndex(User.Columns.COMPANY_ID));
+        int companyID = cursor.getInt(cursor.getColumnIndex(User.Columns.COMPANY_ID));
+
+        String[] numParts = groupsString.split(",");
+        int[] groupIDs = new int[numParts.length];
+        if (numParts.length > 0) {
+            for (int i = 0; i < groupIDs.length; i++) {
+                String part = numParts[i];
+                try {
+                    int num = Integer.parseInt(part);
+                    groupIDs[i] = num;
+                } catch (NumberFormatException e) {
+                    Log.d(TAG, "Unable to convert group ID: '" + part + "' into an int group " +
+                            "ID, skipping");
+                }
+            }
+        }
 
         return new User()
                 .setId(id)
@@ -183,12 +194,12 @@ public class UserTableHelper extends TableHelper<User> {
                 .setJobTitle(jobTitle)
                 .setEmail(email)
                 .setUsername(username)
-                .setLocation(location)
-                .setManager(manager)
+                .setLocationID(locationID)
+                .setManagerID(managerID)
                 .setNumAssets(numAssets)
-                .setGroups(groups)
+                .setGroupsIDs(groupIDs)
                 .setNotes(notes)
-                .setCompanyName(companyName);
+                .setCompanyID(companyID);
     }
 
     private void clearTable() {
@@ -201,10 +212,10 @@ public class UserTableHelper extends TableHelper<User> {
 
         String[] args = {username};
         String selection = User.Columns.USERNAME + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_USER, DB_PROJECTION, selection, args,
+            cursor = db.query(DatabaseOpenHelper.TABLE_USER, null, selection, args,
                     null, null, User.Columns.ID, null);
             while (cursor.moveToNext()) {
                 user = getUserFromCursor(cursor);
@@ -213,6 +224,10 @@ public class UserTableHelper extends TableHelper<User> {
             Log.e(TAG, "Caught exception while searching for user with username " + username +
                     ": " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return user;

@@ -25,6 +25,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,14 +33,20 @@ import android.widget.TextView;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import io.phobotic.nodyn.MoonCalculation;
 import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.Versioning;
 
 public class AboutActivity extends AppCompatActivity {
+
+    private static final String TAG = AboutActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +96,23 @@ public class AboutActivity extends AppCompatActivity {
 //            }
 //        });
 //        background.startAnimation(fadeInAnimation);
+
+        MoonCalculation moonCalculation = new MoonCalculation();
+        Calendar cal = Calendar.getInstance();
+        for (int i = 0; i < 30; i++) {
+            int year = cal.get(Calendar.YEAR);
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+            int month = cal.get(Calendar.MONTH) + 1;    //Moon calculation expects Jan = 1
+            int phase = moonCalculation.moonPhase(year, month, day);
+            String phaseName = MoonCalculation.moon_phase_name[phase];
+            DateFormat df = new SimpleDateFormat();
+            Log.d(TAG, df.format(new Date(cal.getTimeInMillis())) + ": " + phaseName);
+
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+
+
 
         double[] gps = getGPS();
         Location location = new Location(String.valueOf(gps[0]), String.valueOf(gps[1]));

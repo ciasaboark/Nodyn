@@ -18,7 +18,9 @@
 package io.phobotic.nodyn.view;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
+import android.support.v7.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -52,7 +54,11 @@ public class VerifyCheckOutView extends LinearLayout {
 
     private void initMarkdown() {
         if (!isInEditMode()) {
-            markdownView.loadMarkdownFile("file:///android_asset/check_out_verification.md");
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            String eulaText = prefs.getString(getResources().getString(R.string.pref_key_check_out_eula),
+                    getResources().getString(R.string.check_out_no_eula_set));
+
+            markdownView.loadMarkdown(eulaText);
         }
     }
 

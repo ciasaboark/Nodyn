@@ -102,7 +102,7 @@ public class SyncHistoryHelper extends TableHelper<SyncHistory> {
     public List<SyncHistory> findAll() {
         List<SyncHistory> SyncHistorys = new ArrayList<>();
 
-        Cursor cursor;
+        Cursor cursor = null;
 
         try {
             cursor = db.query(DatabaseOpenHelper.TABLE_SYNC_HISTORY, null, null, null,
@@ -135,6 +135,10 @@ public class SyncHistoryHelper extends TableHelper<SyncHistory> {
             Log.e(TAG, "Caught exception while searching for sync histories: " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return SyncHistorys;

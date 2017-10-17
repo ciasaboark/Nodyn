@@ -15,41 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.phobotic.nodyn.sync.adapter.snipeit3.shadow;
+package io.phobotic.nodyn.database.exception;
 
 /**
- * Created by Jonathan Nelson on 9/13/17.
+ * Created by Jonathan Nelson on 9/14/17.
  */
 
-public class ShadowGroup {
-    private int id;
-    private String name;
-    private int users;
-
-    public int getId() {
-        return id;
-    }
-
-    public ShadowGroup setId(int id) {
-        this.id = id;
-        return this;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public ShadowGroup setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public int getUsers() {
-        return users;
-    }
-
-    public ShadowGroup setUsers(int users) {
-        this.users = users;
-        return this;
-    }
+public class ManufacturerNotFoundException extends Exception {
 }

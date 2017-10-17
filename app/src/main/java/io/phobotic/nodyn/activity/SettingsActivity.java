@@ -19,25 +19,17 @@ package io.phobotic.nodyn.activity;
 
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceManager;
-
-import java.util.HashSet;
 
 import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.fragment.preference.AssetPreferenceFragment;
 import io.phobotic.nodyn.fragment.preference.CheckInPreferenceFragment;
 import io.phobotic.nodyn.fragment.preference.CheckOutPreferenceFragment;
 import io.phobotic.nodyn.fragment.preference.DataSyncPreferenceFragment;
-import io.phobotic.nodyn.fragment.preference.NotificationPreferenceFragment;
 import io.phobotic.nodyn.fragment.preference.UsersPreferenceFragment;
 
 /**
@@ -52,78 +44,10 @@ import io.phobotic.nodyn.fragment.preference.UsersPreferenceFragment;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatActivity {
-    /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
-     */
-    public static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
-            Context context = preference.getContext();
-            if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
 
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
 
-            } else if (preference instanceof MultiSelectListPreference) {
-                //just use the default toString() value for String sets
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-                preference.setSummary(stringValue);
-            } else {
-                //this is rediculous, but the support library EditTextPreference has no
-                //+ getEditText() method so we can check the input type.
-                if (preference.getKey().equals(context.getResources().getString(
-                        R.string.pref_key_email_password))) {
-                    if (stringValue.length() == 0) {
-                        preference.setSummary("");
-                    } else {
-                        preference.setSummary("●●●●●●●●●●●●");
-                    }
 
-                } else {
-                    // For all other preferences, set the summary to the value's
-                    // simple string representation.
-                    preference.setSummary(stringValue);
-                }
-            }
-            return true;
-        }
-    };
 
-    /**
-     * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
-     * preference title) is updated to reflect the value. The summary is also
-     * immediately updated upon calling this method. The exact display format is
-     * dependent on the type of preference.
-     *
-     * @see #sBindPreferenceSummaryToValueListener
-     */
-    public static void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-
-        // Trigger the listener immediately with the preference's
-        // current value.
-        if (preference instanceof MultiSelectListPreference) {
-            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                    PreferenceManager.getDefaultSharedPreferences(preference.getContext())
-                            .getStringSet(preference.getKey(), new HashSet<String>()));
-        } else {
-            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                    PreferenceManager
-                            .getDefaultSharedPreferences(preference.getContext())
-                            .getString(preference.getKey(), ""));
-        }
-    }
 
     /**
      * Helper method to determine if the device has an extra-large screen. For
@@ -137,8 +61,9 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
         setupActionBar();
+//        addPreferencesFromResource(R.xml.preferences);
+        setContentView(R.layout.activity_settings);
     }
 
     /**
@@ -160,7 +85,6 @@ public class SettingsActivity extends AppCompatActivity {
         return PreferenceFragmentCompat.class.getName().equals(fragmentName)
                 || UsersPreferenceFragment.class.getName().equals(fragmentName)
                 || DataSyncPreferenceFragment.class.getName().equals(fragmentName)
-                || NotificationPreferenceFragment.class.getName().equals(fragmentName)
                 || CheckInPreferenceFragment.class.getName().equals(fragmentName)
                 || CheckOutPreferenceFragment.class.getName().equals(fragmentName)
                 || AssetPreferenceFragment.class.getName().equals(fragmentName);

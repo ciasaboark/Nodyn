@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowCategory;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3Category;
 
 /**
  * Created by Jonathan Nelson on 7/8/17.
@@ -30,7 +30,7 @@ import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowCategory;
 public class CategoryResponse {
     private int total;
     @SerializedName("rows")
-    private List<ShadowCategory> categories;
+    private List<Snipeit3Category> categories;
 
     public int getTotal() {
         return total;
@@ -41,11 +41,11 @@ public class CategoryResponse {
         return this;
     }
 
-    public List<ShadowCategory> getCategories() {
+    public List<Snipeit3Category> getCategories() {
         return categories;
     }
 
-    public CategoryResponse setCategories(List<ShadowCategory> categories) {
+    public CategoryResponse setCategories(List<Snipeit3Category> categories) {
         this.categories = categories;
         return this;
     }

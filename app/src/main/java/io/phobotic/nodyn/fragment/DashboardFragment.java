@@ -39,6 +39,7 @@ import android.view.ViewGroup;
 import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.fragment.dash.AssetStatusChartFragment;
+import io.phobotic.nodyn.fragment.dash.HistoryChartFragment;
 import io.phobotic.nodyn.fragment.dash.OverviewGridFragment;
 import io.phobotic.nodyn.fragment.dash.ShortActionHistoryFragment;
 import io.phobotic.nodyn.service.SyncService;
@@ -58,6 +59,7 @@ public class DashboardFragment extends Fragment {
     private AssetStatusChartFragment assetStatusChartFragment;
     private OverviewGridFragment overviewGridFragment;
     private ShortActionHistoryFragment actionHistoryFragment;
+    private HistoryChartFragment historyChartFragment;
 
 
     public static DashboardFragment newInstance() {
@@ -114,6 +116,8 @@ public class DashboardFragment extends Fragment {
         overviewGridFragment = (OverviewGridFragment) fm.findFragmentById(R.id.overview_grid_fragment);
         assetStatusChartFragment = (AssetStatusChartFragment) fm.findFragmentById(R.id.status_chart_fragment);
         actionHistoryFragment = (ShortActionHistoryFragment) fm.findFragmentById(R.id.action_history_fragment);
+        historyChartFragment = (HistoryChartFragment) fm.findFragmentById(R.id.history_chart_fragment);
+
         actionHistoryFragment.setColumnCount(2);
         actionHistoryFragment.setMaxRecords(10);
 
@@ -131,6 +135,31 @@ public class DashboardFragment extends Fragment {
                 }
             }
         };
+    }
+
+    /**
+     * Re-load data into the internal fragments only if the data is not currently loading
+     */
+    private void refreshIfNeeded() {
+        if (isLoading) {
+            swipeRefresh.setRefreshing(false);
+        } else {
+            refresh();
+        }
+    }
+
+    /**
+     * Force the internal fragments to re-load their data
+     */
+    private void refresh() {
+        swipeRefresh.setRefreshing(true);
+        // TODO: 10/4/17
+        overviewGridFragment.refresh();
+        assetStatusChartFragment.refresh();
+        actionHistoryFragment.refresh();
+        historyChartFragment.refresh();
+        isLoading = false;
+        swipeRefresh.setRefreshing(false);
     }
 
     @Override
@@ -168,30 +197,6 @@ public class DashboardFragment extends Fragment {
         }
 
         return false;
-    }
-
-    /**
-     * Re-load data into the internal fragments only if the data is not currently loading
-     */
-    private void refreshIfNeeded() {
-        if (isLoading) {
-            swipeRefresh.setRefreshing(false);
-        } else {
-            refresh();
-        }
-    }
-
-    /**
-     * Force the internal fragments to re-load their data
-     */
-    private void refresh() {
-        swipeRefresh.setRefreshing(true);
-        // TODO: 10/4/17
-        overviewGridFragment.refresh();
-        assetStatusChartFragment.refreshChart();
-        actionHistoryFragment.refresh();
-        isLoading = false;
-        swipeRefresh.setRefreshing(false);
     }
 
 }

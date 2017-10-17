@@ -26,7 +26,7 @@ import io.phobotic.nodyn.sync.Image;
  * Created by Jonathan Nelson on 9/12/17.
  */
 
-public class ShadowAsset {
+public class Snipeit3Asset {
     private int id;
     @Image
     private String image;
@@ -84,7 +84,7 @@ public class ShadowAsset {
         return id;
     }
 
-    public ShadowAsset setId(int id) {
+    public Snipeit3Asset setId(int id) {
         this.id = id;
         return this;
     }
@@ -93,7 +93,7 @@ public class ShadowAsset {
         return image;
     }
 
-    public ShadowAsset setImage(String image) {
+    public Snipeit3Asset setImage(String image) {
         this.image = image;
         return this;
     }
@@ -102,7 +102,7 @@ public class ShadowAsset {
         return name;
     }
 
-    public ShadowAsset setName(String name) {
+    public Snipeit3Asset setName(String name) {
         this.name = name;
         return this;
     }
@@ -111,7 +111,7 @@ public class ShadowAsset {
         return tag;
     }
 
-    public ShadowAsset setTag(String tag) {
+    public Snipeit3Asset setTag(String tag) {
         this.tag = tag;
         return this;
     }
@@ -120,7 +120,7 @@ public class ShadowAsset {
         return serial;
     }
 
-    public ShadowAsset setSerial(String serial) {
+    public Snipeit3Asset setSerial(String serial) {
         this.serial = serial;
         return this;
     }
@@ -129,7 +129,7 @@ public class ShadowAsset {
         return model;
     }
 
-    public ShadowAsset setModel(String model) {
+    public Snipeit3Asset setModel(String model) {
         this.model = model;
         return this;
     }
@@ -138,7 +138,7 @@ public class ShadowAsset {
         return status;
     }
 
-    public ShadowAsset setStatus(String status) {
+    public Snipeit3Asset setStatus(String status) {
         this.status = status;
         return this;
     }
@@ -147,7 +147,7 @@ public class ShadowAsset {
         return assignedTo;
     }
 
-    public ShadowAsset setAssignedTo(String assignedTo) {
+    public Snipeit3Asset setAssignedTo(String assignedTo) {
         this.assignedTo = assignedTo;
         return this;
     }
@@ -156,7 +156,7 @@ public class ShadowAsset {
         return location;
     }
 
-    public ShadowAsset setLocation(String location) {
+    public Snipeit3Asset setLocation(String location) {
         this.location = location;
         return this;
     }
@@ -165,7 +165,7 @@ public class ShadowAsset {
         return category;
     }
 
-    public ShadowAsset setCategory(String category) {
+    public Snipeit3Asset setCategory(String category) {
         this.category = category;
         return this;
     }
@@ -174,7 +174,7 @@ public class ShadowAsset {
         return manufacturer;
     }
 
-    public ShadowAsset setManufacturer(String manufacturer) {
+    public Snipeit3Asset setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
         return this;
     }
@@ -183,7 +183,7 @@ public class ShadowAsset {
         return eol;
     }
 
-    public ShadowAsset setEol(String eol) {
+    public Snipeit3Asset setEol(String eol) {
         this.eol = eol;
         return this;
     }
@@ -192,7 +192,7 @@ public class ShadowAsset {
         return purchaseCost;
     }
 
-    public ShadowAsset setPurchaseCost(String purchaseCost) {
+    public Snipeit3Asset setPurchaseCost(String purchaseCost) {
         this.purchaseCost = purchaseCost;
         return this;
     }
@@ -201,7 +201,7 @@ public class ShadowAsset {
         return purchaseDate;
     }
 
-    public ShadowAsset setPurchaseDate(String purchaseDate) {
+    public Snipeit3Asset setPurchaseDate(String purchaseDate) {
         this.purchaseDate = purchaseDate;
         return this;
     }
@@ -210,7 +210,7 @@ public class ShadowAsset {
         return notes;
     }
 
-    public ShadowAsset setNotes(String notes) {
+    public Snipeit3Asset setNotes(String notes) {
         this.notes = notes;
         return this;
     }
@@ -219,7 +219,7 @@ public class ShadowAsset {
         return orderNumber;
     }
 
-    public ShadowAsset setOrderNumber(String orderNumber) {
+    public Snipeit3Asset setOrderNumber(String orderNumber) {
         this.orderNumber = orderNumber;
         return this;
     }
@@ -228,7 +228,7 @@ public class ShadowAsset {
         return lastCheckout;
     }
 
-    public ShadowAsset setLastCheckout(String lastCheckout) {
+    public Snipeit3Asset setLastCheckout(String lastCheckout) {
         this.lastCheckout = lastCheckout;
         return this;
     }
@@ -237,7 +237,7 @@ public class ShadowAsset {
         return expectedCheckin;
     }
 
-    public ShadowAsset setExpectedCheckin(String expectedCheckin) {
+    public Snipeit3Asset setExpectedCheckin(String expectedCheckin) {
         this.expectedCheckin = expectedCheckin;
         return this;
     }
@@ -246,7 +246,7 @@ public class ShadowAsset {
         return createdAt;
     }
 
-    public ShadowAsset setCreatedAt(String createdAt) {
+    public Snipeit3Asset setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
         return this;
     }
@@ -255,7 +255,7 @@ public class ShadowAsset {
         return companyName;
     }
 
-    public ShadowAsset setCompanyName(String companyName) {
+    public Snipeit3Asset setCompanyName(String companyName) {
         this.companyName = companyName;
         return this;
     }

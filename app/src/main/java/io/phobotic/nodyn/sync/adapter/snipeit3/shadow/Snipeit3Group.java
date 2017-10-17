@@ -17,29 +17,20 @@
 
 package io.phobotic.nodyn.sync.adapter.snipeit3.shadow;
 
-import com.google.gson.annotations.SerializedName;
-
-import io.phobotic.nodyn.sync.HtmlEncoded;
-
 /**
  * Created by Jonathan Nelson on 9/13/17.
  */
 
-public class ShadowCategory {
+public class Snipeit3Group {
     private int id;
-    @HtmlEncoded
     private String name;
-    @SerializedName("category_type")
-    private String categoryType;
-    private int count;
-    private String acceptance;
-    private String eula;
+    private int users;
 
     public int getId() {
         return id;
     }
 
-    public ShadowCategory setId(int id) {
+    public Snipeit3Group setId(int id) {
         this.id = id;
         return this;
     }
@@ -48,44 +39,17 @@ public class ShadowCategory {
         return name;
     }
 
-    public ShadowCategory setName(String name) {
+    public Snipeit3Group setName(String name) {
         this.name = name;
         return this;
     }
 
-    public String getCategoryType() {
-        return categoryType;
+    public int getUsers() {
+        return users;
     }
 
-    public ShadowCategory setCategoryType(String categoryType) {
-        this.categoryType = categoryType;
-        return this;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public ShadowCategory setCount(int count) {
-        this.count = count;
-        return this;
-    }
-
-    public String getAcceptance() {
-        return acceptance;
-    }
-
-    public ShadowCategory setAcceptance(String acceptance) {
-        this.acceptance = acceptance;
-        return this;
-    }
-
-    public String getEula() {
-        return eula;
-    }
-
-    public ShadowCategory setEula(String eula) {
-        this.eula = eula;
+    public Snipeit3Group setUsers(int users) {
+        this.users = users;
         return this;
     }
 }

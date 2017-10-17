@@ -19,7 +19,7 @@ package io.phobotic.nodyn.list.viewholder;
 
 import android.support.v7.widget.RecyclerView;
 
-import io.phobotic.nodyn.database.model.Asset;
+import io.phobotic.nodyn.fragment.SimplifiedAsset;
 import io.phobotic.nodyn.view.AssetView;
 
 /**
@@ -27,7 +27,7 @@ import io.phobotic.nodyn.view.AssetView;
  */
 public class AssetViewHolder extends RecyclerView.ViewHolder {
     public final AssetView view;
-    public Asset item;
+    public SimplifiedAsset item;
 
     public AssetViewHolder(AssetView view) {
         super(view);

@@ -15,27 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.phobotic.nodyn.sync.adapter.snipeit3.shadow;
-
-import io.phobotic.nodyn.sync.HtmlEncoded;
+package io.phobotic.nodyn.sync.adapter.snipeit4.shadow;
 
 /**
- * Created by Jonathan Nelson on 9/12/17.
+ * Created by Jonathan Nelson on 9/13/17.
  */
 
-public class ShadowStatus {
+public class Snippet {
     private int id;
     private String name;
-    private String type;
-
-    @HtmlEncoded
-    private String color;
 
     public int getId() {
         return id;
     }
 
-    public ShadowStatus setId(int id) {
+    public Snippet setId(int id) {
         this.id = id;
         return this;
     }
@@ -44,26 +38,8 @@ public class ShadowStatus {
         return name;
     }
 
-    public ShadowStatus setName(String name) {
+    public Snippet setName(String name) {
         this.name = name;
-        return this;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public ShadowStatus setType(String type) {
-        this.type = type;
-        return this;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public ShadowStatus setColor(String color) {
-        this.color = color;
         return this;
     }
 }

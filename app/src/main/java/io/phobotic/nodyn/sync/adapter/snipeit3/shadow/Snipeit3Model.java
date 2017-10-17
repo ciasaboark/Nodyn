@@ -24,7 +24,7 @@ import io.phobotic.nodyn.sync.Image;
  * Created by Jonathan Nelson on 9/12/17.
  */
 
-public class ShadowModel {
+public class Snipeit3Model {
     private int id;
 
     @HtmlEncoded
@@ -51,7 +51,7 @@ public class ShadowModel {
         return id;
     }
 
-    public ShadowModel setId(int id) {
+    public Snipeit3Model setId(int id) {
         this.id = id;
         return this;
     }
@@ -60,7 +60,7 @@ public class ShadowModel {
         return manufacturer;
     }
 
-    public ShadowModel setManufacturer(String manufacturer) {
+    public Snipeit3Model setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
         return this;
     }
@@ -69,7 +69,7 @@ public class ShadowModel {
         return name;
     }
 
-    public ShadowModel setName(String name) {
+    public Snipeit3Model setName(String name) {
         this.name = name;
         return this;
     }
@@ -78,7 +78,7 @@ public class ShadowModel {
         return image;
     }
 
-    public ShadowModel setImage(String image) {
+    public Snipeit3Model setImage(String image) {
         this.image = image;
         return this;
     }
@@ -87,7 +87,7 @@ public class ShadowModel {
         return modelnumber;
     }
 
-    public ShadowModel setModelnumber(String modelnumber) {
+    public Snipeit3Model setModelnumber(String modelnumber) {
         this.modelnumber = modelnumber;
         return this;
     }
@@ -96,7 +96,7 @@ public class ShadowModel {
         return numassets;
     }
 
-    public ShadowModel setNumassets(int numassets) {
+    public Snipeit3Model setNumassets(int numassets) {
         this.numassets = numassets;
         return this;
     }
@@ -105,7 +105,7 @@ public class ShadowModel {
         return depreciation;
     }
 
-    public ShadowModel setDepreciation(String depreciation) {
+    public Snipeit3Model setDepreciation(String depreciation) {
         this.depreciation = depreciation;
         return this;
     }
@@ -114,7 +114,7 @@ public class ShadowModel {
         return category;
     }
 
-    public ShadowModel setCategory(String category) {
+    public Snipeit3Model setCategory(String category) {
         this.category = category;
         return this;
     }
@@ -123,7 +123,7 @@ public class ShadowModel {
         return eol;
     }
 
-    public ShadowModel setEol(String eol) {
+    public Snipeit3Model setEol(String eol) {
         this.eol = eol;
         return this;
     }
@@ -132,7 +132,7 @@ public class ShadowModel {
         return note;
     }
 
-    public ShadowModel setNote(String note) {
+    public Snipeit3Model setNote(String note) {
         this.note = note;
         return this;
     }
@@ -141,7 +141,7 @@ public class ShadowModel {
         return fieldset;
     }
 
-    public ShadowModel setFieldset(String fieldset) {
+    public Snipeit3Model setFieldset(String fieldset) {
         this.fieldset = fieldset;
         return this;
     }

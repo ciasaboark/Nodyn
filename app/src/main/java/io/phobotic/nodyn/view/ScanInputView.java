@@ -31,7 +31,9 @@ import android.graphics.drawable.TransitionDrawable;
 import android.hardware.usb.UsbManager;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -42,6 +44,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Random;
 
 import io.phobotic.nodyn.R;
 
@@ -56,6 +63,8 @@ public class ScanInputView extends LinearLayout {
     private ImageButton button;
     private boolean usingKeyboard = false;
     private BroadcastReceiver broadcastReceiver;
+    private boolean ghostMode = false;
+    private boolean forceScanInput = false;
 
     public ScanInputView(Context context) {
         super(context);
@@ -74,6 +83,66 @@ public class ScanInputView extends LinearLayout {
 
     public ScanInputView setListener(OnTextInputListener listener) {
         this.listener = listener;
+        return this;
+    }
+
+    public void reset() {
+        input.setText("");
+        updatePreview();
+    }
+
+    private void updatePreview() {
+        // TODO: 8/9/17 fancy animations and fading?
+        String str = input.getText().toString();
+
+        if (str == null || str.equals("")) {
+            str = "Scan Input";
+        } else {
+            str = ghostInput(str);
+        }
+
+        preview.setText(str);
+    }
+
+    private String ghostInput(String input) {
+        String str = input;
+
+        if (ghostMode) {
+            char dot = '•';
+            Random random = new Random(System.currentTimeMillis());
+            int minSize = input.length();
+            int size = random.nextInt(minSize * 3 - minSize) + minSize;
+            str = StringUtils.repeat(dot, size);
+        }
+
+        return str;
+    }
+
+    public ScanInputView setGhostMode(boolean ghostMode) {
+        this.ghostMode = ghostMode;
+
+        //make sure the text entry area ghosts the text as well
+        if (ghostMode) {
+            input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            input.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        } else {
+            input.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+            input.setTransformationMethod(null);
+        }
+
+        input.setSelection(input.getText().length());
+
+        updatePreview();
+        return this;
+    }
+
+    public ScanInputView setForceScanInput(boolean forceScanInput) {
+        this.forceScanInput = forceScanInput;
+        if (forceScanInput) {
+            button.setVisibility(View.GONE);
+        } else {
+            button.setVisibility(View.VISIBLE);
+        }
         return this;
     }
 
@@ -96,12 +165,14 @@ public class ScanInputView extends LinearLayout {
 
             updatePreview();
 
-            //default to the hidden input if a hardware keyboard is present
-            if (isHardwareKeyboardAvailable()) {
-                useScanner(false);
-            } else {
-                useKeyboard(false);
-            }
+//            //default to the hidden input if a hardware keyboard is present
+//            if (isHardwareKeyboardAvailable()) {
+//                useScanner(false);
+//            } else {
+//                useKeyboard(false);
+//            }
+
+            useScanner(false);
         }
     }
 
@@ -109,16 +180,20 @@ public class ScanInputView extends LinearLayout {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-//                Log.d(TAG, "received broadcast intent");
-//
-//
-//                if (isHardwareKeyboardAvailable()) {
-//                    Toast.makeText(context, "hardware keyboard available", Toast.LENGTH_SHORT).show();
-//                    useScanner(true);
-//                } else {
-//                    Toast.makeText(context, "hardware keyboard not available", Toast.LENGTH_SHORT).show();
-//                    useKeyboard(true);
-//                }
+                Log.d(TAG, "received broadcast intent");
+                Toast.makeText(getContext(), "Input received broadcast intent", Toast.LENGTH_SHORT).show();
+
+                //if scan mode has been forced then we need to skip showing the OSK when a keyboard
+                //+ or scanner is detatched
+                if (!forceScanInput) {
+                    if (isHardwareKeyboardAvailable()) {
+                        Toast.makeText(context, "hardware keyboard available", Toast.LENGTH_SHORT).show();
+                        useScanner(true);
+                    } else {
+                        Toast.makeText(context, "hardware keyboard not available", Toast.LENGTH_SHORT).show();
+                        useKeyboard(true);
+                    }
+                }
             }
         };
     }
@@ -150,19 +225,6 @@ public class ScanInputView extends LinearLayout {
     }
 
     private void initInput() {
-//        input.setOnFocusChangeListener(new OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if (hasFocus) {
-//                    //android may prevent the on screen keyboard from showing if a barcode scanner
-//                    //+ is attached.  Try to show it
-//                    forceShowOSK();
-//                } else {
-//                    hideOSK();
-//                }
-//            }
-//        });
-
         //The on screen keyboard will trigger an editor action once the search button is clicked.
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -170,10 +232,9 @@ public class ScanInputView extends LinearLayout {
                 boolean evenHandled = false;
 
                 if (actionId == EditorInfo.IME_ACTION_SEARCH
-                        || actionId == EditorInfo.IME_ACTION_DONE) {
-//                    //hide the on screen keyboard
-//                    forceHideOSK();
-//                    input.clearFocus();
+                        || actionId == EditorInfo.IME_ACTION_DONE
+                        || actionId == EditorInfo.IME_FLAG_NO_ENTER_ACTION
+                        || actionId == EditorInfo.IME_NULL) {
 
                     String str = v.getText().toString();
                     handleInputString(str);
@@ -204,9 +265,6 @@ public class ScanInputView extends LinearLayout {
                 String str = s.toString();
                 if (str.contains("\n")) {
                     handleInputString(str);
-                    preview.setTextColor(android.R.color.holo_green_light);
-                } else {
-                    preview.setTextColor(android.R.color.black);
                 }
             }
         });
@@ -233,12 +291,16 @@ public class ScanInputView extends LinearLayout {
     }
 
     private boolean isHardwareKeyboardAvailable() {
-        int keyboard = getResources().getConfiguration().keyboard;
+        boolean hardwareKeyboardAvailable = false;
+        Configuration config = getResources().getConfiguration();
 
-        return keyboard != Configuration.KEYBOARD_NOKEYS
-                && keyboard != Configuration.KEYBOARD_UNDEFINED
-                && keyboard != Configuration.KEYBOARD_12KEY
-                && keyboard != Configuration.KEYBOARD_QWERTY;
+        if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
+            hardwareKeyboardAvailable = true;
+        } else if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES) {
+            hardwareKeyboardAvailable = false;
+        }
+
+        return hardwareKeyboardAvailable;
     }
 
     private void useKeyboard(boolean transitionDrawable) {
@@ -402,21 +464,11 @@ public class ScanInputView extends LinearLayout {
                 }
 
                 //manually set the preview text again so that it sticks around
+                str = ghostInput(str);
                 preview.setText(str);
 
             }
         }
-    }
-
-    private void updatePreview() {
-        // TODO: 8/9/17 fancy animations and fading?
-        String str = input.getText().toString();
-
-        if (str == null || str.equals("")) {
-            str = null;
-        }
-
-        preview.setText(str);
     }
 
     private void forceShowOSK() {

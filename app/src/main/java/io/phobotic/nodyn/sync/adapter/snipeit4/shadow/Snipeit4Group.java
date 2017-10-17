@@ -15,37 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.phobotic.nodyn.sync.adapter.snipeit4;
+package io.phobotic.nodyn.sync.adapter.snipeit4.shadow;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
-import io.phobotic.nodyn.database.model.Asset;
+import io.phobotic.nodyn.database.model.Group;
 
 /**
- * Created by Jonathan Nelson on 7/7/17.
+ * Created by Jonathan Nelson on 9/13/17.
  */
 
-public class AssetResponse {
-    private int total;
+public class Snipeit4Group {
+    private int id;
+    private String name;
 
-    @SerializedName("rows")
-    private List<Asset> assets;
+    @SerializedName("users_count")
+    private int users;
 
-    public int getTotal() {
-        return total;
-    }
 
-    public void setTotal(int total) {
-        this.total = total;
-    }
+    public Group toGroup() {
+        Group group = new Group()
+                .setId(id)
+                .setName(name)
+                .setUserCount(users);
 
-    public List<Asset> getAssets() {
-        return assets;
-    }
-
-    public void setAssets(List<Asset> assets) {
-        this.assets = assets;
+        return group;
     }
 }

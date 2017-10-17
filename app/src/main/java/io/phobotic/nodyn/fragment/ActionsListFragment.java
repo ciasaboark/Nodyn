@@ -25,6 +25,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -32,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -51,16 +54,21 @@ import io.phobotic.nodyn.service.SyncService;
 public class ActionsListFragment extends Fragment {
     private static final String TAG = ActionsListFragment.class.getSimpleName();
     private static final String ARG_COLUMN_COUNT = "column-count";
+    private static final String ARG_MAX_RECORDS = "max-records";
+
     private int columnCount;
     private View rootView;
     private RecyclerView recyclerView;
     private View errEmptyList;
     private BroadcastReceiver br;
+    private int maxRecords = -1;
+    private VerticalSpaceItemDecoration decoration;
 
-    public static ActionsListFragment newInstance(int columnCount) {
+    public static ActionsListFragment newInstance(int columnCount, int maxRecords) {
         ActionsListFragment fragment = new ActionsListFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putInt(ARG_MAX_RECORDS, maxRecords);
         fragment.setArguments(args);
         return fragment;
     }
@@ -70,10 +78,21 @@ public class ActionsListFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("Check In/Check Out History");
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             columnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            maxRecords = getArguments().getInt(ARG_MAX_RECORDS);
         }
 
         br = new BroadcastReceiver() {
@@ -105,7 +124,9 @@ public class ActionsListFragment extends Fragment {
     private void init() {
         recyclerView = (RecyclerView) rootView.findViewById(R.id.list);
         errEmptyList = rootView.findViewById(R.id.empty_list);
-
+        final float spacingTop = getResources().getDimension(R.dimen.list_item_spacing_top);
+        final float spacingBottom = getResources().getDimension(R.dimen.list_item_spacing_bottom);
+        decoration = new VerticalSpaceItemDecoration(spacingTop, spacingBottom);
         initList();
     }
 
@@ -116,9 +137,7 @@ public class ActionsListFragment extends Fragment {
             recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), columnCount));
         }
 
-        final float spacingTop = getResources().getDimension(R.dimen.list_item_spacing_top);
-        final float spacingBottom = getResources().getDimension(R.dimen.list_item_spacing_bottom);
-        recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(spacingTop, spacingBottom));
+        recyclerView.addItemDecoration(decoration);
     }
 
     @Override
@@ -142,6 +161,14 @@ public class ActionsListFragment extends Fragment {
     private void showProperView() {
         Database db = Database.getInstance(getContext());
         List<Action> actions = db.getActions();
+        if (maxRecords != -1 && actions.size() > maxRecords) {
+            List<Action> trimmedList = new ArrayList<>();
+            for (int i = 0; i < maxRecords; i++) {
+                Action a = actions.get(i);
+                trimmedList.add(a);
+            }
+            actions = trimmedList;
+        }
 
         //sort the list in reverse chronological order
         Collections.sort(actions, new Comparator<Action>() {
@@ -168,5 +195,21 @@ public class ActionsListFragment extends Fragment {
         errEmptyList.setVisibility(View.GONE);
 
         recyclerView.setAdapter(new ActionRecyclerViewAdapter(actions, null));
+    }
+
+    public ActionsListFragment setColumnCount(int columnCount) {
+        this.columnCount = columnCount;
+        initList();
+        refresh();
+        return this;
+    }
+
+    public void refresh() {
+        showProperView();
+    }
+
+    public void setMaxRecords(int maxRecords) {
+        this.maxRecords = maxRecords;
+        refresh();
     }
 }

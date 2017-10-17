@@ -103,7 +103,7 @@ public class UserDetailsFragment extends Fragment {
 
     private void init() {
         image = (ImageView) rootView.findViewById(R.id.image);
-        name = (TextView) rootView.findViewById(R.id.name);
+        name = (TextView) rootView.findViewById(R.id.model);
 
         username = (TextView) rootView.findViewById(R.id.username);
         usernameBox = rootView.findViewById(R.id.username_box);

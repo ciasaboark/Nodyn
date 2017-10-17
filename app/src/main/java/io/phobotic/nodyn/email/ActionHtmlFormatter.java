@@ -53,7 +53,7 @@ public class ActionHtmlFormatter {
                 sb.append(asset.getSerial());
 
                 sb.append("</span></div><div>Serial: <span class=\"status\">");
-                sb.append(asset.getStatus());
+                sb.append(asset.getStatusID());
             }
         } catch (AssetNotFoundException e) {
             sb.append(action.getAction().getAssetID());

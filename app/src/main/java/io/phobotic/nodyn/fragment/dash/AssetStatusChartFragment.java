@@ -94,7 +94,7 @@ public class AssetStatusChartFragment extends Fragment {
         chart = (PieChart) rootView.findViewById(R.id.chart_detail);
         initChart();
 
-        refreshChart();
+        refresh();
     }
 
     private void initChart() {
@@ -119,7 +119,7 @@ public class AssetStatusChartFragment extends Fragment {
         chart.getLegend().setTextColor(getResources().getColor(android.R.color.secondary_text_light));
     }
 
-    public void refreshChart() {
+    public void refresh() {
         ArrayList<PieEntry> entries = new ArrayList<PieEntry>();
         List<Asset> allAssets = db.getAssets();
         List<Status> allStatuses = db.getStatuses();

@@ -34,8 +34,16 @@ import com.squareup.picasso.Transformation;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import io.phobotic.nodyn.R;
+import io.phobotic.nodyn.database.Database;
+import io.phobotic.nodyn.database.exception.StatusNotFoundException;
 import io.phobotic.nodyn.database.model.Asset;
+import io.phobotic.nodyn.database.model.Status;
+import io.phobotic.nodyn.fragment.SimplifiedAsset;
 
 /**
  * Created by Jonathan Nelson on 7/14/17.
@@ -44,7 +52,8 @@ import io.phobotic.nodyn.database.model.Asset;
 public class AssetView extends ConstraintLayout {
     private static final String TAG = AssetView.class.getSimpleName();
     private final Context context;
-    private Asset asset;
+    private Database db;
+    private SimplifiedAsset asset;
     private View rootView;
     private TextView name;
     private TextView serial;
@@ -60,7 +69,7 @@ public class AssetView extends ConstraintLayout {
     private TextView checkout;
     private View checkoutBox;
     private ImageView image;
-    private Integer statusColor = null;
+    private Integer highlightColor = null;
     private boolean isArchived = false;
 
 
@@ -68,9 +77,10 @@ public class AssetView extends ConstraintLayout {
         this(context, attrs, null);
     }
 
-    public AssetView(@NotNull Context context, AttributeSet attrs, @Nullable Asset asset) {
+    public AssetView(@NotNull Context context, AttributeSet attrs, @Nullable SimplifiedAsset asset) {
         super(context, attrs);
         this.context = context;
+        this.db = Database.getInstance(context);
         this.asset = asset;
         init();
     }
@@ -87,8 +97,8 @@ public class AssetView extends ConstraintLayout {
         serial = (TextView) rootView.findViewById(R.id.serial);
         serialBox = rootView.findViewById(R.id.serial_box);
 
-        model = (TextView) rootView.findViewById(R.id.model);
-        modelBox = rootView.findViewById(R.id.model_box);
+        model = (TextView) rootView.findViewById(R.id.model_name);
+        modelBox = rootView.findViewById(R.id.model_name_box);
 
         status = (TextView) rootView.findViewById(R.id.status);
 
@@ -106,13 +116,21 @@ public class AssetView extends ConstraintLayout {
         if (!isInEditMode()) {
             unHideAllViews();
             if (asset != null) {
+                // TODO: 9/13/17 update to use names instead of IDs
                 setTextOrHide(tag, tag, asset.getTag());
                 setTextOrHide(nameBox, name, asset.getName());
                 setTextOrHide(serialBox, serial, asset.getSerial());
-                setTextOrHide(modelBox, model, asset.getModel());
-                setTextOrHide(status, status, asset.getStatus());
-                setTextOrHide(userBox, user, asset.getAssignedTo());
-                setTextOrHide(checkoutBox, checkout, asset.getLastCheckout());
+                setTextOrHide(modelBox, model, asset.getModelName());
+                setTextOrHide(status, status, asset.getStatusName());
+                setTextOrHide(userBox, user, asset.getAssignedToName());
+
+                String lastCheckout = null;
+                if (asset.getLastCheckout() != -1) {
+                    Date d = new Date(asset.getLastCheckout());
+                    DateFormat df = new SimpleDateFormat();
+                    lastCheckout = df.format(d);
+                }
+                setTextOrHide(checkoutBox, checkout, lastCheckout);
                 loadImage();
             }
         }
@@ -150,8 +168,8 @@ public class AssetView extends ConstraintLayout {
                 R.string.pref_key_asset_status_color), Boolean.parseBoolean(
                 getResources().getString(R.string.pref_default_asset_status_color)));
 
-        if (statusColor != null && useStatusColor) {
-            circleColor = statusColor;
+        if (highlightColor != null && useStatusColor) {
+            circleColor = highlightColor;
         }
 
         Transformation transformation = new RoundedTransformationBuilder()
@@ -170,6 +188,22 @@ public class AssetView extends ConstraintLayout {
                 .into(this.image);
     }
 
+    private String getHighlightColor() {
+        String color = null;
+        try {
+            Status s = db.findStatusByID(asset.getStatusID());
+            color = s.getColor();
+        } catch (StatusNotFoundException e) {
+        }
+
+        return color;
+    }
+
+    public void setHighlightColor(Integer highlightColor) {
+        this.highlightColor = highlightColor;
+        setFields();
+    }
+
     public ImageView getImage() {
         return image;
     }
@@ -182,14 +216,10 @@ public class AssetView extends ConstraintLayout {
         return asset;
     }
 
-    public void setAsset(Asset asset) {
+    public AssetView setAsset(SimplifiedAsset asset) {
         this.asset = asset;
         setFields();
-    }
-
-    public void setStatusColor(Integer statusColor) {
-        this.statusColor = statusColor;
-        setFields();
+        return this;
     }
 
     public void setArchived(boolean archived) {

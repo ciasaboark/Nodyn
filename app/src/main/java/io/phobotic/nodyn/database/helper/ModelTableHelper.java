@@ -59,16 +59,17 @@ public class ModelTableHelper extends TableHelper<Model> {
     public void insert(Model item) {
         ContentValues cv = new ContentValues();
         cv.put(Model.Columns.ID, item.getId());
-        cv.put(Model.Columns.MANUFACTURER_ID, item.getManufacturer());
+        cv.put(Model.Columns.MANUFACTURER_ID, item.getManufacturerID());
         cv.put(Model.Columns.NAME, item.getName());
         cv.put(Model.Columns.IMAGE, item.getImage());
-        cv.put(Model.Columns.MODEL_NUMBER, item.getModelnumber());
+        cv.put(Model.Columns.MODEL_NUMBER, item.getModelNumber());
         cv.put(Model.Columns.NUM_ASSETS, item.getNumassets());
         cv.put(Model.Columns.DEPRECIATION, item.getDepreciation());
-        cv.put(Model.Columns.CATEGORY_ID, item.getCategory());
+        cv.put(Model.Columns.CATEGORY_ID, item.getCategoryID());
         cv.put(Model.Columns.EOL, item.getEol());
-        cv.put(Model.Columns.NOTE, item.getNote());
-        cv.put(Model.Columns.FIELDSET, item.getFieldset());
+        cv.put(Model.Columns.NOTES, item.getNote());
+        cv.put(Model.Columns.FIELDSET_ID, item.getFieldsetID());
+        cv.put(Model.Columns.CREATED_AT, item.getCreatedAt());
 
         long rowID = db.insertWithOnConflict(DatabaseOpenHelper.TABLE_MODEL, null, cv,
                 SQLiteDatabase.CONFLICT_REPLACE);
@@ -80,7 +81,7 @@ public class ModelTableHelper extends TableHelper<Model> {
     public Model findByID(int id) {
         String[] args = {String.valueOf(id)};
         String selection = Model.Columns.ID + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Model model = null;
 
         try {
@@ -93,6 +94,10 @@ public class ModelTableHelper extends TableHelper<Model> {
             Log.e(TAG, "Caught exception while searching for model with ID " + id + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return model;
@@ -102,7 +107,7 @@ public class ModelTableHelper extends TableHelper<Model> {
     public Model findByName(String name) {
         String[] args = {name};
         String selection = Model.Columns.ID + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Model model = null;
 
         try {
@@ -115,6 +120,10 @@ public class ModelTableHelper extends TableHelper<Model> {
             Log.e(TAG, "Caught exception while searching for model name " + name + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return model;
@@ -125,7 +134,7 @@ public class ModelTableHelper extends TableHelper<Model> {
     public List<Model> findAll() {
         List<Model> models = new ArrayList<>();
 
-        Cursor cursor;
+        Cursor cursor = null;
 
         try {
             cursor = db.query(DatabaseOpenHelper.TABLE_MODEL, null, null, null,
@@ -139,6 +148,10 @@ public class ModelTableHelper extends TableHelper<Model> {
             Log.e(TAG, "Caught exception while searching for models: " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return models;
@@ -147,29 +160,31 @@ public class ModelTableHelper extends TableHelper<Model> {
     private Model getModelFromCursor(Cursor cursor) throws Exception {
         Model model = null;
         int id = cursor.getInt(cursor.getColumnIndex(Model.Columns.ID));
-        String manufacturer = cursor.getString(cursor.getColumnIndex(Model.Columns.MANUFACTURER_ID));
+        int manufacturerID = cursor.getInt(cursor.getColumnIndex(Model.Columns.MANUFACTURER_ID));
         String name = cursor.getString(cursor.getColumnIndex(Model.Columns.NAME));
         String image = cursor.getString(cursor.getColumnIndex(Model.Columns.IMAGE));
         String modelNumber = cursor.getString(cursor.getColumnIndex(Model.Columns.MODEL_NUMBER));
         int numAssets = cursor.getInt(cursor.getColumnIndex(Model.Columns.NUM_ASSETS));
         String depreciation = cursor.getString(cursor.getColumnIndex(Model.Columns.DEPRECIATION));
-        String category = cursor.getString(cursor.getColumnIndex(Model.Columns.CATEGORY_ID));
+        int category = cursor.getInt(cursor.getColumnIndex(Model.Columns.CATEGORY_ID));
         String eol = cursor.getString(cursor.getColumnIndex(Model.Columns.EOL));
-        String note = cursor.getString(cursor.getColumnIndex(Model.Columns.NOTE));
-        String fieldset = cursor.getString(cursor.getColumnIndex(Model.Columns.FIELDSET));
+        String note = cursor.getString(cursor.getColumnIndex(Model.Columns.NOTES));
+        int fieldsetID = cursor.getInt(cursor.getColumnIndex(Model.Columns.FIELDSET_ID));
+        String createdAt = cursor.getString(cursor.getColumnIndex(Model.Columns.CREATED_AT));
 
         model = new Model()
                 .setId(id)
-                .setManufacturer(manufacturer)
+                .setManufacturerID(manufacturerID)
                 .setName(name)
                 .setImage(image)
-                .setModelnumber(modelNumber)
+                .setModelNumber(modelNumber)
                 .setNumassets(numAssets)
                 .setDepreciation(depreciation)
-                .setCategory(category)
+                .setCategoryID(category)
                 .setEol(eol)
                 .setNote(note)
-                .setFieldset(fieldset);
+                .setFieldsetID(fieldsetID)
+                .setCreatedAt(createdAt);
 
         return model;
     }

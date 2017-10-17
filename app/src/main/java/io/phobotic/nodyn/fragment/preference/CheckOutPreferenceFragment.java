@@ -17,25 +17,29 @@
 
 package io.phobotic.nodyn.fragment.preference;
 
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v14.preference.MultiSelectListPreference;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.EditText;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import io.phobotic.nodyn.R;
-import io.phobotic.nodyn.activity.SettingsActivity;
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.database.Verifiable;
 import io.phobotic.nodyn.database.model.Group;
@@ -56,42 +60,110 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.pref_check_out, rootKey);
         setHasOptionsMenu(true);
 
+        db = Database.getInstance(getContext());
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        initListeners();
+        initPreferences();
+    }
+
+    private void initListeners() {
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences
         // to their values. When their values change, their summaries are
         // updated to reflect the new value, per the Android Design
         // guidelines.
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_check_out_scan_field)));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
-                getString(R.string.pref_key_check_out_scan_groups)));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference(
-                getString(R.string.pref_key_check_out_models)));
 
+        Preference allowedGroups = findPreference(getString(R.string.pref_key_check_out_authorization_groups));
+        allowedGroups.setOnPreferenceChangeListener(PreferenceListeners.groupsChangeListener);
+        PreferenceListeners.groupsChangeListener.onPreferenceChange(allowedGroups,
+                prefs.getStringSet(allowedGroups.getKey(), new HashSet<String>()));
 
-        db = Database.getInstance(getContext());
-        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Preference allowedModels = findPreference(getString(R.string.pref_key_check_out_models));
+        allowedModels.setOnPreferenceChangeListener(PreferenceListeners.modelsChangeListener);
+        PreferenceListeners.modelsChangeListener.onPreferenceChange(allowedModels,
+                prefs.getStringSet(allowedModels.getKey(), new HashSet<String>()));
 
+        Preference eulaPreference = findPreference(getString(R.string.pref_key_check_out_eula));
+        eulaPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                View v = getLayoutInflater(null).inflate(R.layout.view_eula_text, null);
+                final EditText input = (EditText) v.findViewById(R.id.input);
+
+                String curEula = prefs.getString(getString(R.string.pref_key_check_out_eula),
+                        getString(R.string.pref_default_check_out_eula));
+                input.setText(curEula);
+
+                final AlertDialog d = new AlertDialog.Builder(getContext())
+                        .setTitle("Asset Checkout EULA")
+                        .setView(v)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String eulaText = input.getText().toString();
+                                if (eulaText.length() == 0) {
+                                    eulaText = null;
+                                }
+
+                                prefs.edit()
+                                        .putString(getString(R.string.pref_key_check_out_eula), eulaText)
+                                        .apply();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //nothing to do here
+                            }
+                        })
+                        .create();
+
+                d.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        d.getWindow().setSoftInputMode(
+                                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                    }
+                });
+
+                d.show();
+
+                return true;
+            }
+        });
+    }
+
+    private void initPreferences() {
         initGroupSelect();
         initScanFieldSelect();
         initModelSelect();
     }
 
     private void initGroupSelect() {
-        List<Group> groupList = db.getGroups();
-        Set<String> chosenGroups = prefs.getStringSet("check_out_scan_group", null);
+        Set<String> chosenGroups = prefs.getStringSet(
+                getString(R.string.pref_key_check_out_authorization_groups), null);
         Log.d(TAG, "chosen groups: " + String.valueOf(chosenGroups));
 
 
-        List<String> groupNamesList = new ArrayList<>();
-        for (Group group : groupList) {
-            groupNamesList.add(group.toString());
+        List<Group> groupList = db.getGroups();
+        String[] groupNames = new String[groupList.size()];
+        String[] groupValues = new String[groupList.size()];
+
+        for (int i = 0; i < groupList.size(); i++) {
+            Group group = groupList.get(i);
+            String name = group.getName();
+            String value = String.valueOf(group.getId());
+
+            groupNames[i] = name;
+            groupValues[i] = value;
         }
 
-        String[] groupNames = groupNamesList.toArray(new String[]{});
-
-        MultiSelectListPreference p = (MultiSelectListPreference) findPreference("check_out_scan_group");
+        MultiSelectListPreference p = (MultiSelectListPreference) findPreference(
+                getString(R.string.pref_key_check_out_authorization_groups));
         p.setEntries(groupNames);
-        p.setEntryValues(groupNames);
+        p.setEntryValues(groupValues);
     }
 
     private void initScanFieldSelect() {
@@ -112,33 +184,26 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
     }
 
     private void initModelSelect() {
-        List<Model> models = db.getModels();
         Set<String> chosenModels = prefs.getStringSet(getString(
                 R.string.pref_key_check_out_models), null);
         Log.d(TAG, "chosen models: " + String.valueOf(chosenModels));
 
-        List<String> modelsList = new ArrayList<>();
-        for (Model model : models) {
-            modelsList.add(model.getName());
-        }
+        List<Model> models = db.getModels();
+        String[] modelNames = new String[models.size()];
+        String[] modelValues = new String[models.size()];
 
-        String[] modelNames = modelsList.toArray(new String[]{});
+        for (int i = 0; i < models.size(); i++) {
+            Model model = models.get(i);
+            String name = model.getName();
+            String value = String.valueOf(model.getId());
+
+            modelNames[i] = name;
+            modelValues[i] = value;
+        }
 
         MultiSelectListPreference modelSelect = (MultiSelectListPreference) findPreference(
                 getString(R.string.pref_key_check_out_models));
         modelSelect.setEntries(modelNames);
-        modelSelect.setEntryValues(modelNames);
+        modelSelect.setEntryValues(modelValues);
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            startActivity(new Intent(getActivity(), SettingsActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
 }

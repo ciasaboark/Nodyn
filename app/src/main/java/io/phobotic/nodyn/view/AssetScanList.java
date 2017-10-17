@@ -24,9 +24,12 @@ import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -38,11 +41,8 @@ import java.util.List;
 
 import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.Database;
-import io.phobotic.nodyn.database.UserHelper;
 import io.phobotic.nodyn.database.exception.AssetNotFoundException;
-import io.phobotic.nodyn.database.exception.UserNotFoundException;
 import io.phobotic.nodyn.database.model.Asset;
-import io.phobotic.nodyn.database.model.User;
 import io.phobotic.nodyn.list.adapter.ScannedAssetRecyclerViewAdapter;
 
 /**
@@ -57,7 +57,7 @@ public class AssetScanList extends RelativeLayout {
     private ArrayList<Asset> scannedAssetsList;
     private RecyclerView recyclerView;
     private View error;
-    private OnInputScanned listener;
+    private OnAssetScannedListener listener;
     private boolean assetsRemovable = true;
 
 
@@ -96,6 +96,12 @@ public class AssetScanList extends RelativeLayout {
                 }
             }
         });
+
+        //restrict the input if we are using kiosk mode
+        boolean kioskModeEnabled = isKioskModeEnabled();
+
+        input.setGhostMode(kioskModeEnabled);
+//        input.setForceScanInput(kioskModeEnabled);
     }
 
     private void initList() {
@@ -114,44 +120,83 @@ public class AssetScanList extends RelativeLayout {
     }
 
     /**
-     * Attempt to process the input string as a value representing a {@link User}.  If no matches
-     * are found then attempt to match against an {@link Asset}.  If that fails as well then
+     * Attempt to process the input string as an {@link Asset}.  If that fails as well then
      * show an error
      *
      * @param inputString
      */
-    private void processInputString(@NotNull String inputString) {
+    private void processInputString(@NotNull final String inputString) {
         Database db = Database.getInstance(getContext());
 
+        Asset asset = null;
         try {
-            User user = UserHelper.getUserByInputString(getContext(), inputString);
-            processUserScan(user);
-        } catch (UserNotFoundException e) {
-            Asset asset = null;
-            try {
-                asset = db.findAssetByTag(inputString);
-                processAssetScan(asset);
-            } catch (AssetNotFoundException e1) {
-                AlertDialog d = new AlertDialog.Builder(getContext())
-                        .setTitle("Unknown asset")
-                        .setMessage("Unknown associate or asset <" + inputString + ">")
-                        .setNegativeButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //nothing to do here
-                            }
-                        })
-                        .create();
-                d.show();
-                final MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.correct);
-                mp.start();
-            }
+            asset = db.findAssetByTag(inputString);
+            processAssetScan(asset);
+        } catch (AssetNotFoundException e1) {
+            Log.d(TAG, "Unable to find asset matching input '" + inputString + "'");
+
+
+            final AlertDialog d = new AlertDialog.Builder(getContext())
+                    .setTitle(getResources().getString(R.string.asset_scan_list_unknown_asset_title))
+                    .setView(R.layout.view_unknown_asset)
+                    .setNegativeButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //nothing to do here
+                        }
+                    })
+                    .create();
+            d.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    //if kiosk mode is enabled then don't show the text that failed to scan, just show a basic
+                    //+ error message
+                    String message;
+                    if (isKioskModeEnabled()) {
+                        message = getResources().getString(R.string.asset_scan_list_unknown_asset_message);
+                    } else {
+                        message = String.format(getResources().getString(
+                                R.string.asset_scan_list_unknown_asset_message_unformatted), inputString);
+                    }
+
+                    TextView tv = (TextView) d.findViewById(R.id.message);
+                    if (tv != null) {
+                        tv.setText(Html.fromHtml(message, null, null));
+                    }
+
+                }
+            });
+            d.show();
+
+            final MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.correct);
+            mp.start();
         }
+    }
+
+    private boolean isKioskModeEnabled() {
+        return PreferenceManager.getDefaultSharedPreferences(getContext())
+                .getBoolean(getResources().getString(R.string.pref_key_general_kiosk),
+                        Boolean.parseBoolean(getResources().getString(
+                                R.string.pref_default_general_kiosk)));
     }
 
     @NonNull
     private ScannedAssetRecyclerViewAdapter getAdapter() {
-        return new ScannedAssetRecyclerViewAdapter(context, scannedAssetsList, null, assetsRemovable);
+        ScannedAssetRecyclerViewAdapter adapter = new ScannedAssetRecyclerViewAdapter(context,
+                scannedAssetsList, null, assetsRemovable);
+        adapter.setAssetListChangeListener(new ScannedAssetRecyclerViewAdapter.OnAssetListChangeListener() {
+            @Override
+            public void onAssetListChange(@NotNull List<Asset> assets) {
+                if (listener != null) {
+                    listener.onAssetScanListChanged(assets);
+                }
+
+                if (assets.isEmpty()) {
+                    showError();
+                }
+            }
+        });
+        return adapter;
     }
 
     private void showError() {
@@ -164,19 +209,13 @@ public class AssetScanList extends RelativeLayout {
         recyclerView.setVisibility(View.VISIBLE);
     }
 
-    private void processUserScan(User user) {
-        if (listener != null) {
-            listener.onUserScanned(user);
-        }
-    }
-
     private void processAssetScan(Asset asset) {
         if (listener != null) {
             listener.onAssetScanned(asset);
         }
     }
 
-    public AssetScanList setListener(OnInputScanned listener) {
+    public AssetScanList setListener(OnAssetScannedListener listener) {
         this.listener = listener;
         return this;
     }
@@ -197,10 +236,11 @@ public class AssetScanList extends RelativeLayout {
         showErrorOrList();
     }
 
-    public void clear() {
+    public void reset() {
         int count = scannedAssetsList.size();
         scannedAssetsList.clear();
         recyclerView.getAdapter().notifyItemRangeRemoved(0, count);
+        input.reset();
         showErrorOrList();
     }
 
@@ -212,11 +252,11 @@ public class AssetScanList extends RelativeLayout {
         }
     }
 
-    public interface OnInputScanned {
-        void onUserScanned(User user);
+    public interface OnAssetScannedListener {
+        void onAssetScanned(@NotNull Asset asset);
 
-        void onAssetScanned(Asset asset);
+        void onAssetScanListChanged(@NotNull List<Asset> assets);
 
-        void onScanError(String message);
+        void onScanError(@NotNull String message);
     }
 }

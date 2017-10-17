@@ -27,6 +27,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.model.Asset;
 
@@ -101,7 +105,7 @@ public class AssetExtendedDetailsFragment extends Fragment {
     }
 
     private void init() {
-        name = (TextView) rootView.findViewById(R.id.name);
+        name = (TextView) rootView.findViewById(R.id.model);
         name_box = rootView.findViewById(R.id.name_box);
         company = (TextView) rootView.findViewById(R.id.company);
         company_box = rootView.findViewById(R.id.company_box);
@@ -110,8 +114,8 @@ public class AssetExtendedDetailsFragment extends Fragment {
         serial.setPaintFlags(serial.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         manufacturer = (TextView) rootView.findViewById(R.id.manufacturer);
         manufacturer_box = rootView.findViewById(R.id.manufacturer_box);
-        model = (TextView) rootView.findViewById(R.id.model);
-        model_box = rootView.findViewById(R.id.model_box);
+        model = (TextView) rootView.findViewById(R.id.model_name);
+        model_box = rootView.findViewById(R.id.model_name_box);
         modelNo = (TextView) rootView.findViewById(R.id.model_no);
         modelNo_box = rootView.findViewById(R.id.model_no_box);
         purchaseDate = (TextView) rootView.findViewById(R.id.purchase_date);
@@ -131,16 +135,24 @@ public class AssetExtendedDetailsFragment extends Fragment {
     private void initFields() {
         if (asset != null) {
             setTextOrHide(name_box, name, asset.getName());
-            setTextOrHide(company_box, company, asset.getCompanyName());
+            // TODO: 9/13/17 change these IDs into names
+            setTextOrHide(company_box, company, String.valueOf(asset.getCompanyID()));
             setTextOrHide(serial_box, serial, asset.getSerial());
-            setTextOrHide(manufacturer_box, manufacturer, asset.getManufacturer());
-            setTextOrHide(model_box, model, asset.getModel());
+            setTextOrHide(manufacturer_box, manufacturer, String.valueOf(asset.getManufacturerID()));
+            setTextOrHide(model_box, model, String.valueOf(asset.getModelID()));
             setTextOrHide(modelNo_box, modelNo, null); // TODO: 7/15/17 update asset model to include model number
             setTextOrHide(purchaseDate_box, purchaseDate, asset.getPurchaseDate());
             setTextOrHide(purchaseCost_box, purchaseCost, asset.getPurchaseCost());
             setTextOrHide(supplier_box, supplier, null); // TODO: 7/15/17 update asset model to include supplier
             setTextOrHide(notes_box, notes, asset.getNotes());
-            setTextOrHide(createdAt_box, createdAt, asset.getCreatedAt());
+
+            String createdAt = null;
+            if (asset.getCreatedAt() != -1) {
+                Date d = new Date(asset.getCreatedAt());
+                DateFormat df = new SimpleDateFormat();
+                createdAt = df.format(d);
+            }
+            setTextOrHide(createdAt_box, this.createdAt, createdAt);
         }
     }
 

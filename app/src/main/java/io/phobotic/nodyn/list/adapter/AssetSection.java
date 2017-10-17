@@ -27,7 +27,6 @@ import android.view.Window;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +37,7 @@ import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.database.model.Asset;
 import io.phobotic.nodyn.database.model.Status;
+import io.phobotic.nodyn.fragment.SimplifiedAsset;
 import io.phobotic.nodyn.fragment.listener.OnListFragmentInteractionListener;
 import io.phobotic.nodyn.list.viewholder.AssetHeaderViewHolder;
 import io.phobotic.nodyn.list.viewholder.AssetViewHolder;
@@ -48,15 +48,16 @@ import io.phobotic.nodyn.view.AssetView;
  */
 
 public class AssetSection extends StatelessSection {
-    private final List<Asset> items;
+    private final List<SimplifiedAsset> items;
     private final OnListFragmentInteractionListener listener;
-    private final String model;
     private final Context context;
     private final String manufacturer;
-    private Map<String, Integer> colorMap;
+    private final String model;
+    private final Database db;
+    private Map<Integer, Integer> colorMap;
     private Set<String> archivedSet;
 
-    public AssetSection(Context context, String manufacturer, String model, List<Asset> items,
+    public AssetSection(Context context, String manufacturer, String model, List<SimplifiedAsset> items,
                         OnListFragmentInteractionListener listener) {
         // call constructor with layout resources for this Section header and items
         super(new SectionParameters.Builder(R.layout.view_asset_wrapper)
@@ -64,6 +65,7 @@ public class AssetSection extends StatelessSection {
                 .build());
 
         this.context = context;
+        this.db = Database.getInstance(context);
         this.manufacturer = manufacturer;
         this.model = model;
         if (items == null) items = new ArrayList<>();
@@ -75,13 +77,12 @@ public class AssetSection extends StatelessSection {
 
     private void buildStatusColorMap() {
         this.colorMap = new HashMap<>();
-        this.archivedSet = new HashSet<>();
 
         Database db = Database.getInstance(context);
         List<Status> statuses = db.getStatuses();
 
         for (Status status : statuses) {
-            String name = status.getName();
+            int statusID = status.getId();
             String colorString = status.getColor();
             Integer colorInt = null;
             try {
@@ -90,11 +91,7 @@ public class AssetSection extends StatelessSection {
                 //if the color parsing fails just move on
             }
 
-            colorMap.put(name, colorInt);
-
-            if ("ARCHIVED".equals(status.getType().toUpperCase())) {
-                archivedSet.add(status.getName());
-            }
+            colorMap.put(statusID, colorInt);
         }
     }
 
@@ -120,12 +117,15 @@ public class AssetSection extends StatelessSection {
                 .getString(R.string.asset_assigned_count), getAssignedCount()));
     }
 
+    /**
+     * Returns the count of assets that have no current assignment.
+     * Note that this count does not take into account the asset's Status
+     */
     private int getAvailableCount() {
         int available = 0;
 
-        // TODO: 9/9/17 this will need to be replaced with enum values eventually
         for (Asset asset : items) {
-            if ("Ready to Deploy".equals(asset.getStatus())) {
+            if (asset.getAssignedToID() == -1) {
                 available++;
             }
         }
@@ -133,11 +133,15 @@ public class AssetSection extends StatelessSection {
         return available;
     }
 
+    /**
+     * Returns the count of assets that have been assigned to a user.
+     * Note that this count does not take into account the asset's Status
+     */
     private int getAssignedCount() {
         int assigned = 0;
 
         for (Asset asset : items) {
-            if (asset.getAssignedTo() != null && asset.getAssignedTo().length() > 0) {
+            if (asset.getAssignedToID() != -1) {
                 assigned++;
             }
         }
@@ -154,17 +158,11 @@ public class AssetSection extends StatelessSection {
     @Override
     public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
         final AssetViewHolder assetViewHolder = (AssetViewHolder) holder;
-        Asset asset = items.get(position);
+        SimplifiedAsset asset = items.get(position);
         assetViewHolder.item = asset;
         assetViewHolder.view.setAsset(asset);
-        Integer statusColor = colorMap.get(asset.getStatus());
-        assetViewHolder.view.setStatusColor(statusColor);
-
-        if (archivedSet.contains(asset.getStatus())) {
-            assetViewHolder.view.setArchived(true);
-        } else {
-            assetViewHolder.view.setArchived(false);
-        }
+        Integer statusColor = colorMap.get(asset.getStatusID());
+        assetViewHolder.view.setHighlightColor(statusColor);
 
         assetViewHolder.view.setOnClickListener(new View.OnClickListener() {
             @Override

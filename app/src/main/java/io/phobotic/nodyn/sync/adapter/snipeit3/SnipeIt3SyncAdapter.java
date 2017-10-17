@@ -60,6 +60,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn.database.exception.UserNotFoundException;
@@ -70,6 +71,7 @@ import io.phobotic.nodyn.database.model.Category;
 import io.phobotic.nodyn.database.model.FullDataModel;
 import io.phobotic.nodyn.database.model.Group;
 import io.phobotic.nodyn.database.model.MaintenanceRecord;
+import io.phobotic.nodyn.database.model.Manufacturer;
 import io.phobotic.nodyn.database.model.Model;
 import io.phobotic.nodyn.database.model.Status;
 import io.phobotic.nodyn.database.model.User;
@@ -90,12 +92,12 @@ import io.phobotic.nodyn.sync.adapter.snipeit3.response.GroupResponse;
 import io.phobotic.nodyn.sync.adapter.snipeit3.response.ModelResponse;
 import io.phobotic.nodyn.sync.adapter.snipeit3.response.StatusesResponse;
 import io.phobotic.nodyn.sync.adapter.snipeit3.response.UserResponse;
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowAsset;
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowCategory;
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowGroup;
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowModel;
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowStatus;
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowUser;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3Asset;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3Category;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3Group;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3Model;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3Status;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3User;
 
 /**
  * Created by Jonathan Nelson on 7/7/17.
@@ -221,16 +223,15 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         this.cookies = cookies;
     }
 
-    @Override
-    public List<Asset> fetchAssets(Context context) throws SyncException {
+    private List<Asset> fetchAssets(Context context) throws SyncException {
         String assetsUrl = "/api/hardware/list?limit=9999&offset=0";
         try {
             loginIfNeeded(context);
             sendMessageBroadcast(context, "Fetching assets");
             String assetResult = getPageContent(getUrl(context, assetsUrl));
             AssetResponse assetsResponse = gson.fromJson(assetResult, AssetResponse.class);
-            List<ShadowAsset> shadowAssets = assetsResponse.getAssets();
-            List<Asset> assets = convertShadowAssets(context, shadowAssets);
+            List<Snipeit3Asset> snipeit3Assets = assetsResponse.getAssets();
+            List<Asset> assets = convertShadowAssets(context, snipeit3Assets);
 
 
             return assets;
@@ -241,8 +242,7 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         }
     }
 
-    @Override
-    public List<Model> fetchModels(Context context) throws SyncException {
+    private List<Model> fetchModels(Context context) throws SyncException {
         String modelsUrl = "/api/models/list?limit=9999&offset=0";
 
         try {
@@ -251,8 +251,8 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
             sendMessageBroadcast(context, "Fetching models");
             String modelResult = getPageContent(getUrl(context, modelsUrl));
             ModelResponse modelResponse = gson.fromJson(modelResult, ModelResponse.class);
-            List<ShadowModel> shadowModels = modelResponse.getModels();
-            List<Model> models = convertModels(context, shadowModels);
+            List<Snipeit3Model> snipeit3Models = modelResponse.getModels();
+            List<Model> models = convertModels(context, snipeit3Models);
 
 
             return models;
@@ -263,8 +263,7 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         }
     }
 
-    @Override
-    public List<User> fetchUsers(Context context) throws SyncException {
+    private List<User> fetchUsers(Context context) throws SyncException {
         String usersUrl = "/api/users/list?limit=9999&offset=0";
 
         try {
@@ -272,8 +271,8 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
             sendMessageBroadcast(context, "Fetching users");
             String usersResult = getPageContent(getUrl(context, usersUrl));
             UserResponse userResponse = gson.fromJson(usersResult, UserResponse.class);
-            List<ShadowUser> shadowUsers = userResponse.getUsers();
-            List<User> users = convertUsers(context, shadowUsers);
+            List<Snipeit3User> snipeit3Users = userResponse.getUsers();
+            List<User> users = convertUsers(context, snipeit3Users);
 
             return users;
 
@@ -284,8 +283,7 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         }
     }
 
-    @Override
-    public List<Group> fetchGroups(Context context) throws SyncException {
+    private List<Group> fetchGroups(Context context) throws SyncException {
         String groupsUrl = "/api/groups/list?limit=9999&offset=0";
 
         try {
@@ -293,8 +291,8 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
             sendMessageBroadcast(context, "Fetching groups");
             String groupsResult = getPageContent(getUrl(context, groupsUrl));
             GroupResponse groupResponse = gson.fromJson(groupsResult, GroupResponse.class);
-            List<ShadowGroup> shadowGroups = groupResponse.getGroups();
-            List<Group> groups = convertGroups(context, shadowGroups);
+            List<Snipeit3Group> snipeit3Groups = groupResponse.getGroups();
+            List<Group> groups = convertGroups(context, snipeit3Groups);
 
             return groups;
 
@@ -305,8 +303,7 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         }
     }
 
-    @Override
-    public List<Category> fetchCategories(Context context) throws SyncException {
+    private List<Category> fetchCategories(Context context) throws SyncException {
         String categoriesURL = "/api/categories/list?limit=9999&offset=0";
 
         try {
@@ -315,7 +312,7 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
 
             String categoriesResult = getPageContent(getUrl(context, categoriesURL));
             CategoryResponse catoriesResponse = gson.fromJson(categoriesResult, CategoryResponse.class);
-            List<ShadowCategory> shadowCategories = catoriesResponse.getCategories();
+            List<Snipeit3Category> shadowCategories = catoriesResponse.getCategories();
             List<Category> categories = convertCategories(context, shadowCategories);
 
             return categories;
@@ -327,8 +324,7 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         }
     }
 
-    @Override
-    public List<Status> fetchStatuses(Context context) throws SyncException {
+    private List<Status> fetchStatuses(Context context) throws SyncException {
         String categoriesURL = "/api/statuslabels/list?order=asc&offset=0";
 
         try {
@@ -337,8 +333,8 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
 
             String statusResult = getPageContent(getUrl(context, categoriesURL));
             StatusesResponse statusesResponse = gson.fromJson(statusResult, StatusesResponse.class);
-            List<ShadowStatus> shadowStatuses = statusesResponse.getStatuses();
-            List<Status> statuses = convertStatuses(context, shadowStatuses);
+            List<Snipeit3Status> snipeit3Statuses = statusesResponse.getStatuses();
+            List<Status> statuses = convertStatuses(context, snipeit3Statuses);
 
             return statuses;
 
@@ -347,6 +343,11 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
             String message = "Unable to fetch statuses: " + e.getMessage();
             throw new SyncException(message);
         }
+    }
+
+    // TODO: 9/14/17 can this be pulled with version 3.x?
+    private List<Manufacturer> fetchManufacturers(Context context) throws SyncException {
+        return new ArrayList<>();
     }
 
     @Override
@@ -630,11 +631,11 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         return dialog;
     }
 
-    private List<Asset> convertShadowAssets(Context context, List<ShadowAsset> shadowAssets) {
+    private List<Asset> convertShadowAssets(Context context, List<Snipeit3Asset> snipeit3Assets) {
         //the JSON returned by snipeit will have some properties wrapped in HTML.
-        for (ShadowAsset shadowAsset : shadowAssets) {
+        for (Snipeit3Asset snipeit3Asset : snipeit3Assets) {
             try {
-                convertFields(context, shadowAsset);
+                convertFields(context, snipeit3Asset);
             } catch (Exception e) {
             }
         }
@@ -643,11 +644,11 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         return new ArrayList<>();
     }
 
-    private List<Model> convertModels(Context context, List<ShadowModel> shadowModels) {
+    private List<Model> convertModels(Context context, List<Snipeit3Model> snipeit3Models) {
         //the JSON returned by snipeit will have some properties wrapped in HTML.
-        for (ShadowModel shadowModel : shadowModels) {
+        for (Snipeit3Model snipeit3Model : snipeit3Models) {
             try {
-                convertFields(context, shadowModel);
+                convertFields(context, snipeit3Model);
             } catch (Exception e) {
             }
         }
@@ -656,11 +657,11 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         return new ArrayList<>();
     }
 
-    private List<User> convertUsers(Context context, List<ShadowUser> shadowUsers) {
+    private List<User> convertUsers(Context context, List<Snipeit3User> snipeit3Users) {
         //the JSON returned by snipeit will have some properties wrapped in HTML.
-        for (ShadowUser shadowUser : shadowUsers) {
+        for (Snipeit3User snipeit3User : snipeit3Users) {
             try {
-                convertFields(context, shadowUser);
+                convertFields(context, snipeit3User);
             } catch (Exception e) {
             }
         }
@@ -669,11 +670,11 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         return new ArrayList<>();
     }
 
-    private List<Group> convertGroups(Context context, List<ShadowGroup> shadowGroups) {
+    private List<Group> convertGroups(Context context, List<Snipeit3Group> snipeit3Groups) {
         //the JSON returned by snipeit will have some properties wrapped in HTML.
-        for (ShadowGroup shadowGroup : shadowGroups) {
+        for (Snipeit3Group snipeit3Group : snipeit3Groups) {
             try {
-                convertFields(context, shadowGroup);
+                convertFields(context, snipeit3Group);
             } catch (Exception e) {
             }
         }
@@ -682,9 +683,9 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         return new ArrayList<>();
     }
 
-    private List<Category> convertCategories(Context context, List<ShadowCategory> shadowCategories) {
+    private List<Category> convertCategories(Context context, List<Snipeit3Category> shadowCategories) {
         //the JSON returned by snipeit will have some properties wrapped in HTML.
-        for (ShadowCategory shadowCategory : shadowCategories) {
+        for (Snipeit3Category snipeit3Category : shadowCategories) {
             try {
                 convertFields(context, shadowCategories);
             } catch (Exception e) {
@@ -695,13 +696,13 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         return new ArrayList<>();
     }
 
-    private List<Status> convertStatuses(Context context, List<ShadowStatus> shadowStatuses) {
+    private List<Status> convertStatuses(Context context, List<Snipeit3Status> snipeit3Statuses) {
         List<Status> statuses = new ArrayList<>();
 
         //the JSON returned by snipeit will have some properties wrapped in HTML.
-        for (ShadowStatus shadowStatus : shadowStatuses) {
+        for (Snipeit3Status snipeit3Status : snipeit3Statuses) {
             try {
-                convertFields(context, shadowStatus);
+                convertFields(context, snipeit3Status);
             } catch (Exception e) {
             }
         }
@@ -898,19 +899,21 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
 
     private String getProtocol(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String protocol = prefs.getString("pref_protocol", "http://");
+        String protocol = prefs.getString(context.getString(R.string.pref_key_snipeit_3_protocol),
+                context.getString(R.string.pref_default_snipeit_3_protocol));
         return protocol;
     }
 
     private String getHost(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String host = prefs.getString("pref_host", "nohost");
+        String host = prefs.getString(context.getString(R.string.pref_key_snipeit_3_host), "");
         return host;
     }
 
     private int getPort(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String portString = prefs.getString("pref_port", "80");
+        String portString = prefs.getString(context.getString(R.string.pref_key_snipeit_3_port),
+                context.getString(R.string.pref_default_snipeit_3_port));
         int port = Integer.valueOf(portString);
         return port;
     }
@@ -922,13 +925,16 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
 
     private String getUsername(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String username = prefs.getString("pref_username", "");
+        String username = prefs.getString(context.getString(R.string.pref_key_snipeit_3_username),
+                "");
         return username;
     }
 
     private String getPassword(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String password = prefs.getString("pref_password", "");
+        String password = prefs.getString(context.getString(R.string.pref_key_snipeit_3_password),
+                "");
+
         return password;
     }
 

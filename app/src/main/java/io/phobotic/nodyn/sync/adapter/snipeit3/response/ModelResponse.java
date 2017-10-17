@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowModel;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3Model;
 
 /**
  * Created by Jonathan Nelson on 7/7/17.
@@ -31,7 +31,7 @@ public class ModelResponse {
     private int total;
 
     @SerializedName("rows")
-    private List<ShadowModel> models;
+    private List<Snipeit3Model> models;
 
     public int getTotal() {
         return total;
@@ -41,11 +41,11 @@ public class ModelResponse {
         this.total = total;
     }
 
-    public List<ShadowModel> getModels() {
+    public List<Snipeit3Model> getModels() {
         return models;
     }
 
-    public void setModels(List<ShadowModel> models) {
+    public void setModels(List<Snipeit3Model> models) {
         this.models = models;
     }
 }

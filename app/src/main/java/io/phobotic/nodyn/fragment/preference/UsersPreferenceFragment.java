@@ -18,14 +18,11 @@
 package io.phobotic.nodyn.fragment.preference;
 
 import android.annotation.TargetApi;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.view.MenuItem;
 
 import io.phobotic.nodyn.R;
-import io.phobotic.nodyn.activity.SettingsActivity;
 
 /**
  * This fragment shows general preferences only. It is used when the
@@ -43,15 +40,5 @@ public class UsersPreferenceFragment extends PreferenceFragmentCompat {
         // updated to reflect the new value, per the Android Design
         // guidelines.
         // TODO: 7/27/17
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            startActivity(new Intent(getActivity(), SettingsActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

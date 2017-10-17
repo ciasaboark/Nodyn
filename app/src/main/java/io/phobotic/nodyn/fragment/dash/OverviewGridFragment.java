@@ -18,20 +18,30 @@
 package io.phobotic.nodyn.fragment.dash;
 
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.LinearLayout;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import io.phobotic.nodyn.ColorHelper;
 import io.phobotic.nodyn.R;
@@ -98,11 +108,21 @@ public class OverviewGridFragment extends Fragment {
         Database db = Database.getInstance(getContext());
         List<Asset> allAssets = db.getAssets();
         Map<Model, Integer> modelCount = new HashMap<>();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+
+        boolean allStatusesAllowed = prefs.getBoolean(getString(
+                R.string.pref_key_asset_status_allow_all), Boolean.parseBoolean(
+                getString(R.string.pref_default_asset_status_allow_all)));
+        Set<String> allowedStatusIDs = prefs.getStringSet(getString(
+                R.string.pref_key_asset_status_allowed_statuses), new HashSet<String>());
 
         for (Asset asset : allAssets) {
             int modelId = asset.getModelID();
             if (modelId == -1) {
                 Log.d(TAG, "Asset " + asset.getTag() + " has no assigned model, skipping");
+            } else if (!isAssetStatusValid(asset)) {
+                Log.d(TAG, "Asset " + asset.getTag() + " does not have an allowed status, skipping");
             } else {
                 try {
                     Model m = db.findModelByID(modelId);
@@ -128,6 +148,7 @@ public class OverviewGridFragment extends Fragment {
         Random r = new Random(System.currentTimeMillis());
 
 
+
         for (Map.Entry<Model, Integer> entry : modelCount.entrySet()) {
             Model model = entry.getKey();
 
@@ -146,7 +167,7 @@ public class OverviewGridFragment extends Fragment {
             }
 
             String manufacturer = "";
-            OverviewCountView overviewCountView = new OverviewCountView(getContext(),
+            final OverviewCountView overviewCountView = new OverviewCountView(getContext(),
                     model.getName(), entry.getValue());
 
             try {
@@ -173,9 +194,106 @@ public class OverviewGridFragment extends Fragment {
             overviewCountView.setColor(color);
 
             overviewCountView.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f));
-
+            overviewCountView.setVisibility(View.INVISIBLE);
             container.addView(overviewCountView);
+
+//            Animation swingIn = AnimationUtils.loadAnimation(getContext(), R.anim.swinging);
+//            overviewCountView.startAnimation(swingIn);
+
+
+            ValueAnimator offsetX = ValueAnimator.ofFloat(.5f, 0);
+            offsetX.setTarget(overviewCountView);
+            offsetX.setDuration(1000);
+            offsetX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float val = (float) animation.getAnimatedValue();
+                    int height = overviewCountView.getHeight();
+                    float offset = -(height * val);
+                    overviewCountView.setTranslationY(offset);
+                }
+            });
+
+            ObjectAnimator flipIn = ObjectAnimator.ofFloat(overviewCountView, "rotationX", -90, 0)
+                    .setDuration(1000);
+            flipIn.setInterpolator(new LinearInterpolator());
+
+            AnimatorSet set = new AnimatorSet();
+            Random random = new Random(System.currentTimeMillis());
+            long delay = (long) random.nextInt(1000);
+            set.setStartDelay(delay);
+            set.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    overviewCountView.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+            set.playTogether(flipIn, offsetX);
+            set.start();
+
+//            AnimatorSet set = new AnimatorSet();
+//            set.playTogether(flipIn);
+//            flipIn.start();
+
+//            AnimatorSet flipIn = (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_in);
+//            flipIn.addListener(new Animator.AnimatorListener() {
+//                @Override
+//                public void onAnimationStart(Animator animation) {
+//
+//                }
+//
+//                @Override
+//                public void onAnimationEnd(Animator animation) {
+//
+//                }
+//
+//                @Override
+//                public void onAnimationCancel(Animator animation) {
+//
+//                }
+//
+//                @Override
+//                public void onAnimationRepeat(Animator animation) {
+//
+//                }
+//            });
+//            flipIn.setTarget(overviewCountView);
+//            flipIn.start();
         }
+    }
+
+    private boolean isAssetStatusValid(Asset asset) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        boolean statusValid = false;
+
+        boolean allStatusesAllowed = prefs.getBoolean(getString(
+                R.string.pref_key_asset_status_allow_all), Boolean.parseBoolean(
+                getString(R.string.pref_default_asset_status_allow_all)));
+        if (allStatusesAllowed) {
+            statusValid = true;
+        } else {
+            Set<String> allowedStatusIDs = getAllowedStatusIDs();
+            if (allowedStatusIDs.contains(String.valueOf(String.valueOf(asset.getStatusID())))) {
+                statusValid = true;
+            }
+        }
+
+        return statusValid;
     }
 
     private LinearLayout getNewContainer() {
@@ -184,6 +302,13 @@ public class OverviewGridFragment extends Fragment {
         container.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 2f));
         container.setOrientation(LinearLayout.HORIZONTAL);
         return container;
+    }
+
+    @NonNull
+    private Set<String> getAllowedStatusIDs() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        return prefs.getStringSet(getString(
+                R.string.pref_key_asset_status_allowed_statuses), new HashSet<String>());
     }
 
 }

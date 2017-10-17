@@ -30,6 +30,7 @@ public class FullDataModel {
     private List<Group> groups;
     private List<Category> categories;
     private List<Status> statuses;
+    private List<Manufacturer> manufacturers;
 
     public List<Status> getStatuses() {
         return statuses;
@@ -82,6 +83,15 @@ public class FullDataModel {
 
     public FullDataModel setUsers(List<User> users) {
         this.users = users;
+        return this;
+    }
+
+    public List<Manufacturer> getManufacturers() {
+        return manufacturers;
+    }
+
+    public FullDataModel setManufacturers(List<Manufacturer> manufacturers) {
+        this.manufacturers = manufacturers;
         return this;
     }
 

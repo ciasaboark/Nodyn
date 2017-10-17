@@ -25,6 +25,7 @@ import io.phobotic.nodyn.database.model.Action;
 import io.phobotic.nodyn.database.model.Asset;
 import io.phobotic.nodyn.database.model.Category;
 import io.phobotic.nodyn.database.model.Group;
+import io.phobotic.nodyn.database.model.Manufacturer;
 import io.phobotic.nodyn.database.model.Model;
 import io.phobotic.nodyn.database.model.Status;
 import io.phobotic.nodyn.database.model.SyncHistory;
@@ -39,13 +40,14 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     public static final String TABLE_ASSETS = "assets";
     public static final String TABLE_USER = "users";
     public static final String TABLE_MODEL = "models";
+    public static final String TABLE_MANUFACTURER = "manufacturer";
     public static final String TABLE_GROUP = "groups";
     public static final String TABLE_CATEGORY = "category";
     public static final String TABLE_STATUS = "status";
     public static final String TABLE_ACTIONS = "actions";
     public static final String TABLE_SYNC_HISTORY = "sync_history";
 
-    private static final int VERSION = 11;
+    private static final int VERSION = 14;
 
     public DatabaseOpenHelper(Context ctx) {
         super(ctx, DB_NAME, null, VERSION);
@@ -62,6 +64,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_GROUP);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODEL);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MANUFACTURER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATUS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTIONS);
@@ -73,6 +76,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         createAssetsTable(db);
         createUsersTable(db);
         createModelsTable(db);
+        createManufacturersTable(db);
         createGroupsTable(db);
         createCategoriesTable(db);
         createStatusTable(db);
@@ -98,10 +102,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 Asset.Columns.PURCHASE_DATE + " varchar(100), " +
                 Asset.Columns.NOTES + " varchar(100), " +
                 Asset.Columns.ORDER_NUMBER + " varchar(100), " +
-                Asset.Columns.LAST_CHECKOUT + " varchar(100), " +
-                Asset.Columns.EXPECTED_CHECKIN + " varchar(100), " +
-                Asset.Columns.CREATED_AT + " varchar(100), " +
-                Asset.Columns.COMPANY_NAME + " varchar(100) " +
+                Asset.Columns.LAST_CHECKOUT + " integer, " +
+                Asset.Columns.EXPECTED_CHECKIN + " integer, " +
+                Asset.Columns.CREATED_AT + " integer, " +
+                Asset.Columns.COMPANY_ID + " varchar(100) " +
                 ")");
     }
 
@@ -133,8 +137,21 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 Model.Columns.DEPRECIATION + " varchar(100), " +
                 Model.Columns.CATEGORY_ID + " integer, " +
                 Model.Columns.EOL + " varchar(100), " +
-                Model.Columns.NOTE + " varchar(100), " +
-                Model.Columns.FIELDSET + " varchar(100)" +
+                Model.Columns.NOTES + " varchar(100), " +
+                Model.Columns.FIELDSET_ID + " integer, " +
+                Model.Columns.CREATED_AT + " varchar(100)" +
+                ")");
+    }
+
+    private void createManufacturersTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_MANUFACTURER + " ( " +
+                Manufacturer.Columns.ID + " integer primary key not null, " +
+                Manufacturer.Columns.NAME + " varchar(100), " +
+                Manufacturer.Columns.CREATED_AT + " varchar(100), " +
+                Manufacturer.Columns.SUPPORT_EMAIL + " varchar(100), " +
+                Manufacturer.Columns.SUPPORT_PHONE + " varchar(100), " +
+                Manufacturer.Columns.SUPPORT_URL + " varchar(100), " +
+                Manufacturer.Columns.URL + " varchar(100)" +
                 ")");
     }
 
@@ -142,7 +159,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + TABLE_GROUP + " ( " +
                 Group.Columns.ID + " integer primary key not null, " +
                 Group.Columns.NAME + " varchar(100), " +
-                Group.Columns.USERS + " varchar(100), " +
+                Group.Columns.USER_COUNT + " varchar(100), " +
                 Group.Columns.CREATED_AT + " varchar(100) " +
                 ")");
     }

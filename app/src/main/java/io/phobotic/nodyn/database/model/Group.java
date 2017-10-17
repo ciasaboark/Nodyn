@@ -22,9 +22,9 @@ package io.phobotic.nodyn.database.model;
  */
 
 public class Group {
-    private int id;
+    private int id = -1;
     private String name;
-    private int users;
+    private int userCount;
     private String createdAt;
 
     public int getId() {
@@ -45,12 +45,12 @@ public class Group {
         return this;
     }
 
-    public int getUsers() {
-        return users;
+    public int getUserCount() {
+        return userCount;
     }
 
-    public Group setUsers(int users) {
-        this.users = users;
+    public Group setUserCount(int userCount) {
+        this.userCount = userCount;
         return this;
     }
 
@@ -71,7 +71,7 @@ public class Group {
     public class Columns {
         public static final String ID = "id";
         public static final String NAME = "name";
-        public static final String USERS = "users";
+        public static final String USER_COUNT = "user_count";
         public static final String CREATED_AT = "created";
     }
 }

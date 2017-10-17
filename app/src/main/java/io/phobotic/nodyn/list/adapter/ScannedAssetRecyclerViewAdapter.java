@@ -26,10 +26,17 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.phobotic.nodyn.R;
+import io.phobotic.nodyn.database.Database;
+import io.phobotic.nodyn.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn.database.model.Asset;
+import io.phobotic.nodyn.database.model.Model;
 import io.phobotic.nodyn.fragment.listener.OnListFragmentInteractionListener;
 import io.phobotic.nodyn.view.ScannedAssetView;
 
@@ -47,17 +54,21 @@ public class ScannedAssetRecyclerViewAdapter extends
         RecyclerView.Adapter<ScannedAssetRecyclerViewAdapter.ViewHolder> {
 
     private final List<Asset> items;
-    private final OnListFragmentInteractionListener listener;
+    private final OnListFragmentInteractionListener listFragmentInteractionListener;
     private final boolean assetsRemoveable;
     private final Context context;
+    private final Database db;
+    private OnAssetListChangeListener assetListChangeListener;
     private int lastPosition = -1;
+    private Map<Integer, String> modelMap = new HashMap<>();
 
     public ScannedAssetRecyclerViewAdapter(Context context, List<Asset> items, @Nullable
-            OnListFragmentInteractionListener listener,
+            OnListFragmentInteractionListener listFragmentInteractionListener,
                                            boolean assetsRemovable) {
         this.context = context;
+        this.db = Database.getInstance(context);
         this.items = items;
-        this.listener = listener;
+        this.listFragmentInteractionListener = listFragmentInteractionListener;
         this.assetsRemoveable = assetsRemovable;
     }
 
@@ -75,13 +86,25 @@ public class ScannedAssetRecyclerViewAdapter extends
         ((ScannedAssetView) holder.view).setAsset(holder.item);
         ((ScannedAssetView) holder.view).setAssetRemovable(assetsRemoveable);
 
+        int modelID = holder.item.getModelID();
+        String modelName = modelMap.get(holder.item.getModelID());
+        if (modelName == null) {
+            try {
+                Model m = db.findModelByID(modelID);
+                modelName = m.getName();
+            } catch (ModelNotFoundException e) {
+            }
+        }
+        modelMap.put(modelID, modelName);
+        ((ScannedAssetView) holder.view).setModelName(modelName);
+
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (listener != null) {
+                if (listFragmentInteractionListener != null) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    listener.onListFragmentInteraction(holder.item, null);
+                    listFragmentInteractionListener.onListFragmentInteraction(holder.item, null);
                 }
             }
         });
@@ -109,6 +132,10 @@ public class ScannedAssetRecyclerViewAdapter extends
         items.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, items.size());
+
+        if (assetListChangeListener != null) {
+            assetListChangeListener.onAssetListChange(items);
+        }
     }
 
     private void setAnimation(View viewToAnimate, int position) {
@@ -118,6 +145,15 @@ public class ScannedAssetRecyclerViewAdapter extends
             viewToAnimate.startAnimation(animation);
             lastPosition = position;
         }
+    }
+
+    public ScannedAssetRecyclerViewAdapter setAssetListChangeListener(OnAssetListChangeListener assetListChangeListener) {
+        this.assetListChangeListener = assetListChangeListener;
+        return this;
+    }
+
+    public interface OnAssetListChangeListener {
+        void onAssetListChange(@NotNull List<Asset> assets);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -22,7 +22,7 @@ package io.phobotic.nodyn.database.model;
  */
 
 public class Category {
-    private int id;
+    private int id = -1;
     private String name;
     private String categoryType;
     private int count;

@@ -31,7 +31,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import io.phobotic.nodyn.R;
-import io.phobotic.nodyn.database.model.Asset;
 import io.phobotic.nodyn.database.model.User;
 import io.phobotic.nodyn.database.model.UserHistoryRecord;
 import io.phobotic.nodyn.fragment.listener.OnListFragmentInteractionListener;
@@ -143,7 +142,7 @@ public class UserAssetsListFragment extends Fragment {
         mListener = null;
     }
 
-    private void showList(List<Asset> items) {
+    private void showList(List<SimplifiedAsset> items) {
         error.setVisibility(View.GONE);
         list.setVisibility(View.VISIBLE);
 

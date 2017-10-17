@@ -25,26 +25,27 @@ import java.io.Serializable;
 
 
 public class Asset implements Serializable {
-    private int id;
+    private int id = -1;
+    private String tag;
     private String image;
     private String name;
-    private String tag;
     private String serial;
-    private int modelID;
-    private int statusID;
-    private int assignedToID;
-    private int locationID;
-    private int categoryID;
-    private int manufacturerID;
+    private int modelID = -1;
+    private int statusID = -1;
+    private int assignedToID = -1;
+    private int locationID = -1;
+    private int categoryID = -1;
+    private int manufacturerID = -1;
     private String eol;
     private String purchaseCost;
     private String purchaseDate;
     private String notes;
     private String orderNumber;
-    private String lastCheckout;
-    private String expectedCheckin;
-    private String createdAt;
-    private String companyName;
+    private long lastCheckout = -1;
+    private long expectedCheckin = -1;
+    private long createdAt = -1;
+    private int companyID = -1;
+
 
     public int getId() {
         return id;
@@ -181,50 +182,55 @@ public class Asset implements Serializable {
         return this;
     }
 
-    public String getLastCheckout() {
+    public long getLastCheckout() {
         return lastCheckout;
     }
 
-    public Asset setLastCheckout(String lastCheckout) {
+    public Asset setLastCheckout(long lastCheckout) {
         this.lastCheckout = lastCheckout;
         return this;
     }
 
-    public String getExpectedCheckin() {
+    public long getExpectedCheckin() {
         return expectedCheckin;
     }
 
-    public Asset setExpectedCheckin(String expectedCheckin) {
+    public Asset setExpectedCheckin(long expectedCheckin) {
         this.expectedCheckin = expectedCheckin;
         return this;
     }
 
-    public String getCreatedAt() {
+    public long getCreatedAt() {
         return createdAt;
     }
 
-    public Asset setCreatedAt(String createdAt) {
+    public Asset setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
         return this;
     }
 
-    public String getCompanyName() {
-        return companyName;
+    public int getCompanyID() {
+        return companyID;
     }
 
-    public Asset setCompanyName(String companyName) {
-        this.companyName = companyName;
+    public Asset setCompanyID(int companyID) {
+        this.companyID = companyID;
         return this;
     }
 
+    /**
+     * Asset equality is based off the assigned tag only
+     *
+     * @param obj
+     * @return
+     */
     @Override
     public boolean equals(Object obj) {
-        boolean equal = false;
-        if (obj instanceof Asset) {
-            equal = this.getTag().equals(((Asset) obj).getTag());
+        if (!(obj instanceof Asset)) {
+            return false;
+        } else {
+            return tag.equals(((Asset) obj).getTag());
         }
-
-        return equal;
     }
 
     public String getTag() {
@@ -261,6 +267,6 @@ public class Asset implements Serializable {
         public static final String LAST_CHECKOUT = "last_checkout";
         public static final String EXPECTED_CHECKIN = "expected_checkin";
         public static final String CREATED_AT = "created_at";
-        public static final String COMPANY_NAME = "company_name";
+        public static final String COMPANY_ID = "company_name";
     }
 }

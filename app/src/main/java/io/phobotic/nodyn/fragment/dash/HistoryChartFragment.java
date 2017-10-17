@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
@@ -101,7 +102,7 @@ public class HistoryChartFragment extends Fragment {
 
         initChart();
 
-        refreshChart();
+        refresh();
     }
 
     private void initChart() {
@@ -121,7 +122,7 @@ public class HistoryChartFragment extends Fragment {
     }
 
 
-    private void refreshChart() {
+    public void refresh() {
         List<Action> actionList = db.getActions();
         buildDateStringMap();
 
@@ -234,6 +235,7 @@ public class HistoryChartFragment extends Fragment {
             lineData.setDrawValues(false);
             chart.setData(lineData);
 
+            chart.animateY(1000, Easing.EasingOption.EaseInElastic);
         }
 
         chart.invalidate();

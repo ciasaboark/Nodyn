@@ -35,21 +35,6 @@ import io.phobotic.nodyn.database.model.Category;
 
 public class CategoryTableHelper extends TableHelper<Category> {
     public static final String TAG = CategoryTableHelper.class.getSimpleName();
-    private static final String[] DB_PROJECTION = {
-            Category.Columns.ID,
-            Category.Columns.NAME,
-            Category.Columns.CATEGORY_TYPE,
-            Category.Columns.COUNT,
-            Category.Columns.ACCEPTANCE,
-            Category.Columns.EULA
-    };
-
-    private static final int DB_PROJECTION_ID = 1;
-    private static final int DB_PROJECTION_NAME = 2;
-    private static final int DB_PROJECTION_CATEGORY_TYPE = 3;
-    private static final int DB_PROJECTION_COUNT = 4;
-    private static final int DB_PROJECTION_ACCEPTANCE = 5;
-    private static final int DB_PROJECTION_EULA = 6;
 
     public CategoryTableHelper(SQLiteDatabase db) {
         super(db);
@@ -75,8 +60,9 @@ public class CategoryTableHelper extends TableHelper<Category> {
         cv.put(Category.Columns.NAME, item.getName());
         cv.put(Category.Columns.CATEGORY_TYPE, item.getCategoryType());
         cv.put(Category.Columns.COUNT, item.getCount());
-        cv.put(Category.Columns.ACCEPTANCE, item.getAcceptance());
-        cv.put(Category.Columns.EULA, item.getEula());
+        cv.put(Category.Columns.ACCEPTANCE, item.isAcceptance());
+        cv.put(Category.Columns.EULA_TEXT, item.getEulaText());
+        cv.put(Category.Columns.USE_DEFAULT_EULA, item.isUseDefaultEula());
 
         long rowID = db.insertWithOnConflict(DatabaseOpenHelper.TABLE_CATEGORY, null, cv,
                 SQLiteDatabase.CONFLICT_REPLACE);
@@ -88,66 +74,69 @@ public class CategoryTableHelper extends TableHelper<Category> {
     public Category findByID(int id) {
         String[] args = {String.valueOf(id)};
         String selection = Category.Columns.ID + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Category category = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_CATEGORY, DB_PROJECTION, selection, args,
+            cursor = db.query(DatabaseOpenHelper.TABLE_CATEGORY, null, selection, args,
                     null, null, Category.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int cid = cursor.getInt(DB_PROJECTION_ID);
-                String name = cursor.getString(DB_PROJECTION_NAME);
-                String categoryType = cursor.getString(DB_PROJECTION_CATEGORY_TYPE);
-                int count = cursor.getInt(DB_PROJECTION_COUNT);
-                String acceptance = cursor.getString(DB_PROJECTION_ACCEPTANCE);
-                String eula = cursor.getString(DB_PROJECTION_EULA);
-
-                category = new Category()
-                        .setId(cid)
-                        .setName(name)
-                        .setCategoryType(categoryType)
-                        .setCount(count)
-                        .setAcceptance(acceptance)
-                        .setEula(eula);
+                category = getCategoryFromCursor(cursor);
             }
         } catch (Exception e) {
             Log.e(TAG, "Caught exception while searching for category with ID " + id + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
+        return category;
+    }
+
+    private Category getCategoryFromCursor(Cursor cursor) {
+        Category category = null;
+        int cid = cursor.getInt(cursor.getColumnIndex(Category.Columns.ID));
+        String name = cursor.getString(cursor.getColumnIndex(Category.Columns.NAME));
+        String categoryType = cursor.getString(cursor.getColumnIndex(Category.Columns.CATEGORY_TYPE));
+        int count = cursor.getInt(cursor.getColumnIndex(Category.Columns.COUNT));
+        int acceptance = cursor.getInt(cursor.getColumnIndex(Category.Columns.ACCEPTANCE));
+        String eula = cursor.getString(cursor.getColumnIndex(Category.Columns.EULA_TEXT));
+        int useDefaultEual = cursor.getInt(cursor.getColumnIndex(Category.Columns.USE_DEFAULT_EULA));
+
+        category = new Category()
+                .setId(cid)
+                .setName(name)
+                .setCategoryType(categoryType)
+                .setCount(count)
+                .setAcceptance(acceptance == 1)
+                .setEulaText(eula)
+                .setUseDefaultEula(useDefaultEual == 1);
         return category;
     }
 
     public Category findByName(String name) {
         String[] args = {name};
         String selection = Category.Columns.NAME + " = ?";
-        Cursor cursor;
+        Cursor cursor = null;
         Category category = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_CATEGORY, DB_PROJECTION, selection, args,
+            cursor = db.query(DatabaseOpenHelper.TABLE_CATEGORY, null, selection, args,
                     null, null, Category.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int id = cursor.getInt(DB_PROJECTION_ID);
-                String cname = cursor.getString(DB_PROJECTION_NAME);
-                String categoryType = cursor.getString(DB_PROJECTION_CATEGORY_TYPE);
-                int count = cursor.getInt(DB_PROJECTION_COUNT);
-                String acceptance = cursor.getString(DB_PROJECTION_ACCEPTANCE);
-                String eula = cursor.getString(DB_PROJECTION_EULA);
-
-                category = new Category()
-                        .setId(id)
-                        .setName(cname)
-                        .setCategoryType(categoryType)
-                        .setCount(count)
-                        .setAcceptance(acceptance)
-                        .setEula(eula);
+                category = getCategoryFromCursor(cursor);
             }
         } catch (Exception e) {
             Log.e(TAG, "Caught exception while searching for category with name " + name + ": " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return category;
@@ -157,36 +146,25 @@ public class CategoryTableHelper extends TableHelper<Category> {
     public List<Category> findAll() {
         List<Category> categories = new ArrayList<>();
 
-        Cursor cursor;
+        Cursor cursor = null;
 
         try {
-            cursor = db.query(DatabaseOpenHelper.TABLE_CATEGORY, DB_PROJECTION, null, null,
+            cursor = db.query(DatabaseOpenHelper.TABLE_CATEGORY, null, null, null,
                     null, null, Category.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int id = cursor.getInt(DB_PROJECTION_ID);
-                String cname = cursor.getString(DB_PROJECTION_NAME);
-                String categoryType = cursor.getString(DB_PROJECTION_CATEGORY_TYPE);
-                int count = cursor.getInt(DB_PROJECTION_COUNT);
-                String acceptance = cursor.getString(DB_PROJECTION_ACCEPTANCE);
-                String eula = cursor.getString(DB_PROJECTION_EULA);
-
-                Category category = new Category()
-                        .setId(id)
-                        .setName(cname)
-                        .setCategoryType(categoryType)
-                        .setCount(count)
-                        .setAcceptance(acceptance)
-                        .setEula(eula);
+                Category category = getCategoryFromCursor(cursor);
                 categories.add(category);
             }
         } catch (Exception e) {
             Log.e(TAG, "Caught exception while searching for categories: " +
                     e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return categories;
     }
-
-
 }

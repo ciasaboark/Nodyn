@@ -18,10 +18,11 @@
 package io.phobotic.nodyn.sync.adapter.snipeit3;
 
 import android.os.Bundle;
+import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 
 import io.phobotic.nodyn.R;
-import io.phobotic.nodyn.activity.SettingsActivity;
+import io.phobotic.nodyn.fragment.preference.PreferenceListeners;
 
 /**
  * Created by Jonathan Nelson on 7/27/17.
@@ -37,10 +38,27 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
         // to their values. When their values change, their summaries are
         // updated to reflect the new value, per the Android Design
         // guidelines.
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference("pref_protocol"));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference("pref_host"));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference("pref_port"));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference("pref_username"));
-        SettingsActivity.bindPreferenceSummaryToValue(findPreference("pref_password"));
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_snipeit_3_protocol)));
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_snipeit_3_host)));
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_snipeit_3_port)));
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_snipeit_3_username)));
+
+        findPreference(getString(R.string.pref_key_snipeit_3_password))
+                .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        String p = (String) newValue;
+                        if (newValue == null || ((String) newValue).length() == 0) {
+                            preference.setSummary("");
+                        } else {
+                            preference.setSummary("●●●●●●●");
+                        }
+                        return true;
+                    }
+                });
     }
 }

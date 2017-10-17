@@ -38,6 +38,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 import io.phobotic.nodyn.R;
+import io.phobotic.nodyn.database.Database;
+import io.phobotic.nodyn.database.helper.GroupTableHelper;
 import io.phobotic.nodyn.database.model.User;
 
 /**
@@ -47,6 +49,7 @@ import io.phobotic.nodyn.database.model.User;
 public class UserView extends LinearLayout {
     private static final String TAG = UserView.class.getSimpleName();
     private final Context context;
+    private final Database db;
     private User user;
     private View rootView;
     private TextView name;
@@ -63,6 +66,7 @@ public class UserView extends LinearLayout {
     public UserView(Context context, @Nullable AttributeSet attrs, User user) {
         super(context, attrs);
         this.context = context;
+        this.db = Database.getInstance(context);
         this.user = user;
         init();
     }
@@ -70,7 +74,7 @@ public class UserView extends LinearLayout {
     private void init() {
         rootView = inflate(context, R.layout.view_user, this);
 
-        name = (TextView) rootView.findViewById(R.id.name);
+        name = (TextView) rootView.findViewById(R.id.model);
 
         username = (TextView) rootView.findViewById(R.id.username);
         usernameBox = rootView.findViewById(R.id.username_box);
@@ -94,7 +98,8 @@ public class UserView extends LinearLayout {
             if (user != null) {
                 setTextOrHide(name, name, user.getName());
                 setTextOrHide(usernameBox, username, user.getUsername());
-                setTextOrHide(groupsBox, groups, user.getGroups());
+                // TODO: 9/13/17 update this to use names instead of IDs
+                setTextOrHide(groupsBox, groups, getGroupString());
                 setTextOrHide(numAssetsBox, numAssets, String.valueOf(user.getNumAssets()));
                 setTextOrHide(employeeNoBox, employeeNo, user.getEmployeeNum());
                 loadImage();
@@ -117,6 +122,10 @@ public class UserView extends LinearLayout {
             view.setVisibility(View.VISIBLE);
             tv.setText(text);
         }
+    }
+
+    private String getGroupString() {
+        return GroupTableHelper.getGroupString(user, db);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)

@@ -19,18 +19,19 @@ package io.phobotic.nodyn.fragment;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -55,20 +56,23 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.Database;
+import io.phobotic.nodyn.database.exception.ManufacturerNotFoundException;
+import io.phobotic.nodyn.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn.database.model.Asset;
+import io.phobotic.nodyn.database.model.Manufacturer;
+import io.phobotic.nodyn.database.model.Model;
 import io.phobotic.nodyn.fragment.listener.OnListFragmentInteractionListener;
+import io.phobotic.nodyn.list.AssetListFilterer;
 import io.phobotic.nodyn.list.VerticalSpaceItemDecoration;
 import io.phobotic.nodyn.list.adapter.AssetSection;
 import io.phobotic.nodyn.service.SyncService;
@@ -103,6 +107,7 @@ public class AssetListFragment extends Fragment {
     private BroadcastReceiver br;
     private int scrollPosition = 0;
     private int scrollOffset;
+    private List<SimplifiedAsset> assets;
 
     public static AssetListFragment newInstance(int columnCount) {
         AssetListFragment fragment = new AssetListFragment();
@@ -307,12 +312,34 @@ public class AssetListFragment extends Fragment {
      * Either display the list, the empty list error, or the sync adapter error
      */
     private void showProperView() {
-        List<Asset> assets = db.getAssets();
-        if (assets.isEmpty()) {
-            showEmptyListError();
-        } else {
-            showList(assets);
-        }
+        showSpinner();
+
+        AssetFetcherTask task = new AssetFetcherTask(getContext(), new OnAssetsLoaded() {
+            @Override
+            public void onAssetsLoaded(final List<SimplifiedAsset> assetList) {
+                Activity a = getActivity();
+                if (a != null) {
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            assets = assetList;
+                            if (assetList.isEmpty()) {
+                                showEmptyListError();
+                            } else {
+                                showDefaultAssetList();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+        task.execute();
+    }
+
+    private void showSpinner() {
+        View spinner = rootView.findViewById(R.id.busy_spinner);
+        spinner.setVisibility(View.VISIBLE);
     }
 
     private void showEmptyListError() {
@@ -325,58 +352,65 @@ public class AssetListFragment extends Fragment {
      *
      * @param assets
      */
-    private void showList(List<Asset> assets) {
-        assets = applyDefaultFilter(assets);
-        showFilteredList(assets);
-
-        if (filterCountShown) {
-            animateOutFilterBar();
-        }
-    }
-
-    //filter the default asset listview to include only the status selected in settings
-    private List<Asset> applyDefaultFilter(List<Asset> assets) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        boolean showAll = prefs.getBoolean(getString(R.string.pref_key_asset_status_show_all),
-                Boolean.valueOf(getString(R.string.pref_default_asset_status_show_all)));
-        if (showAll) {
-            return assets;
-        } else {
-            List<Asset> filteredList = new ArrayList<>();
-            Set<String> chosenStatuses = prefs.getStringSet(getString(
-                    R.string.pref_key_asset_status_selected_statuses), new HashSet<String>());
-            for (Asset asset : assets) {
-                if (chosenStatuses.contains(asset.getStatus())) {
-                    filteredList.add(asset);
+    private void showDefaultAssetList() {
+        AssetListFilterer filterer = new AssetListFilterer(getContext(), assets);
+        filterer.filterList(null, true, new AssetListFilterer.AssetListFilterListener() {
+            @Override
+            public void onAssetListBeginFilter() {
+                Activity a = getActivity();
+                if (a != null) {
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showSpinner();
+                        }
+                    });
                 }
             }
 
-            return filteredList;
-        }
+            @Override
+            public void onAssetListFinishFilter(final List<SimplifiedAsset> filteredAssets) {
+                Activity a = getActivity();
+                if (a != null) {
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showFilteredList(filteredAssets);
+
+                            if (filterCountShown) {
+                                animateOutFilterBar();
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
-    private void showFilteredList(List<Asset> assets) {
-        recyclerView.setVisibility(View.VISIBLE);
-        errEmptyList.setVisibility(View.GONE);
+    private void showFilteredList(List<SimplifiedAsset> filteredList) {
 
-        SectionedRecyclerViewAdapter sectionedAdapter = new SectionedRecyclerViewAdapter();
-        Map<String, List<Asset>> assetMap = getAssetMap(assets);
-        for (String key : assetMap.keySet()) {
-            List<Asset> sectionAssets = assetMap.get(key);
-            String manufacturer = UNKNOWN;
-            if (sectionAssets.size() > 0) {
-                manufacturer = sectionAssets.get(0).getManufacturer();
+        ListMapperTask task = new ListMapperTask(filteredList, new MapBuiltListener() {
+            @Override
+            public void onMapBuilt(final SectionedRecyclerViewAdapter adapter) {
+                Activity a = getActivity();
+                if (a != null) {
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            recyclerView.setVisibility(View.VISIBLE);
+                            errEmptyList.setVisibility(View.GONE);
+
+                            recyclerView.setAdapter(adapter);
+
+                            hideSpinner();
+                        }
+                    });
+                }
             }
+        });
+        task.execute();
 
-            String model = UNKNOWN;
-            if (sectionAssets.size() > 0) {
-                model = sectionAssets.get(0).getModel();
-            }
-            sectionedAdapter.addSection(new AssetSection(getContext(), manufacturer, model, sectionAssets,
-                    mListener));
-        }
 
-        recyclerView.setAdapter(sectionedAdapter);
     }
 
     private void animateOutFilterBar() {
@@ -407,31 +441,9 @@ public class AssetListFragment extends Fragment {
         animateSearchBar(filterCountBox, height, 0, listener);
     }
 
-    private Map<String, List<Asset>> getAssetMap(List<Asset> assets) {
-        Map<String, List<Asset>> assetMap = new TreeMap<>();
-        for (Asset asset : assets) {
-            String manufacturer = asset.getManufacturer();
-            if (manufacturer == null || manufacturer.length() == 0) {
-                manufacturer = UNKNOWN;
-            }
-
-            String model = asset.getModel();
-            if (model == null || model.length() == 0) {
-                model = UNKNOWN;
-            }
-
-            String key = manufacturer + "-" + model;
-
-            List<Asset> curAssets = assetMap.get(key);
-            if (curAssets == null) {
-                curAssets = new ArrayList<>();
-            }
-
-            curAssets.add(asset);
-            assetMap.put(key, curAssets);
-        }
-
-        return assetMap;
+    private void hideSpinner() {
+        View spinner = rootView.findViewById(R.id.busy_spinner);
+        spinner.setVisibility(View.GONE);
     }
 
     private void fadeInText(TextSwitcher view, String newText) {
@@ -581,60 +593,225 @@ public class AssetListFragment extends Fragment {
     }
 
     private void filterListAndShow(String filter) {
-        List<Asset> assets = db.getAssets();
-        assets = filterList(assets, filter);
-        String filterText = String.format(getResources().getString(R.string.asset_filter_count),
-                assets.size());
-        fadeInText(filterCount, filterText);
+        AssetListFilterer filterer = new AssetListFilterer(getContext(), assets);
+        filterer.filterList(filter, false, new AssetListFilterer.AssetListFilterListener() {
+            @Override
+            public void onAssetListBeginFilter() {
+                Activity a = getActivity();
+                if (a != null) {
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showSpinner();
+                        }
+                    });
+                }
+            }
 
-        if (!filterCountShown) {
-            animateInFilterBar();
-        }
+            @Override
+            public void onAssetListFinishFilter(final List<SimplifiedAsset> filteredAssets) {
+                Activity a = getActivity();
+                if (a != null) {
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String filterText = String.format(getResources()
+                                    .getString(R.string.asset_filter_count), filteredAssets.size());
+                            fadeInText(filterCount, filterText);
 
-        showFilteredList(assets);
+                            if (!filterCountShown) {
+                                animateInFilterBar();
+                            }
+
+                            showFilteredList(filteredAssets);
+                        }
+                    });
+                }
+            }
+        });
+
+
     }
 
-    private List<Asset> filterList(@NotNull List<Asset> assets, @NotNull String filter) {
-        List<Asset> filteredList = new ArrayList<>();
+    private interface OnAssetsLoaded {
+        void onAssetsLoaded(List<SimplifiedAsset> assets);
+    }
 
-        for (Asset asset : assets) {
-            if (assetMatchesFilter(asset, filter)) {
-                filteredList.add(asset);
+    public interface MapBuiltListener {
+        void onMapBuilt(SectionedRecyclerViewAdapter adapter);
+    }
+
+    private class AssetFetcherTask extends AsyncTask<Void, Void, Void> {
+        private final Context context;
+        private final OnAssetsLoaded listener;
+
+        public AssetFetcherTask(Context context, OnAssetsLoaded listener) {
+            this.context = context;
+            this.listener = listener;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Database db = Database.getInstance(context);
+            List<Asset> assetList = db.getAssets();
+            SimplifiedAsset.Builder b = new SimplifiedAsset.Builder();
+            List<SimplifiedAsset> simplifiedAssets = new ArrayList<>();
+            for (Asset a : assetList) {
+                SimplifiedAsset sa = b.fromAsset(getContext(), a);
+                simplifiedAssets.add(sa);
+            }
+
+            if (listener != null) {
+                listener.onAssetsLoaded(simplifiedAssets);
+            }
+
+            return null;
+        }
+    }
+
+    private class ListMapperTask extends AsyncTask<Void, Void, Void> {
+        private final List<SimplifiedAsset> filteredList;
+        private final MapBuiltListener listener;
+
+
+        public ListMapperTask(List<SimplifiedAsset> filteredList, MapBuiltListener listener) {
+            this.listener = listener;
+            this.filteredList = filteredList;
+        }
+
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Map<SectionKey, List<SimplifiedAsset>> assetSectionMap = getAssetSectionMap(filteredList);
+            SectionedRecyclerViewAdapter sectionedAdapter = new SectionedRecyclerViewAdapter();
+
+            for (SectionKey key : assetSectionMap.keySet()) {
+                List<SimplifiedAsset> sectionAssets = assetSectionMap.get(key);
+
+                sectionedAdapter.addSection(new AssetSection(getContext(), key.getManufacturer(),
+                        key.getModel(), sectionAssets, mListener));
+            }
+
+            if (listener != null) {
+                listener.onMapBuilt(sectionedAdapter);
+            }
+
+            return null;
+        }
+
+        /**
+         * Convert a list of Assets into a Map.  The returned Map will be organized by manufacturer
+         * and model
+         *
+         * @param assets
+         * @return
+         */
+        private Map<SectionKey, List<SimplifiedAsset>> getAssetSectionMap(List<SimplifiedAsset> assets) {
+            Map<SectionKey, List<SimplifiedAsset>> assetMap = new TreeMap<>();
+
+            for (SimplifiedAsset asset : assets) {
+                int manufacturerID = asset.getManufacturerID();
+                int modelID = asset.getModelID();
+
+                String manufacturer = "UNKNOWN";
+                try {
+                    Manufacturer m = db.findManufacturerByID(manufacturerID);
+                    manufacturer = m.getName();
+                } catch (ManufacturerNotFoundException e) {
+                }
+
+                String model = "UNKNOWN";
+                try {
+                    Model m = db.findModelByID(modelID);
+                    model = m.getName();
+                } catch (ModelNotFoundException e) {
+                }
+
+                SectionKey key = new SectionKey(manufacturer, model);
+
+                List<SimplifiedAsset> curAssets = assetMap.get(key);
+                if (curAssets == null) {
+                    curAssets = new ArrayList<>();
+                }
+
+                curAssets.add(asset);
+                assetMap.put(key, curAssets);
+            }
+
+            //sort the individual lists by tag
+            for (SectionKey key : assetMap.keySet()) {
+                List<SimplifiedAsset> a = assetMap.get(key);
+                Collections.sort(a, new Comparator<SimplifiedAsset>() {
+                    @Override
+                    public int compare(SimplifiedAsset o1, SimplifiedAsset o2) {
+                        return o1.getTag().compareTo(o2.getTag());
+                    }
+                });
+            }
+
+            return assetMap;
+        }
+
+
+    }
+
+    private class SectionKey implements Comparable<SectionKey> {
+        private String manufacturer;
+        private String model;
+        private int available;
+        private int assigned;
+
+        public SectionKey(String manufacturer, String model) {
+            if (manufacturer == null || model == null) {
+                throw new IllegalArgumentException("manufacturer and model must not be null");
+            }
+            this.manufacturer = manufacturer;
+            this.model = model;
+        }
+
+        public int getAvailable() {
+            return available;
+        }
+
+        public SectionKey setAvailable(int available) {
+            this.available = available;
+            return this;
+        }
+
+        public int getAssigned() {
+            return assigned;
+        }
+
+        public SectionKey setAssigned(int assigned) {
+            this.assigned = assigned;
+            return this;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof SectionKey)) {
+                return false;
+            } else {
+                return this.manufacturer.equals(((SectionKey) obj).getManufacturer()) &&
+                        this.model.equals(((SectionKey) obj).getModel());
             }
         }
 
-        return filteredList;
-    }
-
-    private boolean assetMatchesFilter(@NotNull Asset asset, @NotNull String filter) {
-        boolean filterMatches = false;
-        //do all the matching case insensitive
-        filter = filter.toUpperCase();
-
-        if (asset.getName().toUpperCase().contains(filter)) {
-            return true;
-        } else if (asset.getStatus().toUpperCase().contains(filter)) {
-            return true;
-        } else if (asset.getAssignedTo().toUpperCase().contains(filter)) {
-            return true;
-        } else if (asset.getModel().toUpperCase().contains(filter)) {
-            return true;
-        } else if (asset.getManufacturer().toUpperCase().contains(filter)) {
-            return true;
-        } else if (asset.getTag().toUpperCase().contains(filter)) {
-            return true;
-        } else if (asset.getCategory().toUpperCase().contains(filter)) {
-            return true;
-        } else if (asset.getCompanyName().toUpperCase().contains(filter)) {
-            return true;
-        } else if (String.valueOf(asset.getId()).contains(filter)) {
-            return true;
-        } else if (asset.getSerial().toUpperCase().contains(filter)) {
-            return true;
-        } else if (asset.getNotes().toUpperCase().contains(filter)) {
-            return true;
+        public String getManufacturer() {
+            return manufacturer;
         }
 
-        return filterMatches;
+        public String getModel() {
+            return model;
+        }
+
+        @Override
+        public int compareTo(@NonNull SectionKey o) {
+            String thisKey = manufacturer + model;
+            String thatKey = o.getManufacturer() + o.getModel();
+            return thisKey.compareTo(thatKey);
+        }
     }
+
+
 }

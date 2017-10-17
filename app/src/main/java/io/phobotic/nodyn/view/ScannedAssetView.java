@@ -53,6 +53,7 @@ public class ScannedAssetView extends RelativeLayout {
     private ImageButton deleteButton;
     private ImageView checkButton;
     private boolean assetRemovable = true;
+    private String modelName;
 
     public ScannedAssetView(Context context, AttributeSet attrs) {
         this(context, attrs, null);
@@ -88,7 +89,7 @@ public class ScannedAssetView extends RelativeLayout {
             if (asset != null) {
                 setTextOrHide(tag, tag, asset.getTag());
                 setTextOrHide(serialBox, serial, asset.getSerial());
-                setTextOrHide(modelBox, model, asset.getModel());
+                setTextOrHide(modelBox, model, modelName);
                 loadImage();
 
                 if (!assetRemovable) {
@@ -138,6 +139,12 @@ public class ScannedAssetView extends RelativeLayout {
                 .fit()
                 .transform(transformation)
                 .into(this.image);
+    }
+
+    public ScannedAssetView setModelName(String modelName) {
+        this.modelName = modelName;
+        setFields();
+        return this;
     }
 
     public ScannedAssetView setAssetRemovable(boolean assetRemovable) {

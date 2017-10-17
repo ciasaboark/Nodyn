@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowGroup;
+import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.Snipeit3Group;
 
 /**
  * Created by Jonathan Nelson on 7/8/17.
@@ -30,7 +30,7 @@ import io.phobotic.nodyn.sync.adapter.snipeit3.shadow.ShadowGroup;
 public class GroupResponse {
     private int total;
     @SerializedName("rows")
-    private List<ShadowGroup> groups;
+    private List<Snipeit3Group> groups;
 
     public int getTotal() {
         return total;
@@ -41,11 +41,11 @@ public class GroupResponse {
         return this;
     }
 
-    public List<ShadowGroup> getGroups() {
+    public List<Snipeit3Group> getGroups() {
         return groups;
     }
 
-    public GroupResponse setGroups(List<ShadowGroup> groups) {
+    public GroupResponse setGroups(List<Snipeit3Group> groups) {
         this.groups = groups;
         return this;
     }

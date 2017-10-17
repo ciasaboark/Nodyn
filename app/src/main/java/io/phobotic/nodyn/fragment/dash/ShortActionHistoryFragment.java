@@ -26,6 +26,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.phobotic.nodyn.R;
@@ -86,11 +88,6 @@ public class ShortActionHistoryFragment extends Fragment {
         refresh();
     }
 
-    public void setMaxRecords(int maxRecords) {
-        this.maxRecords = maxRecords;
-        refresh();
-    }
-
     public void refresh() {
         holder.removeAllViews();
         holder.setColumnCount(columnCount);
@@ -99,6 +96,14 @@ public class ShortActionHistoryFragment extends Fragment {
         Database db = Database.getInstance(getContext());
         List<Action> actionList = db.getActions();
         if (actionList == null) actionList = new ArrayList<>();
+
+        //sort the list in reverse order so the most recent action items show at the top
+        Collections.sort(actionList, new Comparator<Action>() {
+            @Override
+            public int compare(Action o1, Action o2) {
+                return -((Long) o1.getTimestamp()).compareTo(o2.getTimestamp());
+            }
+        });
 
         if (maxRecords > 0 && actionList.size() > maxRecords) {
             List<Action> copy = new ArrayList<>();
@@ -118,6 +123,11 @@ public class ShortActionHistoryFragment extends Fragment {
             ActionView actionView = new ActionView(getContext(), null, a);
             holder.addView(actionView);
         }
+    }
+
+    public void setMaxRecords(int maxRecords) {
+        this.maxRecords = maxRecords;
+        refresh();
     }
 
     public void setColumnCount(int columnCount) {

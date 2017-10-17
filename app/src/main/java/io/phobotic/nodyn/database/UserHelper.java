@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.exception.UserNotFoundException;
 import io.phobotic.nodyn.database.model.User;
 
@@ -40,7 +41,9 @@ public class UserHelper {
         Database db = Database.getInstance(context);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String validationField = prefs.getString("check_out_scan_field", null);
+        // TODO: 9/22/17 move this pref string into a user setting so it is shared between checkin and checkout
+        String validationField = prefs.getString(context.getString(
+                R.string.pref_key_check_in_scan_field), null);
         User user = null;
 
         if (validationField == null || validationField.equals("")) {

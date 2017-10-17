@@ -115,6 +115,7 @@ public class ActionView extends RelativeLayout {
             Database db = Database.getInstance(context);
             try {
                 User u = db.findUserByID(action.getUserID());
+                loadUserImage(u);
                 user.setText(u.getName());
             } catch (UserNotFoundException e) {
                 user.setText("Unknown user");
@@ -122,6 +123,7 @@ public class ActionView extends RelativeLayout {
 
             try {
                 Asset a = db.findAssetByID(action.getAssetID());
+                loadAssetImage(a);
                 asset.setText(a.getTag());
             } catch (AssetNotFoundException e) {
                 asset.setText("Unknown asset");
@@ -151,27 +153,6 @@ public class ActionView extends RelativeLayout {
             Date date = new Date(action.getTimestamp());
             String dateString = df.format(date);
             timestamp.setText(dateString);
-
-            fillInDatabaseValues();
-        }
-    }
-
-    private void fillInDatabaseValues() {
-        Database db = Database.getInstance(context);
-        try {
-            User u = db.findUserByID(action.getUserID());
-            user.setText(u.getName());
-            loadUserImage(u);
-        } catch (UserNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            Asset a = db.findAssetByID(action.getAssetID());
-            asset.setText(a.getName());
-            loadAssetImage(a);
-        } catch (AssetNotFoundException e) {
-            e.printStackTrace();
         }
     }
 

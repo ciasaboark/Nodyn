@@ -25,15 +25,13 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import io.phobotic.nodyn.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn.database.exception.CategoryNotFoundException;
 import io.phobotic.nodyn.database.exception.GroupNotFoundException;
+import io.phobotic.nodyn.database.exception.ManufacturerNotFoundException;
 import io.phobotic.nodyn.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn.database.exception.StatusNotFoundException;
 import io.phobotic.nodyn.database.exception.UserNotFoundException;
@@ -41,6 +39,7 @@ import io.phobotic.nodyn.database.helper.ActionTableHelper;
 import io.phobotic.nodyn.database.helper.AssetTableHelper;
 import io.phobotic.nodyn.database.helper.CategoryTableHelper;
 import io.phobotic.nodyn.database.helper.GroupTableHelper;
+import io.phobotic.nodyn.database.helper.ManufacturerTableHelper;
 import io.phobotic.nodyn.database.helper.ModelTableHelper;
 import io.phobotic.nodyn.database.helper.StatusTableHelper;
 import io.phobotic.nodyn.database.helper.UserTableHelper;
@@ -49,6 +48,7 @@ import io.phobotic.nodyn.database.model.Asset;
 import io.phobotic.nodyn.database.model.Category;
 import io.phobotic.nodyn.database.model.FullDataModel;
 import io.phobotic.nodyn.database.model.Group;
+import io.phobotic.nodyn.database.model.Manufacturer;
 import io.phobotic.nodyn.database.model.Model;
 import io.phobotic.nodyn.database.model.Status;
 import io.phobotic.nodyn.database.model.User;
@@ -70,6 +70,7 @@ public class Database {
     private final AssetTableHelper assetHelper;
     private final ModelTableHelper modelHelper;
     private final StatusTableHelper statusHelper;
+    private final ManufacturerTableHelper manufacturerHelper;
 
     public static Database getInstance(Context context) {
         if (instance == null) {
@@ -89,6 +90,7 @@ public class Database {
         assetHelper = new AssetTableHelper(db);
         modelHelper = new ModelTableHelper(db);
         statusHelper = new StatusTableHelper(db);
+        manufacturerHelper = new ManufacturerTableHelper(db);
     }
 
     public void updateModel(FullDataModel model) {
@@ -98,6 +100,7 @@ public class Database {
         replaceCategories(model.getCategories());
         replaceModels(model.getModels());
         replaceStatus(model.getStatuses());
+        replaceManufacturers(model.getManufacturers());
     }
 
     private void replaceAssets(List<Asset> assets) {
@@ -124,6 +127,10 @@ public class Database {
         statusHelper.replace(statuses);
     }
 
+    private void replaceManufacturers(List<Manufacturer> manufacturers) {
+        manufacturerHelper.replace(manufacturers);
+    }
+
     public void dumpModel() {
         replaceAssets(new ArrayList<Asset>());
         replaceUsers(new ArrayList<User>());
@@ -131,6 +138,7 @@ public class Database {
         replaceCategories(new ArrayList<Category>());
         replaceModels(new ArrayList<Model>());
         replaceStatus(new ArrayList<Status>());
+        replaceManufacturers(new ArrayList<Manufacturer>());
     }
 
     public List<Action> getActions() {
@@ -169,15 +177,15 @@ public class Database {
         return statuses;
     }
 
-//    public User findUserByUsername(String login) throws UserNotFoundException {
-//        UserTableHelper helper = new UserTableHelper(db);
-//        User user = helper.findByUsername(login);
-//        if (user == null) {
-//            throw new UserNotFoundException();
-//        }
-//
-//        return user;
-//    }
+    public User findUserByUsername(String login) throws UserNotFoundException {
+        UserTableHelper helper = new UserTableHelper(db);
+        User user = helper.findByUsername(login);
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
+
+        return user;
+    }
 
     public User findUserByID(int id) throws UserNotFoundException {
         User user = userHelper.findByID(id);
@@ -186,6 +194,15 @@ public class Database {
         }
 
         return user;
+    }
+
+    public Manufacturer findManufacturerByID(int id) throws ManufacturerNotFoundException {
+        Manufacturer manufacturer = manufacturerHelper.findByID(id);
+        if (manufacturer == null) {
+            throw new ManufacturerNotFoundException();
+        }
+
+        return manufacturer;
     }
 
     public Asset findAssetByTag(@NotNull String tag) throws AssetNotFoundException {
@@ -290,11 +307,8 @@ public class Database {
         AssetTableHelper helper = new AssetTableHelper(db);
         Asset a = helper.findByTag(asset.getTag());
         a.setAssignedToID(user.getId());
-        DateFormat df = new SimpleDateFormat();
-        String checkinDateString = df.format(new Date(expectedCheckin));
-        String lastCheckoutString = df.format(new Date());
-        a.setExpectedCheckin(checkinDateString);
-        a.setLastCheckout(lastCheckoutString);
+        a.setExpectedCheckin(expectedCheckin);
+        a.setLastCheckout(System.currentTimeMillis());
         // TODO: 8/24/17 how do we set the status now?
 //        a.setStatus("Deployed");
         helper.insert(a);
@@ -331,11 +345,11 @@ public class Database {
         AssetTableHelper helper = new AssetTableHelper(db);
         Asset a = helper.findByTag(asset.getTag());
         a.setAssignedToID(-1);
+        a.setExpectedCheckin(-1);
+        a.setLastCheckout(-1);
+
         // TODO: 8/24/17 how do we set the status now?
 //        a.setStatus("Ready to Deploy");
-        a.setExpectedCheckin(null);
-        a.setLastCheckout(null);
-
         helper.insert(a);
     }
 

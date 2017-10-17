@@ -18,8 +18,10 @@
 package io.phobotic.nodyn.activity;
 
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -31,6 +33,7 @@ import android.support.v4.util.Pair;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
@@ -52,7 +55,7 @@ import io.phobotic.nodyn.database.model.User;
 import io.phobotic.nodyn.fragment.ActionsListFragment;
 import io.phobotic.nodyn.fragment.AssetListFragment;
 import io.phobotic.nodyn.fragment.BackendErrorFragment;
-import io.phobotic.nodyn.fragment.CheckInOutChooserFragment;
+import io.phobotic.nodyn.fragment.DashboardFragment;
 import io.phobotic.nodyn.fragment.UserListFragment;
 import io.phobotic.nodyn.fragment.listener.OnListFragmentInteractionListener;
 import io.phobotic.nodyn.schedule.SyncScheduler;
@@ -60,6 +63,7 @@ import io.phobotic.nodyn.service.SyncService;
 import io.phobotic.nodyn.sync.SyncManager;
 import io.phobotic.nodyn.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn.sync.adapter.dummy.DummyAdapter;
+import io.phobotic.nodyn.view.KioskPasswordView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnListFragmentInteractionListener {
@@ -74,7 +78,6 @@ public class MainActivity extends AppCompatActivity
         PreferenceManager.setDefaultValues(this, R.xml.pref_data_sync, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_users, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_assets, false);
-        PreferenceManager.setDefaultValues(this, R.xml.pref_notification, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_sync_snipeit_3, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_check_in, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_check_out, false);
@@ -126,19 +129,25 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        Log.d(TAG, "configuration changed");
-        int keyboard = getResources().getConfiguration().keyboard;
-        Log.d(TAG, "keyboard int value now: " + keyboard);
+        Log.e(TAG, "configuration changed");
+        int keyboard = newConfig.keyboard;
+        int keyboardHidden = newConfig.keyboardHidden;
+        int hardKeyboardHidden = newConfig.hardKeyboardHidden;
+        String message = "keyboard [: " + keyboard + "], keyboardHidden [" + keyboardHidden +
+                "] hardKeyboardHidden [" + hardKeyboardHidden + "]";
+        Log.e(TAG, message);
 
         if (newConfig.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
             Intent i = new Intent(BROADCAST_SCANNER_CONNECTED);
             LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-            Toast.makeText(this, "hardware keyboard available (val " + keyboard + ")", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Barcode scanner attached", Toast.LENGTH_SHORT).show();
         } else if (newConfig.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES) {
             Intent i = new Intent(BROADCAST_SCANNER_DISCONNECTED);
             LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-            Toast.makeText(this, "hardware keyboard disconnected (val " + keyboard + ")", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Barcode scanner disconnected", Toast.LENGTH_SHORT).show();
         }
+
+        super.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -162,7 +171,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private Fragment getDefaultMainFragment() {
-        return CheckInOutChooserFragment.newInstance();
+        //// TODO: 10/4/17 replace with dash fragment once created
+        return DashboardFragment.newInstance();
     }
 
     /**
@@ -294,9 +304,17 @@ public class MainActivity extends AppCompatActivity
         boolean highlightItem = false;
         Fragment newFragment = null;
 
-        if (id == R.id.nav_check_in_out) {
-            newFragment = CheckInOutChooserFragment.newInstance();
+        if (id == R.id.nav_dash) {
+            newFragment = DashboardFragment.newInstance();
             highlightItem = true;
+        } else if (id == R.id.nav_check_in) {
+            Intent i = new Intent(this, CheckinActivity.class);
+            startActivity(i);
+            highlightItem = false;
+        } else if (id == R.id.nav_check_out) {
+            Intent i = new Intent(this, CheckoutActivity.class);
+            startActivity(i);
+            highlightItem = false;
         } else if (id == R.id.nav_assets) {
             newFragment = AssetListFragment.newInstance(1);
             highlightItem = true;
@@ -304,18 +322,34 @@ public class MainActivity extends AppCompatActivity
             newFragment = UserListFragment.newInstance(1);
             highlightItem = true;
         } else if (id == R.id.nav_history) {
-            newFragment = ActionsListFragment.newInstance(1);
+            newFragment = ActionsListFragment.newInstance(1, -1);
             highlightItem = true;
         } else if (id == R.id.nav_settings) {
-            Intent i = new Intent(this, SettingsActivity.class);
-            startActivity(i);
+            loadKioskSettings();
+            //setttings starts in a separate fragment, so don't highlight this option
             highlightItem = false;
         } else if (id == R.id.nav_about) {
             Intent i = new Intent(this, AboutActivity.class);
             startActivity(i);
             highlightItem = false;
-        } else if (id == R.id.nav_send) {
-            // TODO: 7/15/17
+        } else if (id == R.id.nav_share) {
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            StringBuilder sb = new StringBuilder();
+            sb.append("Check out Nodyn\n\n");
+            sb.append("https://play.google.com/store/apps/details?id=io.phobotic.nodyn");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, sb.toString());
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out Nodyn");
+            Uri imageUri = Uri.parse("android.resource://io.phobotic.nodyn/drawable/" + R.drawable.app_icon_64);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+            shareIntent.setType("image/png");
+
+            startActivity(Intent.createChooser(shareIntent, "Foobar"));
+
+
+//            sendIntent.putExtra(Intent.EXTRA_TEXT, "This is my text to send.");
+//
+//            startActivity(sendIntent);
         }
 
         if (newFragment != null) {
@@ -325,6 +359,79 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return highlightItem;
+    }
+
+    private void loadKioskSettings() {
+        boolean kioskMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
+                getString(R.string.pref_key_general_kiosk), Boolean.parseBoolean(
+                        getString(R.string.pref_default_general_kiosk)));
+
+        if (kioskMode) {
+            final KioskPasswordView kioskView = new KioskPasswordView(this);
+
+            AlertDialog d = new AlertDialog.Builder(this)
+                    .setTitle("Enter kiosk password")
+                    .setView(kioskView)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String passwordInput = kioskView.getPassword();
+                            if (passwordInput == null) passwordInput = "";
+
+                            String storedPassword = PreferenceManager.getDefaultSharedPreferences(MainActivity.this)
+                                    .getString(getString(R.string.pref_key_general_kiosk_password), null);
+
+                            if (passwordInput.equals(storedPassword)) {
+                                loadSettingsActivity();
+                            } else {
+                                showKioskPasswordMismatchDialog();
+                            }
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // TODO: 10/1/17 disable kiosk mode
+                        }
+                    })
+                    .create();
+            d.show();
+
+//            final Button positiveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);
+//            positiveButton.setEnabled(false);
+//
+//            kioskView.setOnPasswordChangedListener(new KioskPasswordView.OnPasswordChangedListener() {
+//                @Override
+//                public void onPasswordChanged(String newPassword) {
+//                    if (newPassword != null && newPassword.length() > 0) {
+//                        positiveButton.setEnabled(true);
+//                    }
+//                }
+//            });
+
+        } else {
+            loadSettingsActivity();
+        }
+
+    }
+
+    private void loadSettingsActivity() {
+        Intent i = new Intent(this, SettingsActivity.class);
+        startActivity(i);
+    }
+
+    private void showKioskPasswordMismatchDialog() {
+        AlertDialog d = new AlertDialog.Builder(this)
+                .setTitle("Password Mismatch")
+                .setMessage("Sorry, the password you entered is not correct")
+                .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //nothing to do here
+                    }
+                })
+                .create();
+        d.show();
     }
 
     @Override

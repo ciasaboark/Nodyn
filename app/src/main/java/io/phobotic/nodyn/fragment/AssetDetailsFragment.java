@@ -45,7 +45,10 @@ import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.phobotic.nodyn.R;
@@ -165,10 +168,18 @@ public class AssetDetailsFragment extends DialogFragment {
         unHideAllViews();
         if (asset != null) {
             setTextOrHide(tag, tag, asset.getTag());
-            setTextOrHide(status, status, asset.getStatus());
+            // TODO: 9/13/17 pull status name from db
+            setTextOrHide(status, status, String.valueOf(asset.getStatusID()));
 
-            setTextOrHide(checkoutBox, user, asset.getAssignedTo());
-            setTextOrHide(checkoutBox, checkout, asset.getLastCheckout());
+            // TODO: 9/13/17 pull associte name from db
+            setTextOrHide(checkoutBox, user, String.valueOf(asset.getAssignedToID()));
+            String lastCheckout = null;
+            if (asset.getLastCheckout() != -1) {
+                Date d = new Date(asset.getLastCheckout());
+                DateFormat df = new SimpleDateFormat();
+                lastCheckout = df.format(d);
+            }
+            setTextOrHide(checkoutBox, checkout, lastCheckout);
 
             loadImage();
         }
@@ -197,7 +208,7 @@ public class AssetDetailsFragment extends DialogFragment {
             Database db = Database.getInstance(getContext());
             List<Status> statuses = db.getStatuses();
             for (Status status : statuses) {
-                if (status.getName().equals(asset.getStatus())) {
+                if (status.getId() == asset.getStatusID()) {
                     color = Color.parseColor(status.getColor());
                     break;
                 }

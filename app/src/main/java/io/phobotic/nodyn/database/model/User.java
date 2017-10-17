@@ -27,29 +27,26 @@ import io.phobotic.nodyn.database.Verifiable;
 
 public class User implements Serializable {
     private int id;
+
     @Verifiable("Name")
     private String name;
-
-    private String jobTitle;
-
     @Verifiable("Email address")
     private String email;
 
     @Verifiable("Username")
     private String username;
 
-    private int locationID;
-    private String manager;
-    private int numAssets;
-
     @Verifiable("Employee Number")
     private String employeeNum;
-
-    private int[] groupsIDs;
 
     @Verifiable("Notes")
     private String notes;
 
+    private String jobTitle;
+    private int locationID;
+    private int managerID;
+    private int numAssets;
+    private int[] groupsIDs;
     private int companyID;
 
     public int getId() {
@@ -67,15 +64,6 @@ public class User implements Serializable {
 
     public User setName(String name) {
         this.name = name;
-        return this;
-    }
-
-    public String getJobTitle() {
-        return jobTitle;
-    }
-
-    public User setJobTitle(String jobTitle) {
-        this.jobTitle = jobTitle;
         return this;
     }
 
@@ -97,6 +85,33 @@ public class User implements Serializable {
         return this;
     }
 
+    public String getEmployeeNum() {
+        return employeeNum;
+    }
+
+    public User setEmployeeNum(String employeeNum) {
+        this.employeeNum = employeeNum;
+        return this;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public User setNotes(String notes) {
+        this.notes = notes;
+        return this;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
+    public User setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+        return this;
+    }
+
     public int getLocationID() {
         return locationID;
     }
@@ -106,12 +121,12 @@ public class User implements Serializable {
         return this;
     }
 
-    public String getManager() {
-        return manager;
+    public int getManagerID() {
+        return managerID;
     }
 
-    public User setManager(String manager) {
-        this.manager = manager;
+    public User setManagerID(int managerID) {
+        this.managerID = managerID;
         return this;
     }
 
@@ -124,30 +139,12 @@ public class User implements Serializable {
         return this;
     }
 
-    public String getEmployeeNum() {
-        return employeeNum;
-    }
-
-    public User setEmployeeNum(String employeeNum) {
-        this.employeeNum = employeeNum;
-        return this;
-    }
-
     public int[] getGroupsIDs() {
         return groupsIDs;
     }
 
     public User setGroupsIDs(int[] groupsIDs) {
         this.groupsIDs = groupsIDs;
-        return this;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public User setNotes(String notes) {
-        this.notes = notes;
         return this;
     }
 
