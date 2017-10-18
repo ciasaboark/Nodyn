@@ -26,6 +26,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -52,6 +54,7 @@ public class AboutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
+
         init();
     }
 
@@ -60,42 +63,56 @@ public class AboutActivity extends AppCompatActivity {
         final TextView introContinued = (TextView) findViewById(R.id.about_intro_continued);
         introContinued.setMovementMethod(LinkMovementMethod.getInstance());
 
-        TextView sourceText = (TextView) findViewById(R.id.about_source_text);
-        sourceText.setMovementMethod(LinkMovementMethod.getInstance());
+        initSourceText();
+        initBugsText();
+        initCommentsText();
+        initVersionTextView();
+        initLicenseView();
 
-        TextView bugsText = (TextView) findViewById(R.id.about_bugs_text);
-        bugsText.setMovementMethod(LinkMovementMethod.getInstance());
+        initAnimation(intro, introContinued);
+    }
 
+    private void initSourceText() {
+        TextView sourceText1 = (TextView) findViewById(R.id.about_source_text1);
+        sourceText1.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView sourceText2 = (TextView) findViewById(R.id.about_source_text2);
+        sourceText2.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void initBugsText() {
+        TextView bugsText1 = (TextView) findViewById(R.id.about_bugs_text1);
+        bugsText1.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView bugsText2 = (TextView) findViewById(R.id.about_bugs_text2);
+        bugsText2.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void initCommentsText() {
         TextView commentsText = (TextView) findViewById(R.id.about_comments_text);
         commentsText.setMovementMethod(LinkMovementMethod.getInstance());
+    }
 
-        final TextView versionText = (TextView) findViewById(R.id.about_version_number);
+    private void initVersionTextView() {
+        TextView versionText = (TextView) findViewById(R.id.about_version_number);
         String formattedVersion = String.format(getString(R.string.about_version),
                 Versioning.getVersionCode());
         versionText.setText(formattedVersion);
         //textview using marquee scrolling, but this only works if the textview is selected
         versionText.setSelected(true);
+    }
 
+    private void initLicenseView() {
+        TextView licenseText1 = (TextView) findViewById(R.id.about_license_text1);
+        licenseText1.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView licenseText2 = (TextView) findViewById(R.id.about_license_text2);
+        licenseText2.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void initAnimation(final TextView intro, final TextView introContinued) {
+        final TextView versionText = (TextView) findViewById(R.id.about_version_number);
         final View background = findViewById(R.id.background);
-//        Animation fadeInAnimation = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
-//        fadeInAnimation.setDuration(10000);
-//        fadeInAnimation.setAnimationListener(new Animation.AnimationListener() {
-//            @Override
-//            public void onAnimationStart(Animation animation) {
-//                background.setVisibility(View.VISIBLE);
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animation animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animation animation) {
-//
-//            }
-//        });
-//        background.startAnimation(fadeInAnimation);
 
         MoonCalculation moonCalculation = new MoonCalculation();
         Calendar cal = Calendar.getInstance();
@@ -112,8 +129,6 @@ public class AboutActivity extends AppCompatActivity {
         }
 
 
-
-
         double[] gps = getGPS();
         Location location = new Location(String.valueOf(gps[0]), String.valueOf(gps[1]));
         SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, TimeZone.getDefault());
@@ -122,84 +137,42 @@ public class AboutActivity extends AppCompatActivity {
         long sunset = officialSunset.getTimeInMillis();
         long now = System.currentTimeMillis();
         if (sunset <= now) {
-            View shine = findViewById(R.id.shine);
-            AnimationDrawable shineAnimationDrawable = (AnimationDrawable) getResources().getDrawable(R.drawable.about_shine);
-            shine.setBackground(shineAnimationDrawable);
-            shineAnimationDrawable.setEnterFadeDuration(5000);
-            shineAnimationDrawable.setExitFadeDuration(0);
-            shineAnimationDrawable.setOneShot(true);
-            shineAnimationDrawable.start();
-
-            AnimationDrawable backgroundAnimationDrawable = (AnimationDrawable) background.getBackground();
-            backgroundAnimationDrawable.setEnterFadeDuration(1000);
-            backgroundAnimationDrawable.setExitFadeDuration(2000);
-            backgroundAnimationDrawable.setOneShot(true);
-            backgroundAnimationDrawable.start();
-
-            final ImageView logo = (ImageView) findViewById(R.id.logo);
-            AnimationDrawable logoDrawable = (AnimationDrawable) getResources().getDrawable(R.drawable.about_logo);
-            logo.setImageDrawable(logoDrawable);
-            logoDrawable.setEnterFadeDuration(1000);
-            logoDrawable.setExitFadeDuration(2000);
-            logoDrawable.setOneShot(true);
-            logoDrawable.start();
-
-            final float[] from = new float[3],
-                    to = new float[3];
-
-            Color.colorToHSV(getResources().getColor(android.R.color.secondary_text_light), from);
-            Color.colorToHSV(getResources().getColor(android.R.color.primary_text_dark), to);
-
-            ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
-            anim.setDuration(1500);
-            anim.setStartDelay(3000);
-
-            final float[] hsv = new float[3];
-            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    // Transition along each axis of HSV (hue, saturation, value)
-                    hsv[0] = from[0] + (to[0] - from[0]) * animation.getAnimatedFraction();
-                    hsv[1] = from[1] + (to[1] - from[1]) * animation.getAnimatedFraction();
-                    hsv[2] = from[2] + (to[2] - from[2]) * animation.getAnimatedFraction();
-
-                    versionText.setTextColor(Color.HSVToColor(hsv));
-                    intro.setTextColor(Color.HSVToColor(hsv));
-                    introContinued.setTextColor(Color.HSVToColor(hsv));
-                }
-            });
-
-            anim.start();
+            animateInShine();
+            animateInBackground(background);
+            animateLogoChange();
+            animateIntroTextColorChange(intro, introContinued, versionText);
         }
-
-//        logo.setImageDrawable(getDrawable(R.drawable.app_icon_196_light));
-//        Animation slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.top_down);
-//        slideDownAnimation.setInterpolator(new AccelerateDecelerateInterpolator(this, null));
-//        slideDownAnimation.setDuration(2000);
-//        slideDownAnimation.setStartOffset(3000);
-//        slideDownAnimation.setAnimationListener(new Animation.AnimationListener() {
-//            @Override
-//            public void onAnimationStart(Animation animation) {
-//                logo.setVisibility(View.VISIBLE);
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animation animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animation animation) {
-//
-//            }
-//        });
-//        logo.startAnimation(slideDownAnimation);
-
     }
 
     private double[] getGPS() {
+        String locationProvider = LocationManager.NETWORK_PROVIDER;
         LocationManager lm = (LocationManager) getSystemService(
                 Context.LOCATION_SERVICE);
+
+        // TODO: 10/18/17 call requires permission dialog, fix this later
+//        lm.requestLocationUpdates(locationProvider, 0, 0, new LocationListener() {
+//            @Override
+//            public void onLocationChanged(android.location.Location location) {
+//
+//            }
+//
+//            @Override
+//            public void onStatusChanged(String provider, int status, Bundle extras) {
+//
+//            }
+//
+//            @Override
+//            public void onProviderEnabled(String provider) {
+//
+//            }
+//
+//            @Override
+//            public void onProviderDisabled(String provider) {
+//
+//            }
+//        });
+
+
         List<String> providers = lm.getProviders(true);
 
         android.location.Location l = null;
@@ -216,5 +189,115 @@ public class AboutActivity extends AppCompatActivity {
         }
 
         return gps;
+    }
+
+    private void animateInShine() {
+        View shine = findViewById(R.id.shine);
+        AnimationDrawable shineAnimationDrawable = (AnimationDrawable) getResources().getDrawable(R.drawable.about_shine);
+        shine.setBackground(shineAnimationDrawable);
+        shineAnimationDrawable.setEnterFadeDuration(5000);
+        shineAnimationDrawable.setExitFadeDuration(0);
+        shineAnimationDrawable.setOneShot(true);
+        shineAnimationDrawable.start();
+    }
+
+    private void animateInBackground(View background) {
+        AnimationDrawable backgroundAnimationDrawable = (AnimationDrawable) background.getBackground();
+        backgroundAnimationDrawable.setEnterFadeDuration(1000);
+        backgroundAnimationDrawable.setExitFadeDuration(2000);
+        backgroundAnimationDrawable.setOneShot(true);
+        backgroundAnimationDrawable.start();
+    }
+
+    private void animateLogoChange() {
+        final ImageView logo = (ImageView) findViewById(R.id.logo);
+        AnimationDrawable logoDrawable = (AnimationDrawable) getResources().getDrawable(R.drawable.about_logo);
+        logo.setImageDrawable(logoDrawable);
+        logoDrawable.setEnterFadeDuration(1000);
+        logoDrawable.setExitFadeDuration(2000);
+        logoDrawable.setOneShot(true);
+        logoDrawable.start();
+    }
+
+    private void animateIntroTextColorChange(final TextView intro, final TextView introContinued, final TextView versionText) {
+        animateTextColorChange(intro, introContinued, versionText);
+        animateLinkColorChange(intro, introContinued);
+    }
+
+    private void animateTextColorChange(final TextView intro, final TextView introContinued, final TextView versionText) {
+        final float[] from = new float[3],
+                to = new float[3];
+
+        Color.colorToHSV(getResources().getColor(android.R.color.secondary_text_light), from);
+        Color.colorToHSV(getResources().getColor(android.R.color.primary_text_dark), to);
+
+        ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
+        anim.setDuration(1500);
+        anim.setStartDelay(3000);
+
+        final float[] hsv = new float[3];
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                // Transition along each axis of HSV (hue, saturation, value)
+                hsv[0] = from[0] + (to[0] - from[0]) * animation.getAnimatedFraction();
+                hsv[1] = from[1] + (to[1] - from[1]) * animation.getAnimatedFraction();
+                hsv[2] = from[2] + (to[2] - from[2]) * animation.getAnimatedFraction();
+
+                versionText.setTextColor(Color.HSVToColor(hsv));
+                intro.setTextColor(Color.HSVToColor(hsv));
+                introContinued.setTextColor(Color.HSVToColor(hsv));
+            }
+        });
+
+        anim.start();
+    }
+
+    private void animateLinkColorChange(final TextView intro, final TextView introContinued) {
+        final float[] from = new float[3],
+                to = new float[3];
+
+        Color.colorToHSV(getResources().getColor(R.color.text_link_color_light), from);
+        Color.colorToHSV(getResources().getColor(R.color.text_link_color_dark), to);
+
+        ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
+        anim.setDuration(1500);
+        anim.setStartDelay(3000);
+
+        final float[] hsv = new float[3];
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                // Transition along each axis of HSV (hue, saturation, value)
+                hsv[0] = from[0] + (to[0] - from[0]) * animation.getAnimatedFraction();
+                hsv[1] = from[1] + (to[1] - from[1]) * animation.getAnimatedFraction();
+                hsv[2] = from[2] + (to[2] - from[2]) * animation.getAnimatedFraction();
+
+                intro.setLinkTextColor(Color.HSVToColor(hsv));
+                introContinued.setLinkTextColor(Color.HSVToColor(hsv));
+            }
+        });
+
+        anim.start();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_about, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean consumed = false;
+
+        switch (item.getItemId()) {
+            case R.id.menu_legal:
+                Log.d(TAG, "show legal menu here");
+                consumed = true;
+                break;
+        }
+
+        return consumed;
     }
 }

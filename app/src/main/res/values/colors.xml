@@ -57,7 +57,8 @@
     <color name="refresh_progress_2">@color/colorSecondaryLight</color>
     <color name="refresh_progress_3">@color/colorPrimaryLight</color>
 
-    <color name="link_color">@color/colorAccent</color>
+    <color name="text_link_color_light">#007668</color>
+    <color name="text_link_color_dark">#00efd3</color>
 
     <color name="chart_out">#8ceaff</color>
     <color name="chart_in">#ffd08c</color>

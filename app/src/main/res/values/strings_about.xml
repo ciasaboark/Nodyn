@@ -17,16 +17,31 @@
   -->
 
 <resources>
+    <string name="legal">Legal Information</string>
     <string name="about_intro">Nodyn is an asset tracking app that focuses on fast, fault-tolerant, user-driven check out and check ins</string>
     <string name="about_intro_continued">Nody requires access to an asset tracking backend system.  For a list of available backend solutions please check the <a href="https://github.com/ciasaboark/Nodyn/wiki/Manual">online manual</a></string>
 
+    <!-- Information about source code -->
     <string name="about_source_title">Source Code</string>
-    <string name="about_source_text">Nodyn is Free Software!  The source code is hosted on <a href="https://github.com/ciasaboark/Nodyn">Github</a></string>
+    <string name="about_source_text1">Nodyn is Free Software!  The source code is hosted on <a href="https://github.com/ciasaboark/Nodyn">Github</a>.</string>
+    <string name="about_source_text2">Want to help contribute?  See our <a href="https://github.com/ciasaboark/Nodyn/wiki/Contribute">contribution page</a> for information.</string>
 
-    <string name="about_bugs_title">Bugs and Feature Requests</string>
-    <string name="about_bugs_text">About bugs</string>
 
+    <!-- Information about bugs and features -->
+    <string name="about_bugs_title">Issues and Feature Requests</string>
+    <string name="about_bugs_text1">Noticed something not working correctly, or have suggestions for a future version?</string>
+    <string name="about_bugs_text2">Use the Github <a href="https://github.com/ciasaboark/Nodyn/issues">issues page</a> to file a bug report request an enhancement.</string>
+
+    <!-- Contact information -->
     <string name="about_comments_title">Comments</string>
     <string name="about_comments_text">About comments</string>
+
+
     <string name="about_version">Version %1$s</string>
+
+
+    <!-- Copyright information -->
+    <string name="about_license_title">License</string>
+    <string name="about_license_text1">Nodyn is licensed under the terms of the GPL version 3.  For the full license text please see the <a href="https://github.com/ciasaboark/Nodyn/blob/master/LICENSE.md">License</a> file online.</string>
+    <string name="about_license_text2">Nodyn makes use of third-party libraries and assets.  For a full list, please see the <a href="https://github.com/ciasaboark/Nodyn/blob/master/ASSETS.md">Assets</a> file online.</string>
 </resources>
