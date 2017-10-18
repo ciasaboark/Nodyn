@@ -158,8 +158,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        SyncScheduler scheduler = new SyncScheduler(this);
-        scheduler.scheduleSyncIfNeeded();
     }
 
     @Override
@@ -265,6 +263,9 @@ public class MainActivity extends AppCompatActivity
         } else {
             showSyncAdapterErrorIfNeeded();
         }
+
+        SyncScheduler scheduler = new SyncScheduler(this);
+        scheduler.scheduleSyncIfNeeded();
     }
 
     /**

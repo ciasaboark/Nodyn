@@ -25,12 +25,16 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import io.phobotic.nodyn.reporting.CustomEvents;
 import io.phobotic.nodyn.service.SyncService;
 
 /**
@@ -84,6 +88,8 @@ public class SyncScheduler {
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, wakeAt, pi);
         }
+
+        Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_SCHEDULED));
     }
 
     private

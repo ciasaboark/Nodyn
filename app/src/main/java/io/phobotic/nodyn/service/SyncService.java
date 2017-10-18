@@ -25,6 +25,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 
@@ -87,7 +88,9 @@ public class SyncService extends IntentService {
             broadcastManager.sendBroadcast(i);
 
             Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_SUCCESS));
-        } catch (SyncException e) {
+        } catch (Exception e) {
+            Crashlytics.logException(e);
+            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_FAILED));
             i = new Intent(BROADCAST_SYNC_FAIL);
             i.putExtra(BROADCAST_SYNC_MESSAGE, e.getMessage());
             broadcastManager.sendBroadcast(i);
@@ -180,7 +183,7 @@ public class SyncService extends IntentService {
         for (Asset asset : allAssets) {
             if (asset.getAssignedToID() != -1) {
                 asset.getExpectedCheckin();
-
+                // TODO: 10/17/17 get list of past due items and send reminder email
             }
         }
     }
