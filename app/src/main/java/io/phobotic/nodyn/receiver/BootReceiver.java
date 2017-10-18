@@ -21,6 +21,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+
+import io.phobotic.nodyn.reporting.CustomEvents;
 import io.phobotic.nodyn.schedule.SyncScheduler;
 
 /**
@@ -32,5 +36,7 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         SyncScheduler scheduler = new SyncScheduler(context);
         scheduler.forceScheduleSync();
+
+        Answers.getInstance().logCustom(new CustomEvent(CustomEvents.BOOT_RECEIVER_FIRED));
     }
 }
