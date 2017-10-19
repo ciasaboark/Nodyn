@@ -253,12 +253,6 @@ public class CheckOutFragment extends Fragment {
                         //let the badge scanner handle bad input
                     }
                 });
-                d.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        d.getWindow().setElevation(0);
-                    }
-                });
 
                 d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
@@ -626,7 +620,7 @@ public class CheckOutFragment extends Fragment {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(System.currentTimeMillis());
             // TODO: 8/20/17 pull hours from settings
-            cal.add(Calendar.HOUR_OF_DAY, -24);
+            cal.add(Calendar.HOUR_OF_DAY, 24);
             long expectedCheckin = cal.getTimeInMillis();
             List<Asset> scannedAssetsList = scanner.getScannedAssets();
             db.checkoutAssetsToUser(user, scannedAssetsList, expectedCheckin, authorizingUser,
