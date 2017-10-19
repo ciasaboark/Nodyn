@@ -20,6 +20,7 @@ package io.phobotic.nodyn.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
@@ -32,8 +33,12 @@ import io.phobotic.nodyn.schedule.SyncScheduler;
  */
 
 public class BootReceiver extends BroadcastReceiver {
+    public static final String TAG = BootReceiver.class.getSimpleName();
+
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.d(TAG, "Boot receiver started, scheduling sync service to wake");
+
         SyncScheduler scheduler = new SyncScheduler(context);
         scheduler.forceScheduleSync();
 
