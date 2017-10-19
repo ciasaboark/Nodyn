@@ -41,10 +41,47 @@
     <!--android:layout_height="100dp"-->
     <!--android:background="@drawable/about_clouds"/>-->
 
+    <RelativeLayout
+        android:id="@+id/logo_box"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerHorizontal="true">
+
+        <RelativeLayout
+            android:id="@+id/shine"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/about_shine"/>
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="196dp"
+            android:layout_height="196dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="26dp"
+            android:layout_marginStart="26dp"
+            android:layout_marginTop="26dp"
+            android:src="@drawable/about_logo"/>
+
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/about_version_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logo_box"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:text="@string/placeholder"/>
+
     <ScrollView
         android:id="@+id/scrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@+id/about_version_number">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -52,67 +89,36 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <RelativeLayout
-                android:id="@+id/logo_box"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_gravity="center_horizontal"
-                >
-
-                <RelativeLayout
-                    android:id="@+id/shine"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/about_shine"/>
-
-                <ImageView
-                    android:id="@+id/logo"
-                    android:layout_width="196dp"
-                    android:layout_height="196dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="26dp"
-                    android:layout_marginStart="26dp"
-                    android:layout_marginTop="26dp"
-                    android:src="@drawable/about_logo"/>
-
-
-            </RelativeLayout>
-
-            <TextView
-                android:id="@+id/about_version_number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/logo_box"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"
-                android:text="@string/placeholder"
-                android:textAppearance="@android:style/TextAppearance.Material.Small"
-                android:textSize="10sp"/>
-
-
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:orientation="vertical"
-                >
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/about_intro"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/about_intro"
-                    android:textColorLink="@color/text_link_color_light"/>
+                    android:layout_marginBottom="16dp"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/about_intro_continued"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/about_intro_continued"
-                    android:textColorLink="@color/text_link_color_light"/>
+                    <TextView
+                        android:id="@+id/about_intro"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/about_intro"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColorLink="@color/text_link_color_light"/>
+
+                    <TextView
+                        android:id="@+id/about_intro_continued"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_intro_continued"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColorLink="@color/text_link_color_light"/>
+                </LinearLayout>
+
             </LinearLayout>
 
             <android.support.v7.widget.CardView
@@ -121,6 +127,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="16dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
                 android:minWidth="500dp"
                 android:orientation="horizontal"
                 app:cardBackgroundColor="@color/check"
@@ -180,6 +188,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="16dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
                 android:minWidth="500dp"
                 android:orientation="horizontal"
                 android:padding="16dp"
@@ -241,6 +251,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="16dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
                 android:minWidth="500dp"
                 android:orientation="horizontal"
                 app:cardBackgroundColor="@color/about_comments"
@@ -292,6 +304,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="16dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
                 android:minWidth="500dp"
                 android:orientation="horizontal"
                 app:cardBackgroundColor="@color/about_legal"
