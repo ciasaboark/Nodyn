@@ -33,7 +33,7 @@
             android:title="@string/pref_title_email_exceptions"/>
 
         <EditTextPreference
-            android:defaultValue=""
+            android:defaultValue="@string/pref_default_email_exceptions_addresses"
             android:dependency="@string/pref_key_email_exceptions"
             android:key="@string/pref_key_email_exceptions_addresses"
             android:title="@string/pref_title_email_exceptions_addresses"/>
