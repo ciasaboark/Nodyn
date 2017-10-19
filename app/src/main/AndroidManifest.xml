@@ -23,6 +23,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
+        android:name=".Nodyn"
         android:allowBackup="true"
         android:configChanges="keyboard"
         android:icon="@mipmap/ic_launcher"
@@ -45,6 +46,10 @@
 
         <service
             android:name=".service.SyncService"
+            android:enabled="true">
+        </service>
+        <service
+            android:name=".service.PastDueAlertService"
             android:enabled="true">
         </service>
 
