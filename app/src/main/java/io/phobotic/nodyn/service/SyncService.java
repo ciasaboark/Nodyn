@@ -40,6 +40,7 @@ import io.phobotic.nodyn.database.model.FullDataModel;
 import io.phobotic.nodyn.email.ActionHtmlFormatter;
 import io.phobotic.nodyn.email.EmailRecipient;
 import io.phobotic.nodyn.email.EmailSender;
+import io.phobotic.nodyn.email.PastDueAssetHtmlFormatter;
 import io.phobotic.nodyn.reporting.CustomEvents;
 import io.phobotic.nodyn.schedule.SyncScheduler;
 import io.phobotic.nodyn.sync.SyncErrorListener;
@@ -134,7 +135,9 @@ public class SyncService extends IntentService {
             sb.append(ActionHtmlFormatter.getFooter());
 
             List<EmailRecipient> recipients = new ArrayList<>();
-            String addressesString = preferences.getString("email_sync_exceptions_addresses", "");
+            String addressesString = preferences.getString(
+                    getString(R.string.pref_key_email_exceptions_addresses),
+                    getString(R.string.pref_default_email_exceptions_addresses));
             String[] addresses = addressesString.split(",");
             for (String address : addresses) {
                 recipients.add(new EmailRecipient(address));
@@ -180,11 +183,61 @@ public class SyncService extends IntentService {
         List<Asset> allAssets = db.getAssets();
         List<Asset> pastDueAssets = new ArrayList<>();
 
+        // TODO: 10/19/17 should this be restricted to the models that can be checked out, or send notifications for everything?
+        long now = System.currentTimeMillis();
         for (Asset asset : allAssets) {
             if (asset.getAssignedToID() != -1) {
-                asset.getExpectedCheckin();
-                // TODO: 10/17/17 get list of past due items and send reminder email
+                long checkinTimestamp = asset.getExpectedCheckin();
+                if (checkinTimestamp != -1) {
+                    if (checkinTimestamp < now) {
+                        pastDueAssets.add(asset);
+                    }
+                }
             }
+        }
+
+        if (pastDueAssets.size() > 0) {
+            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.ASSET_PAST_DUE));
+            StringBuilder sb = new StringBuilder();
+            sb.append(PastDueAssetHtmlFormatter.getHeader());
+
+            PastDueAssetHtmlFormatter formatter = new PastDueAssetHtmlFormatter();
+            for (Asset asset : pastDueAssets) {
+                sb.append(formatter.formatAssetAsHtml(this, asset));
+            }
+
+            sb.append(ActionHtmlFormatter.getFooter());
+
+            List<EmailRecipient> recipients = new ArrayList<>();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            // TODO: 10/19/17 there should probably be a separate list of recipients defined for past due asset reminders
+            String addressesString = preferences.getString(
+                    getString(R.string.pref_key_email_exceptions_addresses),
+                    getString(R.string.pref_default_email_exceptions_addresses));
+            String[] addresses = addressesString.split(",");
+            for (String address : addresses) {
+                recipients.add(new EmailRecipient(address));
+            }
+
+            EmailSender sender = new EmailSender(this)
+                    .setBody(sb.toString())
+                    .setSubject("Past Due Assets")
+                    .setRecipientList(recipients)
+                    .setFailedListener(new EmailSender.EmailStatusListener() {
+                        @Override
+                        public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
+                            Log.e(TAG, "Past due assets reminder email failed with message: " + message);
+                            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.PAST_DUE_EMAIL_NOT_SENT));
+                        }
+                    }, pastDueAssets)
+                    .setSuccessListener(new EmailSender.EmailStatusListener() {
+                        @Override
+                        public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
+                            Log.d(TAG, "Past due assets reminder email succeeded with message: " + message);
+                            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.PAST_DUE_EMAIL_SENT));
+                        }
+                    }, pastDueAssets)
+                    .send();
         }
     }
 
