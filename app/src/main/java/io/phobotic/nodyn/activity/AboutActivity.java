@@ -24,11 +24,14 @@ import android.graphics.drawable.AnimationDrawable;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,6 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.TimeZone;
 
 import io.phobotic.nodyn.MoonCalculation;
@@ -73,6 +77,9 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     private void initSourceText() {
+        CardView card = (CardView) findViewById(R.id.card_source);
+        animateInCard(card);
+
         TextView sourceText1 = (TextView) findViewById(R.id.about_source_text1);
         sourceText1.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -81,6 +88,9 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     private void initBugsText() {
+        CardView card = (CardView) findViewById(R.id.card_bugs);
+        animateInCard(card);
+
         TextView bugsText1 = (TextView) findViewById(R.id.about_bugs_text1);
         bugsText1.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -89,6 +99,9 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     private void initCommentsText() {
+        CardView card = (CardView) findViewById(R.id.card_contact);
+        animateInCard(card);
+
         TextView commentsText = (TextView) findViewById(R.id.about_comments_text);
         commentsText.setMovementMethod(LinkMovementMethod.getInstance());
     }
@@ -103,6 +116,9 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     private void initLicenseView() {
+        CardView card = (CardView) findViewById(R.id.card_license);
+        animateInCard(card);
+
         TextView licenseText1 = (TextView) findViewById(R.id.about_license_text1);
         licenseText1.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -142,6 +158,32 @@ public class AboutActivity extends AppCompatActivity {
             animateLogoChange();
             animateIntroTextColorChange(intro, introContinued, versionText);
         }
+    }
+
+    private void animateInCard(final View view) {
+        view.setVisibility(View.GONE);
+
+        Animation bottomUp = AnimationUtils.loadAnimation(this, R.anim.bottom_up);
+        Random random = new Random(System.currentTimeMillis());
+        long startOffset = random.nextInt(200);
+        bottomUp.setStartOffset(startOffset);
+        bottomUp.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        view.startAnimation(bottomUp);
     }
 
     private double[] getGPS() {
@@ -292,10 +334,7 @@ public class AboutActivity extends AppCompatActivity {
         boolean consumed = false;
 
         switch (item.getItemId()) {
-            case R.id.menu_legal:
-                Log.d(TAG, "show legal menu here");
-                consumed = true;
-                break;
+
         }
 
         return consumed;
