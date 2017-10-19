@@ -29,7 +29,7 @@ public class Snipeit4Manufacturer {
     private int id;
     private String name;
     @SerializedName("created_at")
-    private TimeSnippet createdAt;
+    private DateSnippet createdAt;
     @SerializedName("support_email")
     private String supportEmail;
     @SerializedName("support_phone")

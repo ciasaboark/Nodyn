@@ -56,16 +56,18 @@ public class Snipeit4Asset {
 //    public String eol;
 
     public String purchaseCost;
-    public TimeSnippet purchaseDate;
+    public DateSnippet purchaseDate;
     public String notes;
     public String orderNumber;
-    public TimeSnippet lastCheckout;
+
+    @SerializedName("last_checkout")
+    public DateSnippet lastCheckout;
 
     @SerializedName("expected_checkin")
-    public TimeSnippet expectedCheckin;
+    public DateSnippet expectedCheckin;
 
     @SerializedName("created_at")
-    public TimeSnippet createdAt;
+    public DateSnippet createdAt;
     public Snippet company;
 
     public Asset toAsset() {
@@ -86,7 +88,7 @@ public class Snipeit4Asset {
                 .setOrderNumber(orderNumber)
                 .setLastCheckout(lastCheckout == null ? -1 : toTimestamp(lastCheckout.getDatetimme()))
                 .setExpectedCheckin(expectedCheckin == null ? -1 : toTimestamp(expectedCheckin.getDatetimme()))
-                .setLastCheckout(createdAt == null ? -1 : toTimestamp(createdAt.getDatetimme()))
+                .setCreatedAt(createdAt == null ? -1 : toTimestamp(createdAt.getDatetimme()))
                 .setCompanyID(company == null ? -1 : company.getId());
 
         return asset;
@@ -94,13 +96,22 @@ public class Snipeit4Asset {
 
     private long toTimestamp(String dateString) {
         long timestamp = -1;
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
+
         try {
-            Date d = df.parse(dateString);
-            timestamp = d.getTime();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "Unable to convert date string '" + dateString + "' into a timestamp: " + e.getMessage());
+            Date d1 = df1.parse(dateString);
+            timestamp = d1.getTime();
+        } catch (Exception e1) {
+            //if the first format did not match try the second
+            try {
+                Date d2 = df2.parse(dateString);
+                timestamp = d2.getTime();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+                Log.e(TAG, "Unable to convert date string '" + dateString +
+                        "' into a timestamp: " + e2.getMessage());
+            }
         }
 
         return timestamp;

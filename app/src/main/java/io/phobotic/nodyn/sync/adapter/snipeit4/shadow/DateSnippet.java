@@ -23,7 +23,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by Jonathan Nelson on 9/13/17.
  */
 
-public class TimeSnippet {
+public class DateSnippet {
     @SerializedName(value = "datetime", alternate = {"date"})
     private String datetimme;
     private String formatted;
@@ -32,7 +32,7 @@ public class TimeSnippet {
         return datetimme;
     }
 
-    public TimeSnippet setDatetimme(String datetimme) {
+    public DateSnippet setDatetimme(String datetimme) {
         this.datetimme = datetimme;
         return this;
     }
@@ -41,7 +41,7 @@ public class TimeSnippet {
         return formatted;
     }
 
-    public TimeSnippet setFormatted(String formatted) {
+    public DateSnippet setFormatted(String formatted) {
         this.formatted = formatted;
         return this;
     }
