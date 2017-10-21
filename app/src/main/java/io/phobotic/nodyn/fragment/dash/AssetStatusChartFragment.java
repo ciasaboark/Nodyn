@@ -140,7 +140,8 @@ public class AssetStatusChartFragment extends Fragment {
             //treat assets assigned to an associate as their own virtual status
             Status s;
             if (asset.getAssignedToID() != -1) {
-                s = new Status("Assigned", "Ready to Deploy", null);
+                s = new Status(getString(R.string.asset_status_assigned),
+                        getString(R.string.asset_status_assigned_type), null);
             } else {
                 int statusId = asset.getStatusID();
                 s = statusIDMap.get(statusId);
