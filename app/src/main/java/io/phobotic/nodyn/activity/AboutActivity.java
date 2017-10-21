@@ -152,7 +152,7 @@ public class AboutActivity extends AppCompatActivity {
         Calendar officialSunset = calculator.getOfficialSunsetCalendarForDate(Calendar.getInstance());
         long sunset = officialSunset.getTimeInMillis();
         long now = System.currentTimeMillis();
-        if (sunset <= now) {
+        if (true) {
             animateInShine();
             animateInBackground(background);
             animateLogoChange();
