@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.database.exception.CategoryNotFoundException;
 import io.phobotic.nodyn.database.exception.ManufacturerNotFoundException;
@@ -168,7 +169,7 @@ public class SimplifiedAsset extends Asset {
             Database db = Database.getInstance(context);
 
             setModelName(db, simplifiedAsset);
-            setStatusName(db, simplifiedAsset);
+            setStatusName(context, db, simplifiedAsset);
             setAssignedToName(db, simplifiedAsset);
             setLocationName(db, simplifiedAsset);
             setCategoryName(db, simplifiedAsset);
@@ -194,9 +195,13 @@ public class SimplifiedAsset extends Asset {
             }
         }
 
-        private void setStatusName(Database db, SimplifiedAsset asset) {
+        private void setStatusName(Context context, Database db, SimplifiedAsset asset) {
             int statusID = asset.getStatusID();
-            if (statusID != -1) {
+            //if the asset is assigned then use the virtual assigned status
+            if (asset.getAssignedToID() != -1) {
+                String status = context.getString(R.string.asset_status_assigned);
+                asset.setStatusName(status);
+            } else if (statusID != -1) {
                 String statusName = statusMap.get(statusID);
                 if (statusName == null) {
                     try {
