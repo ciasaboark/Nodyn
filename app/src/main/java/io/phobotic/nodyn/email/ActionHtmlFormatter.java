@@ -25,8 +25,10 @@ import org.json.JSONObject;
 
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.database.exception.AssetNotFoundException;
+import io.phobotic.nodyn.database.exception.StatusNotFoundException;
 import io.phobotic.nodyn.database.exception.UserNotFoundException;
 import io.phobotic.nodyn.database.model.Asset;
+import io.phobotic.nodyn.database.model.Status;
 import io.phobotic.nodyn.database.model.User;
 import io.phobotic.nodyn.service.FailedActions;
 
@@ -35,65 +37,81 @@ import io.phobotic.nodyn.service.FailedActions;
  */
 
 public class ActionHtmlFormatter {
+    public static final String PRE = "<div class=\"box\">";
+    public static final String POST = "</div>";
+    public static final String ACTION = "<div>Action: <span class=\"action\">%s</span></div>";
+    public static final String ASSET_ID = "<div>Asset: <span class=\"asset\">%s</span></div>";
+    public static final String SERIAL_NO = "<div>Serial: <span class=\"serial\">%s</span></div>";
+    public static final String STATUS = "<div>Status: <span class=\"status\">%s</span></div>";
+    public static final String USER = "<div>User ID: <span class=\"user\">%s</span></div>";
+    public static final String LOGIN = "<div>Login: <span class=\"login\">%s</span></div>";
+    public static final String MESSAGE = "<div>Message: <span class=\"message\">%s</span></div>";
+    public static final String EXCEPTION_MESSAGE = "<div>Exception Message: <span class=\"message\">%s</span></div>";
+    public static final String EXCEPTION_CLASS = "<div>Exception: <span class=\"exceptionType\">%s</span></div>";
+    public static final String STACK_TRACE = "<button class=\"accordion\">Stack trace</button>\n" +
+            "<div class=\"panel\">\n" +
+            "<pre>%s</pre>\n" +
+            "</div>";
+
+
+
     public static String formatActionAsHtml(Context context, FailedActions action) {
         Database db = Database.getInstance(context);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<div class=\"box\">");
-        sb.append("<div>Action: <span class=\"action\">" + action.getAction().getDirection()
-                .toString() + "</span></div>");
+        sb.append(PRE);
+        sb.append(String.format(ACTION, action.getAction().getDirection().toString()));
 
         //wite the asset tag if possible, otherwise just use the asset id provided in the action
-        sb.append("<div>Asset: <span class=\"asset\">");
         try {
             Asset asset = db.findAssetByID(action.getAction().getAssetID());
             sb.append(asset.getTag());
             if (asset.getSerial() != null && asset.getSerial().length() > 0) {
-                sb.append("</span></div><div>Serial: <span class=\"serial\">");
-                sb.append(asset.getSerial());
+                sb.append(String.format(ASSET_ID, asset.getTag()));
+                sb.append(String.format(SERIAL_NO, asset.getSerial()));
 
-                sb.append("</span></div><div>Serial: <span class=\"status\">");
-                sb.append(asset.getStatusID());
+                //try to write the status name if possible, use the recorded status ID if required
+                try {
+                    Status status = db.findStatusByID(asset.getStatusID());
+                    sb.append(String.format(STATUS, status.getName()));
+                } catch (StatusNotFoundException e) {
+                    sb.append(String.format(STATUS, asset.getStatusID()));
+                }
             }
         } catch (AssetNotFoundException e) {
-            sb.append(action.getAction().getAssetID());
-        } finally {
-            sb.append("</span></div>");
+            //if fetching the asset failed, then only write the asset id and do not insert
+            //+ the serial or status
+            sb.append(String.format(ASSET_ID, action.getAction().getAssetID()));
+
         }
 
-        sb.append("<div>User ID: <span class=\"user\">");
+        //try to write the username if possible, use the user ID number if required
         try {
-            User u = db.findUserByID(action.getAction().getUserID());
-            sb.append(u.getName());
-            sb.append("</span></div><div>Login: <span class=\"login\">");
-            sb.append(u.getUsername());
+            User user = db.findUserByID(action.getAction().getUserID());
+            sb.append(String.format(USER, user.getName()));
+            sb.append(String.format(LOGIN, user.getUsername()));
         } catch (UserNotFoundException e) {
-            sb.append(action.getAction().getUserID());
-        } finally {
-            sb.append("</span></div>");
+            sb.append(String.format(USER, action.getAction().getUserID()));
         }
 
-
-        sb.append("<div>Message: <span class=\"message\">" + action.getMessage() + "</span></div>");
-        if (action.getException().getMessage() != null) {
-            sb.append("<div>Exception Message: <span class=\"message\">" + action.getException().getMessage() + "</span></div>");
-        }
-        sb.append("<div>Exception: <span class=\"exceptionType\">" + action.getException().getClass().getSimpleName() + "</span></div>");
-        sb.append("<button class=\"accordion\">Stack trace</button>\n" +
-                "\t\t<div class=\"panel\">\n" +
-                "\t\t  <pre>");
-        Gson gson = new Gson();
-        String stacktraceJson = gson.toJson(action);
-        try {
-            stacktraceJson = new JSONObject(stacktraceJson).toString(4);
-        } catch (Exception e) {
-            //nothing to do here, formatting will just be ugly
+        //the rest of the properties are nullable
+        if (action.getMessage() != null) {
+            sb.append(String.format(MESSAGE, action.getMessage()));
         }
 
-        sb.append(stacktraceJson);
-        sb.append("</pre>\n" +
-                "\t\t</div>\n" +
-                "\t</div>");
+        if (action.getException() != null) {
+            sb.append(String.format(EXCEPTION_CLASS, action.getException().getClass().getSimpleName()));
+            sb.append(String.format(EXCEPTION_MESSAGE, action.getException().getMessage()));
+
+            Gson gson = new Gson();
+            String stacktraceJson = gson.toJson(action);
+            try {
+                stacktraceJson = new JSONObject(stacktraceJson).toString(4);
+                sb.append(String.format(STACK_TRACE, stacktraceJson));
+            } catch (Exception e) {
+                //nothing to do here, formatting will just be ugly
+            }
+        }
 
         return sb.toString();
     }
