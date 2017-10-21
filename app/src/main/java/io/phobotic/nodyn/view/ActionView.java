@@ -69,6 +69,7 @@ public class ActionView extends RelativeLayout {
     private ImageView authorizedImage;
     private ImageView verifiedImage;
     private ImageView syncedImage;
+    private ImageView icon;
 
     public ActionView(Context context, AttributeSet attrs) {
         this(context, attrs, null);
@@ -83,6 +84,7 @@ public class ActionView extends RelativeLayout {
 
     private void init() {
         rootView = inflate(context, R.layout.view_action, this);
+        icon = (ImageView) rootView.findViewById(R.id.icon);
         direction = (TextView) rootView.findViewById(R.id.direction);
         user = (TextView) rootView.findViewById(R.id.user);
         userImage = (ImageView) rootView.findViewById(R.id.user_image);
@@ -106,9 +108,13 @@ public class ActionView extends RelativeLayout {
             switch (action.getDirection()) {
                 case CHECKIN:
                     arrow.setImageResource(R.drawable.ic_arrow_left_grey600_24dp);
+                    icon.setImageResource(R.drawable.ic_arrow_down_bold_hexagon_outline_black_24dp);
+                    icon.setColorFilter(getResources().getColor(R.color.checkIn));
                     break;
                 case CHECKOUT:
                     arrow.setImageResource(R.drawable.ic_arrow_right_grey600_24dp);
+                    icon.setImageResource(R.drawable.ic_arrow_up_bold_hexagon_outline_black_24dp);
+                    icon.setColorFilter(getResources().getColor(R.color.checkOut));
                     break;
             }
 
