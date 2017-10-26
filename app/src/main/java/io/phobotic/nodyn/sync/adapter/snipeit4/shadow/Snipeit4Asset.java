@@ -17,15 +17,11 @@
 
 package io.phobotic.nodyn.sync.adapter.snipeit4.shadow;
 
-import android.util.Log;
-
 import com.google.gson.annotations.SerializedName;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import io.phobotic.nodyn.database.model.Asset;
+
+import static io.phobotic.nodyn.sync.adapter.snipeit4.shadow.TimeHelper.toTimestamp;
 
 /**
  * Created by Jonathan Nelson on 9/12/17.
@@ -94,26 +90,5 @@ public class Snipeit4Asset {
         return asset;
     }
 
-    private long toTimestamp(String dateString) {
-        long timestamp = -1;
-        DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
 
-        try {
-            Date d1 = df1.parse(dateString);
-            timestamp = d1.getTime();
-        } catch (Exception e1) {
-            //if the first format did not match try the second
-            try {
-                Date d2 = df2.parse(dateString);
-                timestamp = d2.getTime();
-            } catch (Exception e2) {
-                e2.printStackTrace();
-                Log.e(TAG, "Unable to convert date string '" + dateString +
-                        "' into a timestamp: " + e2.getMessage());
-            }
-        }
-
-        return timestamp;
-    }
 }

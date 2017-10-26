@@ -25,11 +25,9 @@ import java.util.List;
 
 import io.phobotic.nodyn.database.model.Action;
 import io.phobotic.nodyn.database.model.Asset;
-import io.phobotic.nodyn.database.model.AssetHistoryRecord;
 import io.phobotic.nodyn.database.model.FullDataModel;
 import io.phobotic.nodyn.database.model.MaintenanceRecord;
 import io.phobotic.nodyn.database.model.User;
-import io.phobotic.nodyn.database.model.UserHistoryRecord;
 import io.phobotic.nodyn.sync.SyncErrorListener;
 
 /**
@@ -53,12 +51,16 @@ public interface SyncAdapter {
     List<MaintenanceRecord> getMaintenanceRecords(Context context, Asset asset) throws SyncException,
             SyncNotSupportedException;
 
-    List<AssetHistoryRecord> getHistory(Context context, Asset asset) throws SyncException,
+    List<Action> getAssetActivity(Context context, Asset asset) throws SyncException,
             SyncNotSupportedException;
 
-    List<UserHistoryRecord> getHistory(Context context, User user) throws SyncException, SyncNotSupportedException;
+    List<Action> getUserActivity(Context context, User user) throws SyncException,
+            SyncNotSupportedException;
 
-    List<Asset> getAssets(Context context, User user) throws SyncException, SyncNotSupportedException;
+    List<Action> getActivity(Context context) throws SyncException, SyncNotSupportedException;
+
+    List<Asset> getAssets(Context context, User user) throws SyncException,
+            SyncNotSupportedException;
 
     @Nullable
     DialogFragment getConfigurationDialogFragment(Context context);

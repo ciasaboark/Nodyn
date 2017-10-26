@@ -66,7 +66,6 @@ import io.phobotic.nodyn.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn.database.exception.UserNotFoundException;
 import io.phobotic.nodyn.database.model.Action;
 import io.phobotic.nodyn.database.model.Asset;
-import io.phobotic.nodyn.database.model.AssetHistoryRecord;
 import io.phobotic.nodyn.database.model.Category;
 import io.phobotic.nodyn.database.model.FullDataModel;
 import io.phobotic.nodyn.database.model.Group;
@@ -75,7 +74,6 @@ import io.phobotic.nodyn.database.model.Manufacturer;
 import io.phobotic.nodyn.database.model.Model;
 import io.phobotic.nodyn.database.model.Status;
 import io.phobotic.nodyn.database.model.User;
-import io.phobotic.nodyn.database.model.UserHistoryRecord;
 import io.phobotic.nodyn.service.SyncService;
 import io.phobotic.nodyn.sync.CheckinException;
 import io.phobotic.nodyn.sync.CheckoutException;
@@ -607,16 +605,22 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
     }
 
     @Override
-    public List<AssetHistoryRecord> getHistory(Context context, Asset asset) throws SyncException,
+    public List<Action> getAssetActivity(Context context, Asset asset) throws SyncException,
             SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "SnipeIt version 3.x does not support pulling asset history records");
     }
 
     @Override
-    public List<UserHistoryRecord> getHistory(Context context, User user) throws SyncException, SyncNotSupportedException {
+    public List<Action> getUserActivity(Context context, User user) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling user history records",
                 "SnipeIt version 3.x does not support pulling user history records");
+    }
+
+    @Override
+    public List<Action> getActivity(Context context) throws SyncException, SyncNotSupportedException {
+        throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
+                "SnipeIt version 3.x does not support pulling history records");
     }
 
     @Override

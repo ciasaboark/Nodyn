@@ -26,6 +26,8 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -48,7 +50,6 @@ import io.phobotic.nodyn.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn.database.exception.UserNotFoundException;
 import io.phobotic.nodyn.database.model.Action;
 import io.phobotic.nodyn.database.model.Asset;
-import io.phobotic.nodyn.database.model.AssetHistoryRecord;
 import io.phobotic.nodyn.database.model.Category;
 import io.phobotic.nodyn.database.model.FullDataModel;
 import io.phobotic.nodyn.database.model.Group;
@@ -57,13 +58,13 @@ import io.phobotic.nodyn.database.model.Manufacturer;
 import io.phobotic.nodyn.database.model.Model;
 import io.phobotic.nodyn.database.model.Status;
 import io.phobotic.nodyn.database.model.User;
-import io.phobotic.nodyn.database.model.UserHistoryRecord;
 import io.phobotic.nodyn.sync.CheckinException;
 import io.phobotic.nodyn.sync.CheckoutException;
 import io.phobotic.nodyn.sync.SyncErrorListener;
 import io.phobotic.nodyn.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn.sync.adapter.SyncException;
 import io.phobotic.nodyn.sync.adapter.SyncNotSupportedException;
+import io.phobotic.nodyn.sync.adapter.snipeit4.response.ActivityResponse;
 import io.phobotic.nodyn.sync.adapter.snipeit4.response.AssetResponse;
 import io.phobotic.nodyn.sync.adapter.snipeit4.response.CategoryResponse;
 import io.phobotic.nodyn.sync.adapter.snipeit4.response.CheckoutResponse;
@@ -72,6 +73,7 @@ import io.phobotic.nodyn.sync.adapter.snipeit4.response.ManufacturersResponse;
 import io.phobotic.nodyn.sync.adapter.snipeit4.response.ModelResponse;
 import io.phobotic.nodyn.sync.adapter.snipeit4.response.StatusesResponse;
 import io.phobotic.nodyn.sync.adapter.snipeit4.response.UserResponse;
+import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Activity;
 import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Asset;
 import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Category;
 import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Group;
@@ -87,15 +89,21 @@ import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4User;
 
 public class SnipeIt4SyncAdapter implements SyncAdapter {
     public static final String TAG = SnipeIt4SyncAdapter.class.getSimpleName();
+    private static final String ACTIVITY_URL_PART = "/api/v1/reports/activity";
+    private static final String ASSET_URL_PART = "/api/v1/hardware?limit=9999";
+    private static final String MODELS_URL_PART = "/api/v1/models?limit=9999";
+    private static final String USERS_URL_PART = "/api/v1/users?limit=9999";
+    private static final String MANUFACTURER_URL_PART = "/api/v1/manufacturers?limit=9999";
+    private static final String GROUPS_URL_PART = "/api/v1/groups?limit=9999";
+    private static final String CATEGORIES_URL_PART = "/api/v1/categories?limit=9999";
+    private static final String STATUS_URL_PART = "/api/v1/statuslabels?limit=9999";
     private Gson gson = new Gson();
     private HttpURLConnection conn;
 
     private List<Asset> fetchAssets(Context context) throws SyncException {
-        String assetsUrl = "/api/v1/hardware?limit=9999";
         List<Asset> assets = new ArrayList<>();
-
         try {
-            String assetResult = getPageContent(context, getUrl(context, assetsUrl));
+            String assetResult = getPageContent(context, getUrl(context, ASSET_URL_PART));
             AssetResponse assetResponse = gson.fromJson(assetResult, AssetResponse.class);
             List<Snipeit4Asset> snipeit4Assets = assetResponse.getAssets();
 
@@ -110,75 +118,11 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         return assets;
     }
 
-    private String getUrl(Context context, String url) {
-        String completeUrl = getProtocol(context) + getHost(context) + ":" + getPort(context) + url;
-        return completeUrl;
-    }
-
-    private String getProtocol(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String protocol = prefs.getString(context.getString(R.string.pref_key_snipeit_4_protocol),
-                context.getString(R.string.pref_default_snipeit_4_protocol));
-        return protocol;
-    }
-
-    private String getHost(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String host = prefs.getString(context.getString(R.string.pref_key_snipeit_4_host), "");
-        return host;
-    }
-
-    private int getPort(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String portString = prefs.getString(context.getString(R.string.pref_key_snipeit_4_port),
-                context.getString(R.string.pref_default_snipeit_4_port));
-        int port = Integer.valueOf(portString);
-        return port;
-    }
-
-    private String getAPIKey(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String key = prefs.getString(context.getString(R.string.pref_key_snipeit_4_api_key),
-                context.getString(R.string.pref_default_snipeit_4_api_key));
-        return key;
-    }
-
-    private String getPageContent(Context context, String url) throws Exception {
-
-        URL obj = new URL(url);
-        conn = (HttpURLConnection) obj.openConnection();
-
-        // default is GET
-        conn.setRequestMethod("GET");
-
-        conn.setUseCaches(false);
-        conn.setRequestProperty("Authorization", "Bearer " + getAPIKey(context));
-        conn.setRequestProperty("Accept", "application/json");
-        conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-
-        int responseCode = conn.getResponseCode();
-        Log.d(TAG, "Sending 'GET' request to URL : " + url);
-        Log.d(TAG, "Response Code : " + responseCode);
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        return response.toString();
-    }
-
     private List<Model> fetchModels(Context context) throws SyncException {
-        String modelsURL = "/api/v1/models?limit9999";
-
         List<Model> models = new ArrayList<>();
 
         try {
-            String modelResult = getPageContent(context, getUrl(context, modelsURL));
+            String modelResult = getPageContent(context, getUrl(context, MODELS_URL_PART));
             ModelResponse modelResponse = gson.fromJson(modelResult, ModelResponse.class);
             List<Snipeit4Model> snipeit4Models = modelResponse.getModels();
 
@@ -194,12 +138,10 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     }
 
     private List<User> fetchUsers(Context context) throws SyncException {
-        String usersURL = "/api/v1/users?limit=9999";
-
         List<User> users = new ArrayList<>();
 
         try {
-            String modelResult = getPageContent(context, getUrl(context, usersURL));
+            String modelResult = getPageContent(context, getUrl(context, USERS_URL_PART));
             UserResponse userResponse = gson.fromJson(modelResult, UserResponse.class);
             List<Snipeit4User> snipeit4Users = userResponse.getUsers();
 
@@ -215,12 +157,10 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     }
 
     private List<Group> fetchGroups(Context context) throws SyncException {
-        String groupsURL = "/api/v1/groups?limit=9999";
-
         List<Group> groups = new ArrayList<>();
 
         try {
-            String groupResult = getPageContent(context, getUrl(context, groupsURL));
+            String groupResult = getPageContent(context, getUrl(context, GROUPS_URL_PART));
             GroupResponse groupResponse = gson.fromJson(groupResult, GroupResponse.class);
             List<Snipeit4Group> snipeit4Groups = groupResponse.getGroups();
 
@@ -236,12 +176,10 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     }
 
     private List<Category> fetchCategories(Context context) throws SyncException {
-        String categoriesURL = "/api/v1/categories?limit=9999";
-
         List<Category> categories = new ArrayList<>();
 
         try {
-            String categoryResult = getPageContent(context, getUrl(context, categoriesURL));
+            String categoryResult = getPageContent(context, getUrl(context, CATEGORIES_URL_PART));
             CategoryResponse groupResponse = gson.fromJson(categoryResult, CategoryResponse.class);
             List<Snipeit4Category> shadowCategories = groupResponse.getCategories();
 
@@ -257,12 +195,10 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     }
 
     private List<Status> fetchStatuses(Context context) throws SyncException {
-        String statusURL = "/api/v1/statuslabels?limit=9999";
-
         List<Status> statuses = new ArrayList<>();
 
         try {
-            String statusResult = getPageContent(context, getUrl(context, statusURL));
+            String statusResult = getPageContent(context, getUrl(context, STATUS_URL_PART));
             StatusesResponse statusesResponse = gson.fromJson(statusResult, StatusesResponse.class);
             List<Snipeit4Status> snipeit4Statuses = statusesResponse.getStatuses();
 
@@ -278,12 +214,10 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     }
 
     private List<Manufacturer> fetchManufacturers(Context context) throws SyncException {
-        String manufacturersURL = "/api/v1/manufacturers?limit=9999";
-
         List<Manufacturer> manufacturers = new ArrayList<>();
 
         try {
-            String manufacturerResult = getPageContent(context, getUrl(context, manufacturersURL));
+            String manufacturerResult = getPageContent(context, getUrl(context, MANUFACTURER_URL_PART));
             ManufacturersResponse manufacturersResponse = gson.fromJson(manufacturerResult, ManufacturersResponse.class);
             List<Snipeit4Manufacturer> snipeit4Manufacturers = manufacturersResponse.getManufacturers();
 
@@ -522,16 +456,105 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     }
 
     @Override
-    public List<AssetHistoryRecord> getHistory(Context context, Asset asset) throws SyncException,
+    public List<Action> getAssetActivity(Context context, Asset asset) throws SyncException,
             SyncNotSupportedException {
-        throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
-                "SnipeIt version 4.x does not support pulling asset history records");
+        String filter = "?item_id=" + asset.getId() + "&item_type=asset&order=desc";
+        return getActivityWithFilter(context, filter);
+    }
+
+    public List<Action> getActivityWithFilter(@NotNull Context context, @Nullable String filterText) throws SyncException {
+        List<Action> actionList = new ArrayList<>();
+
+        try {
+            String url = ACTIVITY_URL_PART + (filterText == null ? "" : filterText);
+            String statusResult = getPageContent(context, getUrl(context, url));
+            ActivityResponse statusesResponse = gson.fromJson(statusResult, ActivityResponse.class);
+            List<Snipeit4Activity> snipeit4ActivityList = statusesResponse.getActivityList();
+
+            for (Snipeit4Activity snipeit4Activity : snipeit4ActivityList) {
+                actionList.add(snipeit4Activity.toAction());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SyncException("Unable to fetch activity");
+        }
+
+        return actionList;
+    }
+
+    private String getPageContent(Context context, String url) throws Exception {
+
+        URL obj = new URL(url);
+        conn = (HttpURLConnection) obj.openConnection();
+
+        // default is GET
+        conn.setRequestMethod("GET");
+
+        conn.setUseCaches(false);
+        conn.setRequestProperty("Authorization", "Bearer " + getAPIKey(context));
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+
+        int responseCode = conn.getResponseCode();
+        Log.d(TAG, "Sending 'GET' request to URL : " + url);
+        Log.d(TAG, "Response Code : " + responseCode);
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        return response.toString();
+    }
+
+    private String getUrl(Context context, String url) {
+        String completeUrl = getProtocol(context) + getHost(context) + ":" + getPort(context) + url;
+        return completeUrl;
+    }
+
+    private String getAPIKey(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String key = prefs.getString(context.getString(R.string.pref_key_snipeit_4_api_key),
+                context.getString(R.string.pref_default_snipeit_4_api_key));
+        return key;
+    }
+
+    private String getProtocol(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String protocol = prefs.getString(context.getString(R.string.pref_key_snipeit_4_protocol),
+                context.getString(R.string.pref_default_snipeit_4_protocol));
+        return protocol;
+    }
+
+    private String getHost(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String host = prefs.getString(context.getString(R.string.pref_key_snipeit_4_host), "");
+        return host;
+    }
+
+    private int getPort(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String portString = prefs.getString(context.getString(R.string.pref_key_snipeit_4_port),
+                context.getString(R.string.pref_default_snipeit_4_port));
+        int port = Integer.valueOf(portString);
+        return port;
     }
 
     @Override
-    public List<UserHistoryRecord> getHistory(Context context, User user) throws SyncException, SyncNotSupportedException {
-        throw new SyncNotSupportedException("Sync adapter does not support pulling user history records",
-                "SnipeIt version 4.x does not support pulling user history records");
+    public List<Action> getUserActivity(Context context, User user) throws SyncException, SyncNotSupportedException {
+        String filter = "?target_id=" + user.getId() + "&target_type=user&order=desc";
+        return getActivityWithFilter(context, filter);
+
+    }
+
+    @Override
+    public List<Action> getActivity(Context context) throws SyncException,
+            SyncNotSupportedException {
+        return getActivityWithFilter(context, null);
     }
 
     @Override

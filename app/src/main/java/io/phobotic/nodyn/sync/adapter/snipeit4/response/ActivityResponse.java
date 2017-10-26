@@ -17,37 +17,37 @@
 
 package io.phobotic.nodyn.sync.adapter.snipeit4.response;
 
-
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Status;
+import io.phobotic.nodyn.sync.adapter.snipeit4.shadow.Snipeit4Activity;
+
 
 /**
- * Created by Jonathan Nelson on 9/10/17.
+ * Created by Jonathan Nelson on 10/26/17.
  */
 
-public class StatusesResponse {
+public class ActivityResponse {
     private int total;
     @SerializedName("rows")
-    private List<Snipeit4Status> statuses;
+    private List<Snipeit4Activity> activityList;
 
     public int getTotal() {
         return total;
     }
 
-    public StatusesResponse setTotal(int total) {
+    public ActivityResponse setTotal(int total) {
         this.total = total;
         return this;
     }
 
-    public List<Snipeit4Status> getStatuses() {
-        return statuses;
+    public List<Snipeit4Activity> getActivityList() {
+        return activityList;
     }
 
-    public StatusesResponse setStatuses(List<Snipeit4Status> statuses) {
-        this.statuses = statuses;
+    public ActivityResponse setActivityList(List<Snipeit4Activity> activityList) {
+        this.activityList = activityList;
         return this;
     }
 }
