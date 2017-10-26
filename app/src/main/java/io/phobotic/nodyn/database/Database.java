@@ -153,6 +153,12 @@ public class Database {
         return actions;
     }
 
+    public List<Action> getUnsyncedActions() {
+        ActionTableHelper helper = new ActionTableHelper(db);
+        List<Action> actions = helper.findUnsyncedActions();
+        return actions;
+    }
+
     public List<Asset> getAssets() {
         List<Asset> assets = assetHelper.findAll();
         return assets;
