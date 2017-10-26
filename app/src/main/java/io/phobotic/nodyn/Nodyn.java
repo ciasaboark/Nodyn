@@ -18,6 +18,7 @@
 package io.phobotic.nodyn;
 
 import android.app.Application;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -56,5 +57,15 @@ public class Nodyn extends Application {
         SyncScheduler scheduler = new SyncScheduler(this);
         scheduler.forceScheduleSync();
         scheduler.schedulePastDueAlertsWake();
+
+        Log.d(TAG, "Inserting defaults for missing preferences");
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_data_sync, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_users, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_assets, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_sync_snipeit_3, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_check_in, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_check_out, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_email, false);
     }
 }
