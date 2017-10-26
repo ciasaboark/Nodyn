@@ -38,10 +38,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
@@ -66,12 +70,14 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnListFragmentInteractionListener {
     public static final String BROADCAST_SCANNER_CONNECTED = "scanner connected";
     public static final String BROADCAST_SCANNER_DISCONNECTED = "scanner disconnected";
+    public static final String SYNC_NOW = "sync now";
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MAIN_FRAGMENT = "mainFragment";
     private Fragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_data_sync, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_users, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_assets, false);
@@ -119,6 +125,13 @@ public class MainActivity extends AppCompatActivity
         //override the new fragment if we need to show the sync adapter error
         if (shouldShowAdapterError()) {
             newFragment = BackendErrorFragment.newInstance();
+        }
+
+        Intent i = getIntent();
+        boolean syncNow = i.getBooleanExtra(SYNC_NOW, false);
+        if (syncNow) {
+            Intent si = new Intent(this, SyncService.class);
+            startService(si);
         }
 
         updateMainFragment(newFragment);
@@ -360,14 +373,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadKioskSettings() {
-        boolean kioskMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
+        final boolean kioskMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
                 getString(R.string.pref_key_general_kiosk), Boolean.parseBoolean(
                         getString(R.string.pref_default_general_kiosk)));
 
         if (kioskMode) {
             final KioskPasswordView kioskView = new KioskPasswordView(this);
 
-            AlertDialog d = new AlertDialog.Builder(this)
+            final AlertDialog d = new AlertDialog.Builder(this)
                     .setTitle("Enter kiosk password")
                     .setView(kioskView)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -393,6 +406,23 @@ public class MainActivity extends AppCompatActivity
                         }
                     })
                     .create();
+
+            d.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    final Button positveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);
+                    kioskView.getInput().setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                positveButton.callOnClick();
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
+                }
+            });
             d.show();
 
 //            final Button positiveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);

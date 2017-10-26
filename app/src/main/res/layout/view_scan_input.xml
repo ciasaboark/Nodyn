@@ -16,11 +16,25 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 tools:context="io.phobotic.nodyn.view.ScanInputView">
+
+    <pl.bclogic.pulsator4droid.library.PulsatorLayout
+        android:id="@+id/pulse"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        app:pulse_color="#b7f91212"
+        app:pulse_count="3"
+        app:pulse_duration="5000"
+        app:pulse_interpolator="Decelerate"
+        app:pulse_repeat="0"
+        app:pulse_startFromScratch="true"/>
 
     <TextView
         android:id="@+id/preview"
@@ -39,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/preview"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:orientation="horizontal">
 
         <EditText

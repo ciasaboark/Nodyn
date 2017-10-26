@@ -24,4 +24,5 @@
     <string name="blank"></string>
     <string name="close">Close</string>
     <string name="refresh">Refresh</string>
+    <string name="back">Back</string>
 </resources>

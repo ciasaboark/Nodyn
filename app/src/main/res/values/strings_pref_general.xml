@@ -20,6 +20,14 @@
     <!-- General app-wide settings -->
     <string name="pref_header_general">General</string>
 
+    <string name="pref_key_general_transfer">transfer_settings</string>
+    <string name="pref_title_general_transfer">Transfer settings</string>
+    <string name="pref_description_general_transfer">Copy current settings from this device to another</string>
+
+    <string name="pref_key_general_receive">receive_settings</string>
+    <string name="pref_title_general_receive">Copy settings</string>
+    <string name="pref_description_general_receive">Copy current settings from another device to this one</string>
+
     <string name="pref_default_general_kiosk">false</string>
     <string name="pref_key_general_kiosk">general_kiosk</string>
     <string name="pref_description_general_kiosk">Restrict access to settings with a password</string>
@@ -31,5 +39,12 @@
     <!-- Only a generic Preference with an on-click listener -->
     <string name="pref_key_general_kiosk_reset_password">general_kiosk_reset_password</string>
     <string name="pref_title_general_kiosk_reset_password">Change kiosk mode password</string>
+
+    <string name="pref_key_general_id">genera_id</string>
+    <string name="pref_title_general_id">Device name</string>
+    <string name="pref_default_general_id"></string>
+    <string name="pref_dialog_device_name1">The device name is optional</string>
+    <string name="pref_dialog_device_name2">If provided this name will be added to all reports sent.</string>
+    <string name="pref_dialog_device_name_unset">No device name set</string>
 
 </resources>

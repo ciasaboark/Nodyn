@@ -86,7 +86,7 @@ public class BadgeScanView extends RelativeLayout {
                                 R.string.pref_default_general_kiosk)));
 
         input.setGhostMode(kioskModeEnabled);
-//        input.setForceScanInput(kioskModeEnabled);
+        input.setForceScanInput(kioskModeEnabled);
 
         message = (TextSwitcher) rootView.findViewById(R.id.error);
         normalFactory = new ViewSwitcher.ViewFactory() {

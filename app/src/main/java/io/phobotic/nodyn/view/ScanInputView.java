@@ -38,6 +38,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -51,6 +53,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Random;
 
 import io.phobotic.nodyn.R;
+import pl.bclogic.pulsator4droid.library.PulsatorLayout;
 
 public class ScanInputView extends LinearLayout {
     private static final String TAG = ScanInputView.class.getSimpleName();
@@ -65,6 +68,7 @@ public class ScanInputView extends LinearLayout {
     private BroadcastReceiver broadcastReceiver;
     private boolean ghostMode = false;
     private boolean forceScanInput = false;
+    private PulsatorLayout pulsator;
 
     public ScanInputView(Context context) {
         super(context);
@@ -154,6 +158,9 @@ public class ScanInputView extends LinearLayout {
             preview = (TextView) rootView.findViewById(R.id.preview);
             button = (ImageButton) rootView.findViewById(R.id.image);
             input = (EditText) rootView.findViewById(R.id.edit_text);
+
+            pulsator = (PulsatorLayout) findViewById(R.id.pulse);
+            pulsator.start();
 
 
             initButton();
@@ -308,6 +315,25 @@ public class ScanInputView extends LinearLayout {
             return;
         }
 
+        Animation fadeOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                pulsator.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        pulsator.startAnimation(fadeOut);
+
         int curWidth = input.getLayoutParams().width;
         int finalWidth = 300;
         ObjectAnimator oa = ObjectAnimator.ofInt(input, "width", curWidth, finalWidth);
@@ -381,6 +407,25 @@ public class ScanInputView extends LinearLayout {
         if (!usingKeyboard) {
             return;
         }
+
+        Animation fadeIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                pulsator.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        pulsator.startAnimation(fadeIn);
 
         int curWidth = input.getLayoutParams().width;
         int finalWidth = 0;

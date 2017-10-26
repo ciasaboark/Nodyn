@@ -43,8 +43,9 @@ public class StatusTableHelper extends TableHelper<Status> {
     }
 
     @Override
-    public void replace(List<Status> list) {
+    public void replace(@NotNull List<Status> list) {
         clearTable();
+        if (list == null) list = new ArrayList<>();
         for (Status status : list) {
             insert(status);
         }

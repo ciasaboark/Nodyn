@@ -118,7 +118,7 @@ public class SyncService extends IntentService {
         if (emailEnabled && failedActions.size() > 0) {
             Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_ACTION_FAILED));
             StringBuilder sb = new StringBuilder();
-            sb.append(ActionHtmlFormatter.getHeader());
+            sb.append(ActionHtmlFormatter.getHeader(this));
 
             ActionHtmlFormatter formatter = new ActionHtmlFormatter();
             for (FailedActions failedAction : failedActions) {

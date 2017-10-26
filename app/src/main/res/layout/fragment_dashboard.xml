@@ -48,7 +48,7 @@
 
                 <fragment
                     android:id="@+id/overview_grid_fragment"
-                    android:name="io.phobotic.nodyn.fragment.dash.OverviewGridFragment"
+                    android:name="io.phobotic.nodyn.fragment.dash.ModelGridFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clipChildren="false"

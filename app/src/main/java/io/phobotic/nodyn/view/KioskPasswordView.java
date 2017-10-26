@@ -52,4 +52,8 @@ public class KioskPasswordView extends RelativeLayout {
     public String getPassword() {
         return input.getText().toString();
     }
+
+    public EditText getInput() {
+        return input;
+    }
 }

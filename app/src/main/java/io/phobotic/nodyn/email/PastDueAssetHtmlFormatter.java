@@ -35,12 +35,12 @@ import io.phobotic.nodyn.database.model.User;
  */
 
 public class PastDueAssetHtmlFormatter {
-    public static final String ASSET_TAG = "<div>Asset ID: <span class=\"asset\">%s</span></div>";
-    public static final String SERIAL_NO = "<div>Serial: <span class=\"serial\">%s</span></div>";
-    public static final String MODEL_NAME = "<div>Model: <span class=\"model\">%s</span></div>";
-    public static final String USER_NAME = "<div>User ID: <span class=\"user\">%s</span></div>";
-    public static final String CHECKOUT = "<div>Checkout: <span class=\"checkout\">%s</span></div>";
-    public static final String EXPECTED_CHECKIN = "<div>Expected Checkin: <span class=\"checkin\">%s</span></div>";
+    private static final String ASSET_TAG = "<div>Asset ID: <span class=\"asset\">%s</span></div>";
+    private static final String SERIAL_NO = "<div>Serial: <span class=\"serial\">%s</span></div>";
+    private static final String MODEL_NAME = "<div>Model: <span class=\"model\">%s</span></div>";
+    private static final String USER_NAME = "<div>User ID: <span class=\"user\">%s</span></div>";
+    private static final String CHECKOUT = "<div>Checkout: <span class=\"checkout\">%s</span></div>";
+    private static final String EXPECTED_CHECKIN = "<div>Expected Checkin: <span class=\"checkin\">%s</span></div>";
 
 
     public static String formatAssetAsHtml(Context context, Asset asset) {

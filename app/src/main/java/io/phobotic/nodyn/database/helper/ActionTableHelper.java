@@ -20,6 +20,7 @@ package io.phobotic.nodyn.database.helper;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
@@ -110,22 +111,7 @@ public class ActionTableHelper extends TableHelper<Action> {
             cursor = db.query(DatabaseOpenHelper.TABLE_ACTIONS, DB_PROJECTION, null, null,
                     null, null, Asset.Columns.ID, null);
             while (cursor.moveToNext()) {
-                int id = cursor.getInt(cursor.getColumnIndex(Action.Columns.ID));
-                String direction = cursor.getString(cursor.getColumnIndex(Action.Columns.DIRECTION));
-                int assetID = cursor.getInt(cursor.getColumnIndex(Action.Columns.ASSET_ID));
-                int userID = cursor.getInt(cursor.getColumnIndex(Action.Columns.USER_ID));
-                long timestamp = cursor.getLong(cursor.getColumnIndex(Action.Columns.TIMESTAMP));
-                long expectedCheckin = cursor.getLong(cursor.getColumnIndex(
-                        Action.Columns.EXPECTED_CHECKIN));
-                boolean isSynced = cursor.getInt(cursor.getColumnIndex(Action.Columns.SYNCED)) == 1;
-                String authorization = cursor.getString(cursor.getColumnIndex(
-                        Action.Columns.AUTHORIZATION));
-                boolean isVerified = cursor.getInt(cursor.getColumnIndex(Action.Columns.VERIFIED)) == 1;
-
-                Action a = new Action(id, assetID, userID, timestamp, expectedCheckin,
-                        Action.Direction.valueOf(direction), isSynced);
-                a.setVerified(isVerified);
-                a.setAuthorization(authorization);
+                Action a = getActionFromCursor(cursor);
 
                 actions.add(a);
             }
@@ -138,6 +124,89 @@ public class ActionTableHelper extends TableHelper<Action> {
                 cursor.close();
             }
         }
+
+        return actions;
+    }
+
+    @NonNull
+    private Action getActionFromCursor(Cursor cursor) {
+        int id = cursor.getInt(cursor.getColumnIndex(Action.Columns.ID));
+        String direction = cursor.getString(cursor.getColumnIndex(Action.Columns.DIRECTION));
+        int assetID = cursor.getInt(cursor.getColumnIndex(Action.Columns.ASSET_ID));
+        int userID = cursor.getInt(cursor.getColumnIndex(Action.Columns.USER_ID));
+        long timestamp = cursor.getLong(cursor.getColumnIndex(Action.Columns.TIMESTAMP));
+        long expectedCheckin = cursor.getLong(cursor.getColumnIndex(
+                Action.Columns.EXPECTED_CHECKIN));
+        boolean isSynced = cursor.getInt(cursor.getColumnIndex(Action.Columns.SYNCED)) == 1;
+        String authorization = cursor.getString(cursor.getColumnIndex(
+                Action.Columns.AUTHORIZATION));
+        boolean isVerified = cursor.getInt(cursor.getColumnIndex(Action.Columns.VERIFIED)) == 1;
+
+        Action a = new Action(id, assetID, userID, timestamp, expectedCheckin,
+                Action.Direction.valueOf(direction), isSynced);
+        a.setVerified(isVerified);
+        a.setAuthorization(authorization);
+        return a;
+    }
+
+    public List<Action> find(long maxTimestamp, int maxRecords) {
+        List<Action> actions = new ArrayList<>();
+        Cursor cursor = null;
+        int foundRecords = 0;
+
+        try {
+            String selection = Action.Columns.TIMESTAMP + " < ?";
+            String[] args = {String.valueOf(maxTimestamp)};
+            cursor = db.query(DatabaseOpenHelper.TABLE_ACTIONS, null, selection, args,
+                    null, null, Action.Columns.TIMESTAMP + " DESC", null);
+
+            while (cursor.moveToNext() && foundRecords < maxRecords) {
+                Action a = getActionFromCursor(cursor);
+                actions.add(a);
+                foundRecords++;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Caught exception while searching for actions: " +
+                    e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+
+        return actions;
+    }
+
+    public List<Action> findUnsyncedActions() {
+        List<Action> actions = new ArrayList<>();
+
+        Cursor cursor = null;
+        int foundRecords = 0;
+
+        try {
+            String selection = Action.Columns.SYNCED + " != ?";
+            String[] args = {String.valueOf(1)};
+
+            cursor = db.query(DatabaseOpenHelper.TABLE_ACTIONS, null, selection, args,
+                    null, null, Action.Columns.TIMESTAMP + " ASC", null);
+
+            while (cursor.moveToNext()) {
+                Action a = getActionFromCursor(cursor);
+
+                actions.add(a);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Caught exception while searching for actions: " +
+                    e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
 
         return actions;
     }

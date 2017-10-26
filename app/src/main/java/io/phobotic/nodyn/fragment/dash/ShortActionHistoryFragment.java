@@ -18,16 +18,19 @@
 package io.phobotic.nodyn.fragment.dash;
 
 
+import android.app.Activity;
+import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import io.phobotic.nodyn.R;
@@ -39,17 +42,18 @@ import io.phobotic.nodyn.view.ActionView;
 public class ShortActionHistoryFragment extends Fragment {
     private static final String ARG_MAX_RECORDS = "max_records";
     private static final String ARG_COLUMN_COUNT = "column_count";
+    private static final int MAX_RECORDS = 5;
 
-    private int maxRecords = -1;
     private int columnCount = 1;
     private View rootView;
     private GridLayout holder;
+    private View progress;
+    private View error;
 
 
     public static ShortActionHistoryFragment newInstance(int maxRecords, int columnCount) {
         ShortActionHistoryFragment fragment = new ShortActionHistoryFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_MAX_RECORDS, maxRecords);
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
         return fragment;
@@ -63,7 +67,6 @@ public class ShortActionHistoryFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            maxRecords = getArguments().getInt(ARG_MAX_RECORDS);
             columnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
     }
@@ -72,19 +75,25 @@ public class ShortActionHistoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_short_action_history, container, false);
-        holder = (GridLayout) rootView.findViewById(R.id.holder);
         init();
 
         return rootView;
     }
 
     private void init() {
+        holder = (GridLayout) rootView.findViewById(R.id.holder);
         holder.removeAllViews();
+        holder.setVisibility(View.GONE);
+        progress = rootView.findViewById(R.id.progress);
+        progress.setVisibility(View.VISIBLE);
+        error = rootView.findViewById(R.id.error);
+        error.setVisibility(View.GONE);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        holder.removeAllViews();
         refresh();
     }
 
@@ -92,46 +101,123 @@ public class ShortActionHistoryFragment extends Fragment {
         holder.removeAllViews();
         holder.setColumnCount(columnCount);
         holder.invalidate();
+        progress.setVisibility(View.VISIBLE);
+        holder.setVisibility(View.GONE);
+        error.setVisibility(View.GONE);
 
-        Database db = Database.getInstance(getContext());
-        List<Action> actionList = db.getActions();
-        if (actionList == null) actionList = new ArrayList<>();
+        animateIn(progress);
 
-        //sort the list in reverse order so the most recent action items show at the top
-        Collections.sort(actionList, new Comparator<Action>() {
-            @Override
-            public int compare(Action o1, Action o2) {
-                return -((Long) o1.getTimestamp()).compareTo(o2.getTimestamp());
-            }
-        });
+        DataLoadAsyncTask asyncTask = new DataLoadAsyncTask();
+        asyncTask.execute();
+    }
 
-        if (maxRecords > 0 && actionList.size() > maxRecords) {
-            List<Action> copy = new ArrayList<>();
-            for (int i = 0; i < maxRecords; i++) {
-                Action a = actionList.get(i);
-                copy.add(a);
-            }
-
-            actionList = copy;
+    private void animateIn(final View view) {
+        Context context = getContext();
+        Animation fadeIn = null;
+        if (context != null) {
+            fadeIn = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
         }
 
-        addActions(actionList);
+        if (fadeIn == null) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            fadeIn.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    view.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+
+            view.startAnimation(fadeIn);
+        }
+    }
+
+    private void showActionsOrError(final List<Action> actions) {
+        Activity a = getActivity();
+        if (a != null) {
+            a.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    animateOut(progress);
+                    if (actions.isEmpty()) {
+                        showError();
+                    } else {
+                        addActions(actions);
+                    }
+                }
+            });
+        }
+    }
+
+    private void animateOut(final View view) {
+        Context context = getContext();
+        Animation fadeOut = null;
+        if (context != null) {
+            fadeOut = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_out);
+        }
+
+        if (fadeOut == null) {
+            view.setVisibility(View.GONE);
+        } else {
+            fadeOut.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    view.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+
+            view.startAnimation(fadeOut);
+        }
+    }
+
+    private void showError() {
+        animateIn(error);
     }
 
     private void addActions(List<Action> actions) {
+        animateIn(holder);
         for (Action a : actions) {
             ActionView actionView = new ActionView(getContext(), null, a);
             holder.addView(actionView);
         }
     }
 
-    public void setMaxRecords(int maxRecords) {
-        this.maxRecords = maxRecords;
-        refresh();
-    }
-
     public void setColumnCount(int columnCount) {
         this.columnCount = columnCount;
         refresh();
+    }
+
+    private class DataLoadAsyncTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            Database db = Database.getInstance(getContext());
+            List<Action> actionList = db.getActions(Long.MAX_VALUE, MAX_RECORDS);
+
+            if (actionList == null) actionList = new ArrayList<>();
+
+            showActionsOrError(actionList);
+
+            return null;
+        }
     }
 }

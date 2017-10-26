@@ -257,33 +257,33 @@
         <item name="yellow_A700" type="color">#ffd600</item>
         <item name="orange_A700" type="color">#ff6d00</item>
         <item name="deep_orange_A700" type="color">#dd2c00</item>
-        <item>#EC407A</item>
-        <item>#9575CD</item>
-        <item>#0097A7</item>
-        <item>#EF5350</item>
-        <item>#43A047</item>
-        <item>#7986CB</item>
-        <item>#0288D1</item>
-        <item>#BA68C8</item>
-        <item>#1E88E5</item>
-        <item>#009688</item>
-        <item>#F4511E</item>
-        <item>#558B2F</item>
-        <item>#E65100</item>
+        <!--<item>#EC407A</item>-->
+        <!--<item>#9575CD</item>-->
+        <!--<item>#0097A7</item>-->
+        <!--<item>#EF5350</item>-->
+        <!--<item>#43A047</item>-->
+        <!--<item>#7986CB</item>-->
+        <!--<item>#0288D1</item>-->
+        <!--<item>#BA68C8</item>-->
+        <!--<item>#1E88E5</item>-->
+        <!--<item>#009688</item>-->
+        <!--<item>#F4511E</item>-->
+        <!--<item>#558B2F</item>-->
+        <!--<item>#E65100</item>-->
 
-        <item>#c0ff8c</item>
-        <item>#fff78c</item>
-        <item>#ffd08c</item>
-        <item>#8ceaff</item>
-        <item>#ff8c9d</item>
-        <item>#c12552</item>
-        <item>#ff6600</item>
-        <item>#f5c700</item>
-        <item>#6a961f</item>
-        <item>#405980</item>
-        <item>#95a57c</item>
-        <item>#d9b8a2</item>
-        <item>#bf8686</item>
-        <item>#b33050</item>
+        <!--<item>#c0ff8c</item>-->
+        <!--<item>#fff78c</item>-->
+        <!--<item>#ffd08c</item>-->
+        <!--<item>#8ceaff</item>-->
+        <!--<item>#ff8c9d</item>-->
+        <!--<item>#c12552</item>-->
+        <!--<item>#ff6600</item>-->
+        <!--<item>#f5c700</item>-->
+        <!--<item>#6a961f</item>-->
+        <!--<item>#405980</item>-->
+        <!--<item>#95a57c</item>-->
+        <!--<item>#d9b8a2</item>-->
+        <!--<item>#bf8686</item>-->
+        <!--<item>#b33050</item>-->
     </array>
 </resources>

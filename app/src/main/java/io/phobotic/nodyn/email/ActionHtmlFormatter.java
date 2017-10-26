@@ -18,11 +18,18 @@
 package io.phobotic.nodyn.email;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.support.v7.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn.database.exception.StatusNotFoundException;
@@ -37,18 +44,84 @@ import io.phobotic.nodyn.service.FailedActions;
  */
 
 public class ActionHtmlFormatter {
-    public static final String PRE = "<div class=\"box\">";
-    public static final String POST = "</div>";
-    public static final String ACTION = "<div>Action: <span class=\"action\">%s</span></div>";
-    public static final String ASSET_ID = "<div>Asset: <span class=\"asset\">%s</span></div>";
-    public static final String SERIAL_NO = "<div>Serial: <span class=\"serial\">%s</span></div>";
-    public static final String STATUS = "<div>Status: <span class=\"status\">%s</span></div>";
-    public static final String USER = "<div>User ID: <span class=\"user\">%s</span></div>";
-    public static final String LOGIN = "<div>Login: <span class=\"login\">%s</span></div>";
-    public static final String MESSAGE = "<div>Message: <span class=\"message\">%s</span></div>";
-    public static final String EXCEPTION_MESSAGE = "<div>Exception Message: <span class=\"message\">%s</span></div>";
-    public static final String EXCEPTION_CLASS = "<div>Exception: <span class=\"exceptionType\">%s</span></div>";
-    public static final String STACK_TRACE = "<button class=\"accordion\">Stack trace</button>\n" +
+    private static final String HEADER = "<!doctype html>\n" +
+            "<head><title>Sync Failed</title>\n" +
+            "<style type=\"text/css\">\n" +
+            "\t.box {\n" +
+            "\t\tborder-radius: 3px;\n" +
+            "\t\tbackground-color: #fefefe;\n" +
+            "\t\tpadding: 16px;\n" +
+            "\t\tmargin: 16px;\n" +
+            "\t\tbox-shadow: 0px 4px 2px #cfcfcf;\n" +
+            "\t}\n" +
+            "\n" +
+            "\t.action {\n" +
+            "\t\tfont-weight: bold;\n" +
+            "\t\tfont-size: larger;\n" +
+            "\t}\n" +
+            "\n" +
+            "\t.asset {\n" +
+            "\t\tfont-weight: bold;\n" +
+            "\t}\n" +
+            "\n" +
+            "\t.user {\n" +
+            "\t\tfont-weight: bold;\n" +
+            "\t}\n" +
+            "\n" +
+            "\t.message {\n" +
+            "\n" +
+            "\t}\n" +
+            "\n" +
+            "\t.exceptionType {\n" +
+            "\t\tfont-style: italic;\n" +
+            "\t\tfont-family: monospace;\n" +
+            "\t\tpadding-bottom: 16px;\n" +
+            "\t}\n" +
+            "\n" +
+            "\tbutton.accordion {\n" +
+            "\t    background-color: #eee;\n" +
+            "\t    color: #444;\n" +
+            "\t    cursor: pointer;\n" +
+            "\t    margin-top: 8px;\n" +
+            "\t    border: none;\n" +
+            "\t    text-align: left;\n" +
+            "\t    outline: none;\n" +
+            "\t    font-size: 15px;\n" +
+            "\t    transition: 0.4s;\n" +
+            "\n" +
+            "\t}\n" +
+            "\n" +
+            "\tbutton.accordion.active, button.accordion:hover {\n" +
+            "\t    background-color: #ddd;\n" +
+            "\t}\n" +
+            "\n" +
+            "\tdiv.panel {\n" +
+            "\t    padding: 0 18px;\n" +
+            "\t    background-color: #fcfcfc;\n" +
+            "\t    border-radius: 3px;" +
+            "\t    max-height: 0;\n" +
+            "\t    overflow: scroll;\n" +
+            "\t    transition: max-height 0.2s ease-out;\n" +
+            "\t}\n" +
+            "</style>\n" +
+            "</head>\n" +
+            "<body>\n" +
+            "<div>Sync failed with the following errors:</div>\n" +
+            "<div>%s</div>\n" +
+            "<div>";
+    private static final String PRE = "<div class=\"box\">";
+    private static final String POST = "</div>";
+    private static final String ACTION = "<div>Action: <span class=\"action\">%s</span></div>";
+    private static final String TIMESTAMP = "<div>Timestamp: <span>%s</span></div>";
+    private static final String ASSET_ID = "<div>Asset: <span class=\"asset\">%s</span></div>";
+    private static final String SERIAL_NO = "<div>Serial: <span class=\"serial\">%s</span></div>";
+    private static final String STATUS = "<div>Status: <span class=\"status\">%s</span></div>";
+    private static final String USER = "<div>User ID: <span class=\"user\">%s</span></div>";
+    private static final String LOGIN = "<div>Login: <span class=\"login\">%s</span></div>";
+    private static final String MESSAGE = "<div>Message: <span class=\"message\">%s</span></div>";
+    private static final String EXCEPTION_MESSAGE = "<div>Exception Message: <span class=\"message\">%s</span></div>";
+    private static final String EXCEPTION_CLASS = "<div>Exception: <span class=\"exceptionType\">%s</span></div>";
+    private static final String STACK_TRACE = "<button class=\"accordion\">Stack trace</button>\n" +
             "<div class=\"panel\">\n" +
             "<pre>%s</pre>\n" +
             "</div>";
@@ -57,17 +130,20 @@ public class ActionHtmlFormatter {
 
     public static String formatActionAsHtml(Context context, FailedActions action) {
         Database db = Database.getInstance(context);
-
         StringBuilder sb = new StringBuilder();
         sb.append(PRE);
-        sb.append(String.format(ACTION, action.getAction().getDirection().toString()));
+        String direction = action.getAction().getDirection().toString();
+        sb.append(String.format(ACTION, direction));
+        DateFormat df = new SimpleDateFormat();
+        Date d = new Date(action.getAction().getTimestamp());
+        String date = df.format(d);
+        sb.append(String.format(TIMESTAMP, date));
 
         //wite the asset tag if possible, otherwise just use the asset id provided in the action
         try {
             Asset asset = db.findAssetByID(action.getAction().getAssetID());
-            sb.append(asset.getTag());
+            sb.append(String.format(ASSET_ID, asset.getTag()));
             if (asset.getSerial() != null && asset.getSerial().length() > 0) {
-                sb.append(String.format(ASSET_ID, asset.getTag()));
                 sb.append(String.format(SERIAL_NO, asset.getSerial()));
 
                 //try to write the status name if possible, use the recorded status ID if required
@@ -116,73 +192,17 @@ public class ActionHtmlFormatter {
         return sb.toString();
     }
 
-    public static String getHeader() {
-        String s = "<!doctype html>\n" +
-                "<head><title>Sync Failed</title>\n" +
-                "<style type=\"text/css\">\n" +
-                "\t.box {\n" +
-                "\t\tborder-radius: 3px;\n" +
-                "\t\tbackground-color: #fefefe;\n" +
-                "\t\tpadding: 16px;\n" +
-                "\t\tmargin: 16px;\n" +
-                "\t\tbox-shadow: 0px 4px 2px #cfcfcf;\n" +
-                "\t}\n" +
-                "\n" +
-                "\t.action {\n" +
-                "\t\tfont-weight: bold;\n" +
-                "\t\tfont-size: larger;\n" +
-                "\t}\n" +
-                "\n" +
-                "\t.asset {\n" +
-                "\t\tfont-weight: bold;\n" +
-                "\t}\n" +
-                "\n" +
-                "\t.user {\n" +
-                "\t\tfont-weight: bold;\n" +
-                "\t}\n" +
-                "\n" +
-                "\t.message {\n" +
-                "\n" +
-                "\t}\n" +
-                "\n" +
-                "\t.exceptionType {\n" +
-                "\t\tfont-style: italic;\n" +
-                "\t\tfont-family: monospace;\n" +
-                "\t\tpadding-bottom: 16px;\n" +
-                "\t}\n" +
-                "\n" +
-                "\tbutton.accordion {\n" +
-                "\t    background-color: #eee;\n" +
-                "\t    color: #444;\n" +
-                "\t    cursor: pointer;\n" +
-                "\t    margin-top: 8px;\n" +
-                "\t    border: none;\n" +
-                "\t    text-align: left;\n" +
-                "\t    outline: none;\n" +
-                "\t    font-size: 15px;\n" +
-                "\t    transition: 0.4s;\n" +
-                "\n" +
-                "\t}\n" +
-                "\n" +
-                "\tbutton.accordion.active, button.accordion:hover {\n" +
-                "\t    background-color: #ddd;\n" +
-                "\t}\n" +
-                "\n" +
-                "\tdiv.panel {\n" +
-                "\t    padding: 0 18px;\n" +
-                "\t    background-color: #fcfcfc;\n" +
-                "\t    border-radius: 3px;" +
-                "\t    max-height: 0;\n" +
-                "\t    overflow: scroll;\n" +
-                "\t    transition: max-height 0.2s ease-out;\n" +
-                "\t}\n" +
-                "</style>\n" +
-                "</head>\n" +
-                "<body>\n" +
-                "<div>Sync failed with the following errors:</div>\n" +
-                "<div>";
+    public static String getHeader(Context context) {
+        String deviceNameInsert = "";
 
-        return s;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String deviceName = prefs.getString(context.getString(R.string.pref_key_general_id),
+                context.getString(R.string.pref_default_general_id));
+        if (deviceName != null && deviceName.length() > 0) {
+            deviceNameInsert = "From device: " + deviceName;
+        }
+
+        return String.format(HEADER, deviceNameInsert);
     }
 
     public static String getFooter() {

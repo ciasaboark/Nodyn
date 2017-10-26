@@ -28,7 +28,10 @@ import android.util.Log;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.phobotic.nodyn.R;
@@ -118,12 +121,18 @@ public class PastDueAlertService extends IntentService {
         List<Asset> pastDueAssets = new ArrayList<>();
 
         // TODO: 10/19/17 should this be restricted to the models that can be checked out, or send notifications for everything?
+        // TODO: 10/25/17 this should have its own method in the database to avoid the overhead of looping through all assets
         long now = System.currentTimeMillis();
         for (Asset asset : allAssets) {
             if (asset.getAssignedToID() != -1) {
-                long checkinTimestamp = asset.getExpectedCheckin();
-                if (checkinTimestamp != -1) {
-                    if (checkinTimestamp < now) {
+                long expectedCheckin = asset.getExpectedCheckin();
+                if (expectedCheckin != -1) {
+                    if (expectedCheckin < now) {
+                        Date d = new Date(expectedCheckin);
+                        DateFormat df = new SimpleDateFormat();
+                        String expectedDateString = df.format(d);
+                        Log.d(TAG, "Asset " + asset.getTag() + " is past due.  Checkin expected " +
+                                "by " + expectedDateString);
                         pastDueAssets.add(asset);
                     }
                 }

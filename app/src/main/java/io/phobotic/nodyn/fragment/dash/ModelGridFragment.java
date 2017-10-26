@@ -57,20 +57,20 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 
-public class OverviewGridFragment extends Fragment {
+public class ModelGridFragment extends Fragment {
 
-    private static final String TAG = OverviewGridFragment.class.getSimpleName();
+    private static final String TAG = ModelGridFragment.class.getSimpleName();
     private View rootView;
     private GridLayout gridView;
 
-    public static OverviewGridFragment newInstance(String param1, String param2) {
-        OverviewGridFragment fragment = new OverviewGridFragment();
+    public static ModelGridFragment newInstance(String param1, String param2) {
+        ModelGridFragment fragment = new ModelGridFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public OverviewGridFragment() {
+    public ModelGridFragment() {
         // Required empty public constructor
     }
 
@@ -203,7 +203,7 @@ public class OverviewGridFragment extends Fragment {
 
             ValueAnimator offsetX = ValueAnimator.ofFloat(.5f, 0);
             offsetX.setTarget(overviewCountView);
-            offsetX.setDuration(1000);
+            offsetX.setDuration(300);
             offsetX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
@@ -215,12 +215,12 @@ public class OverviewGridFragment extends Fragment {
             });
 
             ObjectAnimator flipIn = ObjectAnimator.ofFloat(overviewCountView, "rotationX", -90, 0)
-                    .setDuration(1000);
+                    .setDuration(300);
             flipIn.setInterpolator(new LinearInterpolator());
 
             AnimatorSet set = new AnimatorSet();
             Random random = new Random(System.currentTimeMillis());
-            long delay = (long) random.nextInt(1000);
+            long delay = (long) random.nextInt(500);
             set.setStartDelay(delay);
             set.addListener(new Animator.AnimatorListener() {
                 @Override
@@ -245,35 +245,6 @@ public class OverviewGridFragment extends Fragment {
             });
             set.playTogether(flipIn, offsetX);
             set.start();
-
-//            AnimatorSet set = new AnimatorSet();
-//            set.playTogether(flipIn);
-//            flipIn.start();
-
-//            AnimatorSet flipIn = (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_in);
-//            flipIn.addListener(new Animator.AnimatorListener() {
-//                @Override
-//                public void onAnimationStart(Animator animation) {
-//
-//                }
-//
-//                @Override
-//                public void onAnimationEnd(Animator animation) {
-//
-//                }
-//
-//                @Override
-//                public void onAnimationCancel(Animator animation) {
-//
-//                }
-//
-//                @Override
-//                public void onAnimationRepeat(Animator animation) {
-//
-//                }
-//            });
-//            flipIn.setTarget(overviewCountView);
-//            flipIn.start();
         }
     }
 

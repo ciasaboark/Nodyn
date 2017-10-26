@@ -27,10 +27,20 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.SwitchPreferenceCompat;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import java.util.Random;
+import java.util.UUID;
 
 import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.view.EnableKioskDialogView;
+import main.java.com.maximeroussy.invitrode.RandomWord;
 
 /**
  * Created by Jonathan Nelson on 9/26/17.
@@ -43,11 +53,88 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.pref_general, rootKey);
         setHasOptionsMenu(true);
 
-        // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-        // to their values. When their values change, their summaries are
-        // updated to reflect the new value, per the Android Design
-        // guidelines.
-        // TODO: 7/27/17
+        final Preference deviceNamePreference = findPreference(getString(R.string.pref_key_general_id));
+        PreferenceListeners.bindPreferenceSummaryToValue(deviceNamePreference);
+        deviceNamePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+                View v = getLayoutInflater(null).inflate(R.layout.view_device_name, null);
+                final EditText input = (EditText) v.findViewById(R.id.input);
+
+                String curDeviceName = prefs.getString(getString(R.string.pref_key_general_id),
+                        getString(R.string.pref_default_general_id));
+                input.setText(curDeviceName);
+
+                final AlertDialog d = new AlertDialog.Builder(getContext())
+                        .setTitle("Device Name")
+                        .setView(v)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String newDeviceName = input.getText().toString();
+                                if (newDeviceName.length() == 0) {
+                                    newDeviceName = null;
+                                }
+
+                                deviceNamePreference.setSummary(newDeviceName);
+                                prefs.edit()
+                                        .putString(getString(R.string.pref_key_general_id), newDeviceName)
+                                        .apply();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //nothing to do here
+                            }
+                        })
+                        .setNeutralButton("generate", null)
+                        .create();
+
+                d.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        Button generateButton = d.getButton(DialogInterface.BUTTON_NEUTRAL);
+                        generateButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                try {
+                                    Random random = new Random(System.currentTimeMillis());
+                                    int length1 = random.nextInt(13) + 3;
+                                    int length2 = random.nextInt(13) + 3;
+                                    String randomWord1 = RandomWord.getNewWord(length1);
+                                    String randomWord2 = RandomWord.getNewWord(length2);
+                                    input.setText(randomWord1 + " " + randomWord2);
+                                } catch (Exception e) {
+                                    String uuid = UUID.randomUUID().toString();
+                                    input.setText(uuid);
+                                }
+                            }
+                        });
+
+                        final Button positveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);
+                        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                            @Override
+                            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                    positveButton.callOnClick();
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
+
+                        d.getWindow().setSoftInputMode(
+                                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                    }
+                });
+
+                d.show();
+
+                return true;
+            }
+        });
 
         SwitchPreferenceCompat kioskSwitch = (SwitchPreferenceCompat) findPreference(
                 getString(R.string.pref_key_general_kiosk));
@@ -137,6 +224,17 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
                         } else {
                             positveButton.setEnabled(false);
                         }
+                    }
+                });
+
+                view.getPasswordInput().setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                        if (actionId == EditorInfo.IME_ACTION_DONE) {
+                            positveButton.callOnClick();
+                            return true;
+                        }
+                        return false;
                     }
                 });
             }

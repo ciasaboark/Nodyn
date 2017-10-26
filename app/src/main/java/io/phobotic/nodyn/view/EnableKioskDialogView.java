@@ -87,6 +87,9 @@ public class EnableKioskDialogView extends RelativeLayout {
         return this;
     }
 
+    public EditText getPasswordInput() {
+        return passwordInput;
+    }
 
     public interface OnPasswordChangedListener {
         void onPasswordChanged(String newPassword);

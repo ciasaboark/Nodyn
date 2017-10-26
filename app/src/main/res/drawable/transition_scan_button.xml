@@ -17,6 +17,6 @@
   -->
 
 <transition xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_keyboard_grey600_36dp"/>
+    <item android:drawable="@drawable/ic_keyboard_white_36dp"/>
     <item android:drawable="@drawable/ic_barcode_scan_grey600_36dp"/>
 </transition>

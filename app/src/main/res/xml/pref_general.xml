@@ -20,6 +20,12 @@
     <PreferenceCategory
         android:title="@string/pref_header_general">
 
+        <Preference
+            android:defaultValue="@string/pref_default_general_id"
+            android:key="@string/pref_key_general_id"
+            android:summary=""
+            android:title="@string/pref_title_general_id"/>
+
         <SwitchPreferenceCompat
             android:defaultValue="@string/pref_default_general_kiosk"
             android:disableDependentsState="false"

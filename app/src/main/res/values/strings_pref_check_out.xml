@@ -50,4 +50,5 @@
     <string name="pref_title_check_out_eula">Change EULA text</string>
     <string name="pref_description_check_out_eula">Github flavored Markdown supported</string>
     <string name="pref_default_check_out_eula">Equipment may be provided to certain employees for the purpose of performing job related tasks. All employees receiving equipment must abide by this agreement.\n\nEquipment may be checked out to employees in order to perform their assigned job duties. Equipment shall not be used by non-employees or for non-work related purposes. By checking out the equipment the employee certifies that he/she is authorized to check out the equipment and agrees to abide by all posted responsibilities.</string>
+    <string name="eula_markdown_description">Github flavored <a href='https://guides.github.com/features/mastering-markdown/'>markdown</a> is supported</string>
 </resources>

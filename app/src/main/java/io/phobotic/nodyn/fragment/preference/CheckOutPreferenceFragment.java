@@ -26,10 +26,15 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 
@@ -91,7 +96,8 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 View v = getLayoutInflater(null).inflate(R.layout.view_eula_text, null);
                 final EditText input = (EditText) v.findViewById(R.id.input);
-
+                TextView info = (TextView) v.findViewById(R.id.info);
+                info.setMovementMethod(new LinkMovementMethod());
                 String curEula = prefs.getString(getString(R.string.pref_key_check_out_eula),
                         getString(R.string.pref_default_check_out_eula));
                 input.setText(curEula);
@@ -123,6 +129,18 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
                 d.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
+                        final Button positveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);
+                        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                            @Override
+                            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                    positveButton.callOnClick();
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
+
                         d.getWindow().setSoftInputMode(
                                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                     }
@@ -205,5 +223,23 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
                 getString(R.string.pref_key_check_out_models));
         modelSelect.setEntries(modelNames);
         modelSelect.setEntryValues(modelValues);
+    }
+
+    private void showNoBackEndError() {
+        AlertDialog d = new AlertDialog.Builder(getContext())
+                .setTitle("No Backend Configured")
+                .setMessage("No backend has been configured yet.  This setting will become available after the backend service is configured and after a successfull sync")
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+        d.show();
+    }
+
+    private void showNotSyncedError() {
+        AlertDialog d = new AlertDialog.Builder(getContext())
+                .setTitle("Not Yet Synced")
+                .setMessage("This setting will become avaiable after a successfull sync with the backend service")
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+        d.show();
     }
 }

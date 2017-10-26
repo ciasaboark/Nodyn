@@ -17,60 +17,283 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
+              android:layout_height="match_parent"
+              android:background="@drawable/about_background_gradient_3"
+              android:orientation="vertical"
+              android:weightSum="1">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/AppToolbar"/>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
             android:orientation="vertical">
 
-            <fragment
-                android:name="io.phobotic.nodyn.fragment.preference.GeneralPreferenceFragment"
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:tag=".GeneralPreferenceFragment"/>
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:clickable="false"
+                android:elevation="0dp"
+                android:focusable="false"
+                app:cardBackgroundColor="#799f9089"
+                app:cardCornerRadius="3dp">
 
-            <fragment
-                android:name="io.phobotic.nodyn.fragment.preference.UsersPreferenceFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag=".UsersPreferenceFragment"/>
+                <LinearLayout
+                    android:id="@+id/holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    >
 
-            <fragment
-                android:name="io.phobotic.nodyn.fragment.preference.AssetPreferenceFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag=".AssetPreferenceFragment"/>
+                    <io.phobotic.nodyn.view.PreferenceSection
+                        android:id="@+id/general"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClick"
+                        app:icon="@drawable/ic_settings_white_36dp"
+                        app:title="General Preferences"
+                        />
 
-            <fragment
-                android:name="io.phobotic.nodyn.fragment.preference.CheckOutPreferenceFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag=".CheckOutPreferenceFragment"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginEnd="32dp"
+                        android:layout_marginStart="80dp"
+                        android:background="@color/colorPrimaryDark"
+                        android:clickable="false"
+                        android:focusable="false"/>
 
-            <fragment
-                android:name="io.phobotic.nodyn.fragment.preference.CheckInPreferenceFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag=".CheckInPreferenceFragment"/>
+                    <io.phobotic.nodyn.view.PreferenceSection
+                        android:id="@+id/user"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClick"
+                        app:icon="@drawable/ic_account_multiple_white_36dp"
+                        app:title="Users"
+                        />
 
-            <fragment
-                android:name="io.phobotic.nodyn.fragment.preference.DataSyncPreferenceFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag=".DataSyncPreferenceFragment"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginEnd="32dp"
+                        android:layout_marginStart="80dp"
+                        android:background="@color/colorPrimaryDark"
+                        android:clickable="false"
+                        android:focusable="false"/>
 
-            <fragment
-                android:name="io.phobotic.nodyn.fragment.preference.EmailPreferenceFragment"
+                    <io.phobotic.nodyn.view.PreferenceSection
+                        android:id="@+id/asset"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClick"
+                        app:icon="@drawable/ic_laptop_white_36dp"
+                        app:title="Assets"
+                        />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginEnd="32dp"
+                        android:layout_marginStart="80dp"
+                        android:background="@color/colorPrimaryDark"
+                        android:clickable="false"
+                        android:focusable="false"/>
+
+                    <io.phobotic.nodyn.view.PreferenceSection
+                        android:id="@+id/checkout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClick"
+                        app:icon="@drawable/ic_arrow_up_bold_hexagon_outline_white_36dp"
+                        app:title="Check-out"
+                        />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginEnd="32dp"
+                        android:layout_marginStart="80dp"
+                        android:background="@color/colorPrimaryDark"
+                        android:clickable="false"
+                        android:focusable="false"/>
+
+
+                    <io.phobotic.nodyn.view.PreferenceSection
+                        android:id="@+id/checkin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClick"
+                        app:icon="@drawable/ic_arrow_down_bold_hexagon_outline_white_36dp"
+                        app:title="Check-in"
+                        />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginEnd="32dp"
+                        android:layout_marginStart="80dp"
+                        android:background="@color/colorPrimaryDark"
+                        android:clickable="false"
+                        android:focusable="false"/>
+
+                    <io.phobotic.nodyn.view.PreferenceSection
+                        android:id="@+id/data"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClick"
+                        app:icon="@drawable/ic_cloud_sync_white_36dp"
+                        app:title="Sync Backend"
+                        />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginEnd="32dp"
+                        android:layout_marginStart="80dp"
+                        android:background="@color/colorPrimaryDark"/>
+
+                    <io.phobotic.nodyn.view.PreferenceSection
+                        android:id="@+id/email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClick"
+                        app:icon="@drawable/ic_mail_ru_white_36dp"
+                        app:title="Email Preferences"
+                        />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginEnd="32dp"
+                        android:layout_marginStart="80dp"
+                        android:background="@color/colorPrimaryDark"/>
+
+                    <io.phobotic.nodyn.view.PreferenceSection
+                        android:id="@+id/beta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClick"
+                        app:icon="@drawable/ic_beta_white_36dp"
+                        app:title="Beta Preferences"
+                        />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginEnd="32dp"
+                        android:layout_marginStart="32dp"
+                        android:background="@color/colorPrimaryDark"
+                        android:onClick="onClick"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:id="@+id/icon1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
+                            android:onClick="onClick"
+                            android:soundEffectsEnabled="false"
+                            android:src="@drawable/ic_tablet_ipad_white_24dp"
+                            android:tint="@color/colorPrimaryLight"/>
+
+                        <ImageView
+                            android:id="@+id/icon2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
+                            android:onClick="onClick"
+                            android:soundEffectsEnabled="false"
+                            android:src="@drawable/ic_printer_white_24dp"
+                            android:tint="@color/colorPrimaryLight"/>
+
+                        <ImageView
+                            android:id="@+id/icon3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
+                            android:onClick="onClick"
+                            android:soundEffectsEnabled="false"
+                            android:src="@drawable/ic_laptop_white_24dp"
+                            android:tint="@color/colorPrimaryLight"/>
+
+                        <ImageView
+                            android:id="@+id/icon4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
+                            android:onClick="onClick"
+                            android:soundEffectsEnabled="false"
+                            android:src="@drawable/ic_harddisk_white_24dp"
+                            android:tint="@color/colorPrimaryLight"/>
+
+                        <ImageView
+                            android:id="@+id/icon5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
+                            android:onClick="onClick"
+                            android:soundEffectsEnabled="false"
+                            android:src="@drawable/ic_cellphone_white_24dp"
+                            android:tint="@color/colorPrimaryLight"/>
+
+                    </LinearLayout>
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/fragment_card"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag=".EmailPreferenceFragment"/>
+                android:layout_height="match_parent"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:clickable="false"
+                android:elevation="0dp"
+                android:focusable="false"
+                android:visibility="gone"
+                app:cardCornerRadius="3dp">
+
+                <FrameLayout
+                    android:id="@+id/frame"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp"/>
+
+            </android.support.v7.widget.CardView>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

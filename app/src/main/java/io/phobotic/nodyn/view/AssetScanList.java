@@ -101,7 +101,7 @@ public class AssetScanList extends RelativeLayout {
         boolean kioskModeEnabled = isKioskModeEnabled();
 
         input.setGhostMode(kioskModeEnabled);
-//        input.setForceScanInput(kioskModeEnabled);
+        input.setForceScanInput(kioskModeEnabled);
     }
 
     private void initList() {

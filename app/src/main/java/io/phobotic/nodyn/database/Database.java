@@ -147,6 +147,12 @@ public class Database {
         return actions;
     }
 
+    public List<Action> getActions(long maxTimestamp, int maxRecords) {
+        ActionTableHelper helper = new ActionTableHelper(db);
+        List<Action> actions = helper.find(maxTimestamp, maxRecords);
+        return actions;
+    }
+
     public List<Asset> getAssets() {
         List<Asset> assets = assetHelper.findAll();
         return assets;

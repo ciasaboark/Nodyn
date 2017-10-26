@@ -43,6 +43,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import io.phobotic.nodyn.R;
+
 /**
  * Created by Jonathan Nelson on 8/10/16.
  */
@@ -141,7 +143,7 @@ public class EmailSender {
                     .setUsername(username)
                     .setPassword(password)
                     .setRecipients(recipients)
-                    .setSubject(subject)
+                    .setSubject(getSubjectWithDeviceName(subject))
                     .setBody(body);
 
             if (attachments == null) {
@@ -163,6 +165,19 @@ public class EmailSender {
 
 
         return this;
+    }
+
+    private String getSubjectWithDeviceName(String subject) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        //append the device name to the subject (if one is set)
+        String newSubject = subject;
+        String deviceName = prefs.getString(context.getString(R.string.pref_key_general_id),
+                context.getString(R.string.pref_default_general_id));
+        if (deviceName != null && deviceName.length() > 0) {
+            newSubject += " <" + deviceName + ">";
+        }
+
+        return newSubject;
     }
 
     private void notifyFail(String message) {
@@ -201,7 +216,7 @@ public class EmailSender {
                     .setUsername(username)
                     .setPassword(password)
                     .setRecipients(recipients)
-                    .setSubject("Test message")
+                    .setSubject(getSubjectWithDeviceName("Test message"))
                     .setBody("This is a test message from the Nodyn asset tracker Android app.  You can " +
                             "safely ignore this message");
             EmailSendTask emailSendTask = new EmailSendTask();

@@ -22,7 +22,7 @@
                 android:layout_height="match_parent"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                tools:context="io.phobotic.nodyn.fragment.dash.OverviewGridFragment">
+                tools:context="io.phobotic.nodyn.fragment.dash.ModelGridFragment">
 
     <android.support.v7.widget.GridLayout
         android:id="@+id/grid"

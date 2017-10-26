@@ -27,16 +27,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import io.phobotic.nodyn.R;
@@ -61,8 +62,13 @@ public class ActionsListFragment extends Fragment {
     private RecyclerView recyclerView;
     private View errEmptyList;
     private BroadcastReceiver br;
-    private int maxRecords = -1;
     private VerticalSpaceItemDecoration decoration;
+    private boolean isLoading = false;
+
+    private List<Action> actions = new ArrayList<>();
+    private long oldestTimestamp = Long.MAX_VALUE;
+    private boolean fetchOlderRecords = true;
+    private int MAX_RECORDS = 10;
 
     public static ActionsListFragment newInstance(int columnCount, int maxRecords) {
         ActionsListFragment fragment = new ActionsListFragment();
@@ -92,7 +98,6 @@ public class ActionsListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             columnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-            maxRecords = getArguments().getInt(ARG_MAX_RECORDS);
         }
 
         br = new BroadcastReceiver() {
@@ -131,11 +136,9 @@ public class ActionsListFragment extends Fragment {
     }
 
     private void initList() {
-        if (columnCount <= 1) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        } else {
-            recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), columnCount));
-        }
+        final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+
+        recyclerView.setLayoutManager(layoutManager);
 
         recyclerView.addItemDecoration(decoration);
     }
@@ -160,28 +163,20 @@ public class ActionsListFragment extends Fragment {
 
     private void showProperView() {
         Database db = Database.getInstance(getContext());
-        List<Action> actions = db.getActions();
-        if (maxRecords != -1 && actions.size() > maxRecords) {
-            List<Action> trimmedList = new ArrayList<>();
-            for (int i = 0; i < maxRecords; i++) {
-                Action a = actions.get(i);
-                trimmedList.add(a);
-            }
-            actions = trimmedList;
-        }
-
-        //sort the list in reverse chronological order
-        Collections.sort(actions, new Comparator<Action>() {
-            @Override
-            public int compare(Action o1, Action o2) {
-                return -(((Long) o1.getTimestamp()).compareTo(o2.getTimestamp()));
-            }
-        });
+        //since this is the initial showing of the list we will pull records with the farthest out
+        //+ timestamps backwards, maximum of
+        long maxTimestamp = Long.MAX_VALUE;
+        actions = db.getActions(maxTimestamp, MAX_RECORDS);
 
         if (actions.isEmpty()) {
             showEmptyListError();
         } else {
-            showList(actions);
+            //record the furthest back timestamp so we can use it as a reference point to pull
+            //+ older records later
+            Action oldestAction = actions.get(actions.size() - 1);
+            this.oldestTimestamp = oldestAction.getTimestamp();
+
+            showList();
         }
     }
 
@@ -190,11 +185,62 @@ public class ActionsListFragment extends Fragment {
         errEmptyList.setVisibility(View.VISIBLE);
     }
 
-    private void showList(List<Action> actions) {
+    private void showList() {
+        oldestTimestamp = Long.MAX_VALUE;
+        fetchOlderRecords = true;
         recyclerView.setVisibility(View.VISIBLE);
         errEmptyList.setVisibility(View.GONE);
 
+        isLoading = true;
+
         recyclerView.setAdapter(new ActionRecyclerViewAdapter(actions, null));
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
+                if (isLoading) {
+                    Log.d(TAG, "List loading, skipping fetching older actions");
+                    return;
+                }
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    //we have scrolled to the bottom
+                    if (!fetchOlderRecords) {
+                        Log.d(TAG, "Will not fetch older items");
+                    } else {
+                        Log.d(TAG, "Scrollview has reached bottom");
+                        Database db = Database.getInstance(getContext());
+                        List<Action> actionsToAdd = db.getActions(oldestTimestamp, MAX_RECORDS);
+                        if (actionsToAdd == null || actionsToAdd.isEmpty()) {
+                            DateFormat df = new SimpleDateFormat();
+                            Date d = new Date(oldestTimestamp);
+                            String dateString = df.format(d);
+                            Log.d(TAG, "No action records older than " + dateString);
+                            fetchOlderRecords = false;
+                        } else {
+                            Log.d(TAG, "Found " + actionsToAdd.size() + " more actions, adding to adapter");
+                            isLoading = true;
+                            //add the items in one at a time so we get proper animations
+                            for (Action a : actionsToAdd) {
+                                actions.add(a);
+                                oldestTimestamp = a.getTimestamp();
+                                //this has to run on a separate thread
+                                recyclerView.post(new Runnable() {
+                                    public void run() {
+                                        recyclerView.getAdapter().notifyItemInserted(actions.size() - 1);
+                                    }
+                                });
+                            }
+                            isLoading = false;
+                        }
+                    }
+                }
+
+            }
+        });
+
+        isLoading = false;
     }
 
     public ActionsListFragment setColumnCount(int columnCount) {
@@ -206,10 +252,5 @@ public class ActionsListFragment extends Fragment {
 
     public void refresh() {
         showProperView();
-    }
-
-    public void setMaxRecords(int maxRecords) {
-        this.maxRecords = maxRecords;
-        refresh();
     }
 }

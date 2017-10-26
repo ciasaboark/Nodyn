@@ -44,6 +44,12 @@ public class Nodyn extends Application {
         Log.d(TAG, "Starting Crashlytics");
         //start crashlytics only if not a debug build
         Crashlytics crashlytics = new Crashlytics.Builder().disabled(BuildConfig.DEBUG).build();
+        try {
+            String id = Installation.id(this);
+            crashlytics.setUserIdentifier(id);
+        } catch (RuntimeException e) {
+
+        }
         Fabric.with(this, crashlytics);
 
         Log.d(TAG, "Forcing sync schedule reset");

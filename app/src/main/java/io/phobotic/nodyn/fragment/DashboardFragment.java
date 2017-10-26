@@ -40,7 +40,7 @@ import io.phobotic.nodyn.R;
 import io.phobotic.nodyn.database.Database;
 import io.phobotic.nodyn.fragment.dash.AssetStatusChartFragment;
 import io.phobotic.nodyn.fragment.dash.HistoryChartFragment;
-import io.phobotic.nodyn.fragment.dash.OverviewGridFragment;
+import io.phobotic.nodyn.fragment.dash.ModelGridFragment;
 import io.phobotic.nodyn.fragment.dash.ShortActionHistoryFragment;
 import io.phobotic.nodyn.service.SyncService;
 
@@ -57,7 +57,7 @@ public class DashboardFragment extends Fragment {
     private Database db;
     private BroadcastReceiver br;
     private AssetStatusChartFragment assetStatusChartFragment;
-    private OverviewGridFragment overviewGridFragment;
+    private ModelGridFragment modelGridFragment;
     private ShortActionHistoryFragment actionHistoryFragment;
     private HistoryChartFragment historyChartFragment;
 
@@ -113,13 +113,12 @@ public class DashboardFragment extends Fragment {
         });
 
         FragmentManager fm = getChildFragmentManager();
-        overviewGridFragment = (OverviewGridFragment) fm.findFragmentById(R.id.overview_grid_fragment);
+        modelGridFragment = (ModelGridFragment) fm.findFragmentById(R.id.overview_grid_fragment);
         assetStatusChartFragment = (AssetStatusChartFragment) fm.findFragmentById(R.id.status_chart_fragment);
         actionHistoryFragment = (ShortActionHistoryFragment) fm.findFragmentById(R.id.action_history_fragment);
         historyChartFragment = (HistoryChartFragment) fm.findFragmentById(R.id.history_chart_fragment);
 
         actionHistoryFragment.setColumnCount(2);
-        actionHistoryFragment.setMaxRecords(10);
 
         br = new BroadcastReceiver() {
             @Override
@@ -154,7 +153,7 @@ public class DashboardFragment extends Fragment {
     private void refresh() {
         swipeRefresh.setRefreshing(true);
         // TODO: 10/4/17
-        overviewGridFragment.refresh();
+        modelGridFragment.refresh();
         assetStatusChartFragment.refresh();
         actionHistoryFragment.refresh();
         historyChartFragment.refresh();
@@ -196,7 +195,7 @@ public class DashboardFragment extends Fragment {
                 break;
         }
 
-        return false;
+        return itemHandled;
     }
 
 }

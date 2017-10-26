@@ -62,4 +62,11 @@
 
     <color name="chart_out">#8ceaff</color>
     <color name="chart_in">#ffd08c</color>
+
+    <color name="shadow">#cecece</color>
+
+    <color name="share_background">#80d8ff</color>
+    <color name="share_ripple">#bbdefb</color>
+
+    <color name="warning">#c8ff8a80</color>
 </resources>

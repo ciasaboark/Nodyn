@@ -438,7 +438,6 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
         for (Action action : actionList) {
             try {
-
                 Asset asset = db.findAssetByID(action.getAssetID());
                 StringBuilder notes = new StringBuilder("Nodyn ");
                 switch (action.getDirection()) {

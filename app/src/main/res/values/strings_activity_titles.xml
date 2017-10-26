@@ -23,4 +23,7 @@
     <string name="title_activity_asset_details">Asset Details</string>
     <string name="title_activity_check_out">Asset Check Out</string>
     <string name="title_activity_check_in">Asset Check In</string>
+    <string name="title_activity_share_settings">Transfer Settings</string>
+    <string name="title_activity_receive_settings">Receive Settings</string>
+    <string name="title_activity_receive_nfc_settings">Receive NFC Settings</string>
 </resources>

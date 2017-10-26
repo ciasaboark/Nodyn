@@ -21,6 +21,12 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.NFC"/>
+
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false"/>
 
     <application
         android:name=".Nodyn"
@@ -84,6 +90,7 @@
             android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -114,13 +121,34 @@
             android:name=".activity.CheckoutActivity"
             android:label="@string/title_activity_check_out"
             android:parentActivityName=".activity.MainActivity"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
         <activity
             android:name=".activity.CheckinActivity"
             android:label="@string/title_activity_check_in"
             android:parentActivityName=".activity.MainActivity"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="stateHidden|adjustResize">
+        </activity>
+        <activity
+            android:name=".activity.ShareSettingsActivity"
+            android:label="@string/title_activity_share_settings"
+            android:parentActivityName=".activity.SettingsActivity">
+        </activity>
+        <activity
+            android:name=".activity.ReceiveSettingsActivity"
+            android:label="@string/title_activity_receive_settings"
+            android:parentActivityName=".activity.SettingsActivity">
+        </activity>
+
+        <activity
+            android:name=".activity.ReceiveSettingsNFCActivity"
+            android:label="@string/title_activity_receive_nfc_settings"
+            android:parentActivityName=".activity.MainActivity">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
         </activity>
     </application>
 
