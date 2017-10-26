@@ -347,7 +347,7 @@ public class AssetDetailsFragment extends DialogFragment {
                     AssetMaintenanceFragment maintFragment = AssetMaintenanceFragment.newInstance(asset);
                     return maintFragment;
                 case 2:
-                    AssetHistoryFragment historyFragment = AssetHistoryFragment.newInstance(asset);
+                    ActionHistoryFragment historyFragment = ActionHistoryFragment.newInstance(asset);
                     return historyFragment;
                 default:
                     return new Fragment();

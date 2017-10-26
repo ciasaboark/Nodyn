@@ -143,7 +143,10 @@ public class Action {
 
     public enum Direction {
         CHECKIN,
-        CHECKOUT
+        CHECKOUT,
+        CREATE,
+        UPDATE,
+        UNKNOWN
     }
 
     public class Columns {

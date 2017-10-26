@@ -227,7 +227,7 @@ public class UserDetailsFragment extends Fragment {
                     UserAssetsListFragment assetsFragment = UserAssetsListFragment.newInstance(1, user);
                     return assetsFragment;
                 case 2:
-                    UserHistoryFragment historyFragment = UserHistoryFragment.newInstance(1, user);
+                    ActionHistoryFragment historyFragment = ActionHistoryFragment.newInstance(user);
                     return historyFragment;
                 default:
                     return new Fragment();

@@ -31,8 +31,8 @@ import android.widget.TextView;
 import java.util.List;
 
 import io.phobotic.nodyn.R;
+import io.phobotic.nodyn.database.model.Asset;
 import io.phobotic.nodyn.database.model.User;
-import io.phobotic.nodyn.database.model.UserHistoryRecord;
 import io.phobotic.nodyn.fragment.listener.OnListFragmentInteractionListener;
 import io.phobotic.nodyn.list.adapter.AssetRecyclerViewAdapter;
 import io.phobotic.nodyn.sync.SyncManager;
@@ -119,10 +119,10 @@ public class UserAssetsListFragment extends Fragment {
         SyncAdapter syncAdapter = SyncManager.getPrefferedSyncAdapter(getActivity());
 
         try {
-            List<UserHistoryRecord> records = syncAdapter.getHistory(getActivity(), user);
-
+            List<Asset> records = syncAdapter.getAssets(getActivity(), user);
+            // TODO: 10/26/17 show a list of assets
         } catch (SyncException e) {
-
+            // TODO: 10/26/17 show an error
         } catch (SyncNotSupportedException e) {
             showError(e.getReason(), e.getMessage());
         }
