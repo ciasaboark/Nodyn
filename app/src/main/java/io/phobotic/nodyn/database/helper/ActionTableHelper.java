@@ -26,6 +26,7 @@ import android.util.Log;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import io.phobotic.nodyn.database.DatabaseOpenHelper;
@@ -79,7 +80,7 @@ public class ActionTableHelper extends TableHelper<Action> {
         cv.put(Action.Columns.DIRECTION, action.getDirection().toString());
         cv.put(Action.Columns.ASSET_ID, action.getAssetID());
         cv.put(Action.Columns.USER_ID, action.getUserID());
-        cv.put(Action.Columns.TIMESTAMP, System.currentTimeMillis());
+        cv.put(Action.Columns.TIMESTAMP, action.getTimestamp());
         cv.put(Action.Columns.EXPECTED_CHECKIN, action.getExpectedCheckin());
         cv.put(Action.Columns.SYNCED, action.isSynced() ? 1 : 0);
         cv.put(Action.Columns.AUTHORIZATION, action.getAuthorization());
@@ -87,7 +88,7 @@ public class ActionTableHelper extends TableHelper<Action> {
 
         long rowID = db.insertWithOnConflict(DatabaseOpenHelper.TABLE_ACTIONS, null, cv,
                 SQLiteDatabase.CONFLICT_REPLACE);
-        Log.d(TAG, "inserted action '" + action.toString() + "' as row " + rowID);
+//        Log.d(TAG, "inserted action '" + action.toString() + "' as row " + rowID);
     }
 
     @Override
@@ -209,5 +210,57 @@ public class ActionTableHelper extends TableHelper<Action> {
 
 
         return actions;
+    }
+
+    public List<Action> findSyncedActions() {
+        List<Action> actions = new ArrayList<>();
+
+        Cursor cursor = null;
+        int foundRecords = 0;
+
+        try {
+            String selection = Action.Columns.SYNCED + " != ?";
+            String[] args = {String.valueOf(0)};
+
+            cursor = db.query(DatabaseOpenHelper.TABLE_ACTIONS, null, selection, args,
+                    null, null, Action.Columns.TIMESTAMP + " ASC", null);
+
+            while (cursor.moveToNext()) {
+                Action a = getActionFromCursor(cursor);
+
+                actions.add(a);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Caught exception while searching for actions: " +
+                    e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+
+        return actions;
+    }
+
+
+    // TODO: 11/5/17 test this before adding to sync service
+    public void pruneSyncedActions() {
+        try {
+            String selection = Action.Columns.SYNCED + " != ? AND " + Action.Columns.TIMESTAMP + " < ?";
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.add(Calendar.DAY_OF_MONTH, -90);
+            long timestamp = calendar.getTimeInMillis();
+            String[] args = {String.valueOf(0), String.valueOf(timestamp)};
+
+            int count = db.delete(DatabaseOpenHelper.TABLE_ACTIONS, selection, args);
+            Log.d(TAG, "Deleted " + count + " old actions");
+        } catch (Exception e) {
+            Log.e(TAG, "Caught exception while pruning old actions: " +
+                    e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
