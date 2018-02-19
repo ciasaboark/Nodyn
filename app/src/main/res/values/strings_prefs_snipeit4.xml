@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
   -->
 
 <resources>
+    <string name="snipeit4_intro">This backend provides a connection to a Snipe-It web app.  This backend is tested with the Snipe-It beta 4.0 release, but may work on later versions</string>
+    <string name="snipeit4_manual">For more information about this sync backend please see the <a href="https://github.com/ciasaboark/Nodyn/wiki/SnipeIt-4-Sync-Adapter">online manual</a>.</string>
 
     <string name="pref_key_snipeit_4_protocol">pref_snipeit_4_protocol</string>
     <string name="pref_default_snipeit_4_protocol">https://</string>
@@ -38,5 +40,15 @@
     <string name="pref_default_snipeit_4_api_key"></string>
     <string name="pref_title_snipeit_4_api_key">API Key</string>
     <string name="pref_hint_snipeit_4_api_key">No API key set</string>
+
+    <string name="pref_key_snipeit4_utc_time">pref_snipeit4_utc_time</string>
+    <string name="pref_default_snipeit4_utc_time">false</string>
+    <string name="pref_title_snipeit4_utc_time">Send datetimes as UTC time</string>
+    <string name="pref_description_snipeit4_utc_time">All check-out/check-in datetimes will be sent to the backend server in UTC format.</string>
+
+    <string name="pref_key_snipeit4_workarounds">pref_snipeit4_workarounds</string>
+    <string name="pref_default_snipeit4_workarounds">true</string>
+    <string name="pref_title_snipeit4_workarounds">Enable non-super user workarounds</string>
+    <string name="pref_description_snipeit4_workarounds">Enable fetching group and manufacturer information without superuser access (see manual for information)</string>
 
 </resources>

@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -16,30 +16,28 @@
   -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:defaultValue="@string/pref_default_sync_backend"
+        android:entries="@array/pref_sync_backend_titles"
+        android:entryValues="@array/pref_sync_backend_values"
+        android:icon="@drawable/ic_cloud_sync_grey600_24dp"
+        android:key="@string/pref_key_sync_backend"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="OK"
+        android:title="@string/pref_title_sync_backend"/>
 
-    <PreferenceCategory
-        android:title="@string/pref_header_data_sync">
+    <Preference
+        android:icon="@drawable/ic_settings_grey600_24dp"
+        android:key="@string/pref_key_sync_backend_configure"
+        android:title="@string/pref_title_sync_backend_configure"/>
 
-        <ListPreference
-            android:defaultValue="@string/pref_default_sync_backend"
-            android:entries="@array/pref_sync_backend_titles"
-            android:entryValues="@array/pref_sync_backend_values"
-            android:key="@string/pref_key_sync_backend"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="OK"
-            android:title="@string/pref_title_sync_backend"/>
-
-        <Preference
-            android:key="@string/pref_key_sync_backend_configure"
-            android:title="@string/pref_title_sync_backend_configure"/>
-
-        <ListPreference
-            android:defaultValue="@string/pref_default_sync_frequency"
-            android:entries="@array/pref_sync_frequency_titles"
-            android:entryValues="@array/pref_sync_frequency_values"
-            android:key="@string/pref_key_sync_frequency"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="@null"
-            android:title="@string/pref_title_sync_frequency"/>
-    </PreferenceCategory>
+    <ListPreference
+        android:defaultValue="@string/pref_default_sync_frequency"
+        android:entries="@array/pref_sync_frequency_titles"
+        android:entryValues="@array/pref_sync_frequency_values"
+        android:icon="@drawable/ic_clock_grey600_24dp"
+        android:key="@string/pref_key_sync_frequency"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_sync_frequency"/>
 </PreferenceScreen>

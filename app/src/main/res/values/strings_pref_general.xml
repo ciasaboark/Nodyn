@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -32,6 +32,11 @@
     <string name="pref_key_general_kiosk">general_kiosk</string>
     <string name="pref_description_general_kiosk">Restrict access to settings with a password</string>
     <string name="pref_title_general_kiosk">Enable kiosk mode</string>
+
+    <string name="pref_default_general_sounds_enabled">true</string>
+    <string name="pref_key_general_sounds_enabled">general_sounds_enabled</string>
+    <string name="pref_description_general_sounds_enabled">Play audible tones for asset check-outs and check-ins</string>
+    <string name="pref_title_general_sounds_enabled">Enable sound effects</string>
 
     <!-- This preference has no user-facing mode, only a key -->
     <string name="pref_key_general_kiosk_password">general_kiosk_password</string>

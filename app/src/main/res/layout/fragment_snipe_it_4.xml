@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -26,7 +26,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="This backend provides a connection to a Snipe-It web app.  This backend is tested with the Snipe-It beta 4.0 release, but may work on laterversions"/>
+        android:text="@string/snipeit4_intro"/>
+
+    <TextView
+        android:id="@+id/manual_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/snipeit4_manual"
+        android:textColorLink="?colorAccent"/>
 
 
     <TextView
@@ -38,7 +46,7 @@
 
     <fragment
         android:id="@+id/fragment"
-        android:name="io.phobotic.nodyn.sync.adapter.snipeit4.PreferencesFragment"
+        android:name="io.phobotic.nodyn_app.sync.adapter.snipeit4.PreferencesFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 </LinearLayout>

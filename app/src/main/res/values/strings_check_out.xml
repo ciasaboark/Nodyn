@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -26,4 +26,7 @@
     <string name="check_out_no_eula_set">No EULA set</string>
 
     <string name="model_unavailable">This asset model can not be checked out or checked in from this kiosk.  Please contact your equipment manager if you need access to this asset.</string>
+
+    <string name="check_out_warning_message_1" formatted="false">Warning.  Authorization will automatically expire in %s %s.</string>
+    <string name="check_out_warning_message_2">Scan an asset or checkout now to reset this timer.</string>
 </resources>

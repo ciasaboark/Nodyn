@@ -1,0 +1,1 @@
+I verify that all equipment scanned was returned undamaged and in working condition.

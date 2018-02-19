@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -16,27 +16,22 @@
   -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:defaultValue="@string/pref_default_general_id"
+        android:key="@string/pref_key_general_id"
+        android:summary=""
+        android:title="@string/pref_title_general_id"/>
 
-    <PreferenceCategory
-        android:title="@string/pref_header_general">
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_general_kiosk"
+        android:disableDependentsState="false"
+        android:key="@string/pref_key_general_kiosk"
+        android:summary="@string/pref_description_general_kiosk"
+        android:title="@string/pref_title_general_kiosk"/>
 
-        <Preference
-            android:defaultValue="@string/pref_default_general_id"
-            android:key="@string/pref_key_general_id"
-            android:summary=""
-            android:title="@string/pref_title_general_id"/>
-
-        <SwitchPreferenceCompat
-            android:defaultValue="@string/pref_default_general_kiosk"
-            android:disableDependentsState="false"
-            android:key="@string/pref_key_general_kiosk"
-            android:summary="@string/pref_description_general_kiosk"
-            android:title="@string/pref_title_general_kiosk"/>
-
-        <Preference
-            android:dependency="@string/pref_key_general_kiosk"
-            android:key="@string/pref_key_general_kiosk_reset_password"
-            android:title="@string/pref_title_general_kiosk_reset_password"/>
-    </PreferenceCategory>
+    <Preference
+        android:dependency="@string/pref_key_general_kiosk"
+        android:key="@string/pref_key_general_kiosk_reset_password"
+        android:title="@string/pref_title_general_kiosk_reset_password"/>
 
 </PreferenceScreen>

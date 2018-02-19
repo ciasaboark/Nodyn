@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
         android:id="@+id/inner_toolbar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/colorAccent"
+        android:background="?colorAccent"
         android:elevation="8dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme">
@@ -70,7 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_below="@id/inner_toolbar"
-        android:background="@color/colorPrimaryDark"
+        android:background="?colorPrimaryDark"
         android:elevation="4dp"
         android:padding="16dp">
 
@@ -126,7 +126,7 @@
         android:scrollbars="vertical"
         android:visibility="gone"
         app:layoutManager="LinearLayoutManager"
-        tools:context="io.phobotic.nodyn.fragment.AssetListFragment"
+        tools:context="io.phobotic.nodyn_app.fragment.AssetListFragment"
         tools:listitem="@layout/view_asset"/>
 
 
@@ -139,7 +139,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorPrimary"
+            android:background="?colorPrimary"
             android:clipChildren="false"
             android:clipToPadding="false"
             android:orientation="vertical">
@@ -166,7 +166,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:background="@color/colorPrimaryDark"
+                android:background="?colorPrimaryDark"
                 android:clipToPadding="false"
                 android:orientation="vertical">
 

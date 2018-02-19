@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="audit_authorized_message" formatted="false">Asset audit will be completed by %1$s</string>
+    <string name="audit_not_uthorized_message" formatted="false">User %1$s is not authorized to perform asset audits</string>
+    <string name="audit_authorization_header">Asset audits must be authorized</string>
+    <string name="audit_detail_description_custom">This audit was created with custom parameters</string>
+    <string name="audit_detail_description_definition" formatted="true">This audit definition was created on %s.  %s</string>
+    <string name="audit_detail_description_definition_no_previous_audit">This will be the first audit completed using this definition.</string>
+    <string name="audit_detail_description_definition_previous_audit_date" formatted="true">The last audit completed using this definition was on %s.</string>
+    <string name="audit_detail_description_blind_on">Your equipment manager has selected for this audit to be blind.  You will not be shown a list of remaining audits.</string>
+    <string name="audit_detail_description_blind_off"></string>
+    <string name="audit_detail_description_howto">Begin the audit by scanning an asset\'s tag.  Continue scanning assets until there are no more left to scan.  You can add additional notes to each asset if desired.  Once all assets have been scanned submit your audit.</string>
+    <string name="audit_detail_models_list">During this audit you will be looking for the following asset models: %s.</string>
+    <string name="audit_detail_models_all">During this audit you will be looking for every asset model.  This includes: %s.</string>
+    <string name="audit_detail_title">Custom Audit</string>
+    <string name="audit_detail_statuses_all">You should expect to find assets of every status during this audit.</string>
+    <string name="audit_detail_statuses_list">During this audit you should expect to find assets with the following statuses: %s.</string>
+
+    <string name="audit_showcase_intro">Welcome to </string>
+    <string name="audit_showcase_help">Additional information on the current audit is available</string>
+    <string name="audit_showcase_unscaned">Assets that have not yet been audited are listed below.  Continue scanning assets until no more remain</string>
+    <string name="audit_showcase_scanned">After scanning an asset you may add additional notes for each asset</string>
+    <string name="audit_showcase_submit">Once you have finished scanning all assets you may submit your results</string>
+    <string name="audit_select_definition">Select a pre-made audit from the list. This audit will define the asset models and statuses that are expected to be found during the audit.</string>
+    <string name="audit_custom_audits_disabled">Your equipment manager has disabled custom audits.</string>
+    <string name="audit_showcase_edit_button">Tap the edit button to add additional notes to each audited asset.  These notes will be included in the audit report sent to your equipment manager.</string>
+    <string name="please_wait_timer" formatted="true">Please wait %d seconds to continue</string>
+    <string name="user_authentication_not_required">User authentication not required</string>
+    <string name="unknown_user">Unknown user (userID: %d)</string>
+    <string name="custom_audit">Custom audit</string>
+    <string name="audit_is_blind_audit">Blind audit</string>
+    <string name="audit_name_meta_postfix" formatted="true">(%s)</string>
+    <string name="audit_unexpected_status_intro">This asset was not expected to be found during this audit.</string>
+    <string name="audit_unexpected_status_statuses" formatted="true">This asset is tagged with a status of %s, but you were only expected to find assets tagged as %s.</string>
+    <string name="audit_unexpected_status_add">You can add this asset to the audit if desired.</string>
+</resources>

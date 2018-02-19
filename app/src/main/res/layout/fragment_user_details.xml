@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
         android:id="@+id/header_box"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:background="@color/colorAccent"
+        android:background="?colorAccent"
         android:elevation="4dp"
         android:padding="16dp"
         android:transitionName="card">
@@ -128,6 +128,7 @@
         <android.support.design.widget.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:elevation="2dp"
             android:text="Details">
 
         </android.support.design.widget.TabItem>
@@ -135,11 +136,13 @@
         <android.support.design.widget.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:elevation="2dp"
             android:text="Assets"/>
 
         <android.support.design.widget.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:elevation="2dp"
             android:text="History"/>
     </android.support.design.widget.TabLayout>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -21,14 +21,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <io.phobotic.nodyn_app.view.LoadingView
+        android:id="@+id/loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
 
     <RelativeLayout
         android:id="@+id/error"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/errBackground"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/reason"
@@ -59,8 +69,11 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:visibility="gone"
         app:layoutManager="LinearLayoutManager"
-        tools:context="io.phobotic.nodyn.fragment.UserAssetsListFragment"
+        tools:context="io.phobotic.nodyn_app.fragment.UserAssetsListFragment"
         tools:listitem="@layout/view_asset"/>
 
 

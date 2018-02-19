@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -32,16 +32,16 @@
 
     <string name="pref_key_email_exceptions_addresses">email_sync_exceptions_addresses</string>
     <string name="pref_default_email_exceptions_addresses"></string>
-    <string name="pref_title_email_exceptions_addresses">Sync exceptions addresses</string>
+    <string name="pref_title_email_exceptions_addresses">Sync exceptions recipients</string>
 
     <string name="pref_key_email_sync_fail">email_sync_fail</string>
     <string name="pref_default_email_sync_fail">false</string>
-    <string name="pref_title_email_sync_fail">Sync failure"</string>
+    <string name="pref_title_email_sync_fail">Sync failure</string>
     <string name="pref_description_email_sync_fail">Send alert email if sync process fails repeatedly</string>
 
 
     <string name="pref_key_email_sync_fail_addresses">email_sync_fail_addresses</string>
-    <string name="pref_title_email_sync_fail_addresses">Sync failure addresses</string>
+    <string name="pref_title_email_sync_fail_addresses">Sync failure recipients</string>
 
 
     <string name="pref_key_email_server">email_server</string>
@@ -55,6 +55,18 @@
 
     <string name="pref_key_email_password">email_password</string>
     <string name="pref_title_email_password">Email password</string>
+
+    <string name="pref_key_past_due_enabled">email_past_due_enabled</string>
+    <string name="pref_default_past_due_enabled">false</string>
+    <string name="pref_title_past_due_enabled">Send notices for past due assets</string>
+
+    <string name="pref_key_email_past_due_addresses">email_past_due_addresses</string>
+    <string name="pref_default_email_past_due_addresses"></string>
+    <string name="pref_title_email_past_due_addresses">Past due reminder recipients</string>
+
+    <string name="pref_key_past_due_include_owner">email_past_due_include_owner</string>
+    <string name="pref_title_past_due_include_owner">Also send reminder to current asset holder</string>
+    <string name="pref_default_past_due_include_owner">false</string>
 
 
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 <resources>
     <string name="legal">Legal Information</string>
     <string name="about_intro">Nodyn is an asset tracking app that focuses on fast, fault-tolerant, user-driven check out and check ins.</string>
-    <string name="about_intro_continued">Nody requires access to an asset tracking backend system.  For a list of available backend solutions please check the <a href="https://github.com/ciasaboark/Nodyn/wiki/Manual">online manual</a>.</string>
+    <string name="about_intro_continued">Nodyn requires access to an asset tracking backend system.  For a list of available backend solutions please check the <a href="https://github.com/ciasaboark/Nodyn/wiki/Manual">online manual</a>.</string>
 
     <!-- Information about source code -->
     <string name="about_source_title">Source Code</string>
@@ -34,7 +34,8 @@
 
     <!-- Contact information -->
     <string name="about_comments_title">Comments</string>
-    <string name="about_comments_text">About comments</string>
+    <string name="about_comments_text1">Love the app or hate it?  Feel free to leave a comment on the <a href="https://play.google.com/store/apps/details?id=io.phobotic.nodyn_app">Google Play Store</a>.</string>
+    <string name="about_comments_text2">If you need to contact the developers directly you can send an email to <a href="mailto:nodyn-dev@phobotic.io">nodyn-dev@phobotic.io</a>.</string>
 
 
     <string name="about_version">Version %1$s</string>

@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
     android:background="@color/share_background"
     android:orientation="vertical"
     android:visibility="visible"
-    tools:context="io.phobotic.nodyn.activity.ReceiveSettingsNFCActivity">
+    tools:context="io.phobotic.nodyn_app.activity.ReceiveSettingsNFCActivity">
 
     <pl.bclogic.pulsator4droid.library.PulsatorLayout
         android:id="@+id/pulse"

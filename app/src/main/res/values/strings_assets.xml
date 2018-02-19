@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -19,4 +19,20 @@
 <resources>
     <string name="asset_status_assigned">Assigned</string>
     <string name="asset_status_assigned_type">Ready to Deploy</string>
+
+    <!-- Asset property strings -->
+    <string name="asset_created_at">Created at:</string>
+    <string name="asset_name">Name:</string>
+    <string name="asset_company">Company:</string>
+    <string name="asset_serial">Serial:</string>
+    <string name="asset_manufacturer">Manufacturer:</string>
+    <string name="asset_model">Model:</string>
+    <string name="asset_model_no">Model number:</string>
+    <string name="asset_purchase_date">Purchase date:</string>
+    <string name="asset_purchase_cost">Purchase cost:</string>
+    <string name="asset_supplier">Supplier:</string>
+    <string name="asset_notes">Notes:</string>
+    <string name="asset_assigned_to">Assigned to:</string>
+    <string name="asset_checkout_date">Checkout date:</string>
+    <string name="asset_expected_checkin">Expected checkin:</string>
 </resources>

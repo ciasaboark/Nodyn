@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
   -->
 
 <resources>
-    <string name="asset_scan_list_scan_first_item">Scan an asset to begin checkout</string>
+    <string name="asset_scan_list_scan_first_item">Scan an asset to begin</string>
     <string name="asset_scan_list_unknown_asset_title">Unknown asset</string>
     <string name="asset_scan_list_unknown_asset_message_unformatted">Unknown asset &lt;u>%s&lt;/u></string>
     <string name="asset_scan_list_unknown_asset_message">Unknown asset</string>

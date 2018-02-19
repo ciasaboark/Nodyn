@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
     android:layout_height="match_parent"
     android:transitionName="check_out_root"
     android:visibility="visible"
-    tools:context="io.phobotic.nodyn.fragment.CheckOutAuthorizationFragment">
+    tools:context="io.phobotic.nodyn_app.fragment.CheckOutAuthorizationFragment">
 
     <RelativeLayout
         android:id="@+id/input_box"
@@ -35,7 +35,7 @@
         android:padding="16dp"
         android:visibility="visible">
 
-        <io.phobotic.nodyn.view.BadgeScanView
+        <io.phobotic.nodyn_app.view.BadgeScanView
             android:id="@+id/badge_scanner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,6 +48,7 @@
             android:layout_above="@id/badge_scanner"
             android:layout_centerHorizontal="true"
             android:text="Asset check outs must be authorized"
+            android:textAlignment="center"
             android:textAppearance="@android:style/TextAppearance.Material.Large"/>
 
     </RelativeLayout>
@@ -60,7 +61,7 @@
         android:layout_centerVertical="true"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:visibility="gone">
+        android:visibility="visible">
 
 
         <RelativeLayout
@@ -68,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@color/checkOut"
+            android:background="?colorSecondary"
             android:elevation="4dp"
             android:padding="16dp">
 
@@ -126,7 +127,7 @@
                 android:clipToPadding="false"
                 android:padding="8dp">
 
-                <io.phobotic.nodyn.view.UserCardView
+                <io.phobotic.nodyn_app.view.UserCardView
                     android:id="@+id/card"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

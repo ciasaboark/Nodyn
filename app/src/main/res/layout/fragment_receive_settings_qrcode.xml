@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="0dp"
-    tools:context="io.phobotic.nodyn.activity.ShareSettingsActivity"
+    tools:context="io.phobotic.nodyn_app.activity.ShareSettingsActivity"
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="81dp">
 
@@ -45,7 +45,7 @@
         android:id="@+id/linearLayout3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/colorSecondaryLight"
+        android:background="?colorSecondaryLight"
         android:orientation="vertical"
         android:padding="16dp"
         app:layout_constraintLeft_toLeftOf="parent"

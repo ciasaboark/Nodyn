@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -20,27 +20,27 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="io.phobotic.nodyn.fragment.preference.UsersPreferenceFragment"
+        android:fragment="io.phobotic.nodyn_app.fragment.preference.UsersPreferenceFragment"
         android:icon="@drawable/ic_info_black_24dp"
         android:title="@string/pref_header_users"/>
 
     <header
-        android:fragment="io.phobotic.nodyn.fragment.preference.CheckInPreferenceFragment"
+        android:fragment="io.phobotic.nodyn_app.fragment.preference.CheckInPreferenceFragment"
         android:icon="@drawable/ic_arrow_down_bold_hexagon_outline_black_24dp"
         android:title="@string/pref_header_check_in"/>
 
     <header
-        android:fragment="io.phobotic.nodyn.fragment.preference.CheckOutPreferenceFragment"
+        android:fragment="io.phobotic.nodyn_app.fragment.preference.CheckOutPreferenceFragment"
         android:icon="@drawable/ic_arrow_down_bold_hexagon_outline_black_24dp"
         android:title="@string/pref_header_check_out"/>
 
     <header
-        android:fragment="io.phobotic.nodyn.fragment.preference.DataSyncPreferenceFragment"
+        android:fragment="io.phobotic.nodyn_app.fragment.preference.DataSyncPreferenceFragment"
         android:icon="@drawable/ic_sync_black_24dp"
         android:title="@string/pref_header_data_sync"/>
 
     <header
-        android:fragment="io.phobotic.nodyn.fragment.preference.EmailPreferenceFragment"
+        android:fragment="io.phobotic.nodyn_app.fragment.preference.EmailPreferenceFragment"
         android:icon="@drawable/ic_email_black_24dp"
         android:title="@string/pref_header_email"/>
 

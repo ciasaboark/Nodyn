@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<io.phobotic.nodyn.view.AssetView xmlns:android="http://schemas.android.com/apk/res/android"
-                                  android:layout_width="match_parent"
-                                  android:layout_height="wrap_content">
+<io.phobotic.nodyn_app.view.AssetView xmlns:android="http://schemas.android.com/apk/res/android"
+                                      android:layout_width="match_parent"
+                                      android:layout_height="wrap_content">
 
-</io.phobotic.nodyn.view.AssetView>
+</io.phobotic.nodyn_app.view.AssetView>

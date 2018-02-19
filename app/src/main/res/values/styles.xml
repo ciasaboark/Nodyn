@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -20,9 +20,14 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/default_primary</item>
+        <item name="colorPrimaryDark">@color/default_primary_dark</item>
+        <item name="colorPrimaryLight">@color/default_primary_light</item>
+        <item name="colorSecondary">@color/default_secondary</item>
+        <item name="colorSecondaryDark">@color/default_secondary_dark</item>
+        <item name="colorSecondaryLight">@color/default_secondary_light</item>
+        <item name="colorAccent">@color/default_accent</item>
+        <item name="colorAccentLight">@color/default_accent_light</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
         <item name="android:windowContentTransitions">true</item>
     </style>
@@ -32,9 +37,36 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="Audit" parent="AppTheme.NoActionBar">
+        <item name="colorPrimary">@color/audit_primary</item>
+        <item name="colorPrimaryDark">@color/audit_primary_dark</item>
+        <item name="colorSecondary">@color/audit_secondary</item>
+        <item name="colorSecondaryDark">@color/audit_secondary_dark</item>
+        <item name="colorSecondaryLight">@color/audit_secondary_light</item>
+        <item name="colorAccent">@color/audit_accent</item>
+        <item name="colorAccentLight">@color/audit_accent_light</item>
+    </style>
+
+    <style name="CheckOut" parent="AppTheme.NoActionBar">
+        <item name="colorPrimary">#03A9F4</item>
+        <item name="colorPrimaryDark">#0288D1</item>
+        <item name="colorPrimaryLight">#B3E5FC</item>
+        <item name="colorAccent">#FFC107</item>
+        <item name="colorAccentLight">#ffd761</item>
+
+        <item name="colorSecondary">#9e9e9e</item>
+        <item name="colorSecondaryDark">#757575</item>
+        <item name="colorSecondaryLight">#bdbdbd</item>
+    </style>
+
+    <style name="CheckIn" parent="AppTheme.NoActionBar">
+        <item name="colorAccent">#FF4081</item>
+    </style>
+
     <style name="AppToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="android:colorControlNormal">@android:color/white</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
@@ -56,4 +88,13 @@
         <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList</item>
     </style>
 
+    <!-- Style for an Preference Entry -->
+    <style name="AppPreference">
+        <item name="android:layout">@layout/preference_material</item>
+    </style>
+
+    <style name="AppPreference.DialogPreference">
+        <item name="positiveButtonText">@android:string/ok</item>
+        <item name="negativeButtonText">@android:string/cancel</item>
+    </style>
 </resources>

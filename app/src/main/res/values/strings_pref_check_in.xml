@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -26,10 +26,6 @@
 
     <string name="pref_key_check_in_authenticating_groups">check_in_allowed_groups</string>
     <string name="pref_title_check_in_authenticating_groups">Approved authorizing groups</string>
-
-
-    <string name="pref_key_check_in_scan_field">check_in_validation_field</string>
-    <string name="pref_title_check_in_scan_field">Validation field</string>
 
     <string name="pref_key_check_in_show_verify">check_in_require_verification</string>
     <string name="pref_default_check_in_show_verify">false</string>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="pref_key_audit_email_embed_image">audit_email_embed_image</string>
+    <string name="pref_default_audit_email_embed_image">true</string>
+    <string name="pref_title_audit_email_embed_image">Embed model thumbnail in audit email</string>
+    <string name="pref_description_enabled_audit_email_embed_image">Model thumbnail images will be embeded within audit emails</string>
+    <string name="pref_description_disabled_audit_email_embed_image">Audit email will link to model image hosted by backend</string>
+
+    <string name="pref_key_beta_rebuild_statistics">beta_rebuild_statistics</string>
+    <string name="pref_title_beta_rebuild_statistics">Rebuild statistics</string>
+    <string name="pref_description_beta_rebuild_statistics">Force a rebuild of the statistics database now</string>
+</resources>

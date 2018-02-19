@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -20,8 +20,10 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:padding="8dp"
-                tools:context="io.phobotic.nodyn.view.ScanInputView">
+                tools:context="io.phobotic.nodyn_app.view.ScanInputView">
 
     <pl.bclogic.pulsator4droid.library.PulsatorLayout
         android:id="@+id/pulse"
@@ -29,7 +31,7 @@
         android:layout_height="96dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        app:pulse_color="#b7f91212"
+        app:pulse_color="?colorAccent"
         app:pulse_count="3"
         app:pulse_duration="5000"
         app:pulse_interpolator="Decelerate"
@@ -41,11 +43,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="8dp"
-        android:text="Scan Input"
+        android:layout_marginBottom="24dp"
+        android:text=""
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textColor="@color/colorAccent"
+        android:textColor="?colorAccent"
         android:visibility="visible"/>
 
     <LinearLayout
@@ -54,27 +56,77 @@
         android:layout_below="@id/preview"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:orientation="horizontal">
+        android:layout_marginTop="8dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        >
 
-        <EditText
-            android:id="@+id/edit_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:gravity="center_vertical"
-            android:inputType="textMultiLine"
-            android:lines="1"
-            android:textAlignment="center"
-            android:visibility="visible"/>
-
-        <ImageButton
-            android:id="@+id/image"
+        <RelativeLayout
+            android:id="@+id/button_wrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/input"
-            android:layout_toRightOf="@id/input"
-            android:background="?selectableItemBackgroundBorderless"
-            android:gravity="center_vertical"
-            android:src="@drawable/transition_scan_button"/>
+            android:background="@drawable/scan_circle"
+            android:padding="@dimen/view_scan_input_circle_padding">
+
+            <ImageButton
+                android:id="@+id/image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_toStartOf="@id/input"
+                android:background="?selectableItemBackgroundBorderless"
+                android:gravity="center_vertical"
+                android:src="@drawable/transition_scan_button"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/input_wrapper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:padding="8dp"
+                app:cardCornerRadius="20dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="16dp"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/edit_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_toStartOf="@id/search_button"
+                        android:layout_weight="1"
+                        android:imeOptions="actionSearch"
+                        android:inputType="textNoSuggestions"
+                        android:lines="1"
+                        android:textCursorDrawable="@drawable/cursor_drawable"
+                        android:visibility="visible"/>
+
+                    <ImageButton
+                        android:id="@+id/search_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:padding="16dp"
+                        android:src="@drawable/ic_magnify_grey600_24dp"/>
+                </LinearLayout>
+
+
+            </android.support.v7.widget.CardView>
+        </RelativeLayout>
+
+
     </LinearLayout>
 </RelativeLayout>

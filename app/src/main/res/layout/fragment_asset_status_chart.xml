@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -20,13 +20,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="16dp"
-                tools:context="io.phobotic.nodyn.fragment.dash.AssetStatusChartFragment">
+                tools:context="io.phobotic.nodyn_app.fragment.dash.AssetStatusChartFragment">
 
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/chart_detail"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="500dp"
+        android:layout_height="match_parent"
         android:visibility="gone"/>
 
     <LinearLayout

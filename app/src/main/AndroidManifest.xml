@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -15,11 +15,10 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<manifest package="io.phobotic.nodyn"
+<manifest package="io.phobotic.nodyn_app"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.NFC"/>
@@ -29,19 +28,19 @@
         android:required="false"/>
 
     <application
-        android:name=".Nodyn"
+        android:name="io.phobotic.nodyn_app.Nodyn"
         android:allowBackup="true"
-        android:configChanges="keyboard"
+
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Audit">
         <activity
-            android:name=".activity.MainActivity"
-            android:configChanges="keyboard|keyboardHidden|screenSize"
+            android:name="io.phobotic.nodyn_app.activity.MainActivity"
+
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/Audit"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -51,16 +50,24 @@
         </activity>
 
         <service
-            android:name=".service.SyncService"
+            android:name="io.phobotic.nodyn_app.service.SyncService"
             android:enabled="true">
         </service>
         <service
-            android:name=".service.PastDueAlertService"
+            android:name="io.phobotic.nodyn_app.service.AuditEmailService"
+            android:enabled="true">
+        </service>
+        <service
+            android:name="io.phobotic.nodyn_app.service.StatisticsService"
+            android:enabled="true">
+        </service>
+        <service
+            android:name="io.phobotic.nodyn_app.service.PastDueAlertService"
             android:enabled="true">
         </service>
 
         <receiver
-            android:name=".receiver.BootReceiver"
+            android:name="io.phobotic.nodyn_app.receiver.BootReceiver"
             android:enabled="true"
             android:exported="true"
             android:label="StartServiceAtBootReceiver">
@@ -69,7 +76,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".receiver.UpgradeReceiver"
+            android:name="io.phobotic.nodyn_app.receiver.UpgradeReceiver"
             android:enabled="true"
             android:exported="true"
             android:label="RescheduleOnUpgradeReceiver">
@@ -79,38 +86,41 @@
         </receiver>
 
         <activity
-            android:name=".activity.AssetDetailsActivity"
+            android:name="io.phobotic.nodyn_app.activity.AssetDetailsActivity"
             android:label="@string/title_activity_asset_details"
-            android:parentActivityName=".activity.MainActivity">
+            android:parentActivityName="io.phobotic.nodyn_app.activity.MainActivity"
+            android:theme="@style/Audit">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.phobotic.nodyn.activity.MainActivity"/>
+                android:value="io.phobotic.nodyn_app.activity.MainActivity"/>
         </activity>
         <activity
-            android:name=".activity.SettingsActivity"
+            android:name="io.phobotic.nodyn_app.activity.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize">
+            android:parentActivityName="io.phobotic.nodyn_app.activity.MainActivity"
+            android:theme="@style/Audit"
+            android:windowSoftInputMode="stateHidden|adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.phobotic.nodyn.activity.MainActivity"/>
+                android:value="io.phobotic.nodyn_app.activity.MainActivity"/>
         </activity>
         <activity
-            android:name=".activity.UserDetailsActivity"
+            android:name="io.phobotic.nodyn_app.activity.UserDetailsActivity"
             android:label="@string/title_activity_user_details"
-            android:parentActivityName=".activity.MainActivity">
+            android:parentActivityName="io.phobotic.nodyn_app.activity.MainActivity"
+            android:theme="@style/Audit">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.phobotic.nodyn.activity.MainActivity"/>
+                android:value="io.phobotic.nodyn_app.activity.MainActivity"/>
         </activity>
         <activity
-            android:name=".activity.AboutActivity"
+            android:name="io.phobotic.nodyn_app.activity.AboutActivity"
             android:label="@string/title_activity_about"
-            android:parentActivityName=".activity.MainActivity">
+            android:parentActivityName="io.phobotic.nodyn_app.activity.MainActivity"
+            android:theme="@style/Audit">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.phobotic.nodyn.activity.MainActivity"/>
+                android:value="io.phobotic.nodyn_app.activity.MainActivity"/>
         </activity>
 
         <meta-data
@@ -118,37 +128,62 @@
             android:value="3a8beb947bb71118e0b546ad35a311f886cf00c8"/>
 
         <activity
-            android:name=".activity.CheckoutActivity"
+            android:name="io.phobotic.nodyn_app.activity.CheckoutActivity"
             android:label="@string/title_activity_check_out"
-            android:parentActivityName=".activity.MainActivity"
+            android:parentActivityName="io.phobotic.nodyn_app.activity.MainActivity"
+            android:theme="@style/Audit"
             android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
         <activity
-            android:name=".activity.CheckinActivity"
+            android:name="io.phobotic.nodyn_app.activity.CheckinActivity"
             android:label="@string/title_activity_check_in"
-            android:parentActivityName=".activity.MainActivity"
+            android:parentActivityName="io.phobotic.nodyn_app.activity.MainActivity"
+            android:theme="@style/Audit"
             android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
         <activity
-            android:name=".activity.ShareSettingsActivity"
+            android:name="io.phobotic.nodyn_app.activity.ShareSettingsActivity"
             android:label="@string/title_activity_share_settings"
-            android:parentActivityName=".activity.SettingsActivity">
+            android:parentActivityName="io.phobotic.nodyn_app.activity.SettingsActivity"
+            android:theme="@style/Audit">
         </activity>
         <activity
-            android:name=".activity.ReceiveSettingsActivity"
+            android:name="io.phobotic.nodyn_app.activity.ReceiveSettingsActivity"
             android:label="@string/title_activity_receive_settings"
-            android:parentActivityName=".activity.SettingsActivity">
+            android:parentActivityName="io.phobotic.nodyn_app.activity.SettingsActivity"
+            android:theme="@style/Audit">
         </activity>
-
         <activity
-            android:name=".activity.ReceiveSettingsNFCActivity"
+            android:name="io.phobotic.nodyn_app.activity.ReceiveSettingsNFCActivity"
             android:label="@string/title_activity_receive_nfc_settings"
-            android:parentActivityName=".activity.MainActivity">
+            android:parentActivityName="io.phobotic.nodyn_app.activity.MainActivity"
+            android:theme="@style/Audit">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
+
                 <data android:mimeType="text/plain"/>
             </intent-filter>
+        </activity>
+        <activity
+            android:name="io.phobotic.nodyn_app.activity.AuditActivity"
+            android:label="@string/title_activity_audit"
+            android:parentActivityName="io.phobotic.nodyn_app.activity.MainActivity"
+            android:theme="@style/Audit"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.phobotic.nodyn_app.activity.MainActivity"/>
+        </activity>
+        <activity
+            android:name="io.phobotic.nodyn_app.activity.AuditDefinitionsActivity"
+            android:label="@string/title_activity_defined_audits"
+            android:parentActivityName="io.phobotic.nodyn_app.activity.SettingsActivity"
+            android:theme="@style/Audit">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.phobotic.nodyn_app.activity.SettingsActivity"/>
         </activity>
     </application>
 

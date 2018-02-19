@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -17,39 +17,27 @@
   -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory
-        android:title="Asset Check In">
+    <SwitchPreferenceCompat
+        android:defaultValue="pref_default_check_in_require_scan"
+        android:icon="@drawable/ic_account_card_details_grey600_24dp"
+        android:key="@string/pref_key_check_in_require_scan"
+        android:title="@string/pref_title_check_in_require_scan"/>
 
-        <SwitchPreferenceCompat
-            android:defaultValue="pref_default_check_in_require_scan"
-            android:key="@string/pref_key_check_in_require_scan"
-            android:title="@string/pref_title_check_in_require_scan"/>
+    <MultiSelectListPreference
+        android:defaultValue="@array/empty_array"
+        android:dependency="@string/pref_key_check_in_require_scan"
+        android:entries="@array/empty_array"
+        android:entryValues="@array/empty_array"
+        android:key="@string/pref_key_check_in_authenticating_groups"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="OK"
+        android:title="@string/pref_title_check_in_authenticating_groups"/>
 
-        <MultiSelectListPreference
-            android:defaultValue="@array/empty_array"
-            android:dependency="@string/pref_key_check_in_require_scan"
-            android:entries="@array/empty_array"
-            android:entryValues="@array/empty_array"
-            android:key="@string/pref_key_check_in_authenticating_groups"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="OK"
-            android:title="@string/pref_title_check_in_authenticating_groups"/>
-
-        <ListPreference
-            android:defaultValue=""
-            android:dependency="@string/pref_key_check_in_require_scan"
-            android:entries="@array/empty_array"
-            android:entryValues="@array/empty_array"
-            android:key="@string/pref_key_check_in_scan_field"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="OK"
-            android:title="@string/pref_title_check_in_scan_field"/>
-
-        <SwitchPreferenceCompat
-            android:defaultValue="@string/pref_default_check_in_show_verify"
-            android:dependency="@string/pref_key_check_in_require_scan"
-            android:key="@string/pref_key_check_in_show_verify"
-            android:summary="@string/pref_description_check_in_verify"
-            android:title="@string/pref_title_check_in_verify"/>
-    </PreferenceCategory>
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_check_in_show_verify"
+        android:dependency="@string/pref_key_check_in_require_scan"
+        android:icon="@drawable/ic_verified_grey600_24dp"
+        android:key="@string/pref_key_check_in_show_verify"
+        android:summary="@string/pref_description_check_in_verify"
+        android:title="@string/pref_title_check_in_verify"/>
 </PreferenceScreen>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -26,24 +26,24 @@
 
     <ImageView
         android:id="@+id/back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:paddingEnd="32dp"
-        android:src="@drawable/ic_arrow_left_white_36dp"
-        android:tint="@color/colorSecondaryLight"
+        android:paddingEnd="16dp"
+        android:src="@drawable/arrow_left"
+        android:tint="?colorPrimaryDark"
         android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="16dp"
         android:layout_toEndOf="@id/back"
-        android:src="@drawable/ic_alert_outline_white_24dp"
-        android:tint="@color/colorSecondaryLight"/>
+        android:src="@drawable/alert_outline"
+        android:tint="?colorPrimaryDark"/>
 
     <TextView
         android:id="@+id/title"
@@ -54,6 +54,5 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="some title"
-        android:textAppearance="@android:style/TextAppearance.Material.Medium"
-        android:textColor="?android:attr/textColorPrimaryInverse"/>
+        android:textColor="?android:attr/textColorPrimary"/>
 </RelativeLayout>

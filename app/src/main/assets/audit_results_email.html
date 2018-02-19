@@ -1,0 +1,100 @@
+<!--
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<html>
+<head>
+    <title>Nodyn asset audit results</title>
+    <style type="text/css">
+		table, tr {
+			border: 1px solid grey;
+			font-size: small;
+			border-collapse: collapse;
+		}
+
+		td, th {
+			padding: 4px;
+		}
+
+		th {
+			background-color: #f1f1f1;
+		}
+
+		.image {
+			width: 48px;
+			height: 48px;
+			max-width: 48px;
+			max-height: 48px;
+			border-radius: 50%%;
+			background-color: #fcfcfc;
+			border: 1px solid #c1c1c1;
+			overflow: hidden;
+		}
+
+		.bold {
+			font-weight: bold;
+		}
+
+		.notes {
+			font-weight: bold;
+			color: #ff5722;
+		}
+
+		.model_image {
+			max-width: 48px;
+			max-height: 48px;
+			width: 48px;
+			height: 48px;
+		}
+
+		.hide {
+			visibility: hidden;
+			width: 0px;
+			height: 0px;
+			max-width: 0px;
+			max-height: 0px;
+		}
+
+    </style>
+</head>
+<body>
+<div>
+    <div style="vertical-align: middle; font-size: larger;">
+        <img class="model_image" src="%s" width="48px" height="48px"/>
+        Nodyn Asset Audit (%s)
+    </div>
+    %s
+    <div><span class="bold">Auditor: </span>%s</div>
+    <div><span class="bold">Start: </span>%s</div>
+    <div><span class="bold">End: </span>%s</div>
+    <div><span class="bold">Statuses audited: </span>%s</div>
+    <div class="notes">%s</div>
+    <div style="margin-top: 16pt">Models Audited</div>
+
+    <table>
+        <tr>
+            <th></th>
+            <th>Manufacturer</th>
+            <th>Model</th>
+            <th>Total</th>
+            <th>Found</th>
+            <th>Missing</th>
+        </tr>
+        %s
+    </table>
+
+
+</body>

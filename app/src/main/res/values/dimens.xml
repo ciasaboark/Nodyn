@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -25,4 +25,35 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="list_item_spacing_top">4dp</dimen>
     <dimen name="list_item_spacing_bottom">8dp</dimen>
+
+    <dimen name="view_scan_input_circle_padding">4dp</dimen>
+
+    <dimen name="view_overview_count_padding">0dp</dimen>
+
+    <dimen name="dash_fragment_outside_padding">0dp</dimen>
+
+    <dimen name="view_action_outside_margin">0dp</dimen>
+    <dimen name="view_action_card_radius">0dp</dimen>
+
+    <dimen name="view_asset_hero_size">48dp</dimen>
+
+    <dimen name="picasso_small_image_circle_border_width">1px</dimen>
+    <dimen name="picasso_large_image_circle_border_width">3px</dimen>
+
+
+    <dimen name="asset_header_box_height">200dp</dimen>
+    <dimen name="asset_header_box_outside_margin">0dp</dimen>
+    <dimen name="asset_header_box_card_corner_radius">0dp</dimen>
+    <dimen name="asset_header_box_hero_size">80dp</dimen>
+
+
+    <dimen name="flex_horizontal_margin">0dp</dimen>
+    <dimen name="flex_horizontal_padding">16dp</dimen>
+
+    <dimen name="view_action_direction">24dp</dimen>
+    <dimen name="view_action_user">24dp</dimen>
+    <dimen name="view_action_device">24dp</dimen>
+
+    <dimen name="circle_highlight_box">200dp</dimen>
+    <dimen name="circle_hightlight_padding">32dp</dimen>
 </resources>

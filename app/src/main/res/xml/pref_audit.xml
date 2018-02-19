@@ -1,0 +1,76 @@
+<!--
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_audit_enable_audits"
+        android:disableDependentsState="false"
+        android:icon="@drawable/ic_clipboard_check_grey600_24dp"
+        android:key="@string/pref_key_audit_enable_audits"
+        android:summary="@string/pref_description_audit_enable_audits"
+        android:title="@string/pref_title_audit_enable_audits"/>
+
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_audit_require_user_scan"
+        android:dependency="@string/pref_key_audit_enable_audits"
+        android:disableDependentsState="false"
+        android:icon="@drawable/ic_account_card_details_grey600_24dp"
+        android:key="@string/pref_key_audit_require_user_scan"
+        android:summary="@string/pref_description_audit_require_user_scan"
+        android:title="@string/pref_title_audit_require_user_scan"/>
+
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_audit_allow_all_groups"
+        android:dependency="@string/pref_key_audit_require_user_scan"
+        android:disableDependentsState="true"
+        android:key="@string/pref_key_audit_allow_all_groups"
+        android:summary="@string/pref_description_audit_allow_all_groups"
+        android:title="@string/pref_title_audit_allow_all_groups"/>
+
+    <MultiSelectListPreference
+        android:defaultValue="@array/empty_array"
+        android:dependency="@string/pref_key_audit_allow_all_groups"
+        android:entries="@array/empty_array"
+        android:entryValues="@array/empty_array"
+        android:key="@string/pref_key_audit_allowed_groups"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="OK"
+        android:title="@string/pref_title_audit_allowed_groups"/>
+
+    <CheckBoxPreference
+        android:defaultValue="@string/pref_default_audit_enable_custom_audits"
+        android:dependency="@string/pref_key_audit_enable_audits"
+        android:key="@string/pref_key_audit_enable_custom_audits"
+        android:summaryOff="@string/pref_summary_off_audit_enable_custom_audits"
+        android:summaryOn="@string/pref_summary_on_audit_enable_custom_audits"
+        android:title="@string/pref_title_audit_enable_custom_audits"/>
+
+    <Preference
+        android:dependency="@string/pref_key_audit_enable_audits"
+        android:icon="@drawable/ic_clipboard_text_grey600_24dp"
+        android:key="@string/pref_key_audit_define_audits"
+        android:summary="@string/pref_description_audit_define_audits"
+        android:title="@string/pref_title_audit_define_audits"/>
+
+    <io.phobotic.nodyn_app.preference.EmailRecipientsPreference
+        style="@style/AppPreference.DialogPreference"
+        android:defaultValue=""
+        android:dependency="@string/pref_key_audit_enable_audits"
+        android:icon="@drawable/ic_send_grey600_24dp"
+        android:key="@string/pref_key_audit_results_email"
+        android:title="@string/pref_title_audit_results_email"/>
+</PreferenceScreen>

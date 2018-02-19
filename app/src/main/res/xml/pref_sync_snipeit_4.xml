@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -52,4 +52,17 @@
         android:singleLine="true"
         android:title="@string/pref_title_snipeit_4_api_key"
         />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_snipeit4_utc_time"
+        android:key="@string/pref_key_snipeit4_utc_time"
+        android:summary="@string/pref_description_snipeit4_utc_time"
+        android:title="@string/pref_title_snipeit4_utc_time"/>
+
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_snipeit4_workarounds"
+        android:key="@string/pref_key_snipeit4_workarounds"
+        android:summary="@string/pref_description_snipeit4_workarounds"
+        android:title="@string/pref_title_snipeit4_workarounds"/>
+
 </PreferenceScreen>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -27,11 +27,6 @@
     <string name="pref_key_check_out_authorization_groups">check_out_authorization_group</string>
     <string name="pref_title_check_out_authorization_groups">Authorizing groups</string>
 
-    <string name="pref_key_check_out_scan_field">check_out_scan_field</string>
-    <string name="pref_title_check_out_scan_field">Validation field</string>
-
-    <string name="pref_description_check_out_scan_field">Validate scanned data on this user field</string>
-
     <string name="pref_key_check_out_all_models">check_out_all_models</string>
     <string name="pref_default_check_out_all_models">false</string>
     <string name="pref_title_check_out_all_models">All asset models</string>
@@ -51,4 +46,16 @@
     <string name="pref_description_check_out_eula">Github flavored Markdown supported</string>
     <string name="pref_default_check_out_eula">Equipment may be provided to certain employees for the purpose of performing job related tasks. All employees receiving equipment must abide by this agreement.\n\nEquipment may be checked out to employees in order to perform their assigned job duties. Equipment shall not be used by non-employees or for non-work related purposes. By checking out the equipment the employee certifies that he/she is authorized to check out the equipment and agrees to abide by all posted responsibilities.</string>
     <string name="eula_markdown_description">Github flavored <a href='https://guides.github.com/features/mastering-markdown/'>markdown</a> is supported</string>
+
+    <string name="pref_key_check_out_timeout_enabled">check_out_timeout_enabled</string>
+    <string name="pref_title_check_out_timeout_enabled">Deauthorize checkouts after inactivity</string>
+    <string name="pref_description_check_out_timeout_enabled">Automatically close the checkout authorization</string>
+    <string name="pref_default_check_out_timeout_enabled">false</string>
+
+    <string name="pref_key_check_out_timeout_limit">check_out_timeout_limit</string>
+    <string name="pref_title_check_out_timeout_limit">Set inactivity timeout</string>
+    <string name="pref_default_check_out_timeout_limit">5</string>
+    <string name="pref_summary_check_out_timeout_limit" formatted="false">De-authorize after %s minutes</string>
+
+
 </resources>

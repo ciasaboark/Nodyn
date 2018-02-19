@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -22,4 +22,6 @@
     <color name="icon3">#fffd9b</color>
     <color name="icon4">#f19fff</color>
     <color name="icon5">#b7fcbf</color>
+
+    <color name="settings_header_background">#e0e0e0</color>
 </resources>

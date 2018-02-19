@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="pref_default_audit_enable_audits">false</string>
+    <string name="pref_key_audit_enable_audits">audit_enable_audits</string>
+    <string name="pref_description_audit_enable_audits">Allow asset audits on this device</string>
+    <string name="pref_title_audit_enable_audits">Asset auditing</string>
+
+    <string name="pref_default_audit_require_user_scan">false</string>
+    <string name="pref_key_audit_require_user_scan">audit_require_user_scan</string>
+    <string name="pref_description_audit_require_user_scan">Require user authentication before audit begins</string>
+    <string name="pref_title_audit_require_user_scan">Require user scan</string>
+
+    <string name="pref_default_audit_allow_all_groups">false</string>
+    <string name="pref_key_audit_allow_all_groups">audit_allow_all_groups</string>
+    <string name="pref_description_audit_allow_all_groups">Allow users of every group to perform audits</string>
+    <string name="pref_title_audit_allow_all_groups">Allow all groups</string>
+
+    <string name="pref_key_audit_allowed_groups">audit_allowed_groups</string>
+    <string name="pref_title_audit_allowed_groups">User groups allowed to audit</string>
+
+    <string name="pref_default_audit_require_all_models">false</string>
+    <string name="pref_key_audit_require_all_models">audit_require_all_models</string>
+    <string name="pref_description_audit_require_all_models">Require all asset models to be audited</string>
+    <string name="pref_title_audit_require_all_models">Audit all models</string>
+
+    <string name="pref_key_audit_required_models">audit_required_models</string>
+    <string name="pref_title_audit_required_models">Asset models to audit</string>
+
+    <string name="pref_default_audit_results_email"></string>
+    <string name="pref_key_audit_results_email">audit_results_email</string>
+    <string name="pref_title_audit_results_email">Audit results recipient email</string>
+
+    <string name="pref_key_audit_status_allow_all">audit_status_allow_all</string>
+    <string name="pref_default_audit_status_allow_all">true</string>
+    <string name="pref_title_audit_status_allow_all">Audit assets of every status</string>
+    <string name="pref_description_audit_status_allow_all"></string>
+
+
+    <string name="pref_key_audit_status_allowed_statuses">audit_status_allowed_status</string>
+    <string name="pref_title_audit_status_allowed_statuses">Allowed Statuses</string>
+
+    <string name="pref_key_audit_define_audits">audit_define_audits</string>
+    <string name="pref_title_audit_define_audits">Audit definitions</string>
+    <string name="pref_description_audit_define_audits">Manage audit definitions</string>
+
+    <string name="pref_key_audit_enable_custom_audits">audit_allow_custom_audits</string>
+    <string name="pref_title_audit_enable_custom_audits">Enable user defined audits</string>
+    <string name="pref_summary_off_audit_enable_custom_audits">Auditors must choose from a list of pre-defined audits</string>
+    <string name="pref_summary_on_audit_enable_custom_audits">Auditors will be allowed to choose which asset models to audit</string>
+    <string name="pref_default_audit_enable_custom_audits">false</string>
+
+    <string name="pref_key_audit_show_help_showcase">audit_show_help_showcase</string>
+</resources>
