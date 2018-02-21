@@ -46,7 +46,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -196,16 +195,15 @@ public class ScanInputView extends LinearLayout {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(TAG, "received broadcast intent");
-                Toast.makeText(getContext(), "Input received broadcast intent", Toast.LENGTH_SHORT).show();
 
                 //if scan mode has been forced then we need to skip showing the OSK when a keyboard
                 //+ or scanner is detatched
                 if (!forceScanInput) {
                     if (isHardwareKeyboardAvailable()) {
-                        Toast.makeText(context, "hardware keyboard available", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "hardware keyboard available");
                         useScanner(true);
                     } else {
-                        Toast.makeText(context, "hardware keyboard not available", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "hardware keyboard not available");
                         useKeyboard(true);
                     }
                 }
