@@ -19,6 +19,7 @@ package io.phobotic.nodyn_app.fragment.preference;
 
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -26,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceManager;
 
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
@@ -101,6 +103,9 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 Database db = Database.getInstance(getActivity());
                 db.dumpModel();
+
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+                prefs.edit().putBoolean(getString(R.string.sync_key_first_sync_completed), false).commit();
 
                 //Let the static listener update the summary.  This is ugly, but it will do
                 PreferenceListeners.sGenericPreferenceListener.onPreferenceChange(preference, newValue);
