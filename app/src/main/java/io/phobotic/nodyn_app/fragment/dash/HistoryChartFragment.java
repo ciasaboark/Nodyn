@@ -34,7 +34,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
@@ -280,8 +279,6 @@ public class HistoryChartFragment extends Fragment {
         } else {
             lineData.setDrawValues(false);
             chart.setData(lineData);
-
-            chart.animateY(1000, Easing.EasingOption.EaseInElastic);
         }
 
         chart.invalidate();
