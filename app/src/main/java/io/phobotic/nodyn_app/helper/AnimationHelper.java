@@ -20,12 +20,15 @@ package io.phobotic.nodyn_app.helper;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import org.jetbrains.annotations.NotNull;
+
+import io.phobotic.nodyn_app.R;
 
 /**
  * Created by Jonathan Nelson on 10/29/17.
@@ -55,6 +58,57 @@ public class AnimationHelper {
             }
         });
         v.startAnimation(fadeOut);
+    }
+
+    public static void scaleUp(@NonNull final Context context, @NotNull final View v) {
+        if (v.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
+        Animation scaleUp = AnimationUtils.loadAnimation(context, R.anim.scale_up);
+        scaleUp.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                v.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        v.startAnimation(scaleUp);
+    }
+
+    public static void scaleDown(@NonNull final Context context, @NotNull final View v) {
+        if (v.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
+        Animation scaleUp = AnimationUtils.loadAnimation(context, R.anim.scale_down);
+        scaleUp.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                v.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        v.startAnimation(scaleUp);
     }
 
     public static void fadeIn(@NotNull final Context context, @NotNull final View v) {
