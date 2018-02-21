@@ -64,6 +64,7 @@ public class SyncService extends IntentService {
     public static final String BROADCAST_SYNC_UPDATE = "sync_update";
     public static final String BROADCAST_SYNC_FINISH = "sync_finish";
     public static final String BROADCAST_SYNC_FAIL = "sync_fail";
+    public static final String BROADCAST_SYNC_DEBUG = "sync_debug";
     public static final String BROADCAST_SYNC_PROGRESS_MAIN = "sync_progress_main";
     public static final String BROADCAST_SYNC_PROGRESS_SUB = "sync_progress_sub";
     public static final String BROADCAST_SYNC_PROGRESS_SUB_KEY = "sync_progress_sub";
@@ -99,6 +100,9 @@ public class SyncService extends IntentService {
             db.pruneSyncedActions();
 
             Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_SUCCESS));
+
+
+            prefs.edit().putBoolean(getString(R.string.sync_key_first_sync_completed), true).commit();
         } catch (Exception e) {
             Crashlytics.logException(e);
             Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_FAILED));

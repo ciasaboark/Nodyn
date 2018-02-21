@@ -124,6 +124,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             String assetResult = getPageContent(context, getUrl(context, ASSET_URL_PART));
             AssetResponse assetResponse = gson.fromJson(assetResult, AssetResponse.class);
             List<Snipeit4Asset> snipeit4Assets = assetResponse.getAssets();
+            sendDebugBroadcast(context, "Found " + snipeit4Assets.size() + " assets");
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             boolean isServerUTC = prefs.getBoolean(context.getString(R.string.pref_key_snipeit4_utc_time),
                     Boolean.parseBoolean(context.getString(R.string.pref_default_snipeit4_utc_time)));
@@ -132,6 +133,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 assets.add(snipeit4Asset.toAsset(isServerUTC));
             }
         } catch (Exception e) {
+            sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
             e.printStackTrace();
             throw new SyncException("Unable to fetch assets: " + e.getMessage());
         }
@@ -147,11 +149,13 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             String modelResult = getPageContent(context, getUrl(context, MODELS_URL_PART));
             ModelResponse modelResponse = gson.fromJson(modelResult, ModelResponse.class);
             List<Snipeit4Model> snipeit4Models = modelResponse.getModels();
+            sendDebugBroadcast(context, "Found " + snipeit4Models.size() + " models");
 
             for (Snipeit4Model snipeit4Model : snipeit4Models) {
                 models.add(snipeit4Model.toModel());
             }
         } catch (Exception e) {
+            sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
             e.printStackTrace();
             throw new SyncException("Unable to fetch models");
         }
@@ -167,11 +171,13 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             String modelResult = getPageContent(context, getUrl(context, USERS_URL_PART));
             UserResponse userResponse = gson.fromJson(modelResult, UserResponse.class);
             List<Snipeit4User> snipeit4Users = userResponse.getUsers();
+            sendDebugBroadcast(context, "Found " + snipeit4Users.size() + " users");
 
             for (Snipeit4User snipeit4User : snipeit4Users) {
                 users.add(snipeit4User.toUser());
             }
         } catch (Exception e) {
+            sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
             e.printStackTrace();
             throw new SyncException("Unable to fetch users");
         }
@@ -187,6 +193,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             String groupResult = getPageContent(context, getUrl(context, GROUPS_URL_PART));
             GroupResponse groupResponse = gson.fromJson(groupResult, GroupResponse.class);
             List<Snipeit4Group> snipeit4Groups = groupResponse.getGroups();
+            sendDebugBroadcast(context, "Found " + snipeit4Groups.size() + " groups");
 
             for (Snipeit4Group snipeit4Group : snipeit4Groups) {
                 groups.add(snipeit4Group.toGroup());
@@ -210,6 +217,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 }
             }
         } catch (Exception e) {
+            sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
             Crashlytics.logException(e);
             e.printStackTrace();
             throw new SyncException("Unable to fetch groups");
@@ -219,12 +227,14 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     }
 
     private List<Group> fetchWorkaroundGroups(Context context) throws Exception {
+        sendDebugBroadcast(context, "Using permission workaround to fetch groups list");
         List<Group> groups = new ArrayList<>();
 
         try {
             String usersResult = getPageContent(context, getUrl(context, USERS_URL_PART));
             UserResponse userResponse = gson.fromJson(usersResult, UserResponse.class);
             List<Snipeit4User> snipeit4Users = userResponse.getUsers();
+            sendDebugBroadcast(context, "Found " + groups.size() + " users");
 
             Set<Group> groupSet = new HashSet<>();
 
@@ -254,10 +264,13 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
             }
 
+            sendDebugBroadcast(context, "Found " + groupSet.size() + " groups from users list");
+
             if (!groupSet.isEmpty()) {
                 groups.addAll(groupSet);
             }
         } catch (Exception e) {
+            sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
             e.printStackTrace();
             throw new SyncException("Unable to fetch users");
         }
@@ -266,14 +279,17 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     }
 
     private List<Manufacturer> fetchWorkaroundManufacturers(Context context) throws Exception {
+        sendDebugBroadcast(context, "Using permission workaround to fetch manufacturers list");
         List<Manufacturer> manufacturers = new ArrayList<>();
 
         try {
             String modelResult = getPageContent(context, getUrl(context, MODELS_URL_PART));
             ModelResponse modelResponse = gson.fromJson(modelResult, ModelResponse.class);
             List<Snipeit4Model> snipeit4Models = modelResponse.getModels();
+            sendDebugBroadcast(context, "Found " + snipeit4Models.size() + " models");
 
             Set<Manufacturer> manufacturerSet = new HashSet<>();
+
 
             for (Snipeit4Model snipeit4Model : snipeit4Models) {
                 Snippet snippet = snipeit4Model.getManufacturer();
@@ -295,10 +311,13 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
             }
 
+            sendDebugBroadcast(context, "Found " + manufacturerSet.size() + " manufacturers from models list");
+
             if (!manufacturerSet.isEmpty()) {
                 manufacturers.addAll(manufacturerSet);
             }
         } catch (Exception e) {
+            sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
             e.printStackTrace();
             throw new SyncException("Unable to fetch users");
         }
@@ -314,11 +333,13 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             String categoryResult = getPageContent(context, getUrl(context, CATEGORIES_URL_PART));
             CategoryResponse groupResponse = gson.fromJson(categoryResult, CategoryResponse.class);
             List<Snipeit4Category> shadowCategories = groupResponse.getCategories();
+            sendDebugBroadcast(context, "Found " + shadowCategories.size() + " categories");
 
             for (Snipeit4Category snipeit4Category : shadowCategories) {
                 categories.add(snipeit4Category.toCategory());
             }
         } catch (Exception e) {
+            sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
             e.printStackTrace();
             throw new SyncException("Unable to fetch categories");
         }
@@ -334,11 +355,13 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             String statusResult = getPageContent(context, getUrl(context, STATUS_URL_PART));
             StatusesResponse statusesResponse = gson.fromJson(statusResult, StatusesResponse.class);
             List<Snipeit4Status> snipeit4Statuses = statusesResponse.getStatuses();
+            sendDebugBroadcast(context, "Found " + snipeit4Statuses.size() + " statuses");
 
             for (Snipeit4Status snipeit4Status : snipeit4Statuses) {
                 statuses.add(snipeit4Status.toStatus());
             }
         } catch (Exception e) {
+            sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
             e.printStackTrace();
             throw new SyncException("Unable to fetch statuses");
         }
@@ -354,6 +377,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             String manufacturerResult = getPageContent(context, getUrl(context, MANUFACTURER_URL_PART));
             ManufacturersResponse manufacturersResponse = gson.fromJson(manufacturerResult, ManufacturersResponse.class);
             List<Snipeit4Manufacturer> snipeit4Manufacturers = manufacturersResponse.getManufacturers();
+            sendDebugBroadcast(context, "Found " + snipeit4Manufacturers.size() + " manufacturers");
 
             for (Snipeit4Manufacturer snipeit4Manufacturer : snipeit4Manufacturers) {
                 manufacturers.add(snipeit4Manufacturer.toManufacturer());
@@ -362,6 +386,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             //access to manufacturer information was not allowed.  Usually this means that the API key used
             //+ belongs to a non superuser.  We can approximate pulling manufacturer information
             //+ by pulling a list of all models and aggregating manufacturer information
+            sendDebugBroadcast(context, "Caught ForbiddenException fetching manufacturers");
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             Boolean useWorkaround = prefs.getBoolean(
@@ -377,6 +402,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 }
             }
         } catch (Exception e) {
+            sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
             e.printStackTrace();
             throw new SyncException("Unable to fetch manufacturers");
         }
@@ -387,6 +413,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     @Override
     public FullDataModel fetchFullModel(Context context) throws SyncException {
         try {
+            sendDebugBroadcast(context, this.getClass().getSimpleName() + " fetching full data model");
             sendProgressBroadcast(context, 10);
             List<Asset> assets = fetchAssets(context);
 
@@ -754,6 +781,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
     private String getPageContent(Context context, String url, Integer connectionTimeout,
                                   Integer readTimeout) throws Exception {
+        sendDebugBroadcast(context, "Fetching json data from: " + url);
 
         URL obj = new URL(url);
         conn = (HttpURLConnection) obj.openConnection();
@@ -815,11 +843,23 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         return port;
     }
 
+    private void sendDebugBroadcast(Context context, @NotNull String message) {
+        Intent i = getBroadcastDebugIntent();
+        i.putExtra(SyncService.BROADCAST_SYNC_MESSAGE, message);
+        LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
+        broadcastManager.sendBroadcast(i);
+    }
+
     private String getAPIKey(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String key = prefs.getString(context.getString(R.string.pref_key_snipeit_4_api_key),
                 context.getString(R.string.pref_default_snipeit_4_api_key));
         return key;
+    }
+
+    @NonNull
+    private Intent getBroadcastDebugIntent() {
+        return new Intent(SyncService.BROADCAST_SYNC_DEBUG);
     }
 
     private String sendPost(Context context, String url, String postParams) throws Exception {
@@ -863,7 +903,6 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
         return response.toString();
     }
-
 
     private void sendMessageBroadcast(Context context, @NotNull String message) {
         Intent i = getBroadcastIntent();
