@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -29,6 +30,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -95,7 +97,7 @@ public class SettingsHelper {
         return false;
     }
 
-    public static void loadKioskSettings(final Context context) {
+    public static void loadKioskSettings(final Context context, @Nullable final Bundle bundle) {
         final boolean kioskMode = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
                 context.getString(R.string.pref_key_general_kiosk), Boolean.parseBoolean(
                         context.getString(R.string.pref_default_general_kiosk)));
@@ -116,7 +118,7 @@ public class SettingsHelper {
                                     .getString(context.getString(R.string.pref_key_general_kiosk_password), null);
 
                             if (passwordInput.equals(storedPassword)) {
-                                loadSettingsActivity(context);
+                                loadSettingsActivity(context, bundle);
                             } else {
                                 showKioskPasswordMismatchDialog(context);
                             }
@@ -148,13 +150,16 @@ public class SettingsHelper {
             });
             d.show();
         } else {
-            loadSettingsActivity(context);
+            loadSettingsActivity(context, bundle);
         }
 
     }
 
-    private static void loadSettingsActivity(final Context context) {
+    private static void loadSettingsActivity(final Context context, @Nullable Bundle bundle) {
         Intent i = new Intent(context, SettingsActivity.class);
+        if (bundle != null) {
+            i.putExtras(bundle);
+        }
         context.startActivity(i);
     }
 

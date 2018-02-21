@@ -18,10 +18,12 @@
 package io.phobotic.nodyn_app.activity;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -51,17 +53,19 @@ import io.phobotic.nodyn_app.fragment.ActionHistoryFragment;
 import io.phobotic.nodyn_app.fragment.AssetListFragment;
 import io.phobotic.nodyn_app.fragment.BackendErrorFragment;
 import io.phobotic.nodyn_app.fragment.DashboardFragment;
+import io.phobotic.nodyn_app.fragment.FirstSyncErrorFragment;
 import io.phobotic.nodyn_app.fragment.UserListFragment;
 import io.phobotic.nodyn_app.fragment.listener.OnListFragmentInteractionListener;
 import io.phobotic.nodyn_app.helper.SettingsHelper;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
+import io.phobotic.nodyn_app.service.StatisticsService;
 import io.phobotic.nodyn_app.service.SyncService;
 import io.phobotic.nodyn_app.sync.SyncManager;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.dummy.DummyAdapter;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnListFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnListFragmentInteractionListener, OnSetupCompleteListener {
     public static final String BROADCAST_SCANNER_CONNECTED = "scanner connected";
     public static final String BROADCAST_SCANNER_DISCONNECTED = "scanner disconnected";
     public static final String SYNC_NOW = "sync now";
@@ -110,7 +114,11 @@ public class MainActivity extends AppCompatActivity
         //override the new fragment if we need to show the sync adapter error
         if (shouldShowAdapterError()) {
             newFragment = BackendErrorFragment.newInstance();
+        } else if (shouldShowFirstSyncError()) {
+            newFragment = FirstSyncErrorFragment.newInstance();
+            ((FirstSyncErrorFragment) newFragment).setOnSetupCompleteListener(this);
         }
+        updateMainFragment(newFragment);
 
         Intent i = getIntent();
         boolean syncNow = i.getBooleanExtra(SYNC_NOW, false);
@@ -119,7 +127,6 @@ public class MainActivity extends AppCompatActivity
             startService(si);
         }
 
-        updateMainFragment(newFragment);
     }
 
     @Override
@@ -182,6 +189,12 @@ public class MainActivity extends AppCompatActivity
         }
 
         return showAdapterError;
+    }
+
+    private boolean shouldShowFirstSyncError() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean firstSyncComplete = prefs.getBoolean(getString(R.string.sync_key_first_sync_completed), false);
+        return !firstSyncComplete;
     }
 
     private void updateMainFragment(Fragment fragment) {
@@ -311,7 +324,7 @@ public class MainActivity extends AppCompatActivity
      * @return false if the navigation items should be disabled, true if they should be enabled
      */
     private boolean getMenuIconsState() {
-        return !shouldShowAdapterError();
+        return !(shouldShowAdapterError() || shouldShowFirstSyncError());
     }
 
     private void setMenuOptionState(@NotNull MenuItem item, boolean enabled) {
@@ -352,7 +365,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(i);
             highlightItem = false;
         } else if (id == R.id.nav_settings) {
-            SettingsHelper.loadKioskSettings(this);
+            SettingsHelper.loadKioskSettings(this, null);
             //setttings starts in a separate fragment, so don't highlight this option
             highlightItem = false;
         } else if (id == R.id.nav_about) {
@@ -413,5 +426,39 @@ public class MainActivity extends AppCompatActivity
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
                 safePairs);
         startActivity(i, options.toBundle());
+    }
+
+    @Override
+    public void onSetupComplete() {
+        setDrawerIconsState();
+
+        Fragment newFragment = newFragment = getDefaultMainFragment();
+
+        //override the new fragment if we need to show the sync adapter error
+        if (shouldShowAdapterError()) {
+            newFragment = BackendErrorFragment.newInstance();
+        } else if (shouldShowFirstSyncError()) {
+            newFragment = FirstSyncErrorFragment.newInstance();
+            ((FirstSyncErrorFragment) newFragment).setOnSetupCompleteListener(this);
+        }
+
+        updateMainFragment(newFragment);
+
+        //since the first sync is complete we can go ahead and trigger building the statistics
+        //+ database.  We will do this after a delay so that the 30 day activity fragment
+        //+ inside the dashboard can have a bit of time to initialize it's broadcast receiver
+        final Context context = this;
+        Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (context != null) {
+                    Intent i = new Intent(context, StatisticsService.class);
+                    startService(i);
+                }
+            }
+        }, 2000);
+
+
     }
 }

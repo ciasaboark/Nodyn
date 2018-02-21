@@ -50,6 +50,8 @@ import io.phobotic.nodyn_app.service.SyncService;
  * create an instance of this fragment.
  */
 public class SyncNotificationFragment extends Fragment {
+    public static final String BROADCAST_SYNC_DETAILS_SHOWN = "sync details shown";
+    public static final String BROADCAST_SYNC_DETAILS_HIDDEN = "sync details hidden";
     private View rootView;
     private ProgressBar progressBar;
     private TextView message;
@@ -58,6 +60,9 @@ public class SyncNotificationFragment extends Fragment {
     private boolean visible = false;
     private DonutProgress subProgressBar;
     private String lastSubKey = "unknown";
+
+    //if set to false we will skip showing the sync popup
+    private boolean hidePopup = false;
 
     public static SyncNotificationFragment newInstance() {
         SyncNotificationFragment fragment = new SyncNotificationFragment();
@@ -77,6 +82,12 @@ public class SyncNotificationFragment extends Fragment {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 switch (action) {
+                    case BROADCAST_SYNC_DETAILS_SHOWN:
+                        hidePopup = true;
+                        break;
+                    case BROADCAST_SYNC_DETAILS_HIDDEN:
+                        hidePopup = false;
+                        break;
                     case SyncService.BROADCAST_SYNC_START:
                         showActiveMessage("Starting sync process", null);
                         break;
@@ -121,6 +132,8 @@ public class SyncNotificationFragment extends Fragment {
         filter.addAction((SyncService.BROADCAST_SYNC_FINISH));
         filter.addAction(SyncService.BROADCAST_SYNC_FAIL);
         filter.addAction(SyncService.BROADCAST_SYNC_UPDATE);
+        filter.addAction(BROADCAST_SYNC_DETAILS_SHOWN);
+        filter.addAction(BROADCAST_SYNC_DETAILS_HIDDEN);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(br, filter);
     }
 
@@ -182,6 +195,10 @@ public class SyncNotificationFragment extends Fragment {
     private void showActiveMessage(@NotNull String msg, @Nullable String err,
                                    @Nullable Integer progress, @Nullable Integer subProgress,
                                    @Nullable String subProgressKey) {
+        if (hidePopup) {
+            return;
+        }
+
         progressBar.setVisibility(View.VISIBLE);
         message.setVisibility(View.VISIBLE);
         error.setVisibility(err == null ? View.INVISIBLE : View.VISIBLE);
@@ -213,6 +230,10 @@ public class SyncNotificationFragment extends Fragment {
     }
 
     private void showStoppedMessage(String msg, String err) {
+        if (hidePopup) {
+            return;
+        }
+
         progressBar.setVisibility(View.GONE);
         message.setVisibility(View.VISIBLE);
         error.setVisibility(err == null ? View.GONE : View.VISIBLE);

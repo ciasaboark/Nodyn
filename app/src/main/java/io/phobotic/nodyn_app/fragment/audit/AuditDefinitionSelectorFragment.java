@@ -122,7 +122,7 @@ public class AuditDefinitionSelectorFragment extends Fragment implements OnAudit
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SettingsHelper.loadKioskSettings(getContext());
+                SettingsHelper.loadKioskSettings(getContext(), null);
             }
         });
 
