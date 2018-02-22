@@ -111,6 +111,102 @@ public class AnimationHelper {
         v.startAnimation(scaleUp);
     }
 
+    public static void expandAndFadeIn(@NotNull final Context context, @NotNull final View v) {
+        if (v.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
+        long duration = 300;
+        Animation fadeIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
+        fadeIn.setDuration(duration);
+
+        v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        final int height = v.getMeasuredHeight();
+        ValueAnimator expandAnimator = ValueAnimator.ofInt(0, height);
+        expandAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            public void onAnimationUpdate(ValueAnimator animation) {
+                Integer value = (Integer) animation.getAnimatedValue();
+                v.getLayoutParams().height = value.intValue();
+                v.requestLayout();
+
+                float alpha = ((float) height / (float) value);
+                v.setAlpha(alpha);
+            }
+        });
+        expandAnimator.setDuration(duration);
+
+
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                v.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        v.startAnimation(fadeIn);
+        expandAnimator.start();
+    }
+
+    public static void collapseAndFadeOut(@NotNull final Context context, @NotNull final View v) {
+        if (v.getVisibility() != View.VISIBLE) {
+            return;
+        }
+
+        long duration = 3000;
+        Animation fadeOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
+        fadeOut.setDuration(duration);
+
+        v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        final int height = v.getMeasuredHeight();
+        ValueAnimator collapseAnimator = ValueAnimator.ofInt(height, 0);
+        collapseAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            public void onAnimationUpdate(ValueAnimator animation) {
+                Integer value = (Integer) animation.getAnimatedValue();
+                v.getLayoutParams().height = value.intValue();
+                v.requestLayout();
+
+                float alpha = ((float) height / (float) value);
+                v.setAlpha(alpha);
+            }
+        });
+        collapseAnimator.setDuration(duration);
+
+        collapseAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                v.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        v.startAnimation(fadeOut);
+        collapseAnimator.start();
+    }
+
     public static void fadeIn(@NotNull final Context context, @NotNull final View v) {
         if (v.getVisibility() == View.VISIBLE) {
             return;

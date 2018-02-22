@@ -18,6 +18,7 @@
 package io.phobotic.nodyn_app.fragment;
 
 import android.animation.Animator;
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -140,13 +141,20 @@ public class FirstSyncErrorFragment extends Fragment {
 
 
     private void animateCircle(final Drawable d, final int tintColor) {
+        float initialElevation = circle.getElevation();
+        ObjectAnimator lowerElevation = ObjectAnimator.ofFloat(circle, "elevation", initialElevation, 0);
+        lowerElevation.setDuration(50);
+
+        ObjectAnimator raiseElevation = ObjectAnimator.ofFloat(circle, "elevation", 0, initialElevation);
+        lowerElevation.setDuration(50);
+
         float startRotation = circle.getRotationY();
         ObjectAnimator firstHalf = ObjectAnimator.ofFloat(circle, "rotationY", 0, 90)
-                .setDuration(300);
+                .setDuration(150);
         firstHalf.setInterpolator(new AccelerateDecelerateInterpolator());
 
         final ObjectAnimator secondHalf = ObjectAnimator.ofFloat(circle, "rotationY", -90, 0)
-                .setDuration(300);
+                .setDuration(150);
         secondHalf.setInterpolator(new AccelerateInterpolator());
 
         firstHalf.addListener(new Animator.AnimatorListener() {
@@ -159,7 +167,6 @@ public class FirstSyncErrorFragment extends Fragment {
             public void onAnimationEnd(Animator animation) {
                 iv.setImageDrawable(d);
                 circle.setBackgroundTintList(ColorStateList.valueOf(tintColor));
-                secondHalf.start();
             }
 
             @Override
@@ -172,7 +179,10 @@ public class FirstSyncErrorFragment extends Fragment {
 
             }
         });
-        firstHalf.start();
+
+        AnimatorSet set = new AnimatorSet();
+        set.playSequentially(lowerElevation, firstHalf, secondHalf, raiseElevation);
+        set.start();
     }
 
 
@@ -261,6 +271,7 @@ public class FirstSyncErrorFragment extends Fragment {
         syncFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideSyncIntroText();
                 debugText.setText("");
                 AnimationHelper.expand(syncStatusCard);
                 syncFab.hide();
@@ -315,13 +326,18 @@ public class FirstSyncErrorFragment extends Fragment {
         syncFab.setVisibility(View.VISIBLE);
     }
 
+    private void hideSyncIntroText() {
+        TextView tv1 = (TextView) rootView.findViewById(R.id.need_sync_text_1);
+        AnimationHelper.collapseAndFadeOut(getContext(), tv1);
+    }
+
     private void handleSyncFail(Intent intent) {
         String errorMsg = intent.getExtras().getString(
                 BROADCAST_SYNC_MESSAGE);
         syncFab.setEnabled(true);
         syncFab.show();
 
-        Drawable d = getResources().getDrawable(R.drawable.cloud_off_outline);
+        Drawable d = getResources().getDrawable(R.drawable.sync_alert);
         int color = getResources().getColor(R.color.warning_strong);
         animateCircle(d, color);
         addLine("Sync process failed: " + errorMsg);
@@ -380,6 +396,7 @@ public class FirstSyncErrorFragment extends Fragment {
     }
 
     private void handleSyncStart() {
+        hideSyncIntroText();
         AnimationHelper.fadeOut(getContext(), syncProgress);
         debugText.setText("");
         AnimationHelper.collapse(errorBox);

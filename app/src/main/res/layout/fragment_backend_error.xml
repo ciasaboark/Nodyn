@@ -16,12 +16,12 @@
   -->
 
 <RelativeLayout
-    android:id="@+id/no_backend"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/neutral_dark_background"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:orientation="vertical">
@@ -31,22 +31,24 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true">
-    <RelativeLayout
-        android:id="@+id/circle"
-        android:layout_width="@dimen/circle_highlight_large_box"
-        android:layout_height="@dimen/circle_highlight_large_box"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/circle_highlight"
-        android:padding="@dimen/circle_hightlight_large_padding">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <RelativeLayout
+            android:id="@+id/circle"
+            android:layout_width="@dimen/circle_highlight_large_box"
+            android:layout_height="@dimen/circle_highlight_large_box"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/cloud_sync"
-            android:tint="@color/white"/>
-    </RelativeLayout>
+            android:background="@drawable/circle_highlight"
+            android:elevation="4dp"
+            android:padding="@dimen/circle_hightlight_large_padding">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/cloud_off_outline"
+                android:tint="@color/white"/>
+        </RelativeLayout>
 
 
         <android.support.v7.widget.CardView
