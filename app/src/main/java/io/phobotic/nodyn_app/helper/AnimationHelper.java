@@ -162,7 +162,7 @@ public class AnimationHelper {
             return;
         }
 
-        long duration = 3000;
+        long duration = 300;
         Animation fadeOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
         fadeOut.setDuration(duration);
 
