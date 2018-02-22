@@ -63,7 +63,13 @@ public class SyncScheduler {
     }
 
     public void scheduleSyncIfNeeded() {
-        if (isAlarmScheduled()) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Boolean firstSyncCompleted = prefs.getBoolean(context.getString(
+                R.string.sync_key_first_sync_completed), false);
+
+        if (!firstSyncCompleted) {
+            Log.d(TAG, "Skipping scheduling sync alarm.  Backend has not completed first sync yet");
+        } else if (isAlarmScheduled()) {
             Log.d(TAG, "Skipping scheduling sync alarm, one is already set");
         } else {
             Log.d(TAG, "No repeating sync alarm set.  Setting one now");
