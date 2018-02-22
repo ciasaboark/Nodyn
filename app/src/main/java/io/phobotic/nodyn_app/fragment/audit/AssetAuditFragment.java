@@ -47,7 +47,6 @@ import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.BounceInterpolator;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -109,7 +108,6 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     private AuditStatusListener listener;
     private View error;
     private View listHolder;
-    private ImageButton expandHeaderButton;
     private View headerDetails;
     private TextView detailIntro;
     private TextView detailModels;
@@ -122,6 +120,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     private View dragHandleWrapper;
     private boolean hasShownFirstCardShowcase = false;
     private View spacer;
+    private View helpButton;
 
     public static AssetAuditFragment newInstance(AuditDefinition auditDefinition, Audit audit, User user) {
         AssetAuditFragment f = new AssetAuditFragment();
@@ -180,6 +179,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_audit, menu);
+        helpButton = menu.findItem(R.id.action_help).getActionView();
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -393,7 +393,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         seq++;
 
         String helpText = getString(R.string.audit_showcase_help);
-        sequence.addSequenceItem(expandHeaderButton, helpText, getString(R.string.got_it).toUpperCase());
+        sequence.addSequenceItem(helpButton, helpText, getString(R.string.got_it).toUpperCase());
         seq++;
 
 
