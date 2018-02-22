@@ -79,5 +79,7 @@
 
     <color name="scroll_view_background">#f5f5f5</color>
 
-    <color name="success">#69F0AE</color>
+    <color name="success">#43a047</color>
+
+    <color name="neutral_dark_background">#e0e0e0</color>
 </resources>

@@ -23,5 +23,5 @@
     <color name="icon4">#f19fff</color>
     <color name="icon5">#b7fcbf</color>
 
-    <color name="settings_header_background">#e0e0e0</color>
+    <color name="settings_header_background">@color/neutral_dark_background</color>
 </resources>
