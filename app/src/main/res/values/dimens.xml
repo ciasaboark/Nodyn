@@ -54,9 +54,11 @@
     <dimen name="view_action_user">24dp</dimen>
     <dimen name="view_action_device">24dp</dimen>
 
-    <dimen name="circle_highlight_box">200dp</dimen>
-    <dimen name="circle_hightlight_padding">32dp</dimen>
+    <dimen name="circle_highlight_box">100dp</dimen>
+    <dimen name="circle_hightlight_padding">16dp</dimen>
 
-    <dimen name="circle_highlight_large_box">300dp</dimen>
-    <dimen name="circle_hightlight_large_padding">40dp</dimen>
+    <dimen name="circle_highlight_large_box">150dp</dimen>
+    <dimen name="circle_hightlight_large_padding">20dp</dimen>
+
+    <dimen name="focused_card_large_margin">16dp</dimen>
 </resources>
