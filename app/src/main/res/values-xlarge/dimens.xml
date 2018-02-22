@@ -60,4 +60,6 @@
 
     <dimen name="circle_highlight_large_box">300dp</dimen>
     <dimen name="circle_hightlight_large_padding">40dp</dimen>
+
+    <dimen name="focused_card_large_margin">64dp</dimen>
 </resources>
