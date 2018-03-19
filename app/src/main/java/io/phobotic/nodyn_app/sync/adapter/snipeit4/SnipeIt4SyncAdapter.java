@@ -707,7 +707,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     @Override
     public List<Action> getAssetActivity(Context context, Asset asset, int page) throws SyncException,
             SyncNotSupportedException {
-        String filter = "item_id=" + asset.getId() + "&item_type=asset&order=asc";
+        String filter = "item_id=" + asset.getId() + "&item_type=asset&order=desc";
         return getActivityWithFilter(context, filter, page);
     }
 
@@ -746,7 +746,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
     @Override
     public List<Action> getUserActivity(Context context, User user, int page) throws SyncException, SyncNotSupportedException {
-        String filter = "target_id=" + user.getId() + "&target_type=user&order=asc";
+        String filter = "target_id=" + user.getId() + "&target_type=user&order=desc";
         return getActivityWithFilter(context, filter, page);
 
     }
@@ -754,7 +754,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     @Override
     public List<Action> getActivity(Context context, int page) throws SyncException,
             SyncNotSupportedException {
-        return getActivityWithFilter(context, "order=asc", page);
+        return getActivityWithFilter(context, "order=desc", page);
     }
 
     @Override
