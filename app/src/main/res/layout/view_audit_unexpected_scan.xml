@@ -16,64 +16,79 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:orientation="vertical">
 
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/warning"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
-        android:text="Unexpected Asset Scanned"
-        android:textAppearance="@android:style/TextAppearance.Material.Large"/>
+        android:background="@color/neutral_dark_background"
+        android:elevation="2dp"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/intro"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Unexpected Asset Scanned"
+            android:textAppearance="@android:style/TextAppearance.Material.Large"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:text="@string/audit_unexpected_status_intro"
-        android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/statuses"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/intro"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:text="@string/placeholder"/>
+        <RelativeLayout
+            android:layout_width="@dimen/circle_highlight_box"
+            android:layout_height="@dimen/circle_highlight_box"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/circle_highlight"
+            android:backgroundTint="#ffa726"
+            android:elevation="2dp"
+            android:padding="@dimen/circle_hightlight_padding">
 
-    <TextView
-        android:id="@+id/add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/statuses"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:text="@string/audit_unexpected_status_add"/>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/tag"
+                android:tint="@color/white"/>
+        </RelativeLayout>
 
-    <RelativeLayout
-        android:layout_width="@dimen/circle_highlight_box"
-        android:layout_height="@dimen/circle_highlight_box"
-        android:layout_below="@id/add"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/circle_highlight"
-        android:backgroundTint="#ffa726"
-        android:padding="@dimen/circle_hightlight_padding">
+        <TextView
+            android:id="@+id/intro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:text="@string/audit_unexpected_status_intro"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/tag"
-            android:tint="@color/white"/>
-    </RelativeLayout>
+        <TextView
+            android:id="@+id/statuses"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:text="@string/placeholder"/>
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/audit_unexpected_status_add"/>
+
+    </LinearLayout>
+
+</LinearLayout>

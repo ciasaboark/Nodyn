@@ -30,7 +30,7 @@ import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.FullDataModel;
 import io.phobotic.nodyn_app.database.model.MaintenanceRecord;
 import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.sync.SyncErrorListener;
+import io.phobotic.nodyn_app.sync.ActionSyncListener;
 
 /**
  * Created by Jonathan Nelson on 7/7/17.
@@ -46,7 +46,7 @@ public interface SyncAdapter {
     void checkinAsset(Context context, int assetID, String assetTag, @Nullable Long checkinDate,
                       @Nullable String notes) throws Exception;
 
-    void syncActionItems(Context context, List<Action> unsyncedActions, SyncErrorListener listener) throws SyncException;
+    void syncActionItems(Context context, List<Action> unsyncedActions, ActionSyncListener listener) throws SyncException;
 
     void markActionItemsSynced(Context context, List<Action> actions);
 

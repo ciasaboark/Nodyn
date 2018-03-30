@@ -41,7 +41,10 @@
             android:layout_centerVertical="true"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
-            android:src="@drawable/ic_account_black_48dp"
+            android:elevation="4dp"
+            android:minHeight="200dp"
+            android:minWidth="200dp"
+            android:src="@drawable/default_user_avitar"
             android:transitionName="image"/>
 
         <LinearLayout
@@ -57,10 +60,12 @@
                 android:id="@+id/model"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:gravity="right"
-                android:text="TextView"
 
-                android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
+                android:text="TextView"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title.Inverse"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 android:transitionName="name"/>
 
@@ -68,6 +73,7 @@
                 android:id="@+id/username_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:orientation="horizontal">
 
                 <TextView

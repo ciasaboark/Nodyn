@@ -26,10 +26,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.helper.GroupTableHelper;
+import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
 
 public class UserExtendedDetailsFragment extends Fragment {
@@ -134,9 +137,18 @@ public class UserExtendedDetailsFragment extends Fragment {
             }
 
             setTextOrHide(managerBox, manager, managerName);
-            setTextOrHide(numAssetsBox, numAssets, String.valueOf(user.getNumAssets()));
+            int assetCount = 0;
+            List<Asset> assets = db.findAssetByUserID(user.getId());
+            assetCount = assets.size();
+            setTextOrHide(numAssetsBox, numAssets, String.valueOf(assetCount));
             setTextOrHide(employeeNoBox, employeeNo, user.getEmployeeNum());
-            setTextOrHide(groupsBox, groups, GroupTableHelper.getGroupString(user, db));
+
+            String userGroups = GroupTableHelper.getGroupString(user, db);
+            if (userGroups == null || userGroups.length() == 0) {
+                userGroups = getString(R.string.no_group_assigned);
+            }
+            setTextOrHide(groupsBox, groups, userGroups);
+
             setTextOrHide(notesBox, notes, user.getNotes());
 
             // TODO: 9/14/17 update this to use company info once class has been created

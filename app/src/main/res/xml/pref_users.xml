@@ -17,6 +17,20 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreferenceCompat
+
+        android:defaultValue="@string/pref_default_users_enable_avatars"
+        android:icon="@drawable/ic_face_grey600_24dp"
+        android:key="@string/pref_key_users_enable_avatars"
+        android:summaryOff="@string/pref_description_users_enable_avatars_disabled"
+        android:summaryOn="@string/pref_description_users_enable_avatars_enabled"
+        android:title="@string/pref_title_users_enable_avatars"/>
+
+    <Preference
+        android:dependency="@string/pref_key_users_enable_avatars"
+        android:key="@string/pref_key_users_enable_avatars_configure"
+        android:title="@string/pref_title_users_enable_avatars_configure"/>
+
+    <SwitchPreferenceCompat
         android:defaultValue="@string/pref_default_users_gravitar"
         android:icon="@drawable/ic_face_grey600_24dp"
         android:key="@string/pref_key_users_gravitar"
@@ -26,7 +40,7 @@
     <ListPreference
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:defaultValue=""
+        android:defaultValue="@string/pref_default_user_scan_field"
         android:entries="@array/empty_array"
         android:entryValues="@array/empty_array"
         android:key="@string/pref_key_user_scan_field"

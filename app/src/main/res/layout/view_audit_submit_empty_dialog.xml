@@ -16,83 +16,87 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:orientation="vertical"
+    >
 
 
     <LinearLayout
         android:id="@+id/warning"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/alert_circle"
-            android:tint="@color/delete"/>
+        android:background="@color/neutral_dark_background"
+        android:elevation="2dp"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="Submit an empty audit?"
+            android:layout_gravity="center_horizontal"
+            android:drawablePadding="8dp"
+            android:drawableStart="@drawable/ic_alert_circle_grey600_24dp"
+            android:drawableTint="@color/warning_strong"
+            android:text="Submit empty audit?"
             android:textAppearance="@android:style/TextAppearance.Material.Large"/>
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/text1"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/warning"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:text="No assets were audited!"
-        android:textAppearance="@android:style/TextAppearance.Material.Medium"
-        android:textColor="@color/warning_strong"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/text2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/text1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:text="Are you sure you want to submit an empty audit?  All assets will be listed as 'missing' in the audit report."/>
+        <RelativeLayout
+            android:id="@+id/circle"
+            android:layout_width="@dimen/circle_highlight_box"
+            android:layout_height="@dimen/circle_highlight_box"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/circle_highlight"
+            android:backgroundTint="@color/warning_strong"
+            android:elevation="2dp"
+            android:padding="@dimen/circle_hightlight_padding">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/clipboard"
+                android:tint="@color/white"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:text="No assets were audited!"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"
+            android:textColor="@color/warning_strong"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Are you sure you want to submit an empty audit?  All assets will be listed as 'missing' in the audit report."/>
 
 
-    <RelativeLayout
-        android:id="@+id/circle"
-        android:layout_width="@dimen/circle_highlight_box"
-        android:layout_height="@dimen/circle_highlight_box"
-        android:layout_below="@id/text2"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/circle_highlight"
-        android:backgroundTint="@color/warning"
-        android:padding="@dimen/circle_hightlight_padding">
+        <TextView
+            android:id="@+id/wait"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_margin="16dp"
+            android:text="@string/placeholder"/>
+    </LinearLayout>
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/clipboard"
-            android:tint="@color/white"/>
-    </RelativeLayout>
-
-    <TextView
-        android:id="@+id/wait"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@id/circle"
-        android:layout_margin="16dp"
-        android:text="@string/placeholder"/>
-
-</RelativeLayout>
+</LinearLayout>

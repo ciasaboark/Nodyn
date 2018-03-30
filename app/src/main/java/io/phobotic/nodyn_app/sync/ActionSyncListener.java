@@ -25,6 +25,7 @@ import io.phobotic.nodyn_app.database.model.Action;
  * Created by Jonathan Nelson on 7/10/17.
  */
 
-public interface SyncErrorListener {
+public interface ActionSyncListener {
+    void onActionSyncSuccess(Action action);
     void onActionSyncError(Action action, @Nullable Exception e, @Nullable String message);
 }

@@ -16,65 +16,79 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:orientation="vertical">
 
-
-    <TextView
-        android:id="@+id/warning"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
-        android:text="Submit unfinished audit?"
-        android:textAppearance="@android:style/TextAppearance.Material.Large"/>
+        android:background="@color/neutral_dark_background"
+        android:elevation="2dp"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/text1"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Submit unfinished audit?"
+            android:textAppearance="@android:style/TextAppearance.Material.Large"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/warning"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:text="Some assets still remain to be audited.  Please verify that these assets could not be found."
-        android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/text2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/text1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="24dp"
-        android:text="If you are sure nothing remains to be audited you can submit your audit results now.  Any unaudited assets will be noted in the audit report."/>
+        <RelativeLayout
+            android:id="@+id/circle"
+            android:layout_width="@dimen/circle_highlight_box"
+            android:layout_height="@dimen/circle_highlight_box"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/circle_highlight"
+            android:backgroundTint="@color/warning_strong"
+            android:elevation="2dp"
+            android:padding="@dimen/circle_hightlight_padding">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/clipboard_alert"
+                android:tint="@color/white"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:text="Some assets still remain to be audited.  Please verify that these assets could not be found."
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+
+        <TextView
+            android:id="@+id/text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="If you are sure nothing remains to be audited you can submit your audit results now.  Any unaudited assets will be noted in the audit report."/>
 
 
-    <RelativeLayout
-        android:id="@+id/circle"
-        android:layout_width="@dimen/circle_highlight_box"
-        android:layout_height="@dimen/circle_highlight_box"
-        android:layout_below="@id/text2"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/circle_highlight"
-        android:backgroundTint="@color/warning"
-        android:padding="@dimen/circle_hightlight_padding">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/clipboard_alert"
-            android:tint="@color/white"/>
-    </RelativeLayout>
-
-    <TextView
-        android:id="@+id/wait"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@id/circle"
-        android:layout_margin="16dp"
-        android:text="@string/placeholder"/>
-</RelativeLayout>
+        <TextView
+            android:id="@+id/wait"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_margin="16dp"
+            android:text="@string/placeholder"/>
+    </LinearLayout>
+</LinearLayout>

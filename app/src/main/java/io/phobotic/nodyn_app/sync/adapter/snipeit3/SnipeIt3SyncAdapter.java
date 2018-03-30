@@ -75,12 +75,12 @@ import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.database.model.Status;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.service.SyncService;
+import io.phobotic.nodyn_app.sync.ActionSyncListener;
 import io.phobotic.nodyn_app.sync.CheckinException;
 import io.phobotic.nodyn_app.sync.CheckoutException;
 import io.phobotic.nodyn_app.sync.HtmlEncoded;
 import io.phobotic.nodyn_app.sync.Image;
 import io.phobotic.nodyn_app.sync.Link;
-import io.phobotic.nodyn_app.sync.SyncErrorListener;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
 import io.phobotic.nodyn_app.sync.adapter.SyncNotSupportedException;
@@ -500,7 +500,7 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
 
     @Override
     public void syncActionItems(Context context, List<Action> unsyncedActions,
-                                SyncErrorListener listener) throws SyncException {
+                                ActionSyncListener listener) throws SyncException {
         Database db = Database.getInstance(context);
         Iterator<Action> it = unsyncedActions.iterator();
 

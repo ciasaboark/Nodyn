@@ -17,7 +17,7 @@
   -->
 
 <resources>
-    <string name="no_backend_selected_info1">Nodyn requires a backend asset tracking system to function.</string>
-    <string name="no_backend_selected_info2">You can select a backend sync provider in app settings. For a list of available backend solutions please check the <a href='https://github.com/ciasaboark/Nodyn/wiki/Manual'>online manual</a>.</string>
-    <string name="no_backend_selected_title">No sync backend selected</string>
+    <string name="no_group_assigned">no group assigned</string>
+    <string name="user_configure_avatars_title">Confiture avatar providers</string>
+    <string name="user_avatars_enabled_providers">user_avatars_enabled_providers_string</string>
 </resources>

@@ -20,7 +20,10 @@ package io.phobotic.nodyn_app.fragment.preference;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -32,6 +35,7 @@ import java.util.List;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Verifiable;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.preference.ConfigureAvatarsDialogFragment;
 
 /**
  * This fragment shows general preferences only. It is used when the
@@ -44,6 +48,17 @@ public class UsersPreferenceFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.pref_users, rootKey);
         setHasOptionsMenu(true);
 
+        Preference avatarConfig = findPreference(getString(R.string.pref_key_users_enable_avatars_configure));
+        avatarConfig.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                DialogFragment dialog = new ConfigureAvatarsDialogFragment();
+                FragmentManager fm = getChildFragmentManager();
+                dialog.show(fm, "dialog");
+
+                return false;
+            }
+        });
         initScanFieldSelect();
     }
 

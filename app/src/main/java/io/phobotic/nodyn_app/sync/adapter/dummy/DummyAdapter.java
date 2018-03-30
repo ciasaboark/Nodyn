@@ -34,9 +34,9 @@ import io.phobotic.nodyn_app.database.model.Manufacturer;
 import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.database.model.Status;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.sync.ActionSyncListener;
 import io.phobotic.nodyn_app.sync.CheckinException;
 import io.phobotic.nodyn_app.sync.CheckoutException;
-import io.phobotic.nodyn_app.sync.SyncErrorListener;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
 import io.phobotic.nodyn_app.sync.adapter.SyncNotSupportedException;
@@ -100,7 +100,7 @@ public class DummyAdapter implements SyncAdapter {
 
     @Override
     public void syncActionItems(Context context, List<Action> unsyncedActions,
-                                SyncErrorListener listener) throws SyncException {
+                                ActionSyncListener listener) throws SyncException {
         //nothing to do here
     }
 

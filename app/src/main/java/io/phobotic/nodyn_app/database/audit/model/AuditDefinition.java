@@ -26,6 +26,8 @@ import java.util.List;
  */
 
 public class AuditDefinition implements Serializable {
+    public static final String META_ALL_ASSETS = "ALL";
+    public static final String META_ASSIGNED_ASSETS = "ASSIGNED";
     private int id = -1;
     private String name;
     private long createTimestamp = -1;

@@ -66,9 +66,9 @@ import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.database.model.Status;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.service.SyncService;
+import io.phobotic.nodyn_app.sync.ActionSyncListener;
 import io.phobotic.nodyn_app.sync.CheckinException;
 import io.phobotic.nodyn_app.sync.CheckoutException;
-import io.phobotic.nodyn_app.sync.SyncErrorListener;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
 import io.phobotic.nodyn_app.sync.adapter.SyncNotSupportedException;
@@ -574,7 +574,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
     @Override
     public void syncActionItems(Context context, @NotNull List<Action> unsyncedActions,
-                                @NotNull SyncErrorListener listener) throws SyncException {
+                                @NotNull ActionSyncListener listener) throws SyncException {
         final String key = "action_items";
         sendProgressBroadcast(context, 0, 0, key);
         sendMessageBroadcast(context, "Pushing local data");
@@ -630,7 +630,11 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
                 action.setSynced(true);
                 db.insertAction(action);
-            } catch (UserNotFoundException e) {
+            }
+
+            //The server may respond with a known error.  If so we can mark this action item as synced
+            //+ and continue on the the next one
+            catch (UserNotFoundException e) {
                 e.printStackTrace();
                 listener.onActionSyncError(action, e, "Unable to find user in database with " +
                         "username: '" + action.getUserID() + "'");
@@ -646,7 +650,10 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 e.printStackTrace();
                 listener.onActionSyncError(action, e, "Unable to check out asset with ID: '" +
                         action.getAssetID() + "' to user ID " + action.getUserID());
-            } catch (ParseException e) {
+            }
+
+            //all other exceptions we will keep the action un-synced so we can try again later
+            catch (ParseException e) {
                 e.printStackTrace();
                 Log.e(TAG, "Caught parse exception reading response from server.  Action " +
                         "will remain unsynced and will be included in sync exception report");
@@ -655,7 +662,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 listener.onActionSyncError(action, e, "Caught parse exception reading " +
                         "response from server.");
             } catch (Exception e) {
-                //all other exceptions we will keep the action un-synced so we can try again later
+
                 Log.d(TAG, "Caught non-fatal error pushing action item, this action will " +
                         "remain unsynced " + action.toString() +
                         ": [" + e.getClass().getSimpleName() + "->" + e.getMessage() + "]");
@@ -713,7 +720,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
     public List<Action> getActivityWithFilter(@NotNull Context context, @Nullable String filterText, int page) throws SyncException {
         //convert the page into a record offset
-        final int pageSize = 20;
+        final int pageSize = 50;
         int offset = page * pageSize;
 
         List<Action> actionList = new ArrayList<>();

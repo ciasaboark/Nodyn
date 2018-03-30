@@ -50,21 +50,22 @@ public class UserTableHelper extends TableHelper<User> {
     }
 
     @Override
-    public long insert(User item) {
+    public long insert(User user) {
         ContentValues cv = new ContentValues();
-        cv.put(User.Columns.ID, item.getId());
-        cv.put(User.Columns.NAME, item.getName());
-        cv.put(User.Columns.JOB_TITLE, item.getJobTitle());
-        cv.put(User.Columns.EMAIL, item.getEmail());
-        cv.put(User.Columns.USERNAME, item.getUsername());
-        cv.put(User.Columns.LOCATION_ID, item.getLocationID());
-        cv.put(User.Columns.MANAGER_ID, item.getManagerID());
-        cv.put(User.Columns.NUM_ASSETS, item.getNumAssets());
-        cv.put(User.Columns.EMPLOYEE_NUM, item.getEmployeeNum());
+        cv.put(User.Columns.ID, user.getId());
+        cv.put(User.Columns.NAME, user.getName());
+        cv.put(User.Columns.JOB_TITLE, user.getJobTitle());
+        cv.put(User.Columns.EMAIL, user.getEmail());
+        cv.put(User.Columns.USERNAME, user.getUsername());
+        cv.put(User.Columns.LOCATION_ID, user.getLocationID());
+        cv.put(User.Columns.MANAGER_ID, user.getManagerID());
+//        cv.put(User.Columns.NUM_ASSETS, user.getNumAssets());
+        cv.put(User.Columns.EMPLOYEE_NUM, user.getEmployeeNum());
+        cv.put(User.Columns.AVATAR_URL, user.getAvatarURL());
 
         String groupsString = "";
         String prefix = "";
-        int[] groupIDs = item.getGroupsIDs();
+        int[] groupIDs = user.getGroupsIDs();
         if (groupIDs != null) {
             for (int g : groupIDs) {
                 groupsString += prefix + String.valueOf(g);
@@ -73,12 +74,12 @@ public class UserTableHelper extends TableHelper<User> {
         }
 
         cv.put(User.Columns.GROUP_IDS, groupsString);
-        cv.put(User.Columns.NOTES, item.getNotes());
-        cv.put(User.Columns.COMPANY_ID, item.getCompanyID());
+        cv.put(User.Columns.NOTES, user.getNotes());
+        cv.put(User.Columns.COMPANY_ID, user.getCompanyID());
 
         long rowID = db.insertWithOnConflict(DatabaseOpenHelper.TABLE_USER, null, cv,
                 SQLiteDatabase.CONFLICT_REPLACE);
-//        Log.d(TAG, "inserted user " + item.getId() + " - " + item.getName() +
+//        Log.d(TAG, "inserted user " + user.getId() + " - " + user.getName() +
 //                " as row " + rowID);
         return rowID;
     }
@@ -173,6 +174,7 @@ public class UserTableHelper extends TableHelper<User> {
         String groupsString = cursor.getString(cursor.getColumnIndex(User.Columns.GROUP_IDS));
         String notes = cursor.getString(cursor.getColumnIndex(User.Columns.NOTES));
         int companyID = cursor.getInt(cursor.getColumnIndex(User.Columns.COMPANY_ID));
+        String avatarURL = cursor.getString(cursor.getColumnIndex(User.Columns.AVATAR_URL));
 
         String[] numParts = groupsString.split(",");
         int[] groupIDs = new int[numParts.length];
@@ -197,10 +199,11 @@ public class UserTableHelper extends TableHelper<User> {
                 .setUsername(username)
                 .setLocationID(locationID)
                 .setManagerID(managerID)
-                .setNumAssets(numAssets)
+//                .setNumAssets(numAssets)
                 .setGroupsIDs(groupIDs)
                 .setNotes(notes)
-                .setCompanyID(companyID);
+                .setCompanyID(companyID)
+                .setAvatarURL(avatarURL);
     }
 
     private void clearTable() {

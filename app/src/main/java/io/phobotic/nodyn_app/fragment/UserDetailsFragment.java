@@ -17,8 +17,6 @@
 
 package io.phobotic.nodyn_app.fragment;
 
-import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -27,26 +25,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.makeramen.roundedimageview.RoundedTransformationBuilder;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
-
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.avatar.AvatarHelper;
 import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.transformer.RoundedTransformation;
 import io.phobotic.nodyn_app.transformer.ZoomOutPageTransformer;
 
 /**
@@ -147,53 +134,6 @@ public class UserDetailsFragment extends Fragment {
             setTextOrHide(name, name, user.getName());
             setTextOrHide(usernameBox, username, user.getUsername());
             setTextOrHide(emailBox, email, user.getEmail());
-
-            String email = user.getEmail();
-            String source = null;
-
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                String hash = null;
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                boolean useGravitar = prefs.getBoolean("pref_gravitar", false);
-                if (email != null && !email.equals("") && useGravitar) {
-                    try {
-                        MessageDigest md5 = MessageDigest.getInstance("MD5");
-                        md5.update(StandardCharsets.UTF_8.encode(email));
-                        hash = String.format("%032x", new BigInteger(1, md5.digest()));
-                        source = "https://www.gravatar.com/avatar/" + hash + "?d=not_viable&s=100";
-                    } catch (Exception e) {
-
-                    }
-                }
-            }
-
-            Transformation backgroundTransformation = new RoundedTransformation();
-            float borderWidth = getResources().getDimension(R.dimen.picasso_large_image_circle_border_width);
-
-            Transformation borderTransformation = new RoundedTransformationBuilder()
-                    .borderColor(getResources().getColor(R.color.circleBorderLarge))
-                    .borderWidthDp(borderWidth)
-                    .cornerRadiusDp(175)
-                    .oval(false)
-                    .build();
-
-            List<Transformation> transformations = new ArrayList<>();
-            transformations.add(backgroundTransformation);
-            transformations.add(borderTransformation);
-
-            if (source == null) {
-                source = "foobar";
-            }
-
-            Picasso.with(getContext())
-                    .load(source)
-                    .error(R.drawable.account)
-                    .placeholder(R.drawable.account)
-                    .fit()
-                    .transform(transformations)
-                    .into(image);
-
         }
     }
 
@@ -211,6 +151,13 @@ public class UserDetailsFragment extends Fragment {
             view.setVisibility(View.VISIBLE);
             tv.setText(text);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AvatarHelper avatarHelper = new AvatarHelper();
+        avatarHelper.loadAvater(getContext(), user, image, 400);
     }
 
     private class UserPagerAdapter extends FragmentStatePagerAdapter {

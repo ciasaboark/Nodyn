@@ -19,6 +19,8 @@ package io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow;
 
 import android.util.Log;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 import java.util.Map;
 
@@ -38,11 +40,16 @@ public class Snipeit4User {
     private String username;
     private Snippet location;
     private Snippet manager;
+    @SerializedName("assets_count")
     private int numAssets;
+    @SerializedName("employee_num")
     private String employeeNum;
     private Map<String, Object> groups;
     private String notes;
     private Snippet company;
+    private DateSnippet createdAt;
+    private DateSnippet updatedAt;
+
 
     public User toUser() {
         User user = new User()
@@ -53,7 +60,7 @@ public class Snipeit4User {
                 .setUsername(URLHelper.decode(username))
                 .setLocationID(location == null ? -1 : location.getId())
                 .setManagerID(manager == null ? -1 : manager.getId())
-                .setNumAssets(numAssets)
+//                .setNumAssets(numAssets)
                 .setEmployeeNum(employeeNum)
                 .setNotes(URLHelper.decode(notes))
                 .setCompanyID(company == null ? -1 : company.getId());

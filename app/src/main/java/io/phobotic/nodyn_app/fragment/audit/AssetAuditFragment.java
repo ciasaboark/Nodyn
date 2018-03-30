@@ -71,6 +71,7 @@ import io.phobotic.nodyn_app.database.audit.model.AuditDetailRecord;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.exception.StatusNotFoundException;
+import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.database.model.Status;
@@ -179,7 +180,8 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_audit, menu);
-        helpButton = menu.findItem(R.id.action_help).getActionView();
+        MenuItem i = menu.findItem(R.id.action_help);
+        helpButton = i.getActionView();
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -392,9 +394,13 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         sequence.addSequenceItem(submitButton, submitText, getString(R.string.next).toUpperCase());
         seq++;
 
-        String helpText = getString(R.string.audit_showcase_help);
-        sequence.addSequenceItem(helpButton, helpText, getString(R.string.got_it).toUpperCase());
-        seq++;
+
+        //the help button may be hidden within the overflow menu
+        if (helpButton != null) {
+            String helpText = getString(R.string.audit_showcase_help);
+            sequence.addSequenceItem(helpButton, helpText, getString(R.string.got_it).toUpperCase());
+            seq++;
+        }
 
 
         final boolean finalAnimateCard = animateCard;
@@ -615,7 +621,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         View v = null;
         boolean requirePause = false;
 
-        if (detailRecords.isEmpty()) {
+        if (unscannedAssets.isEmpty()) {
             v = View.inflate(getContext(), R.layout.view_audit_submit_empty_dialog, null);
             requirePause = true;
         } else {
@@ -796,21 +802,43 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         d.show();
     }
 
+    /**
+     * Return true if the asset was filtered out because of the meta status filter.
+     *
+     * @param a
+     * @return
+     */
+    private boolean isAssetIncludedInMetaStatusFilter(Asset a) {
+        boolean assetFiltered = false;
+        switch (auditDefinition.getMetaStatus()) {
+            case "ALL":
+                break;
+            case "ASSIGNED":
+                if (a.getAssignedToID() == -1) assetFiltered = true;
+                break;
+            case "UNASSIGNED":
+                if (a.getAssignedToID() != -1) assetFiltered = true;
+                break;
+        }
+
+        return assetFiltered;
+    }
+
     private void showUnexpectedAssetDialog(final Asset a) {
-        String expectedStatusesString = getStatusesString();
         View v = View.inflate(getContext(), R.layout.view_audit_unexpected_scan, null);
         TextView tv = (TextView) v.findViewById(R.id.statuses);
-        String statusText = getString(R.string.audit_unexpected_status_statuses);
-        String assetStatus = "UNKNOWN";
-        try {
-            Database db = Database.getInstance(getContext());
-            Status s = db.findStatusByID(a.getStatusID());
-            assetStatus = s.getName();
-        } catch (StatusNotFoundException e) {
-            Crashlytics.logException(e);
+
+        //give a summary reason why this asset was not expected.  This should be either because
+        //+ it was filtered out by meta status (assigned/unassigned), or because the asset's
+        //+ status label was not one of the ones selected
+        String reasonText;
+        if (isAssetIncludedInMetaStatusFilter(a)) {
+            reasonText = getUnexpectedMetaStatusReasonText(a);
+        } else {
+            reasonText = getUnexpectedStatusReasonText(a);
         }
-        statusText = String.format(statusText, assetStatus, expectedStatusesString);
-        tv.setText(statusText);
+
+        tv.setText(reasonText);
 
         AlertDialog d = new AlertDialog.Builder(getContext())
                 .setView(v)
@@ -830,6 +858,57 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         d.setOnDismissListener(this);
         addShowListener(d);
         d.show();
+    }
+
+    private String getUnexpectedMetaStatusReasonText(Asset a) {
+        String expected = "";
+        switch (auditDefinition.getMetaStatus()) {
+            case "ASSIGNED":
+                expected = getString(R.string.audit_meta_status_assigned);
+                break;
+            case "UNASSIGNED":
+                expected = getString(R.string.audit_meta_status_unassigned);
+                break;
+            default:
+                String err = String.format("Only expected statuses of 'ASSIGNED' or 'UNASSIGNED', " +
+                        "found status of %s", auditDefinition.getMetaStatus());
+                Log.d(TAG, err);
+                Crashlytics.logException(new Exception(err));
+        }
+
+        String reason = "";
+        if (a.getAssignedToID() == -1) {
+            reason = getString(R.string.audit_meta_status_unassigned);
+        } else {
+            reason = getString(R.string.audit_meta_status_assigned_to_user);
+            Database db = Database.getInstance(getContext());
+            try {
+                User u = db.findUserByID(a.getAssignedToID());
+                reason = String.format(reason, u.getName());
+            } catch (UserNotFoundException e) {
+                reason = String.format(reason, "unknown user");
+            }
+        }
+
+        String line = getString(R.string.audit_unexpected_status_meta_status);
+        line = String.format(line, expected, reason);
+
+        return line;
+    }
+
+    private String getUnexpectedStatusReasonText(Asset a) {
+        String expectedStatusesString = getStatusesString();
+        String statusText = getString(R.string.audit_unexpected_status_statuses);
+        String assetStatus = "UNKNOWN";
+        try {
+            Database db = Database.getInstance(getContext());
+            Status s = db.findStatusByID(a.getStatusID());
+            assetStatus = s.getName();
+        } catch (StatusNotFoundException e) {
+            Crashlytics.logException(e);
+        }
+        statusText = String.format(statusText, assetStatus, expectedStatusesString);
+        return statusText;
     }
 
     private String getStatusesString() {

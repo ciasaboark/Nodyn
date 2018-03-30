@@ -20,11 +20,22 @@
     <!-- User settings -->
     <string name="pref_header_users">Users</string>
 
+
+    <string name="pref_key_users_enable_avatars">users_enable_avatars</string>
+    <string name="pref_default_users_enable_avatars">false</string>
+    <string name="pref_title_users_enable_avatars">Enable User avatars</string>
+    <string name="pref_description_users_enable_avatars_enabled">User icons will be fetched from the defined providers below</string>
+    <string name="pref_description_users_enable_avatars_disabled">Generic icons will be used for each user</string>
+
+    <string name="pref_key_users_enable_avatars_configure">users_enable_avatars_configure</string>
+    <string name="pref_title_users_enable_avatars_configure">Configure avatar providers</string>
+
     <string name="pref_key_users_gravitar">users_gravitar</string>
     <string name="pref_default_users_gravitar">false</string>
     <string name="pref_title_users_gravitar">Enable Gravitar</string>
     <string name="pref_description_users_gravitar">Fetch user avitars from Gravitar</string>
 
     <string name="pref_key_user_scan_field">check_in_validation_field</string>
+    <string name="pref_default_user_scan_field">Username</string>
     <string name="pref_title_user_scan_field">Validate users based on their</string>
 </resources>

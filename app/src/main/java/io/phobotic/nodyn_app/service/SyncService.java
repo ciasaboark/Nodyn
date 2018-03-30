@@ -50,7 +50,7 @@ import io.phobotic.nodyn_app.email.EmailRecipient;
 import io.phobotic.nodyn_app.email.EmailSender;
 import io.phobotic.nodyn_app.reporting.CustomEvents;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
-import io.phobotic.nodyn_app.sync.SyncErrorListener;
+import io.phobotic.nodyn_app.sync.ActionSyncListener;
 import io.phobotic.nodyn_app.sync.SyncManager;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
@@ -137,7 +137,12 @@ public class SyncService extends IntentService {
         //+ to an email just in case the sync fails
         String syncRecords = convertActionsToString(unsyncedActions);
 
-        syncAdapter.syncActionItems(this, unsyncedActions, new SyncErrorListener() {
+        syncAdapter.syncActionItems(this, unsyncedActions, new ActionSyncListener() {
+            @Override
+            public void onActionSyncSuccess(Action action) {
+
+            }
+
             @Override
             public void onActionSyncError(Action action, Exception e, String message) {
                 failedActions.add(new FailedActions(action, e, message));

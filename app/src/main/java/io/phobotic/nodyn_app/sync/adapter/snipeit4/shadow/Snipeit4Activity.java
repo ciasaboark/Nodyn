@@ -39,7 +39,7 @@ public class Snipeit4Activity {
     private DateSnippet createdAt;
 
     private Item item;
-    private String location;
+    private Item location;
     private String note;
     private Item target;
     private DateSnippet updatedAt;

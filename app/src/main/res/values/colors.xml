@@ -31,7 +31,7 @@
 
 
     <color name="circleBorder">@color/default_primary</color>
-    <color name="circleBorderLarge">@color/default_primary</color>
+    <color name="circleBorderLarge">@color/white</color>
 
     <color name="grey600">#757575</color>
 

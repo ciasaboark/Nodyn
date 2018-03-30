@@ -60,7 +60,7 @@ public class GroupTableHelper extends TableHelper<Group> {
                     groupsString += prefix + g.getName();
                     prefix = ", ";
                 } catch (GroupNotFoundException e) {
-                    Log.d(TAG, "Unable to find group with ID: '" + id + "', skipping");
+//                    Log.d(TAG, "Unable to find group with ID: '" + id + "', skipping");
                 }
             }
         }

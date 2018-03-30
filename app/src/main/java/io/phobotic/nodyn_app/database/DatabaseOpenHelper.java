@@ -122,7 +122,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 User.Columns.EMPLOYEE_NUM + " varchar(100), " +
                 User.Columns.GROUP_IDS + " varchar(200), " +
                 User.Columns.NOTES + " varchar(100), " +
-                User.Columns.COMPANY_ID + " integer" +
+                User.Columns.COMPANY_ID + " integer, " +
+                User.Columns.AVATAR_URL + " varchar(100)" +
                 ")");
     }
 

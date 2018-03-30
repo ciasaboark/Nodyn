@@ -49,5 +49,9 @@
     <string name="audit_name_meta_postfix" formatted="true">(%s)</string>
     <string name="audit_unexpected_status_intro">This asset was not expected to be found during this audit.</string>
     <string name="audit_unexpected_status_statuses" formatted="true">This asset is tagged with a status of %s, but you were only expected to find assets tagged as %s.</string>
+    <string name="audit_unexpected_status_meta_status" formatted="true">This audit was only expected to cover assets that are %s.  This asset is %s.</string>
+    <string name="audit_meta_status_assigned">currently assigned to a user</string>
+    <string name="audit_meta_status_assigned_to_user" formatted="true">currently assigned to %s</string>
+    <string name="audit_meta_status_unassigned">not assigned to anyone</string>
     <string name="audit_unexpected_status_add">You can add this asset to the audit if desired.</string>
 </resources>

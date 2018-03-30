@@ -45,9 +45,10 @@ public class User implements Serializable {
     private String jobTitle;
     private int locationID;
     private int managerID;
-    private int numAssets;
+
     private int[] groupsIDs;
     private int companyID;
+    private String avatarURL;
 
     public int getId() {
         return id;
@@ -130,15 +131,6 @@ public class User implements Serializable {
         return this;
     }
 
-    public int getNumAssets() {
-        return numAssets;
-    }
-
-    public User setNumAssets(int numAssets) {
-        this.numAssets = numAssets;
-        return this;
-    }
-
     public int[] getGroupsIDs() {
         return groupsIDs;
     }
@@ -154,6 +146,15 @@ public class User implements Serializable {
 
     public User setCompanyID(int companyID) {
         this.companyID = companyID;
+        return this;
+    }
+
+    public String getAvatarURL() {
+        return avatarURL;
+    }
+
+    public User setAvatarURL(String avatarURL) {
+        this.avatarURL = avatarURL;
         return this;
     }
 
@@ -175,5 +176,6 @@ public class User implements Serializable {
         public static final String GROUP_IDS = "groups";
         public static final String NOTES = "notes";
         public static final String COMPANY_ID = "company";
+        public static final String AVATAR_URL = "avatar_url";
     }
 }

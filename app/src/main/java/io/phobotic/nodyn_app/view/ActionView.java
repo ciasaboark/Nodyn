@@ -18,11 +18,7 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Build;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v7.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -35,13 +31,11 @@ import com.squareup.picasso.Transformation;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.text.DateFormat;
 import java.util.Date;
 
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.avatar.AvatarHelper;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
@@ -180,46 +174,9 @@ public class ActionView extends RelativeLayout {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void loadUserImage(User user) {
-        String email = user.getEmail();
-        String source = null;
-
-        String hash = null;
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean useGravitar = prefs.getBoolean("pref_gravitar", false);
-
-        if (email != null && !email.equals("") && useGravitar) {
-            try {
-                MessageDigest md5 = MessageDigest.getInstance("MD5");
-                md5.update(StandardCharsets.UTF_8.encode(email));
-                hash = String.format("%032x", new BigInteger(1, md5.digest()));
-                source = "https://www.gravatar.com/avatar/" + hash + "?d=not_viable&s=100";
-            } catch (Exception e) {
-
-            }
-        }
-
-        //Picasso requires a non-empty path.  Just rely on the error handling
-        if (source == null || source.equals("")) {
-            source = "foobar";
-        }
-
-        float borderWidth = getResources().getDimension(R.dimen.picasso_small_image_circle_border_width);
-        Transformation transformation = new RoundedTransformationBuilder()
-                .borderColor(getResources().getColor(R.color.circleBorder))
-                .borderWidthDp(borderWidth)
-                .cornerRadiusDp(50)
-                .oval(false)
-                .build();
-
-        Picasso.with(getContext())
-                .load(source)
-                .fit()
-                .placeholder(R.drawable.account)
-                .error(R.drawable.account)
-                .transform(transformation)
-                .into(userImage);
+        AvatarHelper avatarHelper = new AvatarHelper();
+        avatarHelper.loadAvater(getContext(), user, userImage, 48);
     }
 
     private void loadAssetImage(Asset asset) {

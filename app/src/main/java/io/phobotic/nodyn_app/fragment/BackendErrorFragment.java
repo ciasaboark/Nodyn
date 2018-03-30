@@ -80,8 +80,11 @@ public class BackendErrorFragment extends Fragment {
     }
 
     private void initTextViews() {
+        TextView info1 = (TextView) rootView.findViewById(R.id.info1);
+        info1.setMovementMethod(LinkMovementMethod.getInstance());
+
         TextView info2 = (TextView) rootView.findViewById(R.id.info2);
-        info2.setMovementMethod(new LinkMovementMethod());
+        info2.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
 }

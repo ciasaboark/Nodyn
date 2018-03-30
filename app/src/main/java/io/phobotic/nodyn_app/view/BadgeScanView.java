@@ -132,6 +132,7 @@ public class BadgeScanView extends RelativeLayout {
     private void processUserScan(User user) {
         String message = getResources().getString(R.string.badge_scan_found_user);
         this.message.setText(String.format(message, user.getName()));
+
         if (onUserScannedListener != null) {
             onUserScannedListener.onUserScanned(user);
         }
