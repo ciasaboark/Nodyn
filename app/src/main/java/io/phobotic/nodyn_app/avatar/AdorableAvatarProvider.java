@@ -19,6 +19,7 @@ package io.phobotic.nodyn_app.avatar;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.DialogFragment;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +35,7 @@ public class AdorableAvatarProvider extends AvatarProvider {
     private static final String SOURCE = "https://api.adorable.io/avatars/%d/%s.png";
 
     @Override
-    public String fetchUserAvatar(User user, int size) {
+    public String fetchUserAvatar(@NotNull Context context, @NotNull User user, int size) {
         String source = String.format(SOURCE, size, user.getUsername());
 
         return source;
@@ -60,5 +61,11 @@ public class AdorableAvatarProvider extends AvatarProvider {
     @Override
     public String getName() {
         return "Adorable Avatars";
+    }
+
+    @Nullable
+    @Override
+    public DialogFragment getConfigurationDialogFragment(Context context) {
+        return null;
     }
 }

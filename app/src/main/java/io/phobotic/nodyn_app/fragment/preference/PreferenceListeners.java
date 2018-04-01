@@ -71,6 +71,10 @@ public class PreferenceListeners {
                 }
             }
 
+            if (summary.length() == 0) {
+                summary = "No groups selected";
+            }
+
             preference.setSummary(summary);
 
             return true;
@@ -103,6 +107,10 @@ public class PreferenceListeners {
                                         "not be reflected in preference summary");
                             }
                         }
+                    }
+
+                    if (summary.length() == 0) {
+                        summary = "No models selected";
                     }
 
                     preference.setSummary(summary);

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:drawableStart="@drawable/information_outline"
+        android:drawableTint="@color/grey600"
+        android:drawablePadding="8dp"
+        android:gravity="center_vertical"
+        android:text="This avatar provider is capabile of loading avatar images from any web provider." />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="When searching for an avatar image the provider will expand the following placeholders with information from each user"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• %u username"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• %n name"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• %i employee_id"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• %e email address"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• %o notes"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• %% a literal '%'"
+            android:layout_marginBottom="4dp"/>
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:hint="https://myprovider.com/avatars?user=%u"/>
+
+
+</LinearLayout>

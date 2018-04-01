@@ -17,14 +17,23 @@
 
 package io.phobotic.nodyn_app.avatar;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
+import android.text.method.LinkMovementMethod;
+import android.view.View;
+import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.helper.ColorHelper;
 
 /**
  * Created by Jonathan Nelson on 3/27/18.
@@ -33,7 +42,7 @@ import io.phobotic.nodyn_app.database.model.User;
 
 public class BackendAvatarProvider extends AvatarProvider {
     @Override
-    public String fetchUserAvatar(User user, int size) {
+    public String fetchUserAvatar(@NotNull Context context, @NotNull User user, int size) {
         return user.getAvatarURL();
     }
 
@@ -51,12 +60,19 @@ public class BackendAvatarProvider extends AvatarProvider {
     @Override
     public Drawable getIconDrawable(@NotNull Context context) {
         Drawable d = context.getDrawable(R.drawable.cloud_sync);
+        d.setTint(context.getResources().getColor(R.color.grey600));
         return d;
     }
 
     @Override
     public String getName() {
         return "Sync Adapter Avatars";
+    }
+
+    @org.jetbrains.annotations.Nullable
+    @Override
+    public DialogFragment getConfigurationDialogFragment(Context context) {
+        return null;
     }
 }
 

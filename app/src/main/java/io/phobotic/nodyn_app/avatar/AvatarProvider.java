@@ -19,6 +19,7 @@ package io.phobotic.nodyn_app.avatar;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.DialogFragment;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +31,7 @@ import io.phobotic.nodyn_app.database.model.User;
  */
 
 public abstract class AvatarProvider {
-    public abstract String fetchUserAvatar(@NotNull User user, int size);
+    public abstract String fetchUserAvatar(@NotNull Context context, @NotNull User user, int size);
 
     public abstract String getRequiredField();
 
@@ -55,4 +56,8 @@ public abstract class AvatarProvider {
 
     public abstract @NotNull
     String getName();
+
+    public abstract
+    @Nullable
+    DialogFragment getConfigurationDialogFragment(Context context);
 }

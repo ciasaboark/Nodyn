@@ -19,6 +19,7 @@ package io.phobotic.nodyn_app.avatar;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.DialogFragment;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,8 +43,14 @@ public class GravitarProvider extends AvatarProvider {
         return "Gravitar";
     }
 
+    @Nullable
     @Override
-    public String fetchUserAvatar(User user, int size) {
+    public DialogFragment getConfigurationDialogFragment(Context context) {
+        return null;
+    }
+
+    @Override
+    public String fetchUserAvatar(@NotNull Context context, @NotNull User user, int size) {
         String email = user.getEmail();
         String source = null;
         if (email != null && !email.equals("")) {

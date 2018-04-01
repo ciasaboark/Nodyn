@@ -17,11 +17,15 @@
 
 package io.phobotic.nodyn_app.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -42,6 +46,7 @@ public class AvatarProviderView extends RelativeLayout {
     private CheckBox checkBox;
     private ImageView dragHandle;
     private ImageView icon;
+    private ImageButton configure;
 
 
     public AvatarProviderView(Context context) {
@@ -74,6 +79,7 @@ public class AvatarProviderView extends RelativeLayout {
         checkBox = (CheckBox) rootView.findViewById(R.id.checkbox);
         dragHandle = (ImageView) rootView.findViewById(R.id.drag_handle);
         icon = (ImageView) rootView.findViewById(R.id.icon);
+        configure = (ImageButton) rootView.findViewById(R.id.configure);
     }
 
     private void setFields() {
@@ -92,6 +98,22 @@ public class AvatarProviderView extends RelativeLayout {
                 icon.setVisibility(View.GONE);
             } else {
                 icon.setVisibility(View.VISIBLE);
+            }
+
+            if (avatarProvider.getConfigurationDialogFragment(getContext()) == null) {
+                configure.setVisibility(View.GONE);
+            } else {
+                configure.setVisibility(View.VISIBLE);
+                configure.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Context context = getContext();
+                        if (context instanceof FragmentActivity) {
+                            FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
+                            avatarProvider.getConfigurationDialogFragment(getContext()).show(fm, "avatar-provider-config");
+                        }
+                    }
+                });
             }
         }
     }

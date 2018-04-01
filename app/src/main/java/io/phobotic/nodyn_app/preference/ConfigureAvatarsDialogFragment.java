@@ -50,6 +50,7 @@ import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.avatar.AdorableAvatarProvider;
 import io.phobotic.nodyn_app.avatar.AvatarProvider;
 import io.phobotic.nodyn_app.avatar.BackendAvatarProvider;
+import io.phobotic.nodyn_app.avatar.GenericAvatarProvider;
 import io.phobotic.nodyn_app.avatar.GravitarProvider;
 import io.phobotic.nodyn_app.avatar.TinyGraphAvatarProvider;
 import io.phobotic.nodyn_app.view.AvatarProviderView;
@@ -180,6 +181,7 @@ public class ConfigureAvatarsDialogFragment extends DialogFragment {
         defaultProviders.add(new GravitarProvider());
         defaultProviders.add(new TinyGraphAvatarProvider());
         defaultProviders.add(new AdorableAvatarProvider());
+        defaultProviders.add(new GenericAvatarProvider());
 
         return defaultProviders;
     }

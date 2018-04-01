@@ -83,9 +83,14 @@ public class AvatarHelper {
 
     public void loadAvater(@NotNull Context context, @NotNull User user,
                            @NotNull ImageView imageView, @NotNull int size) {
-        final List<AvatarProvider> avatarProviders = getLoaders(context);
-
-        loadAvater(context, user, imageView, size, avatarProviders);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Boolean avatarsEnabled = prefs.getBoolean(context.getString(R.string.pref_key_users_enable_avatars), false);
+        if (avatarsEnabled) {
+            final List<AvatarProvider> avatarProviders = getLoaders(context);
+            loadAvater(context, user, imageView, size, avatarProviders);
+        } else {
+            loadDefaultAvatar(context, imageView, size);
+        }
 
     }
 
@@ -104,7 +109,7 @@ public class AvatarHelper {
             loadDefaultAvatar(context, imageView, size);
         } else {
             AvatarProvider loader = avatarProviders.remove(0);
-            String source = loader.fetchUserAvatar(user, size);
+            String source = loader.fetchUserAvatar(context, user, size);
 
             //Picasso requires a non-empty path.  Just rely on the error handling
             if (source == null || source.equals("")) {

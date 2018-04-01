@@ -30,13 +30,6 @@
         android:key="@string/pref_key_users_enable_avatars_configure"
         android:title="@string/pref_title_users_enable_avatars_configure"/>
 
-    <SwitchPreferenceCompat
-        android:defaultValue="@string/pref_default_users_gravitar"
-        android:icon="@drawable/ic_face_grey600_24dp"
-        android:key="@string/pref_key_users_gravitar"
-        android:summary="@string/pref_description_users_gravitar"
-        android:title="@string/pref_title_users_gravitar"/>
-
     <ListPreference
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

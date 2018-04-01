@@ -19,8 +19,10 @@ package io.phobotic.nodyn_app.avatar;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.DialogFragment;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.User;
@@ -38,8 +40,14 @@ public class TinyGraphAvatarProvider extends AvatarProvider {
         return "Tiny Graph";
     }
 
+    @Nullable
     @Override
-    public String fetchUserAvatar(User user, int size) {
+    public DialogFragment getConfigurationDialogFragment(Context context) {
+        return null;
+    }
+
+    @Override
+    public String fetchUserAvatar(@NotNull Context context, @NotNull User user, int size) {
         //if we could not pick up an avatar from gravitar we can use the users login information
         //+ to generate a random avatar
 

@@ -47,10 +47,11 @@
             android:layout_toEndOf="@id/checkbox"/>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
             android:layout_toEndOf="@id/icon"
-            android:layout_toStartOf="@id/drag_handle"
+            android:layout_toStartOf="@id/configure"
             android:orientation="vertical">
 
             <TextView
@@ -59,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:text="@string/placeholder"
-                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                android:textAppearance="@android:style/TextAppearance.Material.Medium" />
 
             <TextView
                 android:id="@+id/universal"
@@ -67,9 +68,21 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:text="UNIVERSAL"
-                android:textAppearance="@android:style/TextAppearance.Material.Small"/>
+                android:textAppearance="@android:style/TextAppearance.Material.Small" />
         </LinearLayout>
 
+
+        <ImageButton
+            android:id="@+id/configure"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/drag_handle"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/settings"
+            android:tint="@color/grey600"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/drag_handle"

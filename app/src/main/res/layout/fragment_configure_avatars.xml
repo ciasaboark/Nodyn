@@ -46,17 +46,21 @@
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        tools:listitem="@layout/view_avatar_provider"/>
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        tools:listitem="@layout/view_avatar_provider" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:text="Depending on the provider users may be able to set offensive images as their avatar.  Use with caution."
-        android:textAlignment="center"
+        android:drawableStart="@drawable/alert_outline"
+        android:drawableTint="?colorAccent"
+        android:drawablePadding="8dp"
+        android:gravity="center_vertical"
         android:textColor="?colorAccent"/>
 </LinearLayout>

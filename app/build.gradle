@@ -25,6 +25,7 @@ buildscript {
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
+
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
@@ -52,8 +53,8 @@ configurations {
 }
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 26
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "io.phobotic.nodyn_app"
         minSdkVersion 21
@@ -69,6 +70,10 @@ android {
 
     dataBinding {
         enabled = true
+    }
+
+    dexOptions {
+        javaMaxHeapSize "5g"
     }
 
     buildTypes {
@@ -90,7 +95,8 @@ android {
             buildConfigField "String", "APP_VERSION_RELEASE", "\"" + APP_VERSION_RELEASE + "\""
             buildConfigField "String", "APP_VERSION_NAME", "\"" + DEBUG_VERSION_NAME + "\""
             versionNameSuffix " - debug build " + DATE_STRING
-
+            aaptOptions.cruncherEnabled = false
+            ext.alwaysUpdateBuildId = false
         }
     }
 
@@ -135,33 +141,37 @@ dependencies {
     compile 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.1.3'
     compile 'com.dmitrymalkovich.android:progress-fab:1.6'
     compile 'us.feras.mdv:markdownview:1.1.0'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
-    compile 'com.android.support:palette-v7:25.3.1'
-    compile 'com.android.support:preference-v7:25.3.1'
-    compile 'com.android.support:gridlayout-v7:25.3.1'
-    compile 'com.android.support:preference-v14:25.3.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.android.support:cardview-v7:26.1.0'
+    compile 'com.android.support:recyclerview-v7:26.1.0'
+    compile 'com.android.support:palette-v7:26.1.0'
+    compile 'com.android.support:preference-v7:26.1.0'
+    compile 'com.android.support:gridlayout-v7:26.1.0'
+    compile 'com.android.support:preference-v14:26.1.0'
+    compile 'com.android.support:support-v4:26.1.0'
+    compile 'com.android.support:design:26.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'org.jetbrains:annotations-java5:15.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.makeramen:roundedimageview:2.3.0'
-    compile 'com.android.support:support-vector-drawable:25.3.1'
+    compile 'com.android.support:support-vector-drawable:26.1.0'
     compile 'me.zhanghai.android.materialprogressbar:library:1.4.1'
     compile 'com.luckycatlabs:SunriseSunsetCalculator:1.2'
     compile 'org.apache.poi:poi:3.9'
     testCompile 'junit:junit:4.12'
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support:support-annotations:25.3.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestCompile 'com.android.support.test:runner:1.0.1'
+    androidTestCompile 'com.android.support:support-annotations:26.1.0'
     compile 'com.github.deano2390:MaterialShowcaseView:1.2.0'
 
     //email address validation
     // https://mvnrepository.com/artifact/commons-validator/commons-validator
     compile group: 'commons-validator', name: 'commons-validator', version: '1.5.1'
     compile 'com.github.lzyzsd:circleprogress:1.2.1'
+
+    compile group: 'javax.mail', name: 'mail', version: '1.4.7'
+
+    compile "com.github.StephenVinouze:MaterialNumberPicker:1.0.5"
 
     //generate, parse, validate cron schedule strings
 //    compile 'com.cronutils:cron-utils:7.0.1'
