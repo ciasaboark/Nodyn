@@ -17,9 +17,27 @@
 
 package io.phobotic.nodyn_app.database.scan;
 
-/**
- * Created by Jonathan Nelson on 3/21/18.
- */
+import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
+import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.Query;
 
-public class ScanLogDatabase {
+import java.util.List;
+
+/**
+ * Created by Jonathan Nelson on 4/2/18.
+ */
+@Dao
+public interface ScanRecordDao {
+    @Query("SELECT * FROM scanrecord")
+    List<ScanRecord> getAll();
+
+    @Query("SELECT * FROM scanrecord WHERE timestamp BETWEEN :begin AND :end")
+    List<ScanRecord> loadAllByIds(long begin, long end);
+
+    @Insert
+    void insertAll(ScanRecord... records);
+
+    @Delete
+    void delete(ScanRecord record);
 }

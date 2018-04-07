@@ -15,29 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package io.phobotic.nodyn_app.database.scan;
 
-buildscript {
-    repositories {
-        jcenter()
-        google()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0'
+import android.arch.persistence.room.Database;
+import android.arch.persistence.room.RoomDatabase;
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-        maven { url "https://jitpack.io" }
-        google()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+/**
+ * Created by Jonathan Nelson on 3/21/18.
+ */
+@Database(entities = {ScanRecord.class}, version = 1)
+public abstract class ScanRecordDatabase extends RoomDatabase {
+    public abstract ScanRecordDao scanRecordDao();
 }
