@@ -36,14 +36,14 @@ repositories {
 
 def APP_VERSION_MAJOR = "0"
 def APP_VERSION_MINOR = "9"
-def APP_VERSION_RELEASE = "2"
+def APP_VERSION_RELEASE = "3"
 
 def dateTime = new Date()
 def DATE_STRING = dateTime.getDateString()
 
 def APP_VERSION_NAME = APP_VERSION_MAJOR + "." + APP_VERSION_MINOR + "." + APP_VERSION_RELEASE
 def DEBUG_VERSION_NAME = "beta"
-def VERSION_CODE = 20
+def VERSION_CODE = 21
 
 configurations {
     all {

@@ -19,14 +19,15 @@ package io.phobotic.nodyn_app.database.scan;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 /**
  * Created by Jonathan Nelson on 3/21/18.
  */
-@Entity
+@Entity(tableName = "scanlog")
 public class ScanRecord {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     private int id;
 
     @ColumnInfo(name = "type")
@@ -50,8 +51,8 @@ public class ScanRecord {
     public ScanRecord() {
     }
 
-    public ScanRecord(int id, String type, long timestamp, String data, boolean accepted, String consumer, String notes) {
-        this.id = id;
+    @Ignore
+    public ScanRecord(String type, long timestamp, String data, boolean accepted, String consumer, String notes) {
         this.type = type;
         this.timestamp = timestamp;
         this.data = data;
@@ -60,66 +61,60 @@ public class ScanRecord {
         this.notes = notes;
     }
 
+
     public int getId() {
         return id;
     }
 
-    public ScanRecord setId(int id) {
+    public void setId(int id) {
         this.id = id;
-        return this;
     }
 
     public String getType() {
         return type;
     }
 
-    public ScanRecord setType(String type) {
+    public void setType(String type) {
         this.type = type;
-        return this;
     }
 
     public long getTimestamp() {
         return timestamp;
     }
 
-    public ScanRecord setTimestamp(long timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-        return this;
     }
 
     public String getData() {
         return data;
     }
 
-    public ScanRecord setData(String data) {
+    public void setData(String data) {
         this.data = data;
-        return this;
     }
 
     public boolean isAccepted() {
         return accepted;
     }
 
-    public ScanRecord setAccepted(boolean accepted) {
+    public void setAccepted(boolean accepted) {
         this.accepted = accepted;
-        return this;
     }
 
     public String getConsumer() {
         return consumer;
     }
 
-    public ScanRecord setConsumer(String consumer) {
+    public void setConsumer(String consumer) {
         this.consumer = consumer;
-        return this;
     }
 
     public String getNotes() {
         return notes;
     }
 
-    public ScanRecord setNotes(String notes) {
+    public void setNotes(String notes) {
         this.notes = notes;
-        return this;
     }
 }

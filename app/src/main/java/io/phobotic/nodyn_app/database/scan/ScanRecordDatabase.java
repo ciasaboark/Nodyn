@@ -23,7 +23,7 @@ import android.arch.persistence.room.RoomDatabase;
 /**
  * Created by Jonathan Nelson on 3/21/18.
  */
-@Database(entities = {ScanRecord.class}, version = 1)
+@Database(entities = {ScanRecord.class}, version = 2)
 public abstract class ScanRecordDatabase extends RoomDatabase {
     public abstract ScanRecordDao scanRecordDao();
 }

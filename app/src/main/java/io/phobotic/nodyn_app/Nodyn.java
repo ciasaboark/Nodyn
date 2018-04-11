@@ -18,15 +18,12 @@
 package io.phobotic.nodyn_app;
 
 import android.app.Application;
-import android.arch.persistence.room.Room;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
 import io.fabric.sdk.android.Fabric;
-import io.phobotic.nodyn_app.database.scan.ScanRecord;
-import io.phobotic.nodyn_app.database.scan.ScanRecordDatabase;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 
 /**
@@ -73,10 +70,9 @@ public class Nodyn extends Application {
         PreferenceManager.setDefaultValues(this, R.xml.pref_email, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_audit, false);
 
-
-        ScanRecordDatabase db = Room.databaseBuilder(getApplicationContext(),
-                ScanRecordDatabase.class, "scan_records").build();
-        ScanRecord record = new ScanRecord(1, "some type", System.currentTimeMillis(), "some data", false, "nobody", "no notes");
-        db.scanRecordDao().insertAll(record);
+        //initialize the Room databases
+        //RoomDBWrapper roomDBWrapper = RoomDBWrapper.getInstance(getApplicationContext());
+        //List<ScanRecord> scanRecords = roomDBWrapper.getScanRecordDatabase().scanRecordDao().getAll();
+        //System.out.println(scanRecords.size());
     }
 }

@@ -52,11 +52,15 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Random;
 
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.database.RoomDBWrapper;
+import io.phobotic.nodyn_app.database.scan.ScanRecord;
+import io.phobotic.nodyn_app.database.scan.ScanRecordDatabase;
 import pl.bclogic.pulsator4droid.library.PulsatorLayout;
 
 public class ScanInputView extends LinearLayout {
     private static final String TAG = ScanInputView.class.getSimpleName();
     private static final long DURATION = 250;
+    private static final String SCAN_TYPE = "ScanInputView";
     private Context context;
     private OnTextInputListener listener;
     private View rootView;
@@ -72,6 +76,7 @@ public class ScanInputView extends LinearLayout {
     private PulsatorLayout pulsator;
     private View inputWrapper;
     private ImageButton searchButton;
+    private ScanRecordDatabase db;
 
     public ScanInputView(Context context) {
         super(context);
@@ -168,6 +173,8 @@ public class ScanInputView extends LinearLayout {
 
             updatePreview();
 
+            db = RoomDBWrapper.getInstance(context).getScanRecordDatabase();
+
 //            //default to the hidden input if a hardware keyboard is present
 //            if (isHardwareKeyboardAvailable()) {
 //                useScanner(false);
@@ -180,14 +187,14 @@ public class ScanInputView extends LinearLayout {
     }
 
     private void findViews() {
-        preview = (TextView) rootView.findViewById(R.id.preview);
+        preview = rootView.findViewById(R.id.preview);
         buttonWrapper = rootView.findViewById(R.id.button_wrapper);
         buttonWrapperDrawable = buttonWrapper.getBackground();
-        button = (ImageButton) rootView.findViewById(R.id.image);
-        input = (EditText) rootView.findViewById(R.id.edit_text);
+        button = rootView.findViewById(R.id.image);
+        input = rootView.findViewById(R.id.edit_text);
         inputWrapper = rootView.findViewById(R.id.input_wrapper);
-        pulsator = (PulsatorLayout) rootView.findViewById(R.id.pulse);
-        searchButton = (ImageButton) rootView.findViewById(R.id.search_button);
+        pulsator = rootView.findViewById(R.id.pulse);
+        searchButton = rootView.findViewById(R.id.search_button);
     }
 
     private void initReceiver() {
@@ -543,6 +550,14 @@ public class ScanInputView extends LinearLayout {
             str = str.replaceAll("\n", "");
 
             if (str.length() > 0) {
+                String kbd = String.format("using_keyboard: %b", usingKeyboard);
+                String gstMde = String.format("ghost_mode: %b", ghostMode);
+                String forseScan = String.format("force_scan: %b", forceScanInput);
+
+                db.scanRecordDao().upsertAll(new ScanRecord(SCAN_TYPE, System.currentTimeMillis(), str,
+                        true, this.getClass().getSimpleName(),
+                        String.format("[%s, %s, %s]", kbd, gstMde, forseScan)));
+
                 if (listener != null) {
                     listener.onTextInput(str);
                 }

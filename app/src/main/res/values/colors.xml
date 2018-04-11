@@ -34,6 +34,7 @@
     <color name="circleBorderLarge">@color/white</color>
 
     <color name="grey600">#757575</color>
+    <color name="grey300">#E0E0E0</color>
 
     <color name="errBackground">#f8bbd0</color>
     <color name="notificationBackground">@color/default_primary_dark</color>

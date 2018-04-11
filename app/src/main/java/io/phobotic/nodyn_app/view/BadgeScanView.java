@@ -18,6 +18,7 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.support.annotation.ColorInt;
@@ -35,9 +36,12 @@ import org.jetbrains.annotations.NotNull;
 
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
+import io.phobotic.nodyn_app.database.RoomDBWrapper;
 import io.phobotic.nodyn_app.database.UserHelper;
 import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.database.scan.ScanRecord;
+import io.phobotic.nodyn_app.database.scan.ScanRecordDatabase;
 
 /**
  * Created by Jonathan Nelson on 9/22/17.
@@ -45,6 +49,7 @@ import io.phobotic.nodyn_app.database.model.User;
 
 public class BadgeScanView extends RelativeLayout {
     private static final String TAG = BadgeScanView.class.getSimpleName();
+    private static final String SCAN_TYPE = "BadgeScanView";
     private final Context context;
     private OnUserScannedListener onUserScannedListener;
     private ScanInputView input;
@@ -69,7 +74,7 @@ public class BadgeScanView extends RelativeLayout {
     private void init() {
         rootView = inflate(context, R.layout.view_badge_scan, this);
         if (!isInEditMode()) {
-            input = (ScanInputView) rootView.findViewById(R.id.input);
+            input = rootView.findViewById(R.id.input);
             input.setListener(new ScanInputView.OnTextInputListener() {
                 @Override
                 public void onTextInput(String inputString) {
@@ -94,7 +99,7 @@ public class BadgeScanView extends RelativeLayout {
             input.clearFocus();
             input.requestFocus();
 
-            message = (TextSwitcher) rootView.findViewById(R.id.error);
+            message = rootView.findViewById(R.id.error);
             normalFactory = new ViewSwitcher.ViewFactory() {
                 @Override
                 public View makeView() {
@@ -113,15 +118,38 @@ public class BadgeScanView extends RelativeLayout {
     }
 
     private void processInputString(@NotNull String inputString) {
+
         ((TextView) message.getNextView()).setTextColor(normalTextColor);
         Database db = Database.getInstance(getContext());
 
         try {
             User user = UserHelper.getUserByInputString(getContext(), inputString);
+            recordGoodScan(inputString, user);
             processUserScan(user);
         } catch (UserNotFoundException e) {
+            recordBadScan(inputString);
             processUserScanError(inputString);
         }
+    }
+
+    private void recordGoodScan(String scannedData, User user) {
+        recordScan(scannedData, "Data recognized as user " + user.toString(),
+                true);
+    }
+
+    private void recordBadScan(String scannedData) {
+        recordScan(scannedData, "User not recognized", false);
+    }
+
+    private void recordScan(String data, String reason, boolean isAccepted) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String validationField = prefs.getString(context.getString(
+                R.string.pref_key_user_scan_field), null);
+
+        ScanRecordDatabase scanLogDb = RoomDBWrapper.getInstance(getContext()).getScanRecordDatabase();
+        scanLogDb.scanRecordDao().upsertAll(new ScanRecord(SCAN_TYPE, System.currentTimeMillis(),
+                data, isAccepted, this.getClass().getSimpleName(),
+                String.format("[validation field: %s] %s", validationField, reason)));
     }
 
     public void reset() {

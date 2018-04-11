@@ -117,6 +117,7 @@ public class AvatarHelper {
             Picasso.with(context)
                     .load(source)
                     .resize(size, size)
+                    .placeholder(R.drawable.grey_circle)
                     .transform(getTransformation(context, size))
                     .transform(getSecondTransformation(context))
 //                    .transform(new DropShadowTransformation())

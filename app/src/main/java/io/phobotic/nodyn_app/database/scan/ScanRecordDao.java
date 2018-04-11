@@ -20,6 +20,7 @@ package io.phobotic.nodyn_app.database.scan;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import java.util.List;
@@ -28,16 +29,24 @@ import java.util.List;
  * Created by Jonathan Nelson on 4/2/18.
  */
 @Dao
-public interface ScanRecordDao {
-    @Query("SELECT * FROM scanrecord")
-    List<ScanRecord> getAll();
+public abstract class ScanRecordDao {
+    @Query("SELECT * FROM scanlog")
+    public abstract List<ScanRecord> getAll();
 
-    @Query("SELECT * FROM scanrecord WHERE timestamp BETWEEN :begin AND :end")
-    List<ScanRecord> loadAllByIds(long begin, long end);
+    @Query("SELECT * FROM scanlog WHERE timestamp BETWEEN :begin AND :end")
+    public abstract List<ScanRecord> loadAllByIds(long begin, long end);
 
-    @Insert
-    void insertAll(ScanRecord... records);
+    public void upsertAll(ScanRecord... records) {
+        pruneOldRecords();
+        insertAll(records);
+    }
+
+    @Query("DELETE FROM scanlog where id NOT IN (SELECT id from scanlog ORDER BY id DESC LIMIT 10)")
+    public abstract void pruneOldRecords();
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public abstract void insertAll(ScanRecord... records);
 
     @Delete
-    void delete(ScanRecord record);
+    public abstract void delete(ScanRecord record);
 }

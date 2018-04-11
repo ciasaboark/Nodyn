@@ -63,12 +63,15 @@ import java.util.Set;
 
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
+import io.phobotic.nodyn_app.database.RoomDBWrapper;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.exception.StatusNotFoundException;
 import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Status;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.database.scan.ScanRecord;
+import io.phobotic.nodyn_app.database.scan.ScanRecordDatabase;
 import io.phobotic.nodyn_app.fragment.listener.CheckInOutListener;
 import io.phobotic.nodyn_app.helper.AnimationHelper;
 import io.phobotic.nodyn_app.reporting.CustomEvents;
@@ -83,6 +86,7 @@ public class CheckOutFragment extends Fragment {
     private static final String TAG = CheckOutFragment.class.getSimpleName();
     private static final String ARG_AUTHORIZATION = "arg_authorization";
     private static final int MAX_PROGRESS = 1000;
+    private static final String SCAN_TYPE = "ASSET_CHECKOUT";
     Database db;
     private CheckInOutListener listener;
     private View rootView;
@@ -99,6 +103,7 @@ public class CheckOutFragment extends Fragment {
     private ProgressBar warningProgress;
     private TextView warningMessage;
     private int usersCheckedOut = 0;
+    private ScanRecordDatabase scanLogDb;
 
     public static CheckOutFragment newInstance(User authorizingUser) {
         CheckOutFragment fragment = new CheckOutFragment();
@@ -128,6 +133,7 @@ public class CheckOutFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = Database.getInstance(getContext());
+        scanLogDb = RoomDBWrapper.getInstance(getContext()).getScanRecordDatabase();
 
         if (getArguments() != null) {
             authorizingUser = (User) getArguments().getSerializable(ARG_AUTHORIZATION);
@@ -255,10 +261,10 @@ public class CheckOutFragment extends Fragment {
         footer = rootView.findViewById(R.id.footer);
         mainBox = rootView.findViewById(R.id.checkout);
         warning = rootView.findViewById(R.id.warning);
-        warningProgress = (ProgressBar) rootView.findViewById(R.id.warning_progress);
+        warningProgress = rootView.findViewById(R.id.warning_progress);
         warningProgress.setMax(MAX_PROGRESS);
         warningProgress.setProgress(MAX_PROGRESS);
-        warningMessage = (TextView) rootView.findViewById(R.id.warning_text_1);
+        warningMessage = rootView.findViewById(R.id.warning_text_1);
         initTextSwitchers();
         initScanner();
         initCheckoutFab();
@@ -276,8 +282,60 @@ public class CheckOutFragment extends Fragment {
         AnimationHelper.collapse(footer);
     }
 
+    private void initTextSwitchers() {
+        title = rootView.findViewById(R.id.title);
+        title.setFactory(new ViewSwitcher.ViewFactory() {
+            @Override
+            public View makeView() {
+                TextView t = new TextView(getContext());
+                t.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+                t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material_Large);
+                return t;
+            }
+        });
+        title.setCurrentText(getResources().getString(R.string.check_out_title_scan_an_asset));
+
+        message = rootView.findViewById(R.id.message);
+        message.setFactory(new ViewSwitcher.ViewFactory() {
+            @Override
+            public View makeView() {
+                TextView t = new TextView(getContext());
+                t.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+                t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material);
+                return t;
+            }
+        });
+        message.setCurrentText(getResources().getString(R.string.blank));
+    }
+
+    private void initScanner() {
+        scanner = rootView.findViewById(R.id.scan_list);
+        scanner.setAssetsRemovable(true);
+        scanner.setListener(new AssetScanList.OnAssetScannedListener() {
+            @Override
+            public void onAssetScanned(Asset asset) {
+                processAssetScan(asset);
+            }
+
+            @Override
+            public void onAssetScanListChanged(@NotNull List<Asset> assets) {
+                if (assets.isEmpty()) {
+                    if (footer.getVisibility() != View.GONE) {
+                        hideFooter();
+                    }
+                    resetCountdown();
+                }
+            }
+
+            @Override
+            public void onScanError(String message) {
+                showNotification(message);
+            }
+        });
+    }
+
     private void initCheckoutFab() {
-        checkoutButton = (FloatingActionButton) rootView.findViewById(R.id.checkout_button);
+        checkoutButton = rootView.findViewById(R.id.checkout_button);
         checkoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -316,80 +374,6 @@ public class CheckOutFragment extends Fragment {
         checkoutButton.hide();
     }
 
-    private void initScanner() {
-        scanner = (AssetScanList) rootView.findViewById(R.id.scan_list);
-        scanner.setAssetsRemovable(true);
-        scanner.setListener(new AssetScanList.OnAssetScannedListener() {
-            @Override
-            public void onAssetScanned(Asset asset) {
-                processAssetScan(asset);
-            }
-
-            @Override
-            public void onAssetScanListChanged(@NotNull List<Asset> assets) {
-                if (assets.isEmpty()) {
-                    if (footer.getVisibility() != View.GONE) {
-                        hideFooter();
-                    }
-                    resetCountdown();
-                }
-            }
-
-            @Override
-            public void onScanError(String message) {
-                showNotification(message);
-            }
-        });
-    }
-
-    private void initTextSwitchers() {
-        title = (TextSwitcher) rootView.findViewById(R.id.title);
-        title.setFactory(new ViewSwitcher.ViewFactory() {
-            @Override
-            public View makeView() {
-                TextView t = new TextView(getContext());
-                t.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-                t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material_Large);
-                return t;
-            }
-        });
-        title.setCurrentText(getResources().getString(R.string.check_out_title_scan_an_asset));
-
-        message = (TextSwitcher) rootView.findViewById(R.id.message);
-        message.setFactory(new ViewSwitcher.ViewFactory() {
-            @Override
-            public View makeView() {
-                TextView t = new TextView(getContext());
-                t.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-                t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material);
-                return t;
-            }
-        });
-        message.setCurrentText(getResources().getString(R.string.blank));
-    }
-
-    private void processUserScan(User user) {
-        resetCountdown();
-
-        //if at least one asset has been scanned, the checkout the items to the associate
-        if (scanner.getScannedAssets().isEmpty()) {
-            AlertDialog d = new AlertDialog.Builder(getContext())
-                    .setTitle("No assets scanned")
-                    .setMessage("Unable to checkout " + user.getName() + ", no assets have been scanned")
-                    .setNegativeButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //nothing to do here
-                        }
-                    })
-                    .create();
-            d.show();
-            playSoundEffect(getContext(), R.raw.correct);
-        } else {
-            confirmCheckouts(user);
-        }
-    }
-
     private void processAssetScan(Asset asset) {
         resetCountdown();
 
@@ -401,7 +385,7 @@ public class CheckOutFragment extends Fragment {
             }
 
             View v = getLayoutInflater(null).inflate(R.layout.view_model_unavailable, null);
-
+            recordBadScan(asset, "model not available");
             AlertDialog d = new AlertDialog.Builder(getContext())
                     .setTitle("Model not available")
                     .setView(v)
@@ -421,6 +405,7 @@ public class CheckOutFragment extends Fragment {
             } catch (StatusNotFoundException e) {
             }
 
+            recordBadScan(asset, "asset not available");
             Set<String> allowedStatusIDs = getAllowedStatusNames();
             AlertDialog d = new AlertDialog.Builder(getContext())
                     .setTitle("Asset not available")
@@ -437,6 +422,7 @@ public class CheckOutFragment extends Fragment {
         } else {
             try {
                 tryAddAssetToScannedList(asset);
+                recordGoodScan(asset);
             } catch (AssetAlreadyCheckedOutException e) {
                 User user = null;
                 try {
@@ -466,6 +452,7 @@ public class CheckOutFragment extends Fragment {
                     sb.append(" at an unknown time");
                 }
 
+                recordBadScan(asset, sb.toString());
                 AlertDialog d = new AlertDialog.Builder(getContext())
                         .setTitle("Asset Not Available")
                         .setMessage(sb.toString())
@@ -479,6 +466,7 @@ public class CheckOutFragment extends Fragment {
                 playSoundEffect(getContext(), R.raw.bassy_chirp);
                 d.show();
             } catch (AssetAlreadyScannedException e) {
+                recordBadScan(asset, "asset has already been scanned to checkout list");
                 AlertDialog d = new AlertDialog.Builder(getContext())
                         .setTitle("Asset Not Available")
                         .setMessage("Asset '" + asset.getTag() + "' has already been scanned")
@@ -495,6 +483,51 @@ public class CheckOutFragment extends Fragment {
             }
         }
     }
+
+    private void processUserScan(User user) {
+
+        resetCountdown();
+
+        //if at least one asset has been scanned, the checkout the items to the associate
+        if (scanner.getScannedAssets().isEmpty()) {
+            AlertDialog d = new AlertDialog.Builder(getContext())
+                    .setTitle("No assets scanned")
+                    .setMessage("Unable to checkout " + user.getName() + ", no assets have been scanned")
+                    .setNegativeButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //nothing to do here
+                        }
+                    })
+                    .create();
+            d.show();
+            playSoundEffect(getContext(), R.raw.correct);
+        } else {
+            confirmCheckouts(user);
+        }
+    }
+
+    private void recordBadScan(Asset asset, String reason) {
+        recordScan(asset, reason, false);
+    }
+
+    private void recordGoodScan(Asset asset) {
+        recordScan(asset, "", true);
+    }
+
+    private void recordScan(Asset asset, String reason, boolean isAccepted) {
+        String prefix;
+        if (authorizingUser == null) {
+            prefix = "[no authorizing user] ";
+        } else {
+            prefix = String.format("[Autorization: %s] ", authorizingUser.toString());
+        }
+
+        scanLogDb.scanRecordDao().upsertAll(new ScanRecord(SCAN_TYPE, System.currentTimeMillis(),
+                asset.getTag(), isAccepted, this.getClass().getSimpleName(), prefix + reason));
+    }
+
+
 
     private void showNotification(String err) {
         Snackbar snackbar = Snackbar.make(rootView, err, Snackbar.LENGTH_LONG);
