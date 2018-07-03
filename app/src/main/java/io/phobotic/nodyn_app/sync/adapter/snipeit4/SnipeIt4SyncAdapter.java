@@ -54,6 +54,7 @@ import java.util.TimeZone;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
+import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.model.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
@@ -461,9 +462,22 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                                 @Nullable Long checkout, @Nullable Long expectedCheckin,
                                 @Nullable String notes) throws Exception {
         String checkoutURL = "/api/v1/hardware/" + assetID + "/checkout";
-//        String params = "user_id=" + userID;
-
         String params = "checkout_to_type=user&assigned_user=" + userID;
+
+        //if the backend has been configured to change the asset's name during checkout then go
+        //+ ahead and apply that change
+        String nameChangeFormat = PreferenceManager.getDefaultSharedPreferences(context).getString(
+                context.getString(R.string.pref_key_snipeit_4_name_change), null);
+        String name = null;
+        if (nameChangeFormat == null || nameChangeFormat.isEmpty()) {
+            Log.d(TAG, "skipping name change for asset " + assetTag + ", no format has been defined");
+        } else {
+            name = getFormattedName(context, assetID, userID, nameChangeFormat);
+        }
+
+        if (name != null) {
+            params += "&name=" + name;
+        }
 
         if (notes != null) {
             try {
@@ -520,6 +534,40 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         } else {
             throw new CheckoutException("Unknown error '" + result + "'");
         }
+    }
+
+    private String getFormattedName(Context context, int assetID, int userID, String nameChangeFormat) {
+        String name = nameChangeFormat;
+
+        try {
+            Asset a = Database.getInstance(context).findAssetByID(assetID);
+            name = name.replaceAll("%tag%", a.getTag());
+            name = name.replaceAll("%serial%", a.getSerial());
+
+            try {
+                Model m = Database.getInstance(context).findModelByID(a.getModelID());
+                name = name.replaceAll("%model%", m.getName());
+            } catch (ModelNotFoundException e) {
+                Log.e(TAG, "Unable to find model with id " + a.getModelID() + ", will not be " +
+                        "able to use model fields to modify asset name");
+            }
+        } catch (AssetNotFoundException e) {
+            Log.e(TAG, "Unable to find asset with id " + assetID + ", will not be able to " +
+                    "use asset fields to modify asset name");
+        }
+
+        try {
+            User u = Database.getInstance(context).findUserByID(userID);
+            name = name.replaceAll("%username%", u.getUsername());
+            name = name.replaceAll("%name%", u.getName());
+            name = name.replaceAll("%email%", u.getEmail());
+            name = name.replaceAll("%employee%", u.getEmployeeNum());
+        } catch (UserNotFoundException e) {
+            Log.e(TAG, "Unable to find user with id " + userID + ", will not be able to use " +
+                    "user fields to modify asset name");
+        }
+
+        return name;
     }
 
     @Override

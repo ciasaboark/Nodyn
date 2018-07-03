@@ -65,4 +65,12 @@
         android:summary="@string/pref_description_snipeit4_workarounds"
         android:title="@string/pref_title_snipeit4_workarounds"/>
 
+    <EditTextPreference
+        android:defaultValue="@string/pref_default_snipeit_4_api_key"
+        android:inputType="text"
+        android:key="@string/pref_key_snipeit_4_name_change"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:title="@string/pref_title_snipeit_4_name_change"
+        />
 </PreferenceScreen>

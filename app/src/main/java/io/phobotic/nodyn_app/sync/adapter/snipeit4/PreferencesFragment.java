@@ -45,5 +45,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                 getString(R.string.pref_key_snipeit_4_port)));
         PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_snipeit_4_api_key)));
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_snipeit_4_name_change)));
     }
 }
