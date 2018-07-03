@@ -151,57 +151,71 @@ public class SyncService extends IntentService {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean emailEnabled = preferences.getBoolean("email_enable", false);
-        if (emailEnabled && failedActions.size() > 0) {
-            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_ACTION_FAILED));
-            StringBuilder sb = new StringBuilder();
-            sb.append(ActionHtmlFormatter.getHeader(this));
+        if (failedActions.size() > 0) {
+            if (!emailEnabled) {
+                //if the user has the email service disabled then we need to go ahead and mark any
+                //+ failed actions as 'synced'.  If not these actions will continue to be resent
+                //+ (and fail) during each sync
+                List<Action> actionList = new ArrayList<>();
+                for (FailedActions fa : failedActions) {
+                    actionList.add(fa.getAction());
+                }
+                syncAdapter.markActionItemsSynced(SyncService.this, actionList);
+            } else if (emailEnabled) {
+                //otherwise we need to be careful about marking a failed action item 'synced'.  This
+                //+ should only be done if we are sure that an email with the failed sync actions
+                //+ was sent successfully.
+                Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_ACTION_FAILED));
+                StringBuilder sb = new StringBuilder();
+                sb.append(ActionHtmlFormatter.getHeader(this));
 
-            ActionHtmlFormatter formatter = new ActionHtmlFormatter();
-            for (FailedActions failedAction : failedActions) {
-                sb.append(formatter.formatActionAsHtml(this, failedAction));
-            }
+                ActionHtmlFormatter formatter = new ActionHtmlFormatter();
+                for (FailedActions failedAction : failedActions) {
+                    sb.append(formatter.formatActionAsHtml(this, failedAction));
+                }
 
 
-            sb.append("<pre>\n\nSync records that were pushed during this update:\n\n");
-            sb.append(syncRecords + "</pre>");
+                sb.append("<pre>\n\nSync records that were pushed during this update:\n\n");
+                sb.append(syncRecords + "</pre>");
 
-            sb.append(ActionHtmlFormatter.getFooter());
+                sb.append(ActionHtmlFormatter.getFooter());
 
-            List<EmailRecipient> recipients = new ArrayList<>();
-            String addressesString = preferences.getString(
-                    getString(R.string.pref_key_email_exceptions_addresses),
-                    getString(R.string.pref_default_email_exceptions_addresses));
-            String[] addresses = addressesString.split(",");
-            for (String address : addresses) {
-                recipients.add(new EmailRecipient(address));
-            }
+                List<EmailRecipient> recipients = new ArrayList<>();
+                String addressesString = preferences.getString(
+                        getString(R.string.pref_key_email_exceptions_addresses),
+                        getString(R.string.pref_default_email_exceptions_addresses));
+                String[] addresses = addressesString.split(",");
+                for (String address : addresses) {
+                    recipients.add(new EmailRecipient(address));
+                }
 
-            EmailSender sender = new EmailSender(this)
-                    .setBody(sb.toString())
-                    .setSubject("Sync Exceptions")
-                    .setRecipientList(recipients)
-                    .setFailedListener(new EmailSender.EmailStatusListener() {
-                        @Override
-                        public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
-                            Log.e(TAG, "Sync exception send email failed with message: " + message);
-                            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_EMAIL_NOT_SENT));
-                        }
-                    }, failedActions)
-                    .setSuccessListener(new EmailSender.EmailStatusListener() {
-                        @Override
-                        public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
-                            Log.d(TAG, "Sync exception send email succeeded with message: " + message);
-                            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_EMAIL_SENT));
-                            if (tag instanceof List) {
-                                List<Action> actions = new ArrayList<Action>();
-                                for (FailedActions failedAction : failedActions) {
-                                    actions.add(failedAction.getAction());
-                                }
-                                syncAdapter.markActionItemsSynced(SyncService.this, actions);
+                EmailSender sender = new EmailSender(this)
+                        .setBody(sb.toString())
+                        .setSubject("Sync Exceptions")
+                        .setRecipientList(recipients)
+                        .setFailedListener(new EmailSender.EmailStatusListener() {
+                            @Override
+                            public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
+                                Log.e(TAG, "Sync exception send email failed with message: " + message);
+                                Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_EMAIL_NOT_SENT));
                             }
-                        }
-                    }, failedActions)
-                    .send();
+                        }, failedActions)
+                        .setSuccessListener(new EmailSender.EmailStatusListener() {
+                            @Override
+                            public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
+                                Log.d(TAG, "Sync exception send email succeeded with message: " + message);
+                                Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_EMAIL_SENT));
+                                if (tag instanceof List) {
+                                    List<Action> actions = new ArrayList<Action>();
+                                    for (FailedActions failedAction : failedActions) {
+                                        actions.add(failedAction.getAction());
+                                    }
+                                    syncAdapter.markActionItemsSynced(SyncService.this, actions);
+                                }
+                            }
+                        }, failedActions)
+                        .send();
+            }
 
         }
     }
