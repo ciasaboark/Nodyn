@@ -1,0 +1,17 @@
+<tr>
+    <td>
+        <div class="box due-soon-asset" style="background-size: cover;background-color: #FAFAFA;width: 600px;height: 300px;text-align: left;font-size: 1.0rem;color: black;font-family: 'Open Sans', sans-serif;background-image: url(%box_image%);">
+            <div class="box-content" style="padding: 30px;">
+                <div class="asset-header" style="text-align: left;display: block;">
+                    <img src="%imageurl%" class="asset-icon" style="z-index: 1;border-radius: 50%;width: 64px;height: 64px;margin-bottom: 16px;box-shadow: 2px 2px 4px #56565663;">
+                    <span class="asset-tag" style="font-size: 23pt;font-weight: bold;vertical-align: top;line-height: 64px;margin-left: 16pt;">%assettag%</span>
+                </div>
+                <div>Serial: <span class="serial" style="font-family: monospace;font-weight: bold;">%serial%</span></div>
+                <div>Model: <span class="model">%model%</span></div>
+                <div>User ID: <span class="user" style="font-weight: bold;">%user%</span></div>
+                <div>Checkout: <span class="checkout">%checkout%</span></div>
+                <div>Expected Checkin: <span class="checkin">%expectedcheckin%</span></div>
+            </div>
+        </div>
+    </td>
+</tr>
