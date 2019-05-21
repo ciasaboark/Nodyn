@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -26,4 +26,14 @@
     <string name="pref_key_beta_rebuild_statistics">beta_rebuild_statistics</string>
     <string name="pref_title_beta_rebuild_statistics">Rebuild statistics</string>
     <string name="pref_description_beta_rebuild_statistics">Force a rebuild of the statistics database now</string>
+
+    <string name="pref_key_beta_statistics_email">beta_statistics_email</string>
+    <string name="pref_title_beta_statistics_email">Send statistics email</string>
+    <string name="pref_description_beta_statistics_email">Send statistics email statistics now</string>
+
+    <string name="pref_key_beta_scanlog_enable">beta_scanlog_enable</string>
+    <string name="pref_default_beta_scanlog_enable">false</string>
+    <string name="pref_title_beta_scanlog_enable">Log all scanned data</string>
+    <string name="pref_description_enabled_beta_scanlog_enable">All scanned data will be logged.  *Note* this may include usernames, email addresses and other sensitive information</string>
+    <string name="pref_description_disabled_beta_scanlog_enable">No additional data will be recorded</string>
 </resources>

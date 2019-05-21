@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
         android:entries="@array/empty_array"
         android:entryValues="@array/empty_array"
         android:key="@string/pref_key_check_in_authenticating_groups"
+        android:icon="@drawable/ic_account_group_grey600_24dp"
         android:negativeButtonText="@null"
         android:positiveButtonText="OK"
         android:title="@string/pref_title_check_in_authenticating_groups"/>
@@ -40,4 +41,11 @@
         android:key="@string/pref_key_check_in_show_verify"
         android:summary="@string/pref_description_check_in_verify"
         android:title="@string/pref_title_check_in_verify"/>
+
+    <Preference
+        android:dependency="@string/pref_key_check_in_show_verify"
+        android:icon="@drawable/ic_pencil_grey600_24dp"
+        android:key="@string/pref_key_check_in_verification_text"
+        android:summary="@string/pref_description_check_out_eula"
+        android:title="@string/pref_title_check_in_verification_text"/>
 </PreferenceScreen>

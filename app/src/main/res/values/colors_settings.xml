@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -22,6 +22,10 @@
     <color name="icon3">#fffd9b</color>
     <color name="icon4">#f19fff</color>
     <color name="icon5">#b7fcbf</color>
+
+    <color name="qr_read">#43a047</color>
+    <color name="qr_read_check">#cab8ffbb</color>
+    <color name="qr_unread">@color/grey300</color>
 
     <color name="settings_header_background">@color/neutral_dark_background</color>
 </resources>

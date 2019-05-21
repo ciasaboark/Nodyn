@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -16,18 +16,18 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-                                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                                    xmlns:tools="http://schemas.android.com/apk/res-auto"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="4dp"
-                                    android:layout_marginEnd="8dp"
-                                    android:layout_marginLeft="8dp"
-                                    android:layout_marginRight="8dp"
-                                    android:layout_marginStart="8dp"
-                                    android:layout_marginTop="4dp"
-                                    app:cardUseCompatPadding="true">
+<com.github.captain_miao.optroundcardview.OptRoundCardView android:id="@+id/card"
+                                                           xmlns:android="http://schemas.android.com/apk/res/android"
+                                                           xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                           xmlns:tools="http://schemas.android.com/apk/res-auto"
+                                                           android:layout_width="match_parent"
+                                                           android:layout_height="wrap_content"
+                                                           android:elevation="4dp"
+                                                           app:optRoundCardBackgroundColor="@color/white"
+                                                           app:optRoundCardBottomEdges="false"
+                                                           app:optRoundCardCornerRadius="@dimen/card_corner_radius"
+                                                           app:optRoundCardLeftBottomCorner="false"
+                                                           app:optRoundCardRightBottomCorner="false">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -160,4 +160,4 @@
             android:tint="@color/check"
             android:visibility="gone"/>
     </RelativeLayout>
-</android.support.v7.widget.CardView>
+</com.github.captain_miao.optroundcardview.OptRoundCardView>

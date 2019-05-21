@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 
     <dimen name="view_asset_hero_size">48dp</dimen>
 
+    <dimen name="picasso_tiny_image_circle_border_width">1px</dimen>
     <dimen name="picasso_small_image_circle_border_width">1px</dimen>
     <dimen name="picasso_large_image_circle_border_width">3px</dimen>
 
@@ -61,4 +62,20 @@
     <dimen name="circle_hightlight_large_padding">20dp</dimen>
 
     <dimen name="focused_card_large_margin">16dp</dimen>
+
+    <dimen name="card_corner_radius">4dp</dimen>
+
+    <dimen name="footer_card_min_height">180dp</dimen>
+
+    <dimen name="share_settings_card_size">200dp</dimen>
+
+    <dimen name="asset_scan_view_carousel_image_width">250dp</dimen>
+    <dimen name="asset_scan_view_carousel_image_height">250dp</dimen>
+
+    <dimen name="overview_fragment_icon_size">48dp</dimen>
+    <dimen name="badge_scan_view_width">200dp</dimen>
+    <dimen name="badge_scan_view_height">200dp</dimen>
+    <dimen name="asset_scan_view_example_image_height">90dp</dimen>
+    <dimen name="scan_input_view_barcode_preview_width">300dp</dimen>
+    <dimen name="scan_input_view_barcode_preview_height">150dp</dimen>
 </resources>

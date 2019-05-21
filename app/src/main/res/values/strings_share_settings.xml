@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="share_settings_qrcode_page" formatted="false">Code %d of %d</string>
+    <string name="share_settings_file_settings_backup_filename">Your settings have been backed up to the SD Card as %s</string>
+    <string name="share_settings_file_backup_password">This file was encrypted with the password shown above. Please make sure to write down this password. You will need it to import these settings later. It will not be shown again.</string>
+    <string name="share_settings_share_title">Share</string>
+    <string name="share_settings_file_copy_password">Copy Password</string>
+    <string name="share_settings_permission_external_storage">Nodyn requires access to external storage in order to create a backup file.</string>
+    <string name="share_settings_file_success_title">Success!</string>
+    <string name="share_settings_file_generating_backup_title">Generating Backup</string>
+</resources>

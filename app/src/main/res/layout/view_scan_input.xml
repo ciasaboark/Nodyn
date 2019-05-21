@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -25,91 +25,198 @@
                 android:padding="8dp"
                 tools:context="io.phobotic.nodyn_app.view.ScanInputView">
 
-    <pl.bclogic.pulsator4droid.library.PulsatorLayout
-        android:id="@+id/pulse"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/spinner_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        app:pulse_color="?colorAccent"
-        app:pulse_count="3"
-        app:pulse_duration="5000"
-        app:pulse_interpolator="Decelerate"
-        app:pulse_repeat="0"
-        app:pulse_startFromScratch="true"/>
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/card_corner_radius">
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/input_methods"/>
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/preview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/spinner_wrapper"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="16dp"
         android:text=""
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textColor="?colorAccent"
         android:visibility="visible"/>
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/input_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/preview"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         android:clipChildren="false"
-        android:clipToPadding="false"
-        android:orientation="horizontal"
-        >
+        android:clipToPadding="false">
 
+        <!-- Just a static indicator to show that hardware keyboard input is being accepted -->
         <RelativeLayout
-            android:id="@+id/button_wrapper"
+            android:id="@+id/hardware_wrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/scan_circle"
-            android:padding="@dimen/view_scan_input_circle_padding">
+            android:layout_centerInParent="true"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:visibility="visible">
 
-            <ImageButton
-                android:id="@+id/image"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/hardware_edit_text"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_toStartOf="@id/input"
-                android:background="?selectableItemBackgroundBorderless"
-                android:gravity="center_vertical"
-                android:src="@drawable/transition_scan_button"
-                />
+                android:layout_marginStart="16dp"
+                android:alpha="0.001"
+                android:imeOptions="actionSearch"
+                android:inputType="textNoSuggestions"
+                android:lines="1"
+                android:minEms="10"
+                android:textCursorDrawable="@drawable/cursor_drawable"
+                android:visibility="visible"/>
+
+            <pl.bclogic.pulsator4droid.library.PulsatorLayout
+                android:id="@+id/pulse"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_centerInParent="true"
+                app:pulse_color="?colorAccent"
+                app:pulse_count="3"
+                app:pulse_duration="5000"
+                app:pulse_interpolator="Decelerate"
+                app:pulse_repeat="0"
+                app:pulse_startFromScratch="true"/>
+
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/input_wrapper"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/camera_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/scan_input_view_barcode_preview_height"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:clipChildren="true"
+            android:clipToPadding="true"
+            android:maxWidth="50dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
 
-            <android.support.v7.widget.CardView
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@color/black"
+                tools:layout_conversion_absoluteHeight="200dp"
+                tools:layout_conversion_absoluteWidth="56dp"
+                tools:layout_editor_absoluteX="40dp"
+                tools:layout_editor_absoluteY="48dp">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/camera_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="false"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@color/white"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:src="@drawable/camera_rear_variant"
+                    android:tint="@color/grey600"
+                    app:backgroundTint="@color/white"
+                    app:elevation="2dp"
+                    app:fabSize="mini"/>
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/torch_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentStart="false"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@color/white"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:src="@drawable/flashlight"
+                    android:tint="@color/grey600"
+                    app:backgroundTint="@color/white"
+                    app:elevation="2dp"
+                    app:fabSize="mini"/>
+
+            </RelativeLayout>
+
+            <com.journeyapps.barcodescanner.DecoratedBarcodeView
+                android:id="@+id/canvas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:keepScreenOn="true"
+                android:visibility="visible"
+                tools:layout_conversion_absoluteHeight="200dp"
+                tools:layout_conversion_absoluteWidth="664dp"
+                tools:layout_editor_absoluteX="96dp"
+                tools:layout_editor_absoluteY="48dp">
+
+            </com.journeyapps.barcodescanner.DecoratedBarcodeView>
+
+
+        </LinearLayout>
+
+        <!-- EditText for the OSK input -->
+        <RelativeLayout
+            android:id="@+id/osk_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:visibility="gone">
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:padding="8dp"
-                app:cardCornerRadius="20dp">
+                app:cardCornerRadius="@dimen/card_corner_radius">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:layout_marginStart="16dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:orientation="horizontal">
 
                     <EditText
-                        android:id="@+id/edit_text"
-                        android:layout_width="0dp"
+                        android:id="@+id/osk_edit_text"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_toStartOf="@id/search_button"
                         android:layout_weight="1"
                         android:imeOptions="actionSearch"
                         android:inputType="textNoSuggestions"
                         android:lines="1"
+                        android:minEms="10"
                         android:textCursorDrawable="@drawable/cursor_drawable"
                         android:visibility="visible"/>
 
@@ -124,9 +231,9 @@
                 </LinearLayout>
 
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
         </RelativeLayout>
+    </RelativeLayout>
 
 
-    </LinearLayout>
 </RelativeLayout>

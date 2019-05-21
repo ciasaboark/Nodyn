@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:text="@string/share_settings_file_generating_backup_title"
+        android:textAppearance="@android:style/TextAppearance.Material.Large"/>
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/card"
+        android:layout_below="@id/title"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical">
+
+            <io.phobotic.nodyn_app.view.StepView
+                android:id="@+id/step1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:elevation="2dp"
+                app:active_text_color="@android:color/black"
+                app:alpha_active="1.0"
+                app:alpha_inactive="0.5"
+                app:complete_text_color="@color/success"
+                app:inactive_text_color="@color/grey600"
+                app:text="Reading configuration settings"/>
+
+            <io.phobotic.nodyn_app.view.StepView
+                android:id="@+id/step2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:elevation="2dp"
+                app:active_text_color="@android:color/black"
+                app:alpha_active="1.0"
+                app:alpha_inactive="0.5"
+                app:complete_text_color="@color/success"
+                app:inactive_text_color="@color/grey600"
+                app:text="Encrypting data with one time password"/>
+
+            <io.phobotic.nodyn_app.view.StepView
+                android:id="@+id/step3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:elevation="2dp"
+                app:active_text_color="@android:color/black"
+                app:alpha_active="1.0"
+                app:alpha_inactive="0.5"
+                app:complete_text_color="@color/success"
+                app:inactive_text_color="@color/grey600"
+                app:text="Saving backup to disk"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:visibility="visible"
+        app:cardCornerRadius="@dimen/card_corner_radius">
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:text="@string/share_settings_file_success_title"
+                android:textAppearance="@android:style/TextAppearance.Material.Large"
+                android:textColor="@color/success"/>
+
+            <TextView
+                android:id="@+id/backup_file"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/share_settings_file_settings_backup_filename"/>
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
+
+                    <EditText
+                        android:id="@+id/pass1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:editable="false"
+                        android:focusable="false"
+                        android:fontFamily="monospace"
+                        android:gravity="center_horizontal"
+                        android:inputType="none"
+                        android:minEms="4"
+                        android:text="@string/placeholder"
+                        android:textAppearance="@android:style/TextAppearance.Material.Large"
+                        android:textSize="36sp"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/pass2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:editable="false"
+                        android:focusable="false"
+                        android:fontFamily="monospace"
+                        android:gravity="center_horizontal"
+                        android:inputType="none"
+                        android:minEms="4"
+                        android:text="@string/placeholder"
+                        android:textAppearance="@android:style/TextAppearance.Material.Large"
+                        android:textSize="36sp"
+                        android:textStyle="bold"/>
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
+
+                    <EditText
+                        android:id="@+id/pass3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:editable="false"
+                        android:focusable="false"
+                        android:fontFamily="monospace"
+                        android:gravity="center_horizontal"
+                        android:inputType="none"
+                        android:minEms="4"
+                        android:text="@string/placeholder"
+                        android:textAppearance="@android:style/TextAppearance.Material.Large"
+                        android:textSize="36sp"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/pass4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:editable="false"
+                        android:focusable="false"
+                        android:fontFamily="monospace"
+                        android:gravity="center_horizontal"
+                        android:inputType="none"
+                        android:minEms="4"
+                        android:text="@string/placeholder"
+                        android:textAppearance="@android:style/TextAppearance.Material.Large"
+                        android:textSize="36sp"
+                        android:textStyle="bold"/>
+                </TableRow>
+            </TableLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/share_settings_file_backup_password"/>
+
+
+            <LinearLayout
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:padding="16dp">
+
+                <Button
+                    android:id="@+id/copy_button"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="64dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginEnd="16dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:drawablePadding="16dp"
+                    android:drawableStart="@drawable/content_copy"
+                    android:text="@string/share_settings_file_copy_password"
+                    android:textColor="?android:textColorSecondary"/>
+
+                <Button
+                    android:id="@+id/share_button"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:drawablePadding="16dp"
+                    android:drawableStart="@drawable/share_variant"
+                    android:scaleType="fitXY"
+                    android:text="@string/share_settings_share_title"
+                    android:textColor="?android:textColorSecondary"
+                    />
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/error_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:cardCornerRadius="@dimen/card_corner_radius">
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:text="@string/permission_required_title"
+                android:textAppearance="@android:style/TextAppearance.Material.Large"
+                android:textColor="@color/warning_strong"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:text="@string/share_settings_permission_external_storage"/>
+
+            <Button
+                android:id="@+id/permissions_button"
+                android:layout_width="wrap_content"
+                android:layout_height="64dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:text="@string/grant_permission"/>
+
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

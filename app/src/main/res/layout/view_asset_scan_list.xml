@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -17,9 +17,12 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:orientation="vertical">
 
     <io.phobotic.nodyn_app.view.ScanInputView
@@ -32,42 +35,84 @@
     <RelativeLayout
         android:id="@+id/error"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_above="@id/input"
+        android:layout_alignParentTop="true"
+        android:layout_margin="16dp"
         android:visibility="visible">
 
-        <ImageView
-            android:id="@+id/devices"
-            android:layout_width="wrap_content"
+        <!--<ImageView-->
+        <!--android:id="@+id/devices"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:src="@drawable/devices_1"/>-->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/devices_1"/>
-
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/devices"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
-            android:text="@string/asset_scan_list_scan_first_item"
-            android:textAppearance="@android:style/TextAppearance.Material.Large"
-            android:textColor="?colorAccent"/>
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="64dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/asset_scan_list_scan_first_item"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+                android:textColor="?colorAccent"/>
+
+            <ImageSwitcher
+                android:id="@+id/switcher"
+                android:layout_width="@dimen/asset_scan_view_carousel_image_width"
+                android:layout_height="@dimen/asset_scan_view_carousel_image_height"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="64dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+            </ImageSwitcher>
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="32dp"
+                android:text="Look for a property tag or a serial number plate on the asset you wish to check out"
+                android:visibility="gone"/>
+
+            <ImageSwitcher
+                android:id="@+id/example_switcher"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/asset_scan_view_example_image_height"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone"
+                app:srcCompat="@drawable/property_tag_example"/>
+
+        </LinearLayout>
     </RelativeLayout>
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/input"
+        android:clipChildren="false"
         android:clipToPadding="false"
         android:focusable="true"
         android:paddingBottom="8dp"
         android:paddingTop="8dp"
         android:visibility="gone"
         tools:listitem="@layout/view_scanned_asset">
-    </android.support.v7.widget.RecyclerView>
+    </androidx.recyclerview.widget.RecyclerView>
 
 
 </RelativeLayout>

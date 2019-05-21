@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -31,4 +31,9 @@
     <string name="pref_default_check_in_show_verify">false</string>
     <string name="pref_title_check_in_verify">Require asset verification</string>
     <string name="pref_description_check_in_verify">Require associate to verify equipment returned undamaged</string>
+
+    <string name="pref_key_check_in_verification_text">check_in_verification_text</string>
+    <string name="pref_title_check_in_verification_text">Change verification text</string>
+    <string name="pref_description_check_in_verification_text">Github flavored Markdown supported</string>
+    <string name="pref_default_check_in_verification_text">I verify that all equipment scanned was returned undamaged and in working condition.</string>
 </resources>

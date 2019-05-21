@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:clipChildren="false"
+              android:clipToPadding="false"
+              android:orientation="vertical"
+              android:padding="16dp"
+              tools:context=".fragment.dash.CheckoutOverviewFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="@integer/orientation_vertical"
+        android:padding="16dp">
+
+        <io.phobotic.nodyn_app.view.AssetCountView
+            android:id="@+id/available_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_weight="1"
+            app:asset_count="12"
+            app:card_background_color="@color/asset_available_background"
+            app:card_icon="@drawable/monitor_cellphone_star"
+            app:card_label="Available to check out"/>
+
+        <io.phobotic.nodyn_app.view.AssetCountView
+            android:id="@+id/out_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_weight="1"
+            app:asset_count="12"
+            app:card_background_color="@color/asset_checked_out_background"
+            app:card_icon="@drawable/arrow_up_bold_hexagon_outline"
+            app:card_label="Checked out"/>
+
+        <io.phobotic.nodyn_app.view.AssetCountView
+            android:id="@+id/past_due_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            app:asset_count="12"
+            app:card_background_color="@color/asset_past_due_background"
+            app:card_icon="@drawable/calendar_clock"
+            app:card_label="Past Due"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/past_due_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"/>
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

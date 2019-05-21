@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
               android:orientation="vertical"
               android:weightSum="1">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -45,7 +45,7 @@
             android:focusableInTouchMode="false"
             android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -53,10 +53,9 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
                 android:clickable="false"
-                android:elevation="0dp"
+                android:elevation="2dp"
                 android:focusable="false"
-                app:cardBackgroundColor="@color/settings_header_background"
-                app:cardCornerRadius="3dp">
+                app:cardCornerRadius="@dimen/card_corner_radius">
 
                 <LinearLayout
                     android:id="@+id/holder"
@@ -147,6 +146,15 @@
                         app:title="Beta Preferences"
                         />
 
+                    <io.phobotic.nodyn_app.view.PreferenceSection
+                        android:id="@+id/experimental"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClick"
+                        app:icon="@drawable/ic_flask_white_36dp"
+                        app:title="Experimental"
+                        />
+
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -212,9 +220,9 @@
                     </LinearLayout>
                 </LinearLayout>
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/fragment_card"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -226,15 +234,15 @@
                 android:elevation="0dp"
                 android:focusable="false"
                 android:visibility="gone"
-                app:cardCornerRadius="3dp">
+                app:cardCornerRadius="@dimen/card_corner_radius">
 
                 <FrameLayout
                     android:id="@+id/frame"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="16dp"/>
+                    />
 
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

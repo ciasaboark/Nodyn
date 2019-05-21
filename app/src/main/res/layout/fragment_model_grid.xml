@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -24,33 +24,39 @@
                 android:clipToPadding="false"
                 tools:context="io.phobotic.nodyn_app.fragment.dash.ModelGridFragment">
 
-    <android.support.v7.widget.GridLayout
+    <androidx.gridlayout.widget.GridLayout
         android:id="@+id/grid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         grid:alignmentMode="alignBounds"
         grid:columnOrderPreserved="true"
-        grid:orientation="vertical"
-
-        />
+        grid:orientation="vertical"/>
 
     <RelativeLayout
         android:id="@+id/overflow_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/grid"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:visibility="gone">
 
-        <android.support.v7.widget.GridLayout
+        <androidx.gridlayout.widget.GridLayout
             android:id="@+id/grid_overflow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:visibility="gone"
             grid:alignmentMode="alignBounds"
             grid:columnOrderPreserved="true"
-            grid:orientation="vertical"
-            />
+            grid:orientation="vertical"/>
     </RelativeLayout>
 
     <Button

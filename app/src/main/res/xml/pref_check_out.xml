@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -18,66 +18,97 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:app="http://schemas.android.com/apk/res-auto">
-    <SwitchPreferenceCompat
-        android:defaultValue="@string/pref_default_check_out_require_authorization"
-        android:icon="@drawable/ic_account_card_details_grey600_24dp"
-        android:key="@string/pref_key_check_out_require_authorization"
-        android:title="@string/pref_title_check_out_require_authorization"/>
 
-    <MultiSelectListPreference
-        android:defaultValue="@array/empty_array"
-        android:dependency="@string/pref_key_check_out_require_authorization"
-        android:entries="@array/empty_array"
-        android:entryValues="@array/empty_array"
-        android:key="@string/pref_key_check_out_authorization_groups"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="OK"
-        android:title="@string/pref_title_check_out_authorization_groups"/>
+    <PreferenceCategory
+        android:title="Authorization">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_check_out_require_authorization"
+            android:icon="@drawable/ic_account_card_details_grey600_24dp"
+            android:key="@string/pref_key_check_out_require_authorization"
+            android:summaryOff="@string/pref_description_disabled_check_out_require_authorization"
+            android:summaryOn="@string/pref_description_enabled_check_out_require_authorization"
+            android:title="@string/pref_title_check_out_require_authorization"/>
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/empty_array"
+            android:dependency="@string/pref_key_check_out_require_authorization"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            android:icon="@drawable/ic_account_group_grey600_24dp"
+            android:key="@string/pref_key_check_out_authorization_groups"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="OK"
+            android:title="@string/pref_title_check_out_authorization_groups"/>
+
+        <io.phobotic.nodyn_app.preference.NumberPickerPreference
+            style="@style/AppPreference.DialogPreference"
+            android:defaultValue="@string/pref_default_check_out_timeout_limit"
+            android:dependency="@string/pref_key_check_out_require_authorization"
+            android:icon="@drawable/ic_clock_alert_grey600_24dp"
+            android:key="@string/pref_key_check_out_timeout_limit"
+            android:title="@string/pref_title_check_out_timeout_limit"/>
+    </PreferenceCategory>
 
 
-    <SwitchPreferenceCompat
-        android:defaultValue="@string/pref_default_check_out_all_models"
-        android:disableDependentsState="true"
-        android:key="@string/pref_key_check_out_all_models"
-        android:summary="@string/pref_description_check_out_all_models"
-        android:title="@string/pref_title_check_out_all_models"/>
+    <PreferenceCategory
+        android:title="Allowed Assets">
 
-    <MultiSelectListPreference
-        android:defaultValue="@array/empty_array"
-        android:dependency="@string/pref_key_check_out_all_models"
-        android:entries="@array/empty_array"
-        android:entryValues="@array/empty_array"
-        android:key="@string/pref_key_check_out_models"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="OK"
-        android:title="@string/pref_title_check_out_models"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_check_out_all_models"
+            android:disableDependentsState="true"
+            android:key="@string/pref_key_check_out_all_models"
+            android:summary="@string/pref_description_check_out_all_models"
+            android:title="@string/pref_title_check_out_all_models"/>
 
-    <SwitchPreferenceCompat
-        android:defaultValue="@string/pref_default_check_out_verify"
-        android:icon="@drawable/ic_approval_grey600_24dp"
-        android:key="@string/pref_key_check_out_verify"
-        android:summary="@string/pref_description_check_out_verify"
-        android:title="@string/pref_title_check_out_verify"/>
+        <MultiSelectListPreference
+            android:defaultValue="@array/empty_array"
+            android:dependency="@string/pref_key_check_out_all_models"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            android:key="@string/pref_key_check_out_models"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="OK"
+            android:title="@string/pref_title_check_out_models"/>
 
-    <Preference
-        android:dependency="@string/pref_key_check_out_verify"
-        android:icon="@drawable/ic_pencil_grey600_24dp"
-        android:key="@string/pref_key_check_out_eula"
-        android:summary="@string/pref_description_check_out_eula"
-        android:title="@string/pref_title_check_out_eula"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:disableDependentsState="true"
+            android:icon="@drawable/ic_tag_grey600_24dp"
+            android:key="@string/pref_key_asset_status_allow_all"
+            android:summary="@string/pref_description_asset_status_allow_all"
+            android:title="@string/pref_title_asset_status_allow_all"/>
 
-    <SwitchPreferenceCompat
-        android:defaultValue="@string/pref_default_check_out_timeout_enabled"
-        android:icon="@drawable/ic_clock_alert_grey600_24dp"
-        android:key="@string/pref_key_check_out_timeout_enabled"
-        android:summary="@string/pref_description_check_out_timeout_enabled"
-        android:title="@string/pref_title_check_out_timeout_enabled"/>
+        <MultiSelectListPreference
+            android:defaultValue="@array/empty_array"
+            android:dependency="@string/pref_key_asset_status_allow_all"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            android:key="@string/pref_key_asset_status_allowed_statuses"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="OK"
+            android:title="@string/pref_title_asset_status_allowed_statuses"/>
+    </PreferenceCategory>
 
-    <EditTextPreference
-        android:defaultValue="@string/pref_default_check_out_timeout_limit"
-        android:dependency="@string/pref_key_check_out_timeout_enabled"
-        android:inputType="number"
-        android:key="@string/pref_key_check_out_timeout_limit"
-        android:title="@string/pref_title_check_out_timeout_limit"/>
+    <PreferenceCategory
+        android:title="EULA">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_check_out_verify"
+            android:icon="@drawable/ic_approval_grey600_24dp"
+            android:key="@string/pref_key_check_out_verify"
+            android:summaryOff="@string/pref_description_disabled_check_out_verify"
+            android:summaryOn="@string/pref_description_enabled_check_out_verify"
+            android:title="@string/pref_title_check_out_verify"/>
+
+        <Preference
+            android:dependency="@string/pref_key_check_out_verify"
+            android:icon="@drawable/ic_pencil_grey600_24dp"
+            android:key="@string/pref_key_check_out_eula"
+            android:summary="@string/pref_description_check_out_eula"
+            android:title="@string/pref_title_check_out_eula"/>
+
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

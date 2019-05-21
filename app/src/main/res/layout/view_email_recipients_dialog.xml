@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -25,14 +25,24 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
         android:layout_weight="1"
-        tools:listitem="@layout/view_email_recipient"/>
+        android:layoutAnimation="@anim/layout_animation_fall_down"
+        tools:listitem="@layout/view_email_recipient">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <TextView
+        android:id="@+id/error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="No email recipients defined yet"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -53,8 +63,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?selectableItemBackgroundBorderless"
+            android:enabled="false"
             android:text="@string/add"
-            android:textColor="?colorAccent"/>
+            android:textColor="@color/text_button_color"/>
     </LinearLayout>
 
 </LinearLayout>

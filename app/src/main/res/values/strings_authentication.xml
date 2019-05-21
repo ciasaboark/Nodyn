@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="user_authorization_message_check_out" formatted="false">Assets check-outs will be authorized by %1$s</string>
+    <string name="user_authorization_message_check_in" formatted="false">Assets check-ins will be authorized by %1$s</string>
+    <string name="user_authorization_message_audit" formatted="false">Asset audit will be performed by %1$s</string>
+
+    <string name="user_authorization_error_authorize_failed" formatted="false">User %1$s can not authorize asset %2$ss."</string>
+
+    <string name="user_authorization_title_check_outs">Asset check outs require authorization</string>
+    <string name="user_authorization_title_check_ins">Asset check ins require authorization</string>
+    <string name="user_authorization_title_audit">Asset audits require authorization</string>
+</resources>
