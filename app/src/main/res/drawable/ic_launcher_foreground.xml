@@ -1,0 +1,58 @@
+<!--
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:aapt="http://schemas.android.com/aapt"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="108dp"
+        android:height="108dp"
+        android:viewportHeight="108"
+        android:viewportWidth="108">
+    <path
+        android:fillAlpha="0.8"
+        android:fillType="evenOdd"
+        android:pathData="M65.484,35.33l9.476,10.267l1.971,1.068l31.07,31.015l-0,30.319l-36.176,0l-36.323,-35.934l0.301,-2.688l2.815,-0l0.309,-1.158l-7.288,-8.265l4.978,-9.861z"
+        android:strokeColor="#00000000"
+        android:strokeWidth="1">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="107.47864"
+                android:endY="71.6592"
+                android:startX="31.63899"
+                android:startY="70.89031"
+                android:type="linear">
+                <item
+                    android:color="#41373737"
+                    android:offset="0"/>
+                <item
+                    android:color="#00000000"
+                    android:offset="0.99947214"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="nonZero"
+        android:pathData="M80,54.167C80,48.472 75.624,43.855 70.225,43.855C69.785,43.855 69.356,43.896 68.932,43.956C68.559,36.735 62.892,31 55.956,31C50.293,31 45.98,35.35 44.198,40.679C43.247,40.417 41.748,39.747 40.719,39.747C34.246,39.747 29,45.283 29,52.113C29,58.127 33.069,63.132 38.461,64.244L38.461,68.268L36.369,68.268C35.473,68.268 34.744,69.034 34.744,69.981C34.744,71.444 35.748,73 37.608,73L71.665,73C73.525,73 74.528,71.444 74.528,69.981C74.528,69.034 73.802,68.268 72.905,68.268L70.813,68.268L70.813,64.447C75.938,64.126 80,59.653 80,54.167ZM40.083,49.831C40.083,49.256 40.529,48.787 41.074,48.787L68.198,48.787C68.744,48.787 69.189,49.256 69.189,49.831L69.189,64.478L69.189,67.995C69.189,68.134 69.162,68.265 69.115,68.386L40.159,68.386C40.111,68.265 40.083,68.134 40.083,67.995L40.083,64.445L40.083,49.831ZM72.905,69.981C72.905,69.981 72.905,71.287 71.665,71.287C70.429,71.287 38.846,71.287 37.608,71.287C36.369,71.287 36.369,69.981 36.369,69.981L40.159,69.981L69.115,69.981L72.905,69.981Z"
+        android:strokeColor="#00000000"
+        android:strokeWidth="1"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="nonZero"
+        android:pathData="M68,64.53l0,-14.53l-27,0l0,14.53l0,2.47l27,0z"
+        android:strokeColor="#00000000"
+        android:strokeWidth="1"/>
+</vector>
