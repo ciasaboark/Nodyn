@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -34,6 +32,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.activity.SettingsActivity;
 import io.phobotic.nodyn_app.database.Database;
@@ -98,15 +98,19 @@ public class SettingsHelper {
     }
 
     public static void loadKioskSettings(final Context context, @Nullable final Bundle bundle) {
-        final boolean kioskMode = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-                context.getString(R.string.pref_key_general_kiosk), Boolean.parseBoolean(
-                        context.getString(R.string.pref_default_general_kiosk)));
+        final boolean isSettingsLocked = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+                context.getString(R.string.pref_key_general_kiosk_lock_settings), Boolean.parseBoolean(
+                        context.getString(R.string.pref_default_general_kiosk_lock_settings)));
 
-        if (kioskMode) {
+        String storedPassword = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(context.getString(R.string.pref_key_general_kiosk_password), null);
+
+        //just in case someone managed to set an empty password
+        if (isSettingsLocked && storedPassword != null && storedPassword.length() > 0) {
             final KioskPasswordView kioskView = new KioskPasswordView(context);
 
             final AlertDialog d = new AlertDialog.Builder(context)
-                    .setTitle("Enter kiosk password")
+                    .setTitle(context.getString(R.string.pref_settings_password_title))
                     .setView(kioskView)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override

@@ -20,6 +20,10 @@
     <!-- User settings -->
     <string name="pref_header_users">Users</string>
 
+    <string name="pref_key_users_enable_browse">users_enable</string>
+    <string name="pref_default_users_enable_browse">true</string>
+    <string name="pref_title_users_enable_browse">Show User Browser</string>
+    <string name="pref_description_users_enable_browse">Show the user browser in the navigation menu</string>
 
     <string name="pref_key_users_enable_avatars">users_enable_avatars</string>
     <string name="pref_default_users_enable_avatars">false</string>

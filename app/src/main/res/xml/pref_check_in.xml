@@ -18,34 +18,45 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreferenceCompat
-        android:defaultValue="pref_default_check_in_require_scan"
-        android:icon="@drawable/ic_account_card_details_grey600_24dp"
-        android:key="@string/pref_key_check_in_require_scan"
-        android:title="@string/pref_title_check_in_require_scan"/>
+        android:defaultValue="@string/pref_default_checkin_allow"
+        android:icon="@drawable/ic_arrow_up_bold_hexagon_outline_grey600_24dp"
+        android:key="@string/pref_key_checkin_allow"
+        android:summary="@string/pref_description_checkin_allow"
+        android:title="@string/pref_title_checkin_allow"/>
 
-    <MultiSelectListPreference
-        android:defaultValue="@array/empty_array"
-        android:dependency="@string/pref_key_check_in_require_scan"
-        android:entries="@array/empty_array"
-        android:entryValues="@array/empty_array"
-        android:key="@string/pref_key_check_in_authenticating_groups"
-        android:icon="@drawable/ic_account_group_grey600_24dp"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="OK"
-        android:title="@string/pref_title_check_in_authenticating_groups"/>
+    <PreferenceCategory
+        android:dependency="@string/pref_key_checkin_allow"
+        android:title="Authorization">
+        <SwitchPreferenceCompat
+            android:defaultValue="pref_default_check_in_require_scan"
+            android:icon="@drawable/ic_account_card_details_grey600_24dp"
+            android:key="@string/pref_key_check_in_require_scan"
+            android:title="@string/pref_title_check_in_require_scan"/>
 
-    <SwitchPreferenceCompat
-        android:defaultValue="@string/pref_default_check_in_show_verify"
-        android:dependency="@string/pref_key_check_in_require_scan"
-        android:icon="@drawable/ic_verified_grey600_24dp"
-        android:key="@string/pref_key_check_in_show_verify"
-        android:summary="@string/pref_description_check_in_verify"
-        android:title="@string/pref_title_check_in_verify"/>
+        <MultiSelectListPreference
+            android:defaultValue="@array/empty_array"
+            android:dependency="@string/pref_key_check_in_require_scan"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            android:icon="@drawable/ic_account_group_grey600_24dp"
+            android:key="@string/pref_key_check_in_authenticating_groups"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="OK"
+            android:title="@string/pref_title_check_in_authenticating_groups"/>
 
-    <Preference
-        android:dependency="@string/pref_key_check_in_show_verify"
-        android:icon="@drawable/ic_pencil_grey600_24dp"
-        android:key="@string/pref_key_check_in_verification_text"
-        android:summary="@string/pref_description_check_out_eula"
-        android:title="@string/pref_title_check_in_verification_text"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_check_in_show_verify"
+            android:dependency="@string/pref_key_check_in_require_scan"
+            android:icon="@drawable/ic_verified_grey600_24dp"
+            android:key="@string/pref_key_check_in_show_verify"
+            android:summary="@string/pref_description_check_in_verify"
+            android:title="@string/pref_title_check_in_verify"/>
+
+        <Preference
+            android:dependency="@string/pref_key_check_in_show_verify"
+            android:icon="@drawable/ic_pencil_grey600_24dp"
+            android:key="@string/pref_key_check_in_verification_text"
+            android:summary="@string/pref_description_check_out_eula"
+            android:title="@string/pref_title_check_in_verification_text"/>
+    </PreferenceCategory>
 </PreferenceScreen>

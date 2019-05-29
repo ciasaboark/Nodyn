@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +20,6 @@ package io.phobotic.nodyn_app.sync.adapter.snipeit3;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -60,6 +55,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
@@ -349,6 +349,11 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
     }
 
     @Override
+    public String getAdapterName() {
+        return "Snipe-it";
+    }
+
+    @Override
     public FullDataModel fetchFullModel(Context context) throws SyncException {
         try {
             sendProgressBroadcast(context, 0);
@@ -619,6 +624,12 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
 
     @Override
     public List<Action> getActivity(Context context, int page) throws SyncException, SyncNotSupportedException {
+        throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
+                "SnipeIt version 3.x does not support pulling history records");
+    }
+
+    @Override
+    public List<Action> getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "SnipeIt version 3.x does not support pulling history records");
     }

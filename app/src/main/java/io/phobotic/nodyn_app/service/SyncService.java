@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,6 @@ package io.phobotic.nodyn_app.service;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -37,6 +34,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
@@ -67,8 +67,9 @@ public class SyncService extends IntentService {
     public static final String BROADCAST_SYNC_DEBUG = "sync_debug";
     public static final String BROADCAST_SYNC_PROGRESS_MAIN = "sync_progress_main";
     public static final String BROADCAST_SYNC_PROGRESS_SUB = "sync_progress_sub";
-    public static final String BROADCAST_SYNC_PROGRESS_SUB_KEY = "sync_progress_sub";
+    public static final String BROADCAST_SYNC_PROGRESS_SUB_KEY = "sync_progress_sub_key";
     public static final String BROADCAST_SYNC_MESSAGE = "sync_message";
+    public static final String BROADCAST_SYNC_SUB_MESSAGE = "sync_sub_message";
     private static final String TAG = SyncService.class.getSimpleName();
 
 
@@ -102,7 +103,7 @@ public class SyncService extends IntentService {
             Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_SUCCESS));
 
 
-            prefs.edit().putBoolean(getString(R.string.sync_key_first_sync_completed), true).commit();
+            prefs.edit().putBoolean(getString(R.string.sync_key_first_sync_completed), true).apply();
         } catch (Exception e) {
             Crashlytics.logException(e);
             Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_FAILED));
@@ -152,6 +153,11 @@ public class SyncService extends IntentService {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean emailEnabled = preferences.getBoolean("email_enable", false);
         if (failedActions.size() > 0) {
+            //todo this should be updated so that the action items include a field showing the
+            //+ times a sync has been attempted, as well as the last attempt timestamp.  Only actions
+            //+ that have failed multiple sync attempts should be marked as synced and purged
+            //+ (how would this differentiate between actions rejected by the sync backend and
+            //+ ones that failed due to a recoverable error?
             if (!emailEnabled) {
                 //if the user has the email service disabled then we need to go ahead and mark any
                 //+ failed actions as 'synced'.  If not these actions will continue to be resent
@@ -182,8 +188,8 @@ public class SyncService extends IntentService {
 
                 List<EmailRecipient> recipients = new ArrayList<>();
                 String addressesString = preferences.getString(
-                        getString(R.string.pref_key_email_exceptions_addresses),
-                        getString(R.string.pref_default_email_exceptions_addresses));
+                        getString(R.string.pref_key_equipment_managers_addresses),
+                        getString(R.string.pref_default_equipment_managers_addresses));
                 String[] addresses = addressesString.split(",");
                 for (String address : addresses) {
                     recipients.add(new EmailRecipient(address));
@@ -232,7 +238,7 @@ public class SyncService extends IntentService {
 
     private @NotNull
     String convertActionsToString(@NotNull List<Action> actions) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         sb.append("<small><table><tr>");
         sb.append("<th>Action ID</th>" +
                 "<th>Type</th>" +
@@ -277,7 +283,7 @@ public class SyncService extends IntentService {
             Database db = Database.getInstance(this);
 
             //try to use the asset tag instead of the ID number if possible
-            String assetTag = String.valueOf(a.getAssetID() + "<id>");
+            String assetTag = a.getAssetID() + "<id>";
             if (a.getAssetID() != -1) {
                 try {
                     Asset asset = db.findAssetByID(a.getAssetID());
@@ -287,7 +293,7 @@ public class SyncService extends IntentService {
                 }
             }
 
-            String username = String.valueOf(a.getUserID() + "<id>");
+            String username = a.getUserID() + "<id>";
             if (a.getUserID() != -1) {
                 try {
                     User user = db.findUserByID(a.getUserID());

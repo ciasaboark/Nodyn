@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,6 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.Toolbar;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -48,14 +44,16 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.DateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.TimeZone;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import io.phobotic.nodyn_app.MoonCalculation;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.Versioning;
@@ -82,7 +80,7 @@ public class AboutActivity extends AppCompatActivity {
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
     private void setupActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         setSupportActionBar(toolbar);
 
@@ -117,88 +115,28 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     private void findViews() {
-        versionText = (TextView) findViewById(R.id.about_version_number);
+        versionText = findViewById(R.id.about_version_number);
         background = findViewById(R.id.background);
-        intro = (TextView) findViewById(R.id.about_intro);
-        introContinued = (TextView) findViewById(R.id.about_intro_continued);
+        intro = findViewById(R.id.about_intro);
+        introContinued = findViewById(R.id.about_intro_continued);
         introContinued.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private void initSourceText() {
-        CardView card = (CardView) findViewById(R.id.card_source);
+        CardView card = findViewById(R.id.card_source);
         animateInCard(card);
 
-        TextView sourceText1 = (TextView) findViewById(R.id.about_source_text1);
+        TextView sourceText1 = findViewById(R.id.about_source_text1);
         sourceText1.setMovementMethod(LinkMovementMethod.getInstance());
 
-        TextView sourceText2 = (TextView) findViewById(R.id.about_source_text2);
+        TextView sourceText2 = findViewById(R.id.about_source_text2);
         sourceText2.setMovementMethod(LinkMovementMethod.getInstance());
-    }
-
-    private void initBugsText() {
-        CardView card = (CardView) findViewById(R.id.card_bugs);
-        animateInCard(card);
-
-        TextView bugsText1 = (TextView) findViewById(R.id.about_bugs_text1);
-        bugsText1.setMovementMethod(LinkMovementMethod.getInstance());
-
-        TextView bugsText2 = (TextView) findViewById(R.id.about_bugs_text2);
-        bugsText2.setMovementMethod(LinkMovementMethod.getInstance());
-    }
-
-    private void initCommentsText() {
-        CardView card = (CardView) findViewById(R.id.card_contact);
-        animateInCard(card);
-
-        TextView commentsText1 = (TextView) findViewById(R.id.about_comments_text1);
-        commentsText1.setMovementMethod(LinkMovementMethod.getInstance());
-
-        TextView commentsText2 = (TextView) findViewById(R.id.about_comments_text2);
-        commentsText2.setMovementMethod(LinkMovementMethod.getInstance());
-    }
-
-    private void initVersionTextView() {
-        TextView versionText = (TextView) findViewById(R.id.about_version_number);
-        String formattedVersion = String.format(getString(R.string.about_version),
-                Versioning.getVersionCode());
-        versionText.setText(formattedVersion);
-        //textview using marquee scrolling, but this only works if the textview is selected
-        versionText.setSelected(true);
-    }
-
-    private void initLicenseView() {
-        CardView card = (CardView) findViewById(R.id.card_license);
-        animateInCard(card);
-
-        TextView licenseText1 = (TextView) findViewById(R.id.about_license_text1);
-        licenseText1.setMovementMethod(LinkMovementMethod.getInstance());
-
-        TextView licenseText2 = (TextView) findViewById(R.id.about_license_text2);
-        licenseText2.setMovementMethod(LinkMovementMethod.getInstance());
-    }
-
-    private void initAnimation(final TextView intro, final TextView introContinued) {
-
-
-        MoonCalculation moonCalculation = new MoonCalculation();
-        Calendar cal = Calendar.getInstance();
-        for (int i = 0; i < 30; i++) {
-            int year = cal.get(Calendar.YEAR);
-            int day = cal.get(Calendar.DAY_OF_MONTH);
-            int month = cal.get(Calendar.MONTH) + 1;    //Moon calculation expects Jan = 1
-            int phase = moonCalculation.moonPhase(year, month, day);
-            String phaseName = MoonCalculation.moon_phase_name[phase];
-            DateFormat df = DateFormat.getDateTimeInstance();
-            Log.d(TAG, df.format(new Date(cal.getTimeInMillis())) + ": " + phaseName);
-
-            cal.add(Calendar.DAY_OF_MONTH, 1);
-        }
     }
 
     private void animateInCard(final View view) {
         view.setVisibility(View.GONE);
 
-        Animation bottomUp = AnimationUtils.loadAnimation(this, R.anim.bottom_up);
+        Animation bottomUp = AnimationUtils.loadAnimation(this, R.anim.enter_from_bottom);
         Random random = new Random(System.currentTimeMillis());
         long startOffset = random.nextInt(200);
         bottomUp.setStartOffset(startOffset);
@@ -219,6 +157,66 @@ public class AboutActivity extends AppCompatActivity {
             }
         });
         view.startAnimation(bottomUp);
+    }
+
+    private void initBugsText() {
+        CardView card = findViewById(R.id.card_bugs);
+        animateInCard(card);
+
+        TextView bugsText1 = findViewById(R.id.about_bugs_text1);
+        bugsText1.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView bugsText2 = findViewById(R.id.about_bugs_text2);
+        bugsText2.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void initCommentsText() {
+        CardView card = findViewById(R.id.card_contact);
+        animateInCard(card);
+
+        TextView commentsText1 = findViewById(R.id.about_comments_text1);
+        commentsText1.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView commentsText2 = findViewById(R.id.about_comments_text2);
+        commentsText2.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void initVersionTextView() {
+        TextView versionText = findViewById(R.id.about_version_number);
+        String formattedVersion = String.format(getString(R.string.about_version),
+                Versioning.getVersionCode());
+        versionText.setText(formattedVersion);
+        //textview using marquee scrolling, but this only works if the textview is selected
+        versionText.setSelected(true);
+    }
+
+    private void initLicenseView() {
+        CardView card = findViewById(R.id.card_license);
+        animateInCard(card);
+
+        TextView licenseText1 = findViewById(R.id.about_license_text1);
+        licenseText1.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView licenseText2 = findViewById(R.id.about_license_text2);
+        licenseText2.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void initAnimation(final TextView intro, final TextView introContinued) {
+        animateTransition();
+
+//        MoonCalculation moonCalculation = new MoonCalculation();
+//        Calendar cal = Calendar.getInstance();
+//        for (int i = 0; i < 30; i++) {
+//            int year = cal.get(Calendar.YEAR);
+//            int day = cal.get(Calendar.DAY_OF_MONTH);
+//            int month = cal.get(Calendar.MONTH) + 1;    //Moon calculation expects Jan = 1
+//            int phase = moonCalculation.moonPhase(year, month, day);
+//            String phaseName = MoonCalculation.moon_phase_name[phase];
+//            DateFormat df = DateFormat.getDateTimeInstance();
+//            Log.d(TAG, df.format(new Date(cal.getTimeInMillis())) + ": " + phaseName);
+//
+//            cal.add(Calendar.DAY_OF_MONTH, 1);
+//        }
     }
 
     private void animateTransition() {
@@ -264,7 +262,7 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     private void animateLogoChange() {
-        final ImageView logo = (ImageView) findViewById(R.id.logo);
+        final ImageView logo = findViewById(R.id.logo);
         AnimationDrawable logoDrawable = (AnimationDrawable) getResources().getDrawable(R.drawable.about_logo);
         logo.setImageDrawable(logoDrawable);
         logoDrawable.setEnterFadeDuration(1000);

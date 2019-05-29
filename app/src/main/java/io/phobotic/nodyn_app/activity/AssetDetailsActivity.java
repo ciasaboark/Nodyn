@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,16 +19,16 @@ package io.phobotic.nodyn_app.activity;
 
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.widget.FrameLayout;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.Asset;
-import io.phobotic.nodyn_app.fragment.AssetDetailsFragment;
+import io.phobotic.nodyn_app.fragment.asset.AssetDetailsFragment;
 
 public class AssetDetailsActivity extends AppCompatActivity {
     public static final String BUNDLE_ASSET = "asset";
@@ -43,7 +43,7 @@ public class AssetDetailsActivity extends AppCompatActivity {
 
         asset = (Asset) getIntent().getSerializableExtra(BUNDLE_ASSET);
 
-        FrameLayout frame = (FrameLayout) findViewById(R.id.frame);
+        FrameLayout frame = findViewById(R.id.frame);
 
         if (savedInstanceState == null) {
             Fragment newFragment = AssetDetailsFragment.newInstance(asset);
@@ -56,7 +56,7 @@ public class AssetDetailsActivity extends AppCompatActivity {
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
     private void setupActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         setSupportActionBar(toolbar);
 

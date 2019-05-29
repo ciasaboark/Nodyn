@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ public class UserTableHelper extends TableHelper<User> {
         int[] groupIDs = user.getGroupsIDs();
         if (groupIDs != null) {
             for (int g : groupIDs) {
-                groupsString += prefix + String.valueOf(g);
+                groupsString += prefix + g;
                 prefix = ",";
             }
         }
@@ -175,6 +175,7 @@ public class UserTableHelper extends TableHelper<User> {
         String notes = cursor.getString(cursor.getColumnIndex(User.Columns.NOTES));
         int companyID = cursor.getInt(cursor.getColumnIndex(User.Columns.COMPANY_ID));
         String avatarURL = cursor.getString(cursor.getColumnIndex(User.Columns.AVATAR_URL));
+        String employeeNum = cursor.getString(cursor.getColumnIndex(User.Columns.EMPLOYEE_NUM));
 
         String[] numParts = groupsString.split(",");
         int[] groupIDs = new int[numParts.length];
@@ -199,6 +200,7 @@ public class UserTableHelper extends TableHelper<User> {
                 .setUsername(username)
                 .setLocationID(locationID)
                 .setManagerID(managerID)
+                .setEmployeeNum(employeeNum)
 //                .setNumAssets(numAssets)
                 .setGroupsIDs(groupIDs)
                 .setNotes(notes)

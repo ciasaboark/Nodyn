@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -40,4 +40,14 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:title="@string/pref_title_sync_frequency"/>
+
+    <PreferenceCategory
+        android:title="Email Reports">
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_email_exceptions"
+            android:icon="@drawable/ic_sync_alert_grey600_24dp"
+            android:key="@string/pref_key_email_exceptions"
+            android:summary="@string/pref_summary_email_exceptions"
+            android:title="@string/pref_title_email_exceptions"/>
+    </PreferenceCategory>
 </PreferenceScreen>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
 package io.phobotic.nodyn_app.sync;
 
 import android.content.Context;
-import android.support.v7.preference.PreferenceManager;
 
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.dummy.DummyAdapter;
 import io.phobotic.nodyn_app.sync.adapter.snipeit3.SnipeIt3SyncAdapter;

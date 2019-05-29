@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,15 @@ package io.phobotic.nodyn_app.fragment.audit;
 
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 import io.phobotic.nodyn_app.R;
 import me.relex.circleindicator.CircleIndicator;
 
@@ -59,11 +59,11 @@ public class AuditIntroFragment extends Fragment {
     }
 
     private void initPager() {
-        ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
+        ViewPager pager = rootView.findViewById(R.id.pager);
         PagerAdapter adapter = new ScreenSlidePagerAdapter(getFragmentManager());
         pager.setAdapter(adapter);
 
-        CircleIndicator indicator = (CircleIndicator) rootView.findViewById(R.id.indicator);
+        CircleIndicator indicator = rootView.findViewById(R.id.indicator);
         indicator.setViewPager(pager);
     }
 

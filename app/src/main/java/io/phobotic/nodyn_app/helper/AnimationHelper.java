@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ package io.phobotic.nodyn_app.helper;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -28,6 +27,7 @@ import android.view.animation.AnimationUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.NonNull;
 import io.phobotic.nodyn_app.R;
 
 /**
@@ -36,6 +36,10 @@ import io.phobotic.nodyn_app.R;
 
 public class AnimationHelper {
     public static void fadeOut(@NotNull final Context context, @NotNull final View v) {
+        fadeOut(context, v, View.GONE);
+    }
+
+    private static void fadeOut(@NotNull final Context context, @NotNull final View v, final int mode) {
         if (v.getVisibility() != View.VISIBLE) {
             return;
         }
@@ -49,7 +53,7 @@ public class AnimationHelper {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                v.setVisibility(View.GONE);
+                v.setVisibility(mode);
             }
 
             @Override
@@ -59,6 +63,12 @@ public class AnimationHelper {
         });
         v.startAnimation(fadeOut);
     }
+
+    public static void fadeOutInvisible(@NotNull final Context context, @NotNull final View v) {
+        fadeOut(context, v, View.INVISIBLE);
+    }
+
+
 
     public static void scaleUp(@NonNull final Context context, @NotNull final View v) {
         if (v.getVisibility() == View.VISIBLE) {
@@ -303,6 +313,9 @@ public class AnimationHelper {
             @Override
             public void onAnimationEnd(Animator animation) {
                 v.setVisibility(View.GONE);
+                v.setAlpha(1.0f);
+                v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                v.getLayoutParams().height = v.getMeasuredHeight();
             }
 
             @Override

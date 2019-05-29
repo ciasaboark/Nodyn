@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -34,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.text.DateFormat;
 import java.util.Date;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.avatar.AvatarHelper;
 import io.phobotic.nodyn_app.database.Database;
@@ -87,21 +87,21 @@ public class ActionView extends RelativeLayout {
         });
 
         collapse = rootView.findViewById(R.id.collapse);
-        icon = (ImageView) rootView.findViewById(R.id.icon);
-        direction = (TextView) rootView.findViewById(R.id.direction);
-        user = (TextView) rootView.findViewById(R.id.user);
-        userImage = (ImageView) rootView.findViewById(R.id.user_image);
+        icon = rootView.findViewById(R.id.icon);
+        direction = rootView.findViewById(R.id.direction);
+        user = rootView.findViewById(R.id.user);
+        userImage = rootView.findViewById(R.id.user_image);
 
-        asset = (TextView) rootView.findViewById(R.id.asset);
-        assetImage = (ImageView) rootView.findViewById(R.id.asset_image);
+        asset = rootView.findViewById(R.id.asset);
+        assetImage = rootView.findViewById(R.id.asset_image);
 
-        timestamp = (TextView) rootView.findViewById(R.id.time);
+        timestamp = rootView.findViewById(R.id.time);
 
-        verifiedImage = (ImageView) rootView.findViewById(R.id.verified);
-        authorizedImage = (ImageView) rootView.findViewById(R.id.authorized);
-        syncedImage = (ImageView) rootView.findViewById(R.id.synced);
+        verifiedImage = rootView.findViewById(R.id.verified);
+        authorizedImage = rootView.findViewById(R.id.authorized);
+        syncedImage = rootView.findViewById(R.id.synced);
 
-        notes = (TextView) rootView.findViewById(R.id.notes);
+        notes = rootView.findViewById(R.id.notes);
 
         setFields();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,19 +24,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.Pair;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,18 +31,32 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.google.android.material.navigation.NavigationView;
+
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.fragment.ActionHistoryFragment;
-import io.phobotic.nodyn_app.fragment.AssetListFragment;
 import io.phobotic.nodyn_app.fragment.BackendErrorFragment;
 import io.phobotic.nodyn_app.fragment.DashboardFragment;
 import io.phobotic.nodyn_app.fragment.FirstSyncErrorFragment;
-import io.phobotic.nodyn_app.fragment.UserListFragment;
+import io.phobotic.nodyn_app.fragment.asset.AssetListFragment;
 import io.phobotic.nodyn_app.fragment.listener.OnListFragmentInteractionListener;
+import io.phobotic.nodyn_app.fragment.user.UserListFragment;
 import io.phobotic.nodyn_app.helper.SettingsHelper;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 import io.phobotic.nodyn_app.service.StatisticsService;
@@ -75,25 +76,26 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.Main);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         final View v = findViewById(R.id.drawer_layout);
 
-        FrameLayout frame = (FrameLayout) findViewById(R.id.frame);
+        FrameLayout frame = findViewById(R.id.frame);
 
         Fragment newFragment = null;
 
@@ -112,12 +114,17 @@ public class MainActivity extends AppCompatActivity
         }
 
         //override the new fragment if we need to show the sync adapter error
+        boolean hideSyncOverflowOption = false;
         if (shouldShowAdapterError()) {
             newFragment = BackendErrorFragment.newInstance();
+            hideSyncOverflowOption = true;
         } else if (shouldShowFirstSyncError()) {
             newFragment = FirstSyncErrorFragment.newInstance();
             ((FirstSyncErrorFragment) newFragment).setOnSetupCompleteListener(this);
+            hideSyncOverflowOption = true;
         }
+
+
         updateMainFragment(newFragment);
 
         Intent i = getIntent();
@@ -218,6 +225,13 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
+        //hide the sync now button from the overflow menu if the backend has not been configured yet
+        if (currentFragment != null &&
+                (currentFragment instanceof FirstSyncErrorFragment || currentFragment instanceof BackendErrorFragment)) {
+            MenuItem item = menu.findItem(R.id.action_sync);
+            item.setVisible(false);
+        }
         return true;
     }
 
@@ -237,7 +251,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -277,7 +291,7 @@ public class MainActivity extends AppCompatActivity
      * Adjust the enabled/disabled state of the navigation drawer items for assets and users
      */
     private void setDrawerIconsState() {
-        NavigationView nav = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView nav = findViewById(R.id.nav_view);
         boolean itemEnabled = getMenuIconsState();
         Menu menu = nav.getMenu();
         MenuItem dash = menu.findItem(R.id.nav_dash);
@@ -301,12 +315,32 @@ public class MainActivity extends AppCompatActivity
      * Hide the asset audit navigation menu item if audits have been disabled in settings
      */
     private void hideDrawerIcons() {
-        NavigationView nav = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView nav = findViewById(R.id.nav_view);
+        Menu menu = nav.getMenu();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        boolean checkInEnabled = prefs.getBoolean(getString(R.string.pref_key_checkin_allow),
+                Boolean.parseBoolean(getString(R.string.pref_default_checkin_allow)));
+        MenuItem checkInItem = menu.findItem(R.id.nav_check_in);
+        checkInItem.setVisible(checkInEnabled);
+
+        boolean checkOutEnabled = prefs.getBoolean(getString(R.string.pref_key_checkout_allow),
+                Boolean.parseBoolean(getString(R.string.pref_default_checkout_allow)));
+        MenuItem checkOutItem = menu.findItem(R.id.nav_check_out);
+        checkOutItem.setVisible(checkOutEnabled);
+
+        boolean assetsEnabled = prefs.getBoolean(getString(R.string.pref_key_asset_enable_browse),
+                Boolean.parseBoolean(getString(R.string.pref_default_asset_enable_browse)));
+        MenuItem assetsItem = menu.findItem(R.id.nav_assets);
+        assetsItem.setVisible(assetsEnabled);
+
+        boolean usersEnabled = prefs.getBoolean(getString(R.string.pref_key_users_enable_browse),
+                Boolean.parseBoolean(getString(R.string.pref_default_users_enable_browse)));
+        MenuItem usersItem = menu.findItem(R.id.nav_users);
+        usersItem.setVisible(usersEnabled);
+
         boolean auditsEnabled = prefs.getBoolean(getString(R.string.pref_key_audit_enable_audits),
                 Boolean.parseBoolean(getString(R.string.pref_default_audit_enable_audits)));
-
-        Menu menu = nav.getMenu();
         MenuItem auditItem = menu.findItem(R.id.nav_audit);
         auditItem.setVisible(auditsEnabled);
     }
@@ -388,7 +422,7 @@ public class MainActivity extends AppCompatActivity
             updateMainFragment(newFragment);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return highlightItem;
     }

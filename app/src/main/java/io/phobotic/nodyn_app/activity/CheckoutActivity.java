@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +19,6 @@ package io.phobotic.nodyn_app.activity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
@@ -34,14 +26,21 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.fragment.CheckOutAuthorizationFragment;
 import io.phobotic.nodyn_app.fragment.CheckOutFragment;
+import io.phobotic.nodyn_app.fragment.UserAuthorizationFragment;
 import io.phobotic.nodyn_app.fragment.listener.CheckInOutListener;
-import io.phobotic.nodyn_app.transition.DetailsTransition;
 
-public class CheckoutActivity extends AppCompatActivity implements CheckInOutListener {
+public class CheckoutActivity extends AppCompatActivity implements CheckInOutListener, UserAuthorizationFragment.OnUserAuthorizedListener {
     private static final String TAG = CheckoutActivity.class.getSimpleName();
 
     @Override
@@ -69,8 +68,10 @@ public class CheckoutActivity extends AppCompatActivity implements CheckInOutLis
                         Log.e(TAG, "Unable to parse selected group ID '" + s + "' as integer value, skipping");
                     }
                 }
-                newFragment = CheckOutAuthorizationFragment.newInstance(groupIDList);
-                ((CheckOutAuthorizationFragment) newFragment).setListener(this);
+                newFragment = UserAuthorizationFragment.newInstance(
+                        UserAuthorizationFragment.Role.CHECK_OUT, groupIDList, false)
+                        .setListener(this);
+
             } else {
                 newFragment = CheckOutFragment.newInstance(null);
                 ((CheckOutFragment) newFragment).setListener(this);
@@ -85,7 +86,7 @@ public class CheckoutActivity extends AppCompatActivity implements CheckInOutLis
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
     private void setupActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         setSupportActionBar(toolbar);
 
@@ -98,11 +99,11 @@ public class CheckoutActivity extends AppCompatActivity implements CheckInOutLis
 
     protected boolean isValidFragment(String fragmentName) {
         return CheckOutFragment.class.getName().equals(fragmentName)
-                || CheckOutAuthorizationFragment.class.getName().equals(fragmentName);
+                || UserAuthorizationFragment.class.getName().equals(fragmentName);
     }
 
     @Override
-    public void onCheckOutAuthorized(User authorizedUser) {
+    public void onUserAuthorized(User authorizedUser) {
         loadCheckOutFragment(authorizedUser);
     }
 
@@ -116,14 +117,11 @@ public class CheckoutActivity extends AppCompatActivity implements CheckInOutLis
     private void loadFragment(Fragment fragment) {
         FragmentManager fm = getSupportFragmentManager();
         Fragment curFragment = fm.findFragmentById(R.id.frame);
-        fragment.setSharedElementEnterTransition(new DetailsTransition());
-//        fragment.setEnterTransition(new Fade());
-        fragment.setSharedElementReturnTransition(new DetailsTransition());
 
         FragmentTransaction ft = fm.beginTransaction();
 
-        ft.setCustomAnimations(R.anim.bottom_up,
-                android.R.anim.fade_out);
+//        ft.setCustomAnimations(android.R.anim.fade_out,
+//                android.R.anim.fade_out);
 
         if (curFragment == null) {
             ft.add(R.id.frame, fragment);

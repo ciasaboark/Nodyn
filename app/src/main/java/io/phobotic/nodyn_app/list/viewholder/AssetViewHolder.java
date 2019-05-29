@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 
 package io.phobotic.nodyn_app.list.viewholder;
 
-import android.support.v7.widget.RecyclerView;
 
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.fragment.SimplifiedAsset;
 import io.phobotic.nodyn_app.view.AssetView;
 

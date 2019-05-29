@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -28,6 +27,7 @@ import android.widget.RelativeLayout;
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 
 /**
@@ -49,7 +49,7 @@ public class EnableKioskDialogView extends RelativeLayout {
 
     private void init() {
         rootView = inflate(context, R.layout.dialog_enable_kiosk, this);
-        passwordInput = (EditText) rootView.findViewById(R.id.password);
+        passwordInput = rootView.findViewById(R.id.password);
 
         passwordInput.addTextChangedListener(new TextWatcher() {
             @Override

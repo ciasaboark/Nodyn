@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com> 
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -37,6 +36,7 @@ import com.squareup.picasso.Transformation;
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.model.AuditDetailRecord;
@@ -84,24 +84,24 @@ public class AuditedAssetView extends RelativeLayout {
 
     private void init() {
         rootView = inflate(context, R.layout.view_audited_asset, this);
-        tag = (TextView) rootView.findViewById(R.id.tag);
+        tag = rootView.findViewById(R.id.tag);
 
-        serial = (TextView) rootView.findViewById(R.id.serial);
+        serial = rootView.findViewById(R.id.serial);
         serialBox = rootView.findViewById(R.id.serial_box);
 
-        model = (TextView) rootView.findViewById(R.id.model);
+        model = rootView.findViewById(R.id.model);
         modelBox = rootView.findViewById(R.id.model_box);
 
-        deleteButton = (Button) findViewById(R.id.delete_button);
-        editButton = (ImageButton) findViewById(R.id.edit_button);
-        notes = (EditText) findViewById(R.id.notes);
+        deleteButton = findViewById(R.id.delete_button);
+        editButton = findViewById(R.id.edit_button);
+        notes = findViewById(R.id.notes);
         footer = findViewById(R.id.footer);
-        image = (ImageView) findViewById(R.id.image);
+        image = findViewById(R.id.image);
 
-        damagedRadioButton = (RadioButton) findViewById(R.id.radio_state_damaged);
-        undamagedRadioButton = (RadioButton) findViewById(R.id.radio_state_undamaged);
-        unknownRadioButton = (RadioButton) findViewById(R.id.radio_state_unknown);
-        unexpectedRadioButton = (RadioButton) findViewById(R.id.radio_state_unexpected);
+        damagedRadioButton = findViewById(R.id.radio_state_damaged);
+        undamagedRadioButton = findViewById(R.id.radio_state_undamaged);
+        unknownRadioButton = findViewById(R.id.radio_state_unknown);
+        unexpectedRadioButton = findViewById(R.id.radio_state_unexpected);
 
         setFields();
         initButtons();
@@ -273,7 +273,7 @@ public class AuditedAssetView extends RelativeLayout {
             if (footer.getVisibility() != View.VISIBLE) footer.setVisibility(View.VISIBLE);
         }
 
-        editButton.getDrawable().setTint(ColorHelper.fetchAccentColor(getContext()));
+        editButton.getDrawable().setTint(ColorHelper.getStyleAccentColor(getContext()));
     }
 
     public void collapse(boolean animate) {

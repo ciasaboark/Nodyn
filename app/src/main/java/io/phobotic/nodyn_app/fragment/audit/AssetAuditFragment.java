@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,13 +28,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,6 +45,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -62,6 +57,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
@@ -76,8 +77,8 @@ import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.database.model.Status;
 import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.helper.AnimationHelper;
 import io.phobotic.nodyn_app.helper.GridColumnHelper;
+import io.phobotic.nodyn_app.helper.MediaHelper;
 import io.phobotic.nodyn_app.helper.TextHelper;
 import io.phobotic.nodyn_app.list.adapter.AuditedAssetRecyclerViewAdapter;
 import io.phobotic.nodyn_app.list.adapter.UnauditedAssetRecyclerViewAdapter;
@@ -109,12 +110,12 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     private AuditStatusListener listener;
     private View error;
     private View listHolder;
-    private View headerDetails;
-    private TextView detailIntro;
-    private TextView detailModels;
-    private TextView detailStatuses;
+    //    private View headerDetails;
+//    private TextView detailIntro;
+//    private TextView detailModels;
+//    private TextView detailStatuses;
     private TextView title;
-    private TextView detailBlind;
+    //    private TextView detailBlind;
     private FloatingActionButton submitButton;
     private ScanInputView input;
     private ImageView dragHandle;
@@ -192,11 +193,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         Log.d(TAG, item.toString());
         switch (item.getItemId()) {
             case R.id.action_help:
-                if (headerDetails.getVisibility() == View.VISIBLE) {
-                    AnimationHelper.collapse(headerDetails);
-                } else {
-                    AnimationHelper.expand(headerDetails);
-                }
+                showHelp();
                 consumed = true;
                 break;
         }
@@ -416,23 +413,32 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         sequence.start();
     }
 
-    private void findViews() {
-        title = (TextView) rootView.findViewById(R.id.title);
-        headerDetails = rootView.findViewById(R.id.details_box);
-        detailIntro = (TextView) rootView.findViewById(R.id.details_intro);
-        detailModels = (TextView) rootView.findViewById(R.id.details_models);
-        detailStatuses = (TextView) rootView.findViewById(R.id.details_statuses);
-        detailBlind = (TextView) rootView.findViewById(R.id.details_blind);
-        auditedAssetsRecyclerView = (RecyclerView) rootView.findViewById(R.id.audited_assets_list);
-        unscannedAssetsRecyclerView = (RecyclerView) rootView.findViewById(R.id.unscanned_assets_list);
-        unscannedAssetsWrapper = rootView.findViewById(R.id.unscanned_assets_wrapper);
-        error = rootView.findViewById(R.id.error);
-        listHolder = rootView.findViewById(R.id.list_holder);
-        submitButton = (FloatingActionButton) rootView.findViewById(R.id.submit_button);
-        input = (ScanInputView) rootView.findViewById(R.id.input);
-        dragHandle = (ImageView) rootView.findViewById(R.id.drag_handle);
-        dragHandleWrapper = rootView.findViewById(R.id.drag_handle_wrapper);
-        spacer = rootView.findViewById(R.id.spacer);
+    private void showHelp() {
+        View v = getLayoutInflater().inflate(R.layout.dialog_audit_help, null);
+        TextView detailIntro = v.findViewById(R.id.details_intro);
+        TextView detailModels = v.findViewById(R.id.details_models);
+        TextView detailStatuses = v.findViewById(R.id.details_statuses);
+        TextView detailBlind = v.findViewById(R.id.details_blind);
+        TextView manualLink = v.findViewById(R.id.manual_link);
+        manualLink.setMovementMethod(LinkMovementMethod.getInstance());
+
+        initIntroDescription(detailIntro);
+        initModelsDescription(detailModels);
+        initStatusesDescription(detailStatuses);
+        initBlindDescription(detailBlind);
+
+        AlertDialog d = new AlertDialog.Builder(getContext())
+                .setTitle("Audit Help")
+                .setView(v)
+                .setIcon(R.drawable.help_circle_outline)
+                .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+        d.show();
     }
 
     private void initButtons() {
@@ -447,21 +453,38 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         submitButton.hide();
     }
 
-    private void initInput() {
-        input.setListener(new ScanInputView.OnTextInputListener() {
-            @Override
-            public void onTextInput(String text) {
-                handleInput(text);
+    private void initIntroDescription(TextView tv) {
+        String intro;
+        if (auditDefinition.getId() == -1) {
+            intro = getString(R.string.audit_detail_description_custom);
+        } else {
+            intro = getString(R.string.audit_detail_description_definition);
+            DateFormat df = DateFormat.getDateInstance();
+
+            //add in the detail line for the date this audit was created.
+            Date createdDate = new Date(auditDefinition.getCreateTimestamp());
+            String createdDateString = df.format(createdDate);
+
+            //add in the last time this audit has been completed
+            String lastAuditString = null;
+            if (auditDefinition.getLastAuditTimestamp() == -1) {
+                //this definition has never been used to complete an audit
+                lastAuditString = getString(R.string.audit_detail_description_definition_no_previous_audit);
+            } else {
+                Date lastAuditDate = new Date(auditDefinition.getLastAuditTimestamp());
+                DateFormat dtf = DateFormat.getDateTimeInstance();
+                String lastAuditDateString = dtf.format(lastAuditDate);
+                lastAuditString = String.format(getString(R.string.audit_detail_description_definition_previous_audit_date), lastAuditDateString);
             }
-        });
+
+            intro = String.format(intro, createdDateString, lastAuditString);
+        }
+
+        tv.setText(intro);
     }
 
     private void initDetails() {
         initTitle();
-        initIntroDescription();
-        initModelsDescription();
-        initStatusesDescription();
-        initBlindDescription();
     }
 
     private void addShowListener(final AlertDialog d) {
@@ -617,139 +640,45 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
     }
 
-    private void confirmSubmitAuditResults() {
-        View v = null;
-        boolean requirePause = false;
+    private void initModelsDescription(TextView tv) {
+        String modelsText;
 
-        if (unscannedAssets.isEmpty()) {
-            v = View.inflate(getContext(), R.layout.view_audit_submit_empty_dialog, null);
-            requirePause = true;
+        if (auditDefinition.isAuditAllModels()) {
+            modelsText = getString(R.string.audit_detail_models_all);
         } else {
-            //if this was a blind audit we can provide a count of the items remaining
-            if (unscannedAssets.isEmpty()) {
-                v = View.inflate(getContext(), R.layout.view_audit_submit_dialog, null);
-            } else {
-                v = View.inflate(getContext(), R.layout.view_audit_submit_unfinished_dialog, null);
-                requirePause = true;
-            }
+            modelsText = getString(R.string.audit_detail_models_list);
         }
 
-        final AlertDialog d = new AlertDialog.Builder(getContext())
-                .setView(v)
-                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        submitAuditResults();
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //nothing to do here
-                    }
-                })
-                .create();
-        final TextView waitTextView = (TextView) v.findViewById(R.id.wait);
+        String modelListString = getModelsListString();
 
-        if (requirePause) {
-            d.setOnShowListener(new DialogInterface.OnShowListener() {
-                final long WAIT_MS = 7000;
-
-                @Override
-                public void onShow(DialogInterface dialog) {
-                    final Button b = d.getButton(DialogInterface.BUTTON_POSITIVE);
-                    b.setEnabled(false);
-                    if (waitTextView != null) {
-                        setWaitText(WAIT_MS);
-                    }
-
-                    CountDownTimer timer = new CountDownTimer(WAIT_MS, 300) {
-                        @Override
-                        public void onTick(long millisUntilFinished) {
-                            if (waitTextView != null) {
-                                setWaitText(millisUntilFinished);
-                            }
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            if (b != null) b.setEnabled(true);
-                            if (waitTextView != null) {
-                                waitTextView.setVisibility(View.INVISIBLE);
-                            }
-                        }
-                    };
-                    timer.start();
-                }
-
-                private void setWaitText(long millisUntilFinished) {
-                    String waitText = getString(R.string.please_wait_timer);
-                    int seconds = Math.round((float) millisUntilFinished / 1000);
-                    waitText = String.format(waitText, seconds);
-                    waitTextView.setText(waitText);
-                }
-            });
-        }
-        d.show();
+        modelsText = String.format(modelsText, modelListString);
+        tv.setText(modelsText);
     }
 
-    private void handleInput(String text) {
-        Database db = Database.getInstance(getContext());
-        try {
-            final Asset a = db.findAssetByTag(text);
-
-            //if the asset scanned was not one of the models we were looking for then show an error
-            if (detailRecordsContains(a)) {
-                //if we have already scanned that asset then show an error
-                showAlreadyScannedDialog();
-            } else if (!unscannedAssets.contains(a)) {
-
-                //if the asset is one of the models we were looking for we can give the auditor the option to add it to the audit
-                if (auditDefinition.getRequiredModelIDs().contains(a.getModelID()) || auditDefinition.isAuditAllModels()) {
-                    showUnexpectedAssetDialog(a);
-                } else {
-                    //otherwise just notify the auditor that an unexpected asset was scanned
-                    showUnwantedAssetDialog();
+    private void initStatusesDescription(TextView tv) {
+        String statusText = null;
+        if (auditDefinition.isAuditAllStatuses()) {
+            statusText = getString(R.string.audit_detail_statuses_all);
+        } else {
+            Database db = Database.getInstance(getContext());
+            StringBuilder sb = new StringBuilder();
+            String prefix = "";
+            for (Integer i : auditDefinition.getRequiredStatusIDs()) {
+                try {
+                    Status s = db.findStatusByID(i);
+                    sb.append(prefix);
+                    sb.append(s.getName());
+                    prefix = ", ";
+                } catch (StatusNotFoundException e) {
+                    // TODO: 2/4/18
                 }
-            } else {
-                //otherwise shift the assets to the other list
-
-                //to prevent having to use notifyDatasetChanged we need to get the index of the asset
-                //+ that was removed
-                int index = -1;
-                for (int i = 0; i < unscannedAssets.size(); i++) {
-                    Asset tempAsset = unscannedAssets.get(i);
-                    if (tempAsset.equals(a)) {
-                        unscannedAssets.remove(i);
-                        index = i;
-                        break;
-                    }
-                }
-                unscannedAssetsRecyclerView.getAdapter().notifyItemRemoved(index);
-
-                animateDownUnscannedCard();
-
-                addAuditedAsset(a, AuditDetailRecord.Status.UNDAMAGED);
             }
 
-        } catch (AssetNotFoundException e) {
-            e.printStackTrace();
-            Log.d(TAG, "Unable to find asset for scanned input string: '" + text + "'");
-            Crashlytics.logException(e);
-
-            AlertDialog d = new AlertDialog.Builder(getContext())
-                    .setTitle(getResources().getString(R.string.asset_scan_list_unknown_asset_title))
-                    .setView(R.layout.view_unknown_asset)
-                    .setNegativeButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .create();
-            d.setOnDismissListener(this);
-            addShowListener(d);
-            d.show();
+            statusText = getString(R.string.audit_detail_statuses_list);
+            statusText = String.format(statusText, sb.toString());
         }
+
+        tv.setText(statusText);
     }
 
     private void animateDownUnscannedCard() {
@@ -770,36 +699,30 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         }
     }
 
-    private void showAlreadyScannedDialog() {
-        final AlertDialog d = new AlertDialog.Builder(getContext())
-                .setTitle("Asset already scanned")
-                .setMessage("This asset has already been scanned")
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //nothing to do here
+    private void initBlindDescription(TextView tv) {
+        String blindText;
+        if (auditDefinition.isBlindAudit()) {
+            blindText = getString(R.string.audit_detail_description_blind_on);
+        } else {
+            blindText = getString(R.string.audit_detail_description_blind_off);
+        }
 
-                    }
-                }).create();
-        d.setOnDismissListener(this);
-        addShowListener(d);
-        d.show();
+        TextHelper.setTextOrHide(tv, tv, blindText);
     }
 
-    private void showUnwantedAssetDialog() {
-        AlertDialog d = new AlertDialog.Builder(getContext())
-                .setTitle("Unexpected asset")
-                .setMessage("This asset is not one of the models selected for auditing.  Please scan another asset")
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //nothing to do here
-                    }
-                })
-                .create();
-        d.setOnDismissListener(this);
-        addShowListener(d);
-        d.show();
+    private void findViews() {
+        title = rootView.findViewById(R.id.title);
+
+        auditedAssetsRecyclerView = rootView.findViewById(R.id.audited_assets_list);
+        unscannedAssetsRecyclerView = rootView.findViewById(R.id.unscanned_assets_list);
+        unscannedAssetsWrapper = rootView.findViewById(R.id.unscanned_assets_wrapper);
+        error = rootView.findViewById(R.id.error);
+        listHolder = rootView.findViewById(R.id.list_holder);
+        submitButton = rootView.findViewById(R.id.submit_button);
+        input = rootView.findViewById(R.id.input);
+        dragHandle = rootView.findViewById(R.id.drag_handle);
+        dragHandleWrapper = rootView.findViewById(R.id.drag_handle_wrapper);
+        spacer = rootView.findViewById(R.id.spacer);
     }
 
     /**
@@ -824,40 +747,18 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         return assetFiltered;
     }
 
-    private void showUnexpectedAssetDialog(final Asset a) {
-        View v = View.inflate(getContext(), R.layout.view_audit_unexpected_scan, null);
-        TextView tv = (TextView) v.findViewById(R.id.statuses);
+    private void initInput() {
+        input.setListener(new ScanInputView.OnTextInputListener() {
+            @Override
+            public void onTextInputFinished(String text) {
+                handleInput(text);
+            }
 
-        //give a summary reason why this asset was not expected.  This should be either because
-        //+ it was filtered out by meta status (assigned/unassigned), or because the asset's
-        //+ status label was not one of the ones selected
-        String reasonText;
-        if (isAssetIncludedInMetaStatusFilter(a)) {
-            reasonText = getUnexpectedMetaStatusReasonText(a);
-        } else {
-            reasonText = getUnexpectedStatusReasonText(a);
-        }
-
-        tv.setText(reasonText);
-
-        AlertDialog d = new AlertDialog.Builder(getContext())
-                .setView(v)
-                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        addAuditedAsset(a, AuditDetailRecord.Status.UNEXPECTED);
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //nothing to do here
-                    }
-                })
-                .create();
-        d.setOnDismissListener(this);
-        addShowListener(d);
-        d.show();
+            @Override
+            public void onTextInputBegin() {
+                //nothing to do here
+            }
+        });
     }
 
     private String getUnexpectedMetaStatusReasonText(Asset a) {
@@ -928,7 +829,251 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         return statuses.toString();
     }
 
+    private void confirmSubmitAuditResults() {
+        View v = null;
+        boolean requirePause = false;
+
+        if (unscannedAssets.isEmpty()) {
+            v = View.inflate(getContext(), R.layout.view_audit_submit_dialog, null);
+        } else if (detailRecords.isEmpty()) {
+            v = View.inflate(getContext(), R.layout.view_audit_submit_empty_dialog, null);
+            requirePause = true;
+        } else {
+            v = View.inflate(getContext(), R.layout.view_audit_submit_unfinished_dialog, null);
+            requirePause = true;
+        }
+
+        final AlertDialog d = new AlertDialog.Builder(getContext())
+                .setView(v)
+                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        submitAuditResults();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //nothing to do here
+                    }
+                })
+                .create();
+        final TextView waitTextView = v.findViewById(R.id.wait);
+
+        if (requirePause) {
+            d.setOnShowListener(new DialogInterface.OnShowListener() {
+                final long WAIT_MS = 7000;
+
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    final Button b = d.getButton(DialogInterface.BUTTON_POSITIVE);
+                    b.setEnabled(false);
+                    if (waitTextView != null) {
+                        setWaitText(WAIT_MS);
+                    }
+
+                    CountDownTimer timer = new CountDownTimer(WAIT_MS, 300) {
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                            if (waitTextView != null) {
+                                setWaitText(millisUntilFinished);
+                            }
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            if (b != null) b.setEnabled(true);
+                            if (waitTextView != null) {
+                                waitTextView.setVisibility(View.INVISIBLE);
+                            }
+                        }
+                    };
+                    timer.start();
+                }
+
+                private void setWaitText(long millisUntilFinished) {
+                    String waitText = getString(R.string.please_wait_timer);
+                    int seconds = Math.round((float) millisUntilFinished / 1000);
+                    waitText = String.format(waitText, seconds);
+                    waitTextView.setText(waitText);
+                }
+            });
+        }
+        d.show();
+    }
+
+    private void initTitle() {
+        String titleString = getString(R.string.audit_detail_title);
+        if (auditDefinition.getName() != null) {
+            titleString = auditDefinition.getName();
+        }
+
+        title.setText(titleString);
+    }
+
+    private void handleInput(String text) {
+        Database db = Database.getInstance(getContext());
+        try {
+            final Asset a = db.findAssetByTag(text);
+
+            //if the asset scanned was not one of the models we were looking for then show an error
+            if (detailRecordsContains(a)) {
+                //if we have already scanned that asset then show an error
+                showAlreadyScannedDialog();
+            } else if (!unscannedAssets.contains(a)) {
+
+                //if the asset is one of the models we were looking for we can give the auditor the option to add it to the audit
+                if (auditDefinition.getRequiredModelIDs().contains(a.getModelID()) || auditDefinition.isAuditAllModels()) {
+                    MediaHelper.playSoundEffect(getContext(), R.raw.original_sound__error_bleep_5);
+                    showUnexpectedAssetDialog(a);
+                } else {
+                    //otherwise just notify the auditor that an unexpected asset was scanned
+                    showUnwantedAssetDialog();
+                }
+            } else {
+                //otherwise shift the assets to the other list
+
+                //to prevent having to use notifyDatasetChanged we need to get the index of the asset
+                //+ that was removed
+                int index = -1;
+                for (int i = 0; i < unscannedAssets.size(); i++) {
+                    Asset tempAsset = unscannedAssets.get(i);
+                    if (tempAsset.equals(a)) {
+                        unscannedAssets.remove(i);
+                        index = i;
+                        break;
+                    }
+                }
+                unscannedAssetsRecyclerView.getAdapter().notifyItemRemoved(index);
+
+                animateDownUnscannedCard();
+
+                addAuditedAsset(a, AuditDetailRecord.Status.UNDAMAGED);
+            }
+
+        } catch (AssetNotFoundException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Unable to find asset for scanned input string: '" + text + "'");
+            Crashlytics.logException(e);
+
+            AlertDialog d = new AlertDialog.Builder(getContext())
+                    .setTitle(getResources().getString(R.string.asset_scan_list_unknown_asset_title))
+                    .setView(R.layout.view_unknown_asset)
+                    .setNegativeButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .create();
+            d.setOnDismissListener(this);
+            addShowListener(d);
+
+            MediaHelper.playSoundEffect(getContext(), R.raw.original_sound__error_bleep_5);
+            d.show();
+        }
+    }
+
+    private void showAlreadyScannedDialog() {
+        final AlertDialog d = new AlertDialog.Builder(getContext())
+                .setTitle("Asset already scanned")
+                .setMessage("This asset has already been scanned")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //nothing to do here
+
+                    }
+                }).create();
+        d.setOnDismissListener(this);
+        addShowListener(d);
+
+        MediaHelper.playSoundEffect(getContext(), R.raw.original_sound__error_bleep_5);
+        d.show();
+    }
+
+    private void showUnwantedAssetDialog() {
+        AlertDialog d = new AlertDialog.Builder(getContext())
+                .setTitle("Unexpected asset")
+                .setMessage("This asset is not one of the models selected for auditing.  Please scan another asset")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //nothing to do here
+                    }
+                })
+                .create();
+        d.setOnDismissListener(this);
+        addShowListener(d);
+
+        MediaHelper.playSoundEffect(getContext(), R.raw.original_sound__error_bleep_5);
+        d.show();
+    }
+
+    private String getModelsListString() {
+        Database db = Database.getInstance(getContext());
+        List<Model> models = new ArrayList<>();
+        if (auditDefinition.isAuditAllModels()) {
+            models = db.getModels();
+        } else {
+            for (Integer i : auditDefinition.getRequiredModelIDs()) {
+                try {
+                    Model m = db.findModelByID(i);
+                    models.add(m);
+                } catch (ModelNotFoundException e) {
+                    // TODO: 2/4/18
+                }
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        String prefix = "";
+        for (Model m : models) {
+            sb.append(prefix);
+            sb.append(m.getName());
+            prefix = ", ";
+        }
+
+        return sb.toString();
+    }
+
+    private void showUnexpectedAssetDialog(final Asset a) {
+        View v = View.inflate(getContext(), R.layout.view_audit_unexpected_scan, null);
+        TextView tv = v.findViewById(R.id.statuses);
+
+        //give a summary reason why this asset was not expected.  This should be either because
+        //+ it was filtered out by meta status (assigned/unassigned), or because the asset's
+        //+ status label was not one of the ones selected
+        String reasonText;
+        if (isAssetIncludedInMetaStatusFilter(a)) {
+            reasonText = getUnexpectedMetaStatusReasonText(a);
+        } else {
+            reasonText = getUnexpectedStatusReasonText(a);
+        }
+
+        tv.setText(reasonText);
+
+        AlertDialog d = new AlertDialog.Builder(getContext())
+                .setView(v)
+                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        addAuditedAsset(a, AuditDetailRecord.Status.UNEXPECTED);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //nothing to do here
+                    }
+                })
+                .create();
+        d.setOnDismissListener(this);
+        addShowListener(d);
+        d.show();
+    }
+
     private void addAuditedAsset(Asset a, AuditDetailRecord.Status status) {
+        MediaHelper.playSoundEffect(getContext(), R.raw.n_audioman__blip);
         AuditDetailRecord record = new AuditDetailRecord(null, audit.getId(), a.getId(), System.currentTimeMillis(), status, null, false);
         detailRecords.add(record);
         auditedAssetsRecyclerView.getAdapter().notifyItemInserted(detailRecords.size() - 1);
@@ -961,124 +1106,6 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 //
 //            sequence.start();
         }
-    }
-
-    private void initTitle() {
-        String titleString = getString(R.string.audit_detail_title);
-        if (auditDefinition.getName() != null) {
-            titleString = auditDefinition.getName();
-        }
-
-        title.setText(titleString);
-    }
-
-    private void initIntroDescription() {
-        String intro;
-        if (auditDefinition.getId() == -1) {
-            intro = getString(R.string.audit_detail_description_custom);
-        } else {
-            intro = getString(R.string.audit_detail_description_definition);
-            DateFormat df = DateFormat.getDateInstance();
-
-            //add in the detail line for the date this audit was created.
-            Date createdDate = new Date(auditDefinition.getCreateTimestamp());
-            String createdDateString = df.format(createdDate);
-
-            //add in the last time this audit has been completed
-            String lastAuditString = null;
-            if (auditDefinition.getLastAuditTimestamp() == -1) {
-                //this definition has never been used to complete an audit
-                lastAuditString = getString(R.string.audit_detail_description_definition_no_previous_audit);
-            } else {
-                Date lastAuditDate = new Date(auditDefinition.getLastAuditTimestamp());
-                DateFormat dtf = DateFormat.getDateTimeInstance();
-                String lastAuditDateString = dtf.format(lastAuditDate);
-                lastAuditString = String.format(getString(R.string.audit_detail_description_definition_previous_audit_date), lastAuditDateString);
-            }
-
-            intro = String.format(intro, createdDateString, lastAuditString);
-        }
-
-        detailIntro.setText(intro);
-    }
-
-    private void initModelsDescription() {
-        String modelsText;
-
-        if (auditDefinition.isAuditAllModels()) {
-            modelsText = getString(R.string.audit_detail_models_all);
-        } else {
-            modelsText = getString(R.string.audit_detail_models_list);
-        }
-
-        String modelListString = getModelsListString();
-
-        modelsText = String.format(modelsText, modelListString);
-        detailModels.setText(modelsText);
-    }
-
-    private String getModelsListString() {
-        Database db = Database.getInstance(getContext());
-        List<Model> models = new ArrayList<>();
-        if (auditDefinition.isAuditAllModels()) {
-            models = db.getModels();
-        } else {
-            for (Integer i : auditDefinition.getRequiredModelIDs()) {
-                try {
-                    Model m = db.findModelByID(i);
-                    models.add(m);
-                } catch (ModelNotFoundException e) {
-                    // TODO: 2/4/18
-                }
-            }
-        }
-
-        StringBuilder sb = new StringBuilder();
-        String prefix = "";
-        for (Model m : models) {
-            sb.append(prefix);
-            sb.append(m.getName());
-            prefix = ", ";
-        }
-
-        return sb.toString();
-    }
-
-    private void initStatusesDescription() {
-        String statusText = null;
-        if (auditDefinition.isAuditAllStatuses()) {
-            statusText = getString(R.string.audit_detail_statuses_all);
-        } else {
-            Database db = Database.getInstance(getContext());
-            StringBuilder sb = new StringBuilder();
-            String prefix = "";
-            for (Integer i : auditDefinition.getRequiredStatusIDs()) {
-                try {
-                    Status s = db.findStatusByID(i);
-                    sb.append(prefix);
-                    sb.append(s.getName());
-                    prefix = ", ";
-                } catch (StatusNotFoundException e) {
-                    // TODO: 2/4/18
-                }
-            }
-
-            statusText = getString(R.string.audit_detail_statuses_list);
-            statusText = String.format(statusText, sb.toString());
-        }
-
-        detailStatuses.setText(statusText);
-    }
-
-    private void initBlindDescription() {
-        String blindText;
-        if (auditDefinition.isBlindAudit()) {
-            blindText = getString(R.string.audit_detail_description_blind_on);
-        } else {
-            blindText = getString(R.string.audit_detail_description_blind_off);
-        }
-
-        TextHelper.setTextOrHide(detailBlind, detailBlind, blindText);
     }
 
     private void updateLists() {

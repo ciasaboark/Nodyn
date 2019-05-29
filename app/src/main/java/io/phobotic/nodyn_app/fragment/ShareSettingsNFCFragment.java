@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,6 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +36,11 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
+import io.phobotic.nodyn_app.BuildConfig;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.preference.SettingsPage;
 import pl.bclogic.pulsator4droid.library.PulsatorLayout;
 
 
@@ -84,9 +86,9 @@ public class ShareSettingsNFCFragment extends Fragment implements NfcAdapter.Cre
     private void init() {
         progress = rootView.findViewById(R.id.progress);
         error = rootView.findViewById(R.id.error);
-        errorMessage = (TextView) error.findViewById(R.id.message);
+        errorMessage = error.findViewById(R.id.message);
         share = rootView.findViewById(R.id.share);
-        PulsatorLayout pulsator = (PulsatorLayout) rootView.findViewById(R.id.pulse);
+        PulsatorLayout pulsator = rootView.findViewById(R.id.pulse);
         pulsator.start();
 
         // NFC isn't available on the device
@@ -141,15 +143,15 @@ public class ShareSettingsNFCFragment extends Fragment implements NfcAdapter.Cre
 
         }
 
-        allPrefs.remove("check_out_eula");
-        allPrefs.remove("pref_snipeit_4_api_key");
-
         Map<String, Object> transferPrefs = new HashMap<>();
 
 
         Gson gson = new Gson();
         String json = gson.toJson(allPrefs);
 
-        return json;
+        SettingsPage settingsPage = new SettingsPage(BuildConfig.VERSION_CODE, 1, 1, json, false);
+        String data = gson.toJson(settingsPage);
+
+        return data;
     }
 }

@@ -126,6 +126,16 @@
                 app:title="Email Preferences"
                 />
 
+
+            <io.phobotic.nodyn_app.view.PreferenceSection
+                android:id="@+id/statistics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"
+                app:icon="@drawable/chart_timeline_variant"
+                app:title="Statistics"
+                />
+
             <io.phobotic.nodyn_app.view.PreferenceSection
                 android:id="@+id/beta"
                 android:layout_width="match_parent"

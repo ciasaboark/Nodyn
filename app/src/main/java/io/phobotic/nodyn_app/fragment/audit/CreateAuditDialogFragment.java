@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,6 @@
 package io.phobotic.nodyn_app.fragment.audit;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +27,9 @@ import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.audit.model.AuditDefinition;
 import io.phobotic.nodyn_app.database.model.Model;
@@ -93,10 +93,10 @@ public class CreateAuditDialogFragment extends DialogFragment implements AuditCr
     }
 
     private void findViews() {
-        frame = (FrameLayout) rootView.findViewById(R.id.frame);
+        frame = rootView.findViewById(R.id.frame);
         intro = rootView.findViewById(R.id.intro);
-        finishButton = (Button) rootView.findViewById(R.id.finish_button);
-        cancelButton = (Button) rootView.findViewById(R.id.cancel_button);
+        finishButton = rootView.findViewById(R.id.finish_button);
+        cancelButton = rootView.findViewById(R.id.cancel_button);
     }
 
     private void initButtons() {

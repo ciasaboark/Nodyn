@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,6 @@ package io.phobotic.nodyn_app.list.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v4.util.Pair;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -30,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.model.Status;
 import io.phobotic.nodyn_app.fragment.SimplifiedAsset;

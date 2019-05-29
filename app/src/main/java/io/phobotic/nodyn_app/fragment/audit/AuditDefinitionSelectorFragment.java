@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,6 @@ package io.phobotic.nodyn_app.fragment.audit;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +29,10 @@ import android.widget.Button;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
 import io.phobotic.nodyn_app.database.audit.model.AuditDefinition;
@@ -91,10 +91,10 @@ public class AuditDefinitionSelectorFragment extends Fragment implements OnAudit
 
     private void findViews() {
         error = rootView.findViewById(R.id.error);
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
-        nextButton = (Button) rootView.findViewById(R.id.next_button);
-        settingsButton = (Button) rootView.findViewById(R.id.settings_button);
-        customAuditButton = (Button) rootView.findViewById(R.id.create_button);
+        recyclerView = rootView.findViewById(R.id.recyclerview);
+        nextButton = rootView.findViewById(R.id.next_button);
+        settingsButton = rootView.findViewById(R.id.settings_button);
+        customAuditButton = rootView.findViewById(R.id.create_button);
         customAuditWarning = rootView.findViewById(R.id.custom_audit_warning);
     }
 

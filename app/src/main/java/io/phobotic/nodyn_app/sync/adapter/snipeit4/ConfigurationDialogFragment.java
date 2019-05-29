@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +20,12 @@ package io.phobotic.nodyn_app.sync.adapter.snipeit4;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import io.phobotic.nodyn_app.R;
 
 /**
@@ -46,7 +46,7 @@ public class ConfigurationDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View rootView = getActivity().getLayoutInflater().inflate(R.layout.fragment_snipe_it_4, null);
 
-        TextView manualLink = (TextView) rootView.findViewById(R.id.manual_link);
+        TextView manualLink = rootView.findViewById(R.id.manual_link);
         manualLink.setMovementMethod(LinkMovementMethod.getInstance());
 
         AlertDialog.Builder b = new AlertDialog.Builder(getActivity())

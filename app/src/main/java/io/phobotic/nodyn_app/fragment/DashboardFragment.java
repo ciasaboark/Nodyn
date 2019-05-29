@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,9 +30,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.fragment.dash.AssetStatusChartFragment;
+import io.phobotic.nodyn_app.fragment.dash.CheckoutOverviewFragment;
 import io.phobotic.nodyn_app.fragment.dash.HistoryChartFragment;
 import io.phobotic.nodyn_app.fragment.dash.ModelGridFragment;
 import io.phobotic.nodyn_app.service.SyncService;
@@ -55,7 +56,7 @@ public class DashboardFragment extends Fragment {
     private BroadcastReceiver br;
     private AssetStatusChartFragment assetStatusChartFragment;
     private ModelGridFragment modelGridFragment;
-    //    private ShortActionHistoryFragment actionHistoryFragment;
+    private CheckoutOverviewFragment overviewFragment;
     private HistoryChartFragment historyChartFragment;
 
 
@@ -101,12 +102,11 @@ public class DashboardFragment extends Fragment {
 
     private void init() {
         FragmentManager fm = getChildFragmentManager();
-        modelGridFragment = (ModelGridFragment) fm.findFragmentById(R.id.overview_grid_fragment);
+        modelGridFragment = (ModelGridFragment) fm.findFragmentById(R.id.model_grid_fragment);
         assetStatusChartFragment = (AssetStatusChartFragment) fm.findFragmentById(R.id.status_chart_fragment);
+        overviewFragment = (CheckoutOverviewFragment) fm.findFragmentById(R.id.checkout_overview_fragment);
         historyChartFragment = (HistoryChartFragment) fm.findFragmentById(R.id.history_chart_fragment);
 
-//        actionHistoryFragment = (ShortActionHistoryFragment) fm.findFragmentById(R.id.action_history_fragment);
-//        actionHistoryFragment.setColumnCount(2);
 
         br = new BroadcastReceiver() {
             @Override
@@ -130,7 +130,7 @@ public class DashboardFragment extends Fragment {
     private void refresh() {
         modelGridFragment.refresh();
         assetStatusChartFragment.refresh();
-//        actionHistoryFragment.refresh();
+        overviewFragment.refresh();
         historyChartFragment.refresh();
         isLoading = false;
     }
@@ -161,13 +161,6 @@ public class DashboardFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean itemHandled = false;
-
-        switch (item.getItemId()) {
-            case R.id.menu_refresh:
-                refreshIfNeeded();
-                itemHandled = true;
-                break;
-        }
 
         return itemHandled;
     }

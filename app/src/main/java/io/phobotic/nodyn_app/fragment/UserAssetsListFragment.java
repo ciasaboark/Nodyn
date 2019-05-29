@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,6 @@ package io.phobotic.nodyn_app.fragment;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,14 +28,18 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.fragment.listener.OnListFragmentInteractionListener;
 import io.phobotic.nodyn_app.helper.AnimationHelper;
-import io.phobotic.nodyn_app.list.VerticalSpaceItemDecoration;
 import io.phobotic.nodyn_app.list.adapter.AssetRecyclerViewAdapter;
+import io.phobotic.nodyn_app.list.decorator.VerticalSpaceItemDecoration;
 
 /**
  * A fragment representing a list of Items.
@@ -108,10 +108,10 @@ public class UserAssetsListFragment extends Fragment {
     }
 
     private void init() {
-        list = (RecyclerView) rootView.findViewById(R.id.list);
+        list = rootView.findViewById(R.id.list);
         error = rootView.findViewById(R.id.error);
-        reason = (TextView) rootView.findViewById(R.id.reason);
-        message = (TextView) rootView.findViewById(R.id.message);
+        reason = rootView.findViewById(R.id.reason);
+        message = rootView.findViewById(R.id.message);
         loading = rootView.findViewById(R.id.loading);
 
         list.setVisibility(View.GONE);
@@ -135,7 +135,7 @@ public class UserAssetsListFragment extends Fragment {
         final float spacingBottom = getResources().getDimension(R.dimen.list_item_spacing_bottom);
         decoration = new VerticalSpaceItemDecoration(spacingTop, spacingBottom);
         final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        list.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        list.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
         list.addItemDecoration(decoration);
     }
 

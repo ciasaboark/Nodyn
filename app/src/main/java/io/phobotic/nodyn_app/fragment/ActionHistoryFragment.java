@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,16 +19,15 @@ package io.phobotic.nodyn_app.fragment;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
@@ -41,14 +40,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.model.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.list.RecyclerViewFastScroller;
-import io.phobotic.nodyn_app.list.VerticalSpaceItemDecoration;
 import io.phobotic.nodyn_app.list.adapter.ActionRecyclerViewAdapter;
+import io.phobotic.nodyn_app.list.decorator.VerticalSpaceItemDecoration;
 import io.phobotic.nodyn_app.sync.SyncManager;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
@@ -74,14 +76,11 @@ public class ActionHistoryFragment extends Fragment {
     private View localUpToDate;
     private View localOnlyWarning;
     private View emptyListWarning;
-    private VerticalSpaceItemDecoration decoration;
     private boolean isLoading = true;
-    //    private boolean fetchOlderRecords = true;
     private boolean canFetchMoreRecords = true;
     private int MAX_RECORDS = 30;
     private SwipeRefreshLayout swipeRefresh;
     private TextView remoteError;
-    private RecyclerViewFastScroller fastScroller;
     private RecyclerView recyclerView;
     private boolean scrollListenerAttached = false;
     private int curPage = 0;
@@ -145,16 +144,15 @@ public class ActionHistoryFragment extends Fragment {
 //            }
 //        });
 
-        fastScroller = (RecyclerViewFastScroller) rootView.findViewById(R.id.fastscroller);
 
 
         list = rootView.findViewById(R.id.list);
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
+        recyclerView = rootView.findViewById(R.id.recyclerview);
         loading = rootView.findViewById(R.id.loading);
         localUpToDate = rootView.findViewById(R.id.sync_up_to_date);
         emptyListWarning = rootView.findViewById(R.id.empty_list_warning);
         localOnlyWarning = rootView.findViewById(R.id.local_only_warning);
-        remoteError = (TextView) rootView.findViewById(R.id.remote_error);
+        remoteError = rootView.findViewById(R.id.remote_error);
 
         initList();
         refresh();
@@ -163,30 +161,11 @@ public class ActionHistoryFragment extends Fragment {
     private void initList() {
         final float spacingTop = getResources().getDimension(R.dimen.list_item_spacing_top);
         final float spacingBottom = getResources().getDimension(R.dimen.list_item_spacing_bottom);
-        decoration = new VerticalSpaceItemDecoration(spacingTop, spacingBottom);
+        RecyclerView.ItemDecoration decoration = new VerticalSpaceItemDecoration(spacingTop, spacingBottom);
         final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false) {
-            @Override
-            public void onLayoutChildren(final RecyclerView.Recycler recycler, final RecyclerView.State state) {
-                super.onLayoutChildren(recycler, state);
-                //TODO if the items are filtered, considered hiding the fast scroller here
-                final int firstVisibleItemPosition = findFirstVisibleItemPosition();
-                if (firstVisibleItemPosition != 0) {
-                    // this avoids trying to handle un-needed calls
-                    if (firstVisibleItemPosition == -1)
-                        //not initialized, or no items shown, so hide fast-scroller
-                        fastScroller.setVisibility(View.GONE);
-                    return;
-                }
-                final int lastVisibleItemPosition = findLastVisibleItemPosition();
-                int itemsShown = lastVisibleItemPosition - firstVisibleItemPosition + 1;
-                //if all items are shown, hide the fast-scroller
-                fastScroller.setVisibility(recyclerView.getAdapter().getItemCount() > itemsShown ? View.VISIBLE : View.GONE);
-            }
-        });
-        fastScroller.setRecyclerView(recyclerView);
-        fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller__fast_scroller, R.id.fastscroller_bubble, R.id.fastscroller_handle);
         recyclerView.addItemDecoration(decoration);
+        recyclerView.setLayoutManager(layoutManager);
+
     }
 
     private void refresh() {
@@ -201,6 +180,7 @@ public class ActionHistoryFragment extends Fragment {
 
         actionList = new ArrayList<>();
         recyclerView.setAdapter(new ActionRecyclerViewAdapter(actionList, null));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
 
         FetchUnsyncedAsyncTask unsyncedAsyncTask = new FetchUnsyncedAsyncTask();
         if (asset != null) {
@@ -223,7 +203,7 @@ public class ActionHistoryFragment extends Fragment {
                     //+ remote records
                     actionList.addAll(0, unsyncedActions);
                     if (unsyncedActions.isEmpty()) {
-                        showView(localUpToDate);
+                        showLocalUpToDateMessage();
                     }
 
                     fetchPage();
@@ -232,21 +212,26 @@ public class ActionHistoryFragment extends Fragment {
         }
     }
 
-    private void showView(final View v) {
-        if (v.getVisibility() == View.VISIBLE) {
-            return;
-        }
-
-        Animation fadeIn = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
-        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+    /**
+     * Show the local up to date sync message for a few seconds
+     */
+    private void showLocalUpToDateMessage() {
+        Animation enterTop = AnimationUtils.loadAnimation(getContext(), R.anim.enter_from_top);
+        enterTop.setInterpolator(new AccelerateInterpolator());
+        enterTop.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                v.setVisibility(View.VISIBLE);
+                localUpToDate.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        hideLocalUptoDateMessage();
+                    }
+                }, 5000);
             }
 
             @Override
@@ -254,17 +239,33 @@ public class ActionHistoryFragment extends Fragment {
 
             }
         });
-        v.startAnimation(fadeIn);
+        enterTop.setDuration(1000);
+        localUpToDate.startAnimation(enterTop);
     }
 
-    private void fetchPage() {
-        FetchRemoteAsyncTask fetchRemoteAsyncTask = new FetchRemoteAsyncTask();
-        if (asset != null) {
-            fetchRemoteAsyncTask.execute(asset, curPage);
-        } else if (user != null) {
-            fetchRemoteAsyncTask.execute(user, curPage);
-        } else {
-            fetchRemoteAsyncTask.execute(null, curPage);
+    private void hideLocalUptoDateMessage() {
+        Context context = getContext();
+        if (context != null) {
+            Animation exitTop = AnimationUtils.loadAnimation(context, R.anim.exit_top);
+            exitTop.setInterpolator(new AccelerateInterpolator());
+            exitTop.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    localUpToDate.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            exitTop.setDuration(1000);
+            localUpToDate.startAnimation(exitTop);
         }
     }
 
@@ -279,7 +280,8 @@ public class ActionHistoryFragment extends Fragment {
                     //+ at the end of the list.
                     if (page > 0) {
                         actionList.remove(actionList.size() - 1);
-                        recyclerView.getAdapter().notifyItemRemoved(actionList.size());
+                        RecyclerView.Adapter adapter = recyclerView.getAdapter();
+                        adapter.notifyItemRemoved(actionList.size());
                     }
 
                     for (Action a : remoteActions) {
@@ -309,6 +311,21 @@ public class ActionHistoryFragment extends Fragment {
         }
 
         attachScrollListenerIfNeeded();
+    }
+
+    private void fetchPage() {
+        FetchRemoteAsyncTask fetchRemoteAsyncTask = new FetchRemoteAsyncTask();
+        if (asset != null) {
+            fetchRemoteAsyncTask.execute(asset, curPage);
+        } else if (user != null) {
+            fetchRemoteAsyncTask.execute(user, curPage);
+        } else {
+            fetchRemoteAsyncTask.execute(null, curPage);
+        }
+    }
+
+    private void showView(final View v) {
+        v.setVisibility(View.VISIBLE);
     }
 
     private void showList() {

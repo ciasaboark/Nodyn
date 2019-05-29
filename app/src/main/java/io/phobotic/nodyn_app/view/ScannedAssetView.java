@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageButton;
@@ -32,6 +31,7 @@ import com.squareup.picasso.Transformation;
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.Asset;
 
@@ -68,17 +68,17 @@ public class ScannedAssetView extends RelativeLayout {
 
     private void init() {
         rootView = inflate(context, R.layout.view_scanned_asset, this);
-        tag = (TextView) rootView.findViewById(R.id.tag);
+        tag = rootView.findViewById(R.id.tag);
 
-        serial = (TextView) rootView.findViewById(R.id.serial);
+        serial = rootView.findViewById(R.id.serial);
         serialBox = rootView.findViewById(R.id.serial_box);
 
-        model = (TextView) rootView.findViewById(R.id.model);
+        model = rootView.findViewById(R.id.model);
         modelBox = rootView.findViewById(R.id.model_box);
 
-        deleteButton = (ImageButton) findViewById(R.id.delete_button);
-        checkButton = (ImageView) findViewById(R.id.check_button);
-        image = (ImageView) findViewById(R.id.image);
+        deleteButton = findViewById(R.id.delete_button);
+        checkButton = findViewById(R.id.check_button);
+        image = findViewById(R.id.image);
 
         setFields();
     }

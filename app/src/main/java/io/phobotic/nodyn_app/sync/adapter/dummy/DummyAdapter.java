@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,14 @@
 package io.phobotic.nodyn_app.sync.adapter.dummy;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import io.phobotic.nodyn_app.database.model.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Category;
@@ -52,6 +54,11 @@ public class DummyAdapter implements SyncAdapter {
 
     public List<Manufacturer> fetchManufacturers(Context context) throws SyncException {
         return null;
+    }
+
+    @Override
+    public String getAdapterName() {
+        return "fake backend";
     }
 
     @Override
@@ -133,6 +140,12 @@ public class DummyAdapter implements SyncAdapter {
 
     @Override
     public List<Action> getActivity(Context context, int page) throws SyncException, SyncNotSupportedException {
+        throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
+                "Sync adapter does not support pulling asset history records");
+    }
+
+    @Override
+    public List<Action> getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "Sync adapter does not support pulling asset history records");
     }

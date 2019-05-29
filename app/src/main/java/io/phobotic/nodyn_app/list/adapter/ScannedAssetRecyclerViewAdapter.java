@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,14 @@
 package io.phobotic.nodyn_app.list.adapter;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+
+import com.github.captain_miao.optroundcardview.OptRoundCardView;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -32,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
@@ -85,6 +88,51 @@ public class ScannedAssetRecyclerViewAdapter extends
         holder.item = items.get(position);
         ((ScannedAssetView) holder.view).setAsset(holder.item);
         ((ScannedAssetView) holder.view).setAssetRemovable(assetsRemoveable);
+
+        View card = holder.view.findViewById(R.id.card);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+        );
+
+        int horzMargin = context.getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+        int topMargin = 0;
+        int bottomMargin = 0;
+        //if this is the only card then show all corners.
+        if (items.size() == 1) {
+            if (card instanceof OptRoundCardView) {
+                ((OptRoundCardView) card).showCorner(true, true, true, true);
+                topMargin = horzMargin;
+                bottomMargin = horzMargin;
+            }
+        } else {
+            //otherwise show corners only on the top of the first card and the bottom of the last
+            if (position == 0) {
+                if (card instanceof OptRoundCardView) {
+                    ((OptRoundCardView) card).showCorner(true, true, false, false);
+                    topMargin = horzMargin;
+                }
+            } else if (position == items.size() - 1) {
+                //if this is the
+                if (card instanceof OptRoundCardView) {
+                    ((OptRoundCardView) card).showCorner(false, false, true, true);
+                    bottomMargin = horzMargin;
+                }
+            } else {
+                if (card instanceof OptRoundCardView) {
+                    ((OptRoundCardView) card).showCorner(false, false, false, false);
+                }
+            }
+        }
+
+
+        params.setMargins(horzMargin, topMargin, horzMargin, bottomMargin);
+        card.setLayoutParams(params);
+
+        if (card instanceof OptRoundCardView) {
+            ((OptRoundCardView) card).showEdgeShadow(false, false, false, false);
+        }
+        card.setElevation(2.0f);
 
         int modelID = holder.item.getModelID();
         String modelName = modelMap.get(holder.item.getModelID());
@@ -165,7 +213,7 @@ public class ScannedAssetRecyclerViewAdapter extends
         public ViewHolder(View view) {
             super(view);
             this.view = view;
-            this.deleteButton = (ImageButton) view.findViewById(R.id.delete_button);
+            this.deleteButton = view.findViewById(R.id.delete_button);
         }
     }
 }

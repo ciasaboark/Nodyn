@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,22 @@ public class ColorHelper {
         }
     }
 
-    public static int fetchAccentColor(Context context) {
+    public static int getSecondaryValueTextColorForBackground(@NotNull Context context, int statusColor) {
+        int red = Color.red(statusColor);
+        int green = Color.green(statusColor);
+        int blue = Color.blue(statusColor);
+        int alpha = Color.alpha(statusColor);
+
+        double a = 1 - (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+
+        if (a < 0.5) {
+            return Color.argb(255, 40, 40, 40);
+        } else {
+            return Color.argb(255, 240, 240, 240);
+        }
+    }
+
+    public static int getStyleAccentColor(Context context) {
         int color = context.getResources().getColor(R.color.audit_accent);
         try {
             TypedValue typedValue = new TypedValue();

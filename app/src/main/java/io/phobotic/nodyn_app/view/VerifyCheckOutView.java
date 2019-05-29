@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +19,19 @@ package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.Nullable;
-import android.support.v7.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import org.jetbrains.annotations.NotNull;
+
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.avatar.AvatarHelper;
+import io.phobotic.nodyn_app.database.model.User;
 
 /**
  * Created by Jonathan Nelson on 9/6/17.
@@ -36,29 +42,48 @@ public class VerifyCheckOutView extends LinearLayout {
     private final Context context;
     private ObservableMarkdownView markdownView;
     private View rootView;
+    private User user;
 
-    public VerifyCheckOutView(Context context, @Nullable AttributeSet attrs) {
+    public VerifyCheckOutView(@NotNull User user, @NotNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
+        this.user = user;
         init();
     }
 
     private void init() {
-        rootView = inflate(context, R.layout.view_markdown_wrapper, this);
+        rootView = inflate(context, R.layout.view_verify_checkout, this);
 
-        markdownView = (ObservableMarkdownView) rootView.findViewById(R.id.markdown);
+        markdownView = rootView.findViewById(R.id.markdown);
 
-        initMarkdown();
+        if (!isInEditMode()) {
+            initUserDetails();
+            initMarkdown();
+        }
+    }
+
+    private void initUserDetails() {
+        ImageView image = rootView.findViewById(R.id.image);
+        TextView textView = rootView.findViewById(R.id.username);
+        textView.setText(user.getName());
+        AvatarHelper helper = new AvatarHelper();
+        helper.loadAvater(context, user, image, 90);
     }
 
     private void initMarkdown() {
-        if (!isInEditMode()) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            String eulaText = prefs.getString(getResources().getString(R.string.pref_key_check_out_eula),
-                    getResources().getString(R.string.check_out_no_eula_set));
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String eulaText = prefs.getString(getResources().getString(R.string.pref_key_check_out_eula), null);
 
-            markdownView.loadMarkdown(eulaText);
+        //if no EULA text has been set fall back to the default
+        if (eulaText == null) {
+            eulaText = getResources().getString(R.string.pref_default_check_out_eula);
+        } else if (eulaText.length() == 0) {
+            //if the EULA has been set to an empty string then don't use the default, just indicate that no
+            //+ EULA has been set
+            eulaText = getResources().getString(R.string.check_out_no_eula_set);
         }
+
+        markdownView.loadMarkdown(eulaText);
     }
 
     public ObservableMarkdownView getMarkdownView() {

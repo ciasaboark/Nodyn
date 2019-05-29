@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.crashlytics.android.answers.Answers;
@@ -36,6 +35,7 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.reporting.CustomEvents;
 import io.phobotic.nodyn_app.service.PastDueAlertService;
@@ -155,30 +155,29 @@ public class SyncScheduler {
 
         long now = System.currentTimeMillis();
 
-        //gather statistics every 30 minutes
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date(now));
-        cal.set(Calendar.MINUTE, cal.getActualMinimum(Calendar.MINUTE));
-        cal.set(Calendar.SECOND, cal.getActualMinimum(Calendar.SECOND));
-        cal.set(Calendar.MILLISECOND, cal.getActualMinimum(Calendar.MILLISECOND));
+        cal.set(Calendar.HOUR_OF_DAY, cal.getActualMaximum(Calendar.HOUR_OF_DAY));
+        cal.set(Calendar.MINUTE, cal.getActualMaximum(Calendar.MINUTE));
+        cal.set(Calendar.SECOND, cal.getActualMaximum(Calendar.SECOND));
+        cal.set(Calendar.MILLISECOND, cal.getActualMaximum(Calendar.MILLISECOND));
         Date d;
         DateFormat df = DateFormat.getDateTimeInstance();
         long wakeAt = cal.getTimeInMillis();
-        int tryCount = 0;
 
-        while (wakeAt < now && tryCount < 2) {
+
+        while (wakeAt < now) {
             d = new Date(cal.getTimeInMillis());
             String dateString = df.format(d);
             Log.d(TAG, "Too late for statistics service wake time of " + dateString + ", pushing ahead by 30 minutes");
-            cal.add(Calendar.MINUTE, 30);
+            cal.add(Calendar.DAY_OF_MONTH, 1);
             wakeAt = cal.getTimeInMillis();
-            tryCount++;
         }
 
 
         d = new Date(cal.getTimeInMillis());
         String dateString = df.format(d);
-        Log.d(TAG, "Scheduleing statistics service wake at " + dateString);
+        Log.d(TAG, "Scheduling statistics service wake at " + dateString);
         schedulePendingIntent(pi, wakeAt);
     }
 

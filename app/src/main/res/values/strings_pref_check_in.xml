@@ -20,6 +20,11 @@
 <resources>
     <string name="pref_header_check_in">Asset check In</string>
 
+    <string name="pref_key_checkin_allow">checkin_enable</string>
+    <string name="pref_default_checkin_allow">true</string>
+    <string name="pref_title_checkin_allow">Allow Asset Checkins</string>
+    <string name="pref_description_checkin_allow">Allow this device to check in assets</string>
+
     <string name="pref_key_check_in_require_scan">check_in_require_scan</string>
     <string name="pref_default_check_in_require_scan">false</string>
     <string name="pref_title_check_in_require_scan">Require authorization to check in assets</string>

@@ -27,7 +27,7 @@
     <item
         android:width="300dp"
         android:height="300dp"
-        android:drawable="@drawable/ic_icon"
+        android:drawable="@mipmap/splash_screen"
         android:gravity="center">
 
     </item>

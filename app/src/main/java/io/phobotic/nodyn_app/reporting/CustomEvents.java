@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,4 +47,6 @@ public class CustomEvents {
     public static final String CHECKIN_ASST_COUNT = "Assets checked in this session";
     public static final String AUDIT_RESULTS_ERROR_EMAIL_NOT_SENT = "Audit results email could not be sent";
     public static final String AUDIT_RESULTS_EMAIL_SENT = "Audit results email sent successfully";
+    public static final String STATISTICS_EMAIL_SENT = "Statistics email was sent successfully";
+    public static final String STATISTICS_EMAIL_NOT_SENT = "Statistics email could not be sent";
 }

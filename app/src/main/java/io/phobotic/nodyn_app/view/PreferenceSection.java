@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,21 +18,25 @@
 package io.phobotic.nodyn_app.view;
 
 import android.animation.Animator;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.Random;
-
+import androidx.annotation.ColorInt;
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 
 /**
@@ -59,9 +63,9 @@ public class PreferenceSection extends LinearLayout {
 
     private void init(AttributeSet attrs) {
         rootView = inflate(context, R.layout.view_pref_section, this);
-        backArrow = (ImageView) rootView.findViewById(R.id.back);
-        iconImageView = (ImageView) rootView.findViewById(R.id.icon);
-        titleTextView = (TextView) rootView.findViewById(R.id.title);
+        backArrow = rootView.findViewById(R.id.back);
+        iconImageView = rootView.findViewById(R.id.icon);
+        titleTextView = rootView.findViewById(R.id.title);
 
         TypedArray arr = context.obtainStyledAttributes(attrs, R.styleable.section);
         title = arr.getString(R.styleable.section_title);
@@ -97,13 +101,39 @@ public class PreferenceSection extends LinearLayout {
     }
 
     public void setHighlighted(boolean highlighted) {
-        this.highlighted = highlighted;
+        //avoid any ui changes if the state did not changes
+        if (highlighted != this.highlighted) {
+            Resources.Theme theme = getContext().getTheme();
+            TypedValue typedValue = new TypedValue();
+            theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
+            @ColorInt int startColor;
+            @ColorInt int endColor;
 
-        if (highlighted) {
-            showBackArrow();
-        } else {
-            hideBackArrow();
+            if (highlighted) {
+                showBackArrow();
+                startColor = typedValue.data;
+                endColor = getContext().getResources().getColor(R.color.default_accent_light);
+            } else {
+                hideBackArrow();
+                startColor = getContext().getResources().getColor(R.color.default_accent_light);
+                endColor = typedValue.data;
+            }
+
+            animateTintChange(startColor, endColor, iconImageView);
         }
+
+        this.highlighted = highlighted;
+    }
+
+    private void animateTintChange(@ColorInt int from, @ColorInt int to, ImageView iv) {
+        ObjectAnimator colorAnimator = ObjectAnimator.ofObject(iv, "colorFilter", new ArgbEvaluator(),
+                0, 0);
+
+        colorAnimator.setObjectValues(from, to);
+        colorAnimator.setInterpolator(new LinearInterpolator(getContext(), null));
+        colorAnimator.setDuration(600);
+
+        colorAnimator.start();
     }
 
     private void showBackArrow() {
@@ -167,9 +197,9 @@ public class PreferenceSection extends LinearLayout {
         });
 
 
-        Random random = new Random();
-        long offset = random.nextInt(500);
-        anim.setStartDelay(offset);
+//        Random random = new Random();
+//        long offset = random.nextInt(500);
+//        anim.setStartDelay(offset);
 
         anim.start();
     }
@@ -219,9 +249,9 @@ public class PreferenceSection extends LinearLayout {
         });
 
 
-        Random random = new Random();
-        long offset = random.nextInt(500);
-        anim.setStartDelay(offset);
+//        Random random = new Random();
+//        long offset = random.nextInt(500);
+//        anim.setStartDelay(offset);
 
         anim.start();
     }

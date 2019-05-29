@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,21 +19,16 @@ package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
-import android.support.annotation.ColorInt;
-import android.support.annotation.Nullable;
-import android.support.v7.preference.PreferenceManager;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.RelativeLayout;
-import android.widget.TextSwitcher;
-import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.RoomDBWrapper;
@@ -51,33 +46,51 @@ public class BadgeScanView extends RelativeLayout {
     private static final String TAG = BadgeScanView.class.getSimpleName();
     private static final String SCAN_TYPE = "BadgeScanView";
     private final Context context;
+    private boolean isMiniView = false;
     private OnUserScannedListener onUserScannedListener;
     private ScanInputView input;
     private View rootView;
-    private TextSwitcher message;
-    private boolean kioskModeEnabled = false;
-    private ViewSwitcher.ViewFactory warningFactory;
-    private ViewSwitcher.ViewFactory normalFactory;
-    private int normalTextColor;
+    //    private TextSwitcher message;
+    private boolean isDeauthenticateAllowed = false;
+    //    private int normalTextColor;
+    private UserCardView card;
+    private boolean isGhostMode;
+    private boolean isRestrictedInput;
 
     public BadgeScanView(Context context, AttributeSet attrs) {
-        this(context, attrs, null);
+        this(context, attrs, false, null);
     }
 
-    public BadgeScanView(@NotNull Context context, AttributeSet attrs, @Nullable OnUserScannedListener onUserScannedListener) {
+    public BadgeScanView(@NotNull Context context, AttributeSet attrs, boolean isMiniView,
+                         @Nullable OnUserScannedListener onUserScannedListener) {
         super(context, attrs);
+
+        this.isMiniView = isMiniView;
         this.context = context;
         this.onUserScannedListener = onUserScannedListener;
-        init();
+        init(attrs);
     }
 
-    private void init() {
-        rootView = inflate(context, R.layout.view_badge_scan, this);
+    private void init(AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.BadgeScanView);
+            isMiniView = ta.getBoolean(R.styleable.BadgeScanView_use_mini, false);
+            ta.recycle();
+        }
+
+
+        if (isMiniView) {
+            rootView = inflate(context, R.layout.view_badge_scan_mini, this);
+        } else {
+            rootView = inflate(context, R.layout.view_badge_scan, this);
+        }
+
         if (!isInEditMode()) {
+            card = rootView.findViewById(R.id.user_card);
             input = rootView.findViewById(R.id.input);
             input.setListener(new ScanInputView.OnTextInputListener() {
                 @Override
-                public void onTextInput(String inputString) {
+                public void onTextInputFinished(String inputString) {
                     if (inputString == null || inputString.equals("")) {
                         if (onUserScannedListener != null) {
                             onUserScannedListener.onUserScanError("Input string empty");
@@ -86,40 +99,32 @@ public class BadgeScanView extends RelativeLayout {
                         processInputString(inputString);
                     }
                 }
+
+                @Override
+                public void onTextInputBegin() {
+                    onUserScannedListener.onInputBegin();
+                }
             });
 
-            //restrict the input if we are using kiosk mode
-            kioskModeEnabled = PreferenceManager.getDefaultSharedPreferences(getContext())
-                    .getBoolean(getResources().getString(R.string.pref_key_general_kiosk),
-                            Boolean.parseBoolean(getResources().getString(
-                                    R.string.pref_default_general_kiosk)));
-
-            input.setGhostMode(kioskModeEnabled);
-            input.setForceScanInput(kioskModeEnabled);
             input.clearFocus();
             input.requestFocus();
-
-            message = rootView.findViewById(R.id.error);
-            normalFactory = new ViewSwitcher.ViewFactory() {
-                @Override
-                public View makeView() {
-                    TextView t = new TextView(getContext());
-                    t.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-                    t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material_Subhead);
-                    return t;
-                }
-            };
-
-            message.setFactory(normalFactory);
-            normalTextColor = ((TextView) message.getNextView()).getCurrentTextColor();
 
             reset();
         }
     }
 
-    private void processInputString(@NotNull String inputString) {
+    public void reset() {
+        card.hideDetails();
+        enableInput();
+        input.reset();
+    }
 
-        ((TextView) message.getNextView()).setTextColor(normalTextColor);
+    public void enableInput() {
+        input.setVisibility(View.VISIBLE);
+        input.requestFocus();
+    }
+
+    private void processInputString(@NotNull String inputString) {
         Database db = Database.getInstance(getContext());
 
         try {
@@ -152,14 +157,12 @@ public class BadgeScanView extends RelativeLayout {
                 String.format("[validation field: %s] %s", validationField, reason)));
     }
 
-    public void reset() {
-        message.setCurrentText(getResources().getString(R.string.badge_scan_scan_now));
-        input.reset();
+    public void disableInput() {
+        input.setVisibility(View.GONE);
     }
 
     private void processUserScan(User user) {
-        String message = getResources().getString(R.string.badge_scan_found_user);
-        this.message.setText(String.format(message, user.getName()));
+        card.reveal(user);
 
         if (onUserScannedListener != null) {
             onUserScannedListener.onUserScanned(user);
@@ -167,21 +170,15 @@ public class BadgeScanView extends RelativeLayout {
     }
 
     private void processUserScanError(String inputString) {
-        TypedValue typedValue = new TypedValue();
-        Resources.Theme theme = context.getTheme();
-        theme.resolveAttribute(R.attr.colorAccent, typedValue, true);
-        @ColorInt int color = typedValue.data;
-        ((TextView) message.getNextView()).setTextColor(color);
-
         //if kiosk mode is enabled we need to be careful not to show the scanned input that failed.
         String message;
-        if (kioskModeEnabled) {
+        if (isGhostMode) {
             message = getResources().getString(R.string.badge_scan_unknown_user);
         } else {
             message = getResources().getString(R.string.badge_scan_unknown_user_unformatted);
             message = String.format(message, inputString);
         }
-        this.message.setText(message);
+
         if (onUserScannedListener != null) {
             onUserScannedListener.onUserScanError(message);
         }
@@ -204,5 +201,7 @@ public class BadgeScanView extends RelativeLayout {
         void onUserScanned(@NotNull User user);
 
         void onUserScanError(@NotNull String message);
+
+        void onInputBegin();
     }
 }

@@ -22,15 +22,7 @@
     <string name="pref_key_email_enable">email_enable</string>
     <string name="pref_default_email_enable">false</string>
     <string name="pref_title_email_enable">Enable Alert Emails</string>
-    <string name="pref_description_email_enable">Enable sending notification emails for sync issues</string>
-
-
-    <string name="pref_key_email_exceptions">email_sync_exceptions</string>
-    <string name="pref_default_email_exceptions">false</string>
-    <string name="pref_title_email_exceptions">Sync Exceptions</string>
-    <string name="pref_summary_email_exceptions">Send alert email if check in/out process failed</string>
-
-
+    <string name="pref_description_email_enable">Enable sending email notifications</string>
 
     <string name="pref_key_email_server">email_server</string>
     <string name="pref_title_email_server">Email server hostname</string>
@@ -47,14 +39,6 @@
     <string name="pref_key_past_due_enabled">email_past_due_enabled</string>
     <string name="pref_default_past_due_enabled">false</string>
     <string name="pref_title_past_due_enabled">Send notices for past due assets</string>
-
-    <string name="pref_key_email_past_due_addresses">email_past_due_addresses</string>
-    <string name="pref_default_email_past_due_addresses"></string>
-    <string name="pref_title_email_past_due_addresses">Past due reminder recipients</string>
-
-    <string name="pref_key_past_due_include_owner">email_past_due_include_owner</string>
-    <string name="pref_title_past_due_include_owner">Also send reminder to current asset holder</string>
-    <string name="pref_default_past_due_include_owner">false</string>
 
 
 </resources>

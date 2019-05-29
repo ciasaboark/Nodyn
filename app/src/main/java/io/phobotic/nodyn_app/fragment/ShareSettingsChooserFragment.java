@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,16 +19,17 @@ package io.phobotic.nodyn_app.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.fragment.app.Fragment;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.view.ShareTypeView;
 
 
 public class ShareSettingsChooserFragment extends Fragment {
-    private OnFragmentInteractionListener listener;
+    private OnShareMethodChosenListener listener;
     private View rootView;
 
 
@@ -48,8 +49,8 @@ public class ShareSettingsChooserFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            listener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnShareMethodChosenListener) {
+            listener = (OnShareMethodChosenListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -75,21 +76,14 @@ public class ShareSettingsChooserFragment extends Fragment {
     }
 
     private void init() {
-        View nfcButton = rootView.findViewById(R.id.nfc);
-        nfcButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onMethodChosen(Method.NFC);
-            }
-        });
+        ShareTypeView nfcButton = rootView.findViewById(R.id.nfc);
+        nfcButton.setMethod(listener, ShareMethod.NFC);
 
-        View qrButton = rootView.findViewById(R.id.qrcode);
-        qrButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onMethodChosen(Method.QRCODE);
-            }
-        });
+        ShareTypeView qrButton = rootView.findViewById(R.id.qrcode);
+        qrButton.setMethod(listener, ShareMethod.QRCODE);
+
+        ShareTypeView fileButton = rootView.findViewById(R.id.file);
+        fileButton.setMethod(listener, ShareMethod.FILE_SHARE);
     }
 
     @Override
@@ -98,8 +92,9 @@ public class ShareSettingsChooserFragment extends Fragment {
         listener = null;
     }
 
-    public enum Method {
+    public enum ShareMethod {
         NFC,
+        FILE_SHARE,
         QRCODE
     }
 
@@ -113,8 +108,7 @@ public class ShareSettingsChooserFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onMethodChosen(Method method);
+    public interface OnShareMethodChosenListener {
+        void onMethodChosen(ShareMethod shareMethod);
     }
 }

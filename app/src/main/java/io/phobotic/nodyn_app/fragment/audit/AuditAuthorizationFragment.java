@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,11 +21,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,16 +29,21 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.GroupNotFoundException;
 import io.phobotic.nodyn_app.database.model.Group;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.view.BadgeScanView;
-import io.phobotic.nodyn_app.view.UserCardView;
 
 /**
  * Created by Jonathan Nelson on 1/17/18.
@@ -63,7 +63,6 @@ public class AuditAuthorizationFragment extends Fragment {
     private TextView groups;
     private TextView authenticatedMessage;
     private View cardBox;
-    private UserCardView card;
     private User authorizedUser;
     private FloatingActionButton deauthorizeButton;
     private Database db;
@@ -138,22 +137,22 @@ public class AuditAuthorizationFragment extends Fragment {
     private void init() {
         cardBox = rootView.findViewById(R.id.card_box);
         cardBox.setVisibility(View.GONE);
-        card = (UserCardView) rootView.findViewById(R.id.card);
+
 
         inputBox = rootView.findViewById(R.id.input_box);
         inputBox.setVisibility(View.VISIBLE);
-        badgeScanner = (BadgeScanView) rootView.findViewById(R.id.badge_scanner);
-        authenticatedMessage = (TextView) rootView.findViewById(R.id.authenticated_message);
+        badgeScanner = rootView.findViewById(R.id.badge_scanner);
+        authenticatedMessage = rootView.findViewById(R.id.authenticated_message);
 
-        deauthorizeButton = (FloatingActionButton) rootView.findViewById(R.id.unauthorize_button);
+        deauthorizeButton = rootView.findViewById(R.id.unauthorize_button);
         deauthorizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 authorizedUser = null;
                 Animation bottomDown = AnimationUtils.loadAnimation(getContext(),
-                        R.anim.bottom_down);
+                        R.anim.exit_down);
                 final Animation bottomUp = AnimationUtils.loadAnimation(getContext(),
-                        R.anim.bottom_up);
+                        R.anim.enter_from_bottom);
                 fabGo.hide();
                 bottomDown.setAnimationListener(new Animation.AnimationListener() {
                     @Override
@@ -200,13 +199,13 @@ public class AuditAuthorizationFragment extends Fragment {
     }
 
     private void initFabs() {
-        fabGo = (FloatingActionButton) rootView.findViewById(R.id.fab_go);
+        fabGo = rootView.findViewById(R.id.fab_go);
 
         fabGo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {
-                    listener.onAuditAuthorized(authorizedUser);
+
                 }
             }
         });
@@ -215,7 +214,7 @@ public class AuditAuthorizationFragment extends Fragment {
     }
 
     private void initGroupList() {
-        groups = (TextView) rootView.findViewById(R.id.groups);
+        groups = rootView.findViewById(R.id.groups);
 
         StringBuilder sb = new StringBuilder();
         sb.append("[");
@@ -243,6 +242,11 @@ public class AuditAuthorizationFragment extends Fragment {
             @Override
             public void onUserScanError(String message) {
                 //let the BadgeScanView handle the errors
+            }
+
+            @Override
+            public void onInputBegin() {
+                //nothing to do here
             }
         });
     }
@@ -280,7 +284,7 @@ public class AuditAuthorizationFragment extends Fragment {
             String message = res.getString(R.string.audit_authorized_message, user.getName());
             authenticatedMessage.setText(message);
             Animation bottomDown = AnimationUtils.loadAnimation(getContext(),
-                    R.anim.bottom_down);
+                    R.anim.exit_down);
             inputBox.startAnimation(bottomDown);
             bottomDown.setAnimationListener(new Animation.AnimationListener() {
                 @Override
@@ -293,7 +297,7 @@ public class AuditAuthorizationFragment extends Fragment {
                     inputBox.setVisibility(View.GONE);
 
                     Animation bottomUp = AnimationUtils.loadAnimation(getContext(),
-                            R.anim.bottom_up);
+                            R.anim.enter_from_bottom);
                     bottomUp.setAnimationListener(new Animation.AnimationListener() {
                         @Override
                         public void onAnimationStart(Animation animation) {
@@ -312,8 +316,6 @@ public class AuditAuthorizationFragment extends Fragment {
                     });
                     authorizedUser = user;
 
-                    card.setUser(user);
-                    card.setVisibility(View.VISIBLE);
                     cardBox.startAnimation(bottomUp);
                     cardBox.setVisibility(View.VISIBLE);
                 }

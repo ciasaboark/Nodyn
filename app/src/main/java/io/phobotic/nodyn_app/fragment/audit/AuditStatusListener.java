@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package io.phobotic.nodyn_app.fragment.audit;
 
-import android.support.annotation.Nullable;
+
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.database.audit.model.Audit;
 import io.phobotic.nodyn_app.database.audit.model.AuditDefinition;
 import io.phobotic.nodyn_app.database.model.User;
@@ -29,7 +30,7 @@ import io.phobotic.nodyn_app.database.model.User;
  * Created by Jonathan Nelson on 1/17/18.
  */
 public interface AuditStatusListener {
-    void onAuditAuthorized(@Nullable User user);
+//    void onAuditAuthorized(@Nullable User user);
 
     void onDefinedAuditChosen(@Nullable User user, @NotNull AuditDefinition auditDefinition);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +20,14 @@ package io.phobotic.nodyn_app.database;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.CategoryNotFoundException;
 import io.phobotic.nodyn_app.database.exception.GroupNotFoundException;
@@ -248,6 +248,10 @@ public class Database {
 
     public List<Asset> findAssetByUserID(int userID) {
         return assetHelper.findAssetByUserID(userID);
+    }
+
+    public List<Asset> findAssetsByModelID(int modelID) {
+        return assetHelper.findAssetsByModelID(modelID);
     }
 
     public Category findCategoryByID(int id) throws CategoryNotFoundException {

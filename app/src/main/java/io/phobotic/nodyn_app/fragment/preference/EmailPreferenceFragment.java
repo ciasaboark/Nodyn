@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,10 @@ package io.phobotic.nodyn_app.fragment.preference;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
 
+import androidx.fragment.app.DialogFragment;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.preference.EmailRecipientsPreference;
 import io.phobotic.nodyn_app.preference.EmailRecipientsPreferenceDialogFragmentCompat;
@@ -40,14 +40,6 @@ public class EmailPreferenceFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.pref_email, rootKey);
         setHasOptionsMenu(true);
 
-        // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-        // to their values. When their values change, their summaries are
-        // updated to reflect the new value, per the Android Design
-        // guidelines.
-        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
-                getString(R.string.pref_key_email_exceptions_addresses)));
-        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
-                getString(R.string.pref_key_email_sync_fail_addresses)));
         PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_email_server)));
         PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
@@ -56,8 +48,7 @@ public class EmailPreferenceFragment extends PreferenceFragmentCompat {
                 getString(R.string.pref_key_email_username)));
         PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_email_password)));
-        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
-                getString(R.string.pref_key_email_past_due_addresses)));
+
     }
 
     @Override
@@ -71,7 +62,7 @@ public class EmailPreferenceFragment extends PreferenceFragmentCompat {
                     .newInstance(preference.getKey());
         }
 
-        // If it was one of our cutom Preferences, show its dialog
+        // If it was one of our custom Preferences, show its dialog
         if (dialogFragment != null) {
             dialogFragment.setTargetFragment(this, 0);
             dialogFragment.show(this.getFragmentManager(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,13 @@
 package io.phobotic.nodyn_app;
 
 import android.app.Application;
-import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
+import androidx.preference.PreferenceManager;
 import io.fabric.sdk.android.Fabric;
+import io.phobotic.nodyn_app.database.RoomDBWrapper;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 
 /**
@@ -71,8 +72,7 @@ public class Nodyn extends Application {
         PreferenceManager.setDefaultValues(this, R.xml.pref_audit, false);
 
         //initialize the Room databases
-        //RoomDBWrapper roomDBWrapper = RoomDBWrapper.getInstance(getApplicationContext());
-        //List<ScanRecord> scanRecords = roomDBWrapper.getScanRecordDatabase().scanRecordDao().getAll();
+        RoomDBWrapper roomDBWrapper = RoomDBWrapper.getInstance(getApplicationContext());
         //System.out.println(scanRecords.size());
     }
 }

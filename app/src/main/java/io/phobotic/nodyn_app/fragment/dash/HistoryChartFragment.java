@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,48 +18,39 @@
 package io.phobotic.nodyn_app.fragment.dash;
 
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ProgressBar;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.AxisBase;
-import com.github.mikephil.charting.components.Description;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.utils.MPPointF;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.charts.HistoryChartBuilder;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.statistics.StatisticsDatabase;
-import io.phobotic.nodyn_app.database.statistics.model.DayActivity;
+import io.phobotic.nodyn_app.database.audit.AuditDatabase;
+import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.statistics.day_activity.DayActivity;
+import io.phobotic.nodyn_app.database.statistics.day_activity.DayActivityDatabase;
 import io.phobotic.nodyn_app.service.StatisticsService;
 
 
@@ -68,7 +59,6 @@ public class HistoryChartFragment extends Fragment {
     private View rootView;
     private LineChart chart;
     private Database db;
-    private String[] timestampMap;
     private ProgressBar progressBar;
     private BroadcastReceiver br;
     private boolean loading;
@@ -122,13 +112,10 @@ public class HistoryChartFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
     }
 
-    public void refresh() {
-//        AnimationHelper.fadeIn(getContext(), progressBar);
-//        AnimationHelper.fadeOut(getContext(), chart);
-        chart.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-        DownloadActionsAsyncTask asyncTask = new DownloadActionsAsyncTask();
-        asyncTask.execute();
+    private void init() {
+        chart = rootView.findViewById(R.id.chart);
+        progressBar = rootView.findViewById(R.id.spinner);
+        refresh();
     }
 
     @Override
@@ -156,242 +143,102 @@ public class HistoryChartFragment extends Fragment {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(br);
     }
 
-    private void init() {
-        chart = (LineChart) rootView.findViewById(R.id.chart);
-        progressBar = (ProgressBar) rootView.findViewById(R.id.spinner);
-        initChart();
+    public void refresh() {
+//        AnimationHelper.fadeIn(getContext(), progressBar);
+//        AnimationHelper.fadeOut(getContext(), chart);
+        chart.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+        new Handler(getContext().getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                DayActivityDatabase db = DayActivityDatabase.getInstance(getContext());
+                //this list will already be filtered to 30 days
+                List<DayActivity> list = db.dayActivityDao().getAll();
 
-        refresh();
+                //filter the list to only show the last 7 days worth of records
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.DAY_OF_YEAR, -30);
+                long cutoff = calendar.getTimeInMillis();
+
+                //also include any audits.  Filter out anything that is too old or any audit headers
+                //+ without detail records
+                AuditDatabase auditDatabase = AuditDatabase.getInstance(getContext());
+                List<Audit> audits = auditDatabase.getAudits();
+
+                Iterator<Audit> it = audits.iterator();
+                while (it.hasNext()) {
+                    Audit a = it.next();
+                    if (a.getBegin() < cutoff) {
+                        it.remove();
+                    } else if (a.getDetailRecords() == null || a.getDetailRecords().isEmpty()) {
+                        it.remove();
+                    }
+                }
+
+                updateChart(list, audits);
+            }
+        });
     }
 
-    private void initChart() {
-        Description d = new Description();
-        d.setText("30 Day Activity");
-        d.setTextSize(15);
-        int x = chart.getWidth() - 30;
-        int y = chart.getHeight() - 30;
-        d.setPosition(x, y);
-        chart.setDescription(d);
-        MPPointF position = d.getPosition();
-
-        chart.getLegend().setTextSize(15f);
-        chart.getLegend().setTextColor(getResources().getColor(android.R.color.secondary_text_light));
-//        chart.setBackgroundColor(Color.parseColor("#1DE9B6"));
-//        chart.setGridBackgroundColor(Color.parseColor("#B2EBF2"));
-    }
-
-    private void updateChart(@NotNull final List<DayActivity> dayActivityList) {
+    private void updateChart(@NotNull final List<DayActivity> dayActivityList, @NotNull final List<Audit> audits) {
         Activity a = getActivity();
         if (a != null) {
             a.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    buildChart(dayActivityList);
+                    buildChart(dayActivityList, audits);
                 }
             });
         }
     }
 
-    private void buildChart(@NotNull List<DayActivity> dayActivityList) {
-        timestampMap = buildDateStringMap();
+    private void buildChart(@NotNull final List<DayActivity> dayActivityList, @NotNull List<Audit> audits) {
+        HistoryChartBuilder builder = new HistoryChartBuilder();
+        builder.buildChart(getContext(), chart, dayActivityList, audits);
 
-        Map<Long, Integer> checkoutsPerDay = new HashMap<>();
-        Map<Long, Integer> checkinsPerDay = new HashMap<>();
-
-        for (DayActivity activity : dayActivityList) {
-            checkinsPerDay.put(activity.getTimestamp(), activity.getCheckinCount());
-            checkoutsPerDay.put(activity.getTimestamp(), activity.getCheckoutCount());
-        }
-
-
-        //for the graph to be more visually apealing we need to include zero values for days
-        //+ that have no data
-        List<Entry> checkoutEntries = new ArrayList<>();
-        List<Entry> checkinEntries = new ArrayList<>();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMinimum(Calendar.HOUR_OF_DAY));
-        calendar.set(Calendar.MINUTE, calendar.getActualMinimum(Calendar.MINUTE));
-        calendar.set(Calendar.SECOND, calendar.getActualMinimum(Calendar.SECOND));
-        calendar.set(Calendar.MILLISECOND, calendar.getActualMinimum(Calendar.MILLISECOND));
-
-        //shift back 30 days, and add each day's records in chronological order
-        calendar.add(Calendar.DAY_OF_MONTH, -29);
-        for (int i = 0; i < 30; i++) {
-            long timestamp = calendar.getTimeInMillis();
-            Integer checkoutCount = checkoutsPerDay.get(timestamp);
-            if (checkoutCount == null) {
-                checkoutCount = 0;
-            }
-
-            DateFormat df = DateFormat.getDateTimeInstance();
-            Date d = new Date(timestamp);
-            Log.d(TAG, "Check-outs " + df.format(d) + ": " + checkoutCount);
-            checkoutEntries.add(new Entry(i, checkoutCount));
-
-            Integer checkinCount = checkinsPerDay.get(timestamp);
-            if (checkinCount == null) {
-                checkinCount = 0;
-            }
-
-            Log.d(TAG, "Check-ins " + df.format(d) + ": " + checkinCount);
-            checkinEntries.add(new Entry(i, checkinCount));
-
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
-        LineData lineData = new LineData();
-        if (!checkoutEntries.isEmpty()) {
-            LineDataSet dataSet = new LineDataSet(checkoutEntries, "Asset Check Outs");
-            dataSet.setColor(getResources().getColor(R.color.chart_out));
-            dataSet.setCircleColor(getResources().getColor(R.color.chart_out));
-//            dataSet.setDrawFilled(true);
-//            dataSet.setFillColor(getResources().getColor(R.color.chart_out));
-//            dataSet.setFillAlpha(100);
-            dataSet.setDrawCircleHole(false);
-            dataSet.setDrawCircles(false);
-            dataSet.setCircleRadius(0f);
-            dataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-            dataSet.setLineWidth(4);
-//            dataSet.enableDashedLine(7, 1, 0);
-            lineData.addDataSet(dataSet);
-        }
-
-        if (!checkinEntries.isEmpty()) {
-            LineDataSet dataSet = new LineDataSet(checkinEntries, "Asset Check Ins");
-            dataSet.setColor(getResources().getColor(R.color.chart_in));
-            dataSet.setCircleColor(getResources().getColor(R.color.chart_in));
-//            dataSet.setDrawFilled(true);
-//            dataSet.setFillColor(getResources().getColor(R.color.chart_in));
-//            dataSet.setFillAlpha(100);
-            dataSet.setDrawCircleHole(false);
-            dataSet.setDrawCircles(false);
-            dataSet.setCircleRadius(0f);
-            dataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-            dataSet.setLineWidth(4);
-//            dataSet.enableDashedLine(7, 1, 0);
-            lineData.addDataSet(dataSet);
-        }
-
-        if (lineData.getDataSetCount() == 0) {
-            chart.setData(null);
-        } else {
-            lineData.setDrawValues(false);
-            chart.setData(lineData);
-        }
-
-        chart.invalidate();
-
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setGranularity(1.0f);
-        xAxis.setLabelRotationAngle(-45f);
-        xAxis.setValueFormatter(new IAxisValueFormatter() {
+        final int visibleRange = 7;
+        chart.setVisibleXRangeMaximum(visibleRange);
+        chart.moveViewToX(0);
+        float minX = chart.getXAxis().getAxisMinimum();
+        final float maxX = chart.getXAxis().getAxisMaximum() - visibleRange;
+        ValueAnimator animator = ValueAnimator.ofFloat(minX, maxX)
+                .setDuration(2000);
+        animator.setInterpolator(new AccelerateDecelerateInterpolator());
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                int index = (int) value;
-                String dateString = timestampMap[index];
-                dateString = String.valueOf(dateString);
-                return dateString;
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float val = (float) animation.getAnimatedValue();
+                chart.moveViewToX(val);
+                Log.d(TAG, "X val:" + val);
             }
         });
-
-        YAxis yAxis = chart.getAxisLeft();
-        yAxis.setGranularity(1.0f);
-        yAxis.setValueFormatter(new IAxisValueFormatter() {
+        animator.addListener(new Animator.AnimatorListener() {
             @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                return String.valueOf((int) Math.floor(value));
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                chart.moveViewToX(30);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
             }
         });
-        yAxis.setAxisMinimum(0);
-        yAxis.enableGridDashedLine(5, 5, 0);
-        yAxis.setAxisLineColor(Color.parseColor("#BBDEFB"));
-        yAxis.setGridColor(Color.parseColor("#BBDEFB"));
-        chart.getAxisRight().setEnabled(false);
-        chart.setPinchZoom(false);
-        chart.setScaleYEnabled(false);
+        animator.start();
 
-
-        float maxYValue = chart.getData().getYMax();
-        float minYValue = chart.getData().getYMin();
-
-        if ((maxYValue - minYValue) < 4) {
-            float diff = 4 - (maxYValue - minYValue);
-            maxYValue = maxYValue + diff;
-            chart.getAxisLeft().setAxisMaximum(maxYValue);
-            chart.getAxisLeft().setAxisMinimum(minYValue);
-        }
-
-
-        float maxXValue = chart.getData().getXMax();
-        float minXValue = chart.getData().getXMin();
-
-        if ((maxXValue - minXValue) < 4) {
-            float diff = 4 - (maxXValue - minXValue);
-            maxXValue = maxXValue + diff;
-            chart.getXAxis().setAxisMaximum(maxXValue);
-            chart.getXAxis().setAxisMinimum(minXValue);
-        }
-
-        chart.setVisibleXRangeMaximum(7); // allow 20 values to be displayed at once on the x-axis, not more
-        chart.moveViewToX(30);
-
-//        AnimationHelper.fadeIn(getContext(), chart);
-//        AnimationHelper.fadeOut(getContext(), progressBar);
         chart.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
     }
 
-    private @NotNull
-    String[] buildDateStringMap() {
-        //build a map of baseline timestamps for the previous 30 days.  These timestamps will be
-        //+ be used to group the actions by day
-        String[] timestampMap = new String[30];
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_MONTH, -29);
 
-        for (int i = 0; i < 30; i++) {
-            calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMinimum(Calendar.HOUR_OF_DAY));
-            calendar.set(Calendar.MINUTE, calendar.getActualMinimum(Calendar.MINUTE));
-            calendar.set(Calendar.SECOND, calendar.getActualMinimum(Calendar.SECOND));
-            calendar.set(Calendar.MILLISECOND, calendar.getActualMinimum(Calendar.MILLISECOND));
-
-            long timestamp = calendar.getTimeInMillis();
-
-            //convert the timestamp into a local
-            Locale currentLocale = getResources().getConfiguration().locale;
-            DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT,
-                    currentLocale);
-            Date d = new Date(timestamp);
-            String dateString = df.format(d);
-
-            //MPChart does not let us set the X-axis values as string data, so instead we will
-            //+ cache the date string and use the timestamp to lookup that value later
-            timestampMap[i] = dateString;
-
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
-        return timestampMap;
-    }
-
-    private class DownloadActionsAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            Context context = getContext();
-
-            //if we are no longer attached to a Context there is no point in continuing
-            if (context == null) return null;
-
-            StatisticsDatabase database = StatisticsDatabase.getInstance(context);
-            List<DayActivity> dayActivityList = database.getThirtyDayActivity();
-
-            updateChart(dayActivityList);
-
-            return null;
-        }
-    }
 
 }

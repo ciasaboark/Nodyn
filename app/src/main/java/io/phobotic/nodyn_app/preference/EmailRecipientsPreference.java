@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@ package io.phobotic.nodyn_app.preference;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.v7.preference.DialogPreference;
 import android.util.AttributeSet;
 
+import androidx.preference.DialogPreference;
 import io.phobotic.nodyn_app.R;
 
 /**
@@ -58,8 +58,9 @@ public class EmailRecipientsPreference extends DialogPreference {
         this.recipientsString = recipents;
         persistString(recipents);
 
-        setSummary(recipents == null ? "No recipients selected" : recipents);
+        setSummary((recipents == null || recipents.length() == 0) ? "No recipients selected" : recipents);
     }
+
 
     @Override
     protected Object onGetDefaultValue(TypedArray a, int index) {

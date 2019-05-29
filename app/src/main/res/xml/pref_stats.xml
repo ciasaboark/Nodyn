@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_stats_enable"
+        android:icon="@drawable/ic_chart_timeline_variant_grey600_24dp"
+        android:key="@string/pref_key_stats_enable"
+        android:summaryOff="@string/pref_description_stats_disabled"
+        android:summaryOn="@string/pref_description_stats_enabled"
+        android:title="@string/pref_title_stats_enable"/>
+
+    <PreferenceCategory
+        android:dependency="@string/pref_key_stats_enable"
+        android:title="In App Statistics">
+
+
+        <CheckBoxPreference
+            android:defaultValue="@string/pref_default_user_statistics"
+            android:icon="@drawable/ic_account_grey600_24dp"
+            android:key="@string/pref_key_user_statistics"
+            android:summary="@string/pref_description_user_statistics"
+            android:title="@string/pref_title_user_statistics"/>
+
+        <CheckBoxPreference
+            android:defaultValue="@string/pref_default_asset_statistics"
+            android:drawableTint="@color/grey600"
+            android:icon="@drawable/ic_laptop_grey600_24dp"
+            android:key="@string/pref_key_asset_statistics"
+            android:summary="@string/pref_description_asset_statistics"
+            android:title="@string/pref_title_asset_statistics"/>
+
+        <CheckBoxPreference
+            android:defaultValue="@string/pref_default_activity_statistics"
+            android:icon="@drawable/ic_chart_line_grey600_24dp"
+            android:key="@string/pref_key_activity_statistics"
+            android:summary="@string/pref_description_activity_statistics"
+            android:title="@string/pref_title_activity_statistics"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:dependency="@string/pref_key_stats_enable"
+        android:icon="@drawable/ic_email_grey600_24dp"
+        android:title="Email Reports">
+
+        <CheckBoxPreference
+            android:defaultValue="@string/pref_default_weekly_email_summary"
+            android:icon="@drawable/ic_calendar_week_grey600_24dp"
+            android:key="@string/pref_key_weekly_email_summary"
+            android:summary="@string/pref_description_weekly_email_summary"
+            android:title="@string/pref_title_weekly_email_summary"/>
+
+        <CheckBoxPreference
+            android:defaultValue="@string/pref_default_monthly_email_summary"
+            android:icon="@drawable/ic_calendar_month_grey600_24dp"
+            android:key="@string/pref_key_monthly_email_summary"
+            android:summary="@string/pref_description_monthly_email_summary"
+            android:title="@string/pref_title_monthly_email_summary"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

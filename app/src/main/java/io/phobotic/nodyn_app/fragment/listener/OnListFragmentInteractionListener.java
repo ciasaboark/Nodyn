@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 package io.phobotic.nodyn_app.fragment.listener;
 
-import android.support.annotation.Nullable;
-import android.support.v4.util.Pair;
+
 import android.view.View;
 
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +23,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -46,6 +39,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.view.MotionEventCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.avatar.AdorableAvatarProvider;
 import io.phobotic.nodyn_app.avatar.AvatarProvider;
@@ -111,7 +111,7 @@ public class ConfigureAvatarsDialogFragment extends DialogFragment {
     }
 
     private void findViews() {
-        list = (RecyclerView) rootView.findViewById(R.id.list);
+        list = rootView.findViewById(R.id.list);
     }
 
     private void buildProvierList() {
@@ -159,7 +159,7 @@ public class ConfigureAvatarsDialogFragment extends DialogFragment {
         Context context = rootView.getContext();
         if (columnCount <= 1) {
             LinearLayoutManager lm = new LinearLayoutManager(context);
-            lm.setOrientation(LinearLayoutManager.VERTICAL);
+            lm.setOrientation(RecyclerView.VERTICAL);
             list.setLayoutManager(lm);
 
         } else {
@@ -310,8 +310,8 @@ public class ConfigureAvatarsDialogFragment extends DialogFragment {
             public ViewHolder(AvatarProviderView view) {
                 super(view);
                 this.view = view;
-                this.checkbox = (CheckBox) view.findViewById(R.id.checkbox);
-                this.handle = (ImageView) view.findViewById(R.id.drag_handle);
+                this.checkbox = view.findViewById(R.id.checkbox);
+                this.handle = view.findViewById(R.id.drag_handle);
             }
 
             public void bind(SelectableProvider provider) {

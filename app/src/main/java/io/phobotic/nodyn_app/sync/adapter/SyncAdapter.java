@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,13 @@
 package io.phobotic.nodyn_app.sync.adapter;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import io.phobotic.nodyn_app.database.model.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.FullDataModel;
@@ -37,6 +37,8 @@ import io.phobotic.nodyn_app.sync.ActionSyncListener;
  */
 
 public interface SyncAdapter {
+    String getAdapterName();
+
     FullDataModel fetchFullModel(Context context) throws SyncException;
 
     void checkoutAssetTo(Context context, int assetID, String assetTag, int userID, @Nullable Long checkout,
@@ -98,6 +100,18 @@ public interface SyncAdapter {
      * @throws SyncNotSupportedException if the backend system has no ability to fetch actions
      */
     List<Action> getActivity(@NotNull Context context, int page) throws SyncException, SyncNotSupportedException;
+
+
+    /**
+     * Fetch all activity records for the previous 30 days.
+     *
+     * @param context
+     * @return
+     * @throws SyncException             if the SyncAdapter supports fetching action records but an
+     *                                   unrecoverable Exception occurred while fetching action records
+     * @throws SyncNotSupportedException if the SyncAdapter does not support pulling action records
+     */
+    List<Action> getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException;
 
     List<Asset> getAssets(Context context, User user) throws SyncException,
             SyncNotSupportedException;

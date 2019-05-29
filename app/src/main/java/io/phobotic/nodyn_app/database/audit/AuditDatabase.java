@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,7 +123,14 @@ public class AuditDatabase {
     }
 
     public List<Audit> getAudits() {
-        return auditHelper.findAll();
+        List<Audit> audits = auditHelper.findAll();
+        for (Audit audit : audits) {
+            int auditID = audit.getId();
+            List<AuditDetailRecord> detailRecords = detailsHelper.findByAuditID(auditID);
+            audit.setDetailRecords(detailRecords);
+        }
+
+        return audits;
     }
 
     public List<AuditDetailRecord> getDetailRecords() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -41,8 +40,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
-import io.phobotic.nodyn_app.cache.ModelThumbnailCache;
+import io.phobotic.nodyn_app.cache.EmailImageCache;
 import io.phobotic.nodyn_app.converter.AuditExcelConverter;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
@@ -73,7 +73,7 @@ public class AuditEmailService extends IntentService {
     private static final String TAG = AuditEmailService.class.getSimpleName();
     private static final int MODEL_THUMBNAIL_WIDTH = 48;
     private static final int MODEL_THUMBNAIL_HEIGHT = 48;
-    private ModelThumbnailCache imageCache;
+    private EmailImageCache imageCache;
     private AuditDatabase db;
     private SharedPreferences prefs;
 
@@ -85,7 +85,7 @@ public class AuditEmailService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         db = AuditDatabase.getInstance(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        imageCache = ModelThumbnailCache.getInstance(this);
+        imageCache = EmailImageCache.getInstance(this);
 
         // TODO: 1/17/18 let the database handle fetching only the headers that have not been sent
         List<Audit> auditHeaders = db.getAudits();
@@ -139,8 +139,8 @@ public class AuditEmailService extends IntentService {
     private void sendAuditEmail(Audit audit) {
         updateModelImageCache(audit);
         List<EmailRecipient> recipients = new ArrayList<>();
-        String addressesString = prefs.getString(getString(R.string.pref_key_audit_results_email),
-                getString(R.string.pref_default_audit_results_email));
+        String addressesString = prefs.getString(getString(R.string.pref_key_equipment_managers_addresses),
+                getString(R.string.pref_default_equipment_managers_addresses));
         String[] addresses = addressesString.split(",");
         for (String address : addresses) {
             recipients.add(new EmailRecipient(address));
@@ -264,7 +264,7 @@ public class AuditEmailService extends IntentService {
     }
 
     private void sendEmail(String body, List<EmailRecipient> recipients, AuditEmail auditEmail, List<Attachment> attachments) {
-        addAssetAsAttachment(attachments, "app_icon_196.png");
+        addAssetAsAttachment(attachments, "app_icon_96.png");
 //        addAssetAsAttachment(attachments, "devices_generic_48.png");
 
         Log.d(TAG, "Sending audit email for audit id " + auditEmail.audit.getId());
@@ -334,7 +334,7 @@ public class AuditEmailService extends IntentService {
                         "<td>%d</td>" +
                         "<td>%d</td>" +
                         "</tr>";
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
 
         List<Integer> modelIDs = audit.getModelIDs();
         if (modelIDs == null) modelIDs = new ArrayList<>();
@@ -389,12 +389,12 @@ public class AuditEmailService extends IntentService {
                     //if we were able to build a cached thumbnail for this model then use it,
                     //+ otherwise fallback to an empty string
                     // TODO: 2/3/18 the imagecache should probably not default to using a fallback image.  Let that be handled somewhere else
-                    String modelImageSrc = imageCache.getCachedImage(model);
+                    String modelImageSrc = imageCache.getCachedImage(String.valueOf(model.getId()));
                     if (modelImageSrc == null) {
                         modelImageSrc = "";
                     } else {
                         //add this image as an attachment
-                        addCachedFileAsAttachment(attachments, modelImageSrc);
+                        addCachedFileAsAttachment(attachments, modelImageSrc, imageCache);
                         modelImageSrc = "cid:" + modelImageSrc;
                     }
 
@@ -442,8 +442,9 @@ public class AuditEmailService extends IntentService {
         attachments.add(attachment);
     }
 
-    private void addCachedFileAsAttachment(List<Attachment> attachments, String filename) {
-        File f = new File(String.format("%s/%s", getCacheDir(), filename));
+    private void addCachedFileAsAttachment(List<Attachment> attachments, String filename,
+                                           EmailImageCache cache) {
+        File f = cache.getFileForFilename(filename);
         Attachment attachment = new Attachment(f, filename + ".png", filename);
         attachment.setInline(true);
         attachment.setContentType("image/png");

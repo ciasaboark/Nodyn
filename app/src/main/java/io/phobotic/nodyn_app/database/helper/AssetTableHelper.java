@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -254,7 +254,36 @@ public class AssetTableHelper extends TableHelper<Asset> {
 
             }
         } catch (Exception e) {
-            Log.e(TAG, "Caught exception while searching for asset with user ID " + userID + ": " +
+            Log.e(TAG, "Caught exception while searching for assets with user ID " + userID + ": " +
+                    e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return assets;
+    }
+
+
+    public List<Asset> findAssetsByModelID(int userID) {
+        List<Asset> assets = new ArrayList<>();
+
+        String[] args = {String.valueOf(userID)};
+        String selection = Asset.Columns.MODEL_ID + " = ?";
+        Cursor cursor = null;
+
+        try {
+            cursor = db.query(DatabaseOpenHelper.TABLE_ASSETS, null, selection, args,
+                    null, null, Asset.Columns.ID, null);
+            while (cursor.moveToNext()) {
+                Asset asset = getAssetFromCursor(cursor);
+                assets.add(asset);
+
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Caught exception while searching for assets with model ID " + userID + ": " +
                     e.getMessage());
             e.printStackTrace();
         } finally {

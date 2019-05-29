@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,20 +20,21 @@ package io.phobotic.nodyn_app.activity;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.List;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
 import io.phobotic.nodyn_app.database.audit.model.AuditDefinition;
@@ -59,7 +60,7 @@ public class AuditDefinitionsActivity extends AppCompatActivity {
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
     private void setupActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         Drawable d = getDrawable(R.drawable.arrow_left);
         d.setTint(getResources().getColor(R.color.white));
         toolbar.setNavigationIcon(d);
@@ -80,13 +81,13 @@ public class AuditDefinitionsActivity extends AppCompatActivity {
     }
 
     private void initList() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         updateList();
     }
 
     private void findViews() {
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+        fab = findViewById(R.id.fab);
+        recyclerView = findViewById(R.id.recyclerview);
         error = findViewById(R.id.list_error);
     }
 
@@ -211,7 +212,7 @@ public class AuditDefinitionsActivity extends AppCompatActivity {
             public ViewHolder(AuditDefinitionView view) {
                 super(view);
                 this.view = view;
-                this.deleteButton = (ImageButton) view.findViewById(R.id.delete_button);
+                this.deleteButton = view.findViewById(R.id.delete_button);
             }
 
             public void bind(AuditDefinition auditDefinition) {

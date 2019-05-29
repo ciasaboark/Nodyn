@@ -58,43 +58,5 @@
             android:title="@string/pref_title_email_password"/>
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="Automated Reports">
-        <SwitchPreferenceCompat
-            android:defaultValue="@string/pref_default_email_exceptions"
-            android:dependency="@string/pref_key_email_enable"
-            android:icon="@drawable/ic_sync_alert_grey600_24dp"
-            android:key="@string/pref_key_email_exceptions"
-            android:summary="@string/pref_summary_email_exceptions"
-            android:title="@string/pref_title_email_exceptions"/>
-
-        <SwitchPreferenceCompat
-            android:defaultValue="@string/pref_default_past_due_enabled"
-            android:dependency="@string/pref_key_email_enable"
-            android:icon="@drawable/ic_calendar_clock_grey600_24dp"
-            android:key="@string/pref_key_past_due_enabled"
-            android:title="@string/pref_title_past_due_enabled"/>
-
-        <SwitchPreferenceCompat
-            android:defaultValue="@string/pref_default_past_due_include_owner"
-            android:dependency="@string/pref_key_past_due_enabled"
-            android:key="@string/pref_key_past_due_include_owner"
-            android:title="@string/pref_title_past_due_include_owner"/>
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="Recipients">
-
-
-
-        <io.phobotic.nodyn_app.preference.EmailRecipientsPreference
-            style="@style/AppPreference.DialogPreference"
-            android:defaultValue="@string/pref_default_email_past_due_addresses"
-            android:dependency="@string/pref_key_past_due_enabled"
-            android:icon="@drawable/ic_send_grey600_24dp"
-            android:inputType="textEmailAddress"
-            android:key="@string/pref_key_email_past_due_addresses"
-            android:title="@string/pref_title_email_past_due_addresses"/>
-    </PreferenceCategory>
 
 </PreferenceScreen>

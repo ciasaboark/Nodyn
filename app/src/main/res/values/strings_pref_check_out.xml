@@ -20,6 +20,11 @@
 <resources>
     <string name="pref_header_check_out">Asset check Out</string>
 
+    <string name="pref_key_checkout_allow">checkouts_enable</string>
+    <string name="pref_default_checkout_allow">true</string>
+    <string name="pref_title_checkout_allow">Allow Asset Checkouts</string>
+    <string name="pref_description_checkout_allow">Allow this device to check out assets</string>
+
     <string name="pref_key_check_out_require_authorization">check_out_require_authorization</string>
     <string name="pref_default_check_out_require_authorization">false</string>
     <string name="pref_title_check_out_require_authorization">Require authorization</string>
@@ -56,6 +61,12 @@
     <string name="pref_summary_check_out_no_timeout_limit">Authorization must be revoked manually</string>
     <string name="pref_summary_check_out_timeout_limit" formatted="false">De-authorize after %s minute%s</string>
 
+    <string name="pref_key_check_out_duration">check_out_duration</string>
+    <string name="pref_title_check_out_duration">Check out Duration</string>
+    <string name="pref_default_check_out_duration">1</string>
+    <string name="pref_summary_check_out_no_duration">Assets will be checked out indefinately</string>
+    <string name="pref_summary_check_out_duration" formatted="false">Checked out assets will be due after %s day%s</string>
+
     <string name="pref_key_asset_status_allow_all">asset_status_allow_all</string>
     <string name="pref_default_asset_status_allow_all">true</string>
     <string name="pref_title_asset_status_allow_all">Allow checkouts of every asset status</string>
@@ -64,4 +75,12 @@
 
     <string name="pref_key_asset_status_allowed_statuses">asset_status_allowed_status</string>
     <string name="pref_title_asset_status_allowed_statuses">Allowed Statuses</string>
+
+    <string name="pref_key_email_past_due_addresses">email_past_due_addresses</string>
+    <string name="pref_default_email_past_due_addresses"></string>
+    <string name="pref_title_email_past_due_addresses">Past due reminder recipients</string>
+
+    <string name="pref_key_past_due_include_owner">email_past_due_include_owner</string>
+    <string name="pref_title_past_due_include_owner">Also send reminder to current asset holder</string>
+    <string name="pref_default_past_due_include_owner">false</string>
 </resources>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     public static final String TABLE_ACTIONS = "actions";
     public static final String TABLE_SYNC_HISTORY = "sync_history";
 
-    private static final int VERSION = 14;
+    private static final int VERSION = 16;
 
     public DatabaseOpenHelper(Context ctx) {
         super(ctx, DB_NAME, null, VERSION);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.avatar.AvatarHelper;
 import io.phobotic.nodyn_app.database.Database;
@@ -66,21 +67,21 @@ public class UserView extends LinearLayout {
     private void init() {
         rootView = inflate(context, R.layout.view_user, this);
 
-        name = (TextView) rootView.findViewById(R.id.model);
+        name = rootView.findViewById(R.id.model);
 
-        username = (TextView) rootView.findViewById(R.id.username);
+        username = rootView.findViewById(R.id.username);
         usernameBox = rootView.findViewById(R.id.username_box);
 
-        groups = (TextView) rootView.findViewById(R.id.groups);
+        groups = rootView.findViewById(R.id.groups);
         groupsBox = rootView.findViewById(R.id.groups_box);
 
-        numAssets = (TextView) rootView.findViewById(R.id.num_assets);
+        numAssets = rootView.findViewById(R.id.num_assets);
         numAssetsBox = rootView.findViewById(R.id.num_assets_box);
 
-        employeeNo = (TextView) rootView.findViewById(R.id.employee_no);
+        employeeNo = rootView.findViewById(R.id.employee_no);
         employeeNoBox = rootView.findViewById(R.id.employee_no_box);
 
-        image = (ImageView) rootView.findViewById(R.id.image);
+        image = rootView.findViewById(R.id.image);
         setFields();
     }
 
@@ -122,8 +123,12 @@ public class UserView extends LinearLayout {
     }
 
     private void loadImage() {
-        AvatarHelper avatarHelper = new AvatarHelper();
-        avatarHelper.loadAvater(getContext(), user, image, 90);
+        boolean avatarEnabled = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+                context.getString(R.string.pref_key_users_enable_avatars), false);
+        if (avatarEnabled) {
+            AvatarHelper avatarHelper = new AvatarHelper();
+            avatarHelper.loadAvater(getContext(), user, image, 90);
+        }
     }
 
 

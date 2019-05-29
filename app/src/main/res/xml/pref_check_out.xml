@@ -19,7 +19,23 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_checkout_allow"
+        android:icon="@drawable/ic_arrow_up_bold_hexagon_outline_grey600_24dp"
+        android:key="@string/pref_key_checkout_allow"
+        android:summary="@string/pref_description_checkout_allow"
+        android:title="@string/pref_title_checkout_allow"/>
+
+    <io.phobotic.nodyn_app.preference.NumberPickerPreference
+        style="@style/AppPreference.DialogPreference"
+        android:defaultValue="@string/pref_default_check_out_timeout_limit"
+        android:dependency="@string/pref_key_checkout_allow"
+        android:icon="@drawable/ic_calendar_grey600_24dp"
+        android:key="@string/pref_key_check_out_duration"
+        android:title="@string/pref_title_check_out_duration"/>
+
     <PreferenceCategory
+        android:dependency="@string/pref_key_checkout_allow"
         android:title="Authorization">
 
         <SwitchPreferenceCompat
@@ -50,8 +66,8 @@
             android:title="@string/pref_title_check_out_timeout_limit"/>
     </PreferenceCategory>
 
-
     <PreferenceCategory
+        android:dependency="@string/pref_key_checkout_allow"
         android:title="Allowed Assets">
 
         <SwitchPreferenceCompat
@@ -91,6 +107,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:dependency="@string/pref_key_checkout_allow"
         android:title="EULA">
 
         <SwitchPreferenceCompat
@@ -107,7 +124,32 @@
             android:key="@string/pref_key_check_out_eula"
             android:summary="@string/pref_description_check_out_eula"
             android:title="@string/pref_title_check_out_eula"/>
+    </PreferenceCategory>
 
+    <PreferenceCategory
+        android:dependency="@string/pref_key_checkout_allow"
+        android:title="Email Reminders">
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_past_due_enabled"
+            android:icon="@drawable/ic_calendar_clock_grey600_24dp"
+            android:key="@string/pref_key_past_due_enabled"
+            android:title="@string/pref_title_past_due_enabled"/>
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_past_due_include_owner"
+            android:dependency="@string/pref_key_past_due_enabled"
+            android:key="@string/pref_key_past_due_include_owner"
+            android:title="@string/pref_title_past_due_include_owner"/>
+
+
+        <io.phobotic.nodyn_app.preference.EmailRecipientsPreference
+            style="@style/AppPreference.DialogPreference"
+            android:defaultValue="@string/pref_default_email_past_due_addresses"
+            android:dependency="@string/pref_key_past_due_enabled"
+            android:icon="@drawable/ic_send_grey600_24dp"
+            android:inputType="textEmailAddress"
+            android:key="@string/pref_key_email_past_due_addresses"
+            android:title="@string/pref_title_email_past_due_addresses"/>
     </PreferenceCategory>
 
 
