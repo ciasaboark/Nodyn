@@ -41,6 +41,7 @@ import io.phobotic.nodyn_app.reporting.CustomEvents;
 import io.phobotic.nodyn_app.service.PastDueAlertService;
 import io.phobotic.nodyn_app.service.StatisticsService;
 import io.phobotic.nodyn_app.service.SyncService;
+import io.phobotic.nodyn_app.sync.SyncManager;
 
 /**
  * Created by Jonathan Nelson on 7/9/17.
@@ -63,11 +64,7 @@ public class SyncScheduler {
     }
 
     public void scheduleSyncIfNeeded() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Boolean firstSyncCompleted = prefs.getBoolean(context.getString(
-                R.string.sync_key_first_sync_completed), false);
-
-        if (!firstSyncCompleted) {
+        if (SyncManager.isFirstSyncComplete(context)) {
             Log.d(TAG, "Skipping scheduling sync alarm.  Backend has not completed first sync yet");
         } else if (isAlarmScheduled()) {
             Log.d(TAG, "Skipping scheduling sync alarm, one is already set");
@@ -83,7 +80,7 @@ public class SyncScheduler {
         return pi == null;
     }
 
-    private void scheduleSync(@NotNull PendingIntent pi) {
+    public static Date getNextWakeTimestamp(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         int defaultPeriodInt = Integer.parseInt(context.getString(R.string.pref_default_sync_frequency));
         int wakePeriod = defaultPeriodInt;
@@ -98,12 +95,19 @@ public class SyncScheduler {
         long now = System.currentTimeMillis();
         long wakeAt = now + (1000 * 60 * wakePeriod);
 
-        DateFormat df = DateFormat.getDateTimeInstance();
         Date d = new Date();
         d.setTime(wakeAt);
+
+        return d;
+    }
+
+    private void scheduleSync(@NotNull PendingIntent pi) {
+        DateFormat df = DateFormat.getDateTimeInstance();
+        Date d = SyncScheduler.getNextWakeTimestamp(context);
+
         Log.d(TAG, "Scheduling next sync at " + df.format(d));
 
-        schedulePendingIntent(pi, wakeAt);
+        schedulePendingIntent(pi, d.getTime());
 
         Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_SCHEDULED));
     }
@@ -125,7 +129,7 @@ public class SyncScheduler {
     private void schedulePendingIntent(@NotNull PendingIntent pi, long wakeAt) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, wakeAt, pi);
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, wakeAt, pi);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeAt, pi);
         } else {

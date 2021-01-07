@@ -41,17 +41,17 @@ import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Model;
-import io.phobotic.nodyn_app.database.statistics.assets.AssetStatistics;
-import io.phobotic.nodyn_app.database.statistics.assets.AssetStatisticsBuilder;
-import io.phobotic.nodyn_app.database.statistics.assets.AssetStatisticsDatabase;
-import io.phobotic.nodyn_app.database.statistics.day_activity.DayActivity;
-import io.phobotic.nodyn_app.database.statistics.day_activity.DayActivityDatabase;
-import io.phobotic.nodyn_app.database.statistics.models.ModelStatistics;
-import io.phobotic.nodyn_app.database.statistics.models.ModelStatisticsBuilder;
-import io.phobotic.nodyn_app.database.statistics.models.ModelStatisticsDatabase;
+import io.phobotic.nodyn_app.database.statistics.summary.assets.AssetStatistics;
+import io.phobotic.nodyn_app.database.statistics.summary.assets.AssetStatisticsBuilder;
+import io.phobotic.nodyn_app.database.statistics.summary.assets.AssetStatisticsDatabase;
+import io.phobotic.nodyn_app.database.statistics.summary.day_activity.DayActivitySummary;
+import io.phobotic.nodyn_app.database.statistics.summary.day_activity.DayActivitySummaryDatabase;
+import io.phobotic.nodyn_app.database.statistics.summary.models.ModelStatistics;
+import io.phobotic.nodyn_app.database.statistics.summary.models.ModelStatisticsBuilder;
+import io.phobotic.nodyn_app.database.statistics.summary.models.ModelStatisticsDatabase;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 import io.phobotic.nodyn_app.sync.SyncManager;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
@@ -65,6 +65,9 @@ import io.phobotic.nodyn_app.sync.adapter.SyncNotSupportedException;
 public class StatisticsService extends IntentService {
     public static final String BROADCAST_BUILD_STATISTICS_START = "build_statistics_start";
     public static final String BROADCAST_BUILD_STATISTICS_FINISH = "build_statistics_finish";
+    private static final String KEY_LAST_FULL_SYNC = "statistics_last_full_sync";
+    private static final String KEY_LAST_ACTION_RECORD_TIMESTAMP = "statistics_last_action_record_timestamp";
+
     private static final String TAG = StatisticsService.class.getSimpleName();
 
     public StatisticsService() {
@@ -114,7 +117,7 @@ public class StatisticsService extends IntentService {
             String dateString = df.format(d);
             Log.d(TAG, "Pulling action history from backend as far back as " + dateString);
 
-            List<Action> actions = new ArrayList<Action>();
+            List<Action> actions = new ArrayList<>();
             try {
                 actions = syncAdapter.getThirtyDayActivity(this);
             } catch (SyncNotSupportedException e) {
@@ -138,9 +141,9 @@ public class StatisticsService extends IntentService {
             AssetStatisticsDatabase assetDb = AssetStatisticsDatabase.getInstance(this);
             assetDb.assetStatisticsDao().replace(assetStatistics);
 
-            List<DayActivity> dayActivityList = getDayActivities(actions);
-            DayActivityDatabase dayActivityDb = DayActivityDatabase.getInstance(this);
-            dayActivityDb.dayActivityDao().replace(dayActivityList);
+            List<DayActivitySummary> dayActivitySummaryList = getDayActivities(actions);
+            DayActivitySummaryDatabase dayActivityDb = DayActivitySummaryDatabase.getInstance(this);
+            dayActivityDb.dayActivityDao().replace(dayActivitySummaryList);
 
         } catch (Exception e) {
             Log.e(TAG, "Caught exception building 30 day statistics: " + e.getMessage());
@@ -208,8 +211,8 @@ public class StatisticsService extends IntentService {
         return assetStatistics;
     }
 
-    private List<DayActivity> getDayActivities(@NotNull List<Action> actions) {
-        Map<Long, DayActivity> dayActivityMap = new HashMap<>();
+    private List<DayActivitySummary> getDayActivities(@NotNull List<Action> actions) {
+        Map<Long, DayActivitySummary> dayActivityMap = new HashMap<>();
         Calendar calendar = Calendar.getInstance();
         normalize(calendar);
 
@@ -223,7 +226,7 @@ public class StatisticsService extends IntentService {
             normalize(calendar);
             long timestamp = calendar.getTimeInMillis();
             Log.d(TAG, String.format("Adding placeholder record for %s", df.format(new Date(timestamp))));
-            dayActivityMap.put(timestamp, new DayActivity(timestamp, 0, 0, 0));
+            dayActivityMap.put(timestamp, new DayActivitySummary(timestamp, 0, 0, 0));
             daysToSubtract = -1;
         }
 
@@ -231,11 +234,11 @@ public class StatisticsService extends IntentService {
             calendar.setTimeInMillis(action.getTimestamp());
             normalize(calendar);
             long timestamp = calendar.getTimeInMillis();
-            DayActivity activity = dayActivityMap.get(timestamp);
+            DayActivitySummary activity = dayActivityMap.get(timestamp);
             if (activity == null) {
                 Log.w(TAG, String.format("Expected to find placeholder DayActivty for timestamp " +
                         "%d (%s).  Found null.  Creating placeholder", timestamp, df.format(new Date(timestamp))));
-                activity = new DayActivity(timestamp, 0, 0, 0);
+                activity = new DayActivitySummary(timestamp, 0, 0, 0);
             }
 
             switch (action.getDirection()) {
@@ -250,11 +253,11 @@ public class StatisticsService extends IntentService {
             dayActivityMap.put(timestamp, activity);
         }
 
-        List<DayActivity> dayActivityList = new ArrayList<>();
-        for (Map.Entry<Long, DayActivity> entry : dayActivityMap.entrySet()) {
-            dayActivityList.add(entry.getValue());
+        List<DayActivitySummary> dayActivitySummaryList = new ArrayList<>();
+        for (Map.Entry<Long, DayActivitySummary> entry : dayActivityMap.entrySet()) {
+            dayActivitySummaryList.add(entry.getValue());
         }
-        return dayActivityList;
+        return dayActivitySummaryList;
     }
 
     private void normalize(Calendar calendar) {

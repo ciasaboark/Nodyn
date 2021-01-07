@@ -24,6 +24,7 @@ import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LegendEntry;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.ColorInt;
+import androidx.core.graphics.ColorUtils;
 import io.phobotic.nodyn_app.R;
 
 /**
@@ -75,6 +77,9 @@ public class HourlyUsageChartBuilder {
 //        xAxis.setGranularity(24);
 
         LineData lineData = new LineData();
+
+
+
 
         if (!usageEntries.isEmpty()) {
             LineDataSet dataSet = new LineDataSet(usageEntries, "Usage");
@@ -139,8 +144,10 @@ public class HourlyUsageChartBuilder {
         chart.getXAxis().setGridColor(gridColor);
         chart.getXAxis().setAxisLineColor(gridColor);
 
+        //disable the secondary Y axis
+        chart.getAxisRight().setEnabled(false);
+
         YAxis yAxis = chart.getAxisLeft();
-        yAxis.setGranularity(1.0f);
         yAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
@@ -153,9 +160,30 @@ public class HourlyUsageChartBuilder {
         yAxis.setGridColor(gridColor);
         yAxis.setAxisLineColor(gridColor);
 
-        yAxis.setLabelCount(7, true);
-        chart.getAxisRight().setEnabled(false);
+        //add a limit line to show where the maximum allowed usage is (typically 70%)
+        float limit = (float)totalAssets * 0.7f;
+        LimitLine ll = new LimitLine(limit);
+        ll.setLabel("70% Usage");
+        ll.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        ll.setTextSize(12f);
 
+        int color = context.getResources().getColor(R.color.default_accent);
+        color = ColorUtils.setAlphaComponent(color, 125);
+        ll.setTextColor(color);
+        //change the accent color to 50% opacity
+        ll.setLineColor(color);
+        ll.setLineWidth(2f);
+        yAxis.addLimitLine(ll);
+
+//        //MPAndroidchart has a tendency to add duplicate values on the Y axis if our max value is too small.
+//        //++ Limit the number of labels to the total number of assets, or to 10
+//        int yAxisLabelCount = totalAssets;
+//        yAxisLabelCount = Math.min(yAxisLabelCount, 10);
+//        yAxis.setLabelCount(yAxisLabelCount, true);
+//        chart.getAxisRight().setEnabled(false);
+
+        yAxis.setGranularity(1.0f);
+        yAxis.setGranularityEnabled(true);
 
         chart.setPinchZoom(false);
         chart.setScaleYEnabled(false);

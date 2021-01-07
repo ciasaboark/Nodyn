@@ -41,7 +41,7 @@ import java.util.List;
 import androidx.annotation.ColorInt;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.statistics.UsageRecord;
-import io.phobotic.nodyn_app.database.statistics.assets.AssetStatistics;
+import io.phobotic.nodyn_app.database.statistics.summary.assets.AssetStatistics;
 
 /**
  * Created by Jonathan Nelson on 2019-05-12.

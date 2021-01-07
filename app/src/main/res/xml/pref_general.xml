@@ -23,19 +23,19 @@
         android:title="@string/pref_title_general_id"/>
 
     <EditTextPreference
-        style="@style/AppPreference.DialogPreference"
         android:defaultValue=""
-        android:icon="@drawable/ic_shield_account_black_24dp"
+        android:icon="@drawable/ic_shield_account_white_24dp"
         android:key="@string/pref_key_equipment_managers_name"
         android:summary="@string/pref_description_equipment_managers_name"
         android:title="@string/pref_title_equipment_managers_name"/>
 
     <io.phobotic.nodyn_app.preference.EmailRecipientsPreference
-        style="@style/AppPreference.DialogPreference"
         android:defaultValue=""
+
         android:icon="@drawable/ic_send_black_24dp"
         android:key="@string/pref_key_equipment_managers_addresses"
-        android:title="@string/pref_title_equipment_managers_addresses"/>
+        android:title="@string/pref_title_equipment_managers_addresses"
+        android:theme="@style/Widgets.Dialog"/>
 
     <SwitchPreferenceCompat
         android:defaultValue="@string/pref_default_general_sounds_enabled"

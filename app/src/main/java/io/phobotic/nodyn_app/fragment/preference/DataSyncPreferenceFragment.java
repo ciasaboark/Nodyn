@@ -23,6 +23,8 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
@@ -31,6 +33,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 import io.phobotic.nodyn_app.sync.SyncManager;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
@@ -75,7 +78,7 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
                 DialogFragment dialog = syncAdapter.getConfigurationDialogFragment(getActivity());
 
                 if (dialog == null) {
-                    AlertDialog.Builder b = new AlertDialog.Builder(getActivity())
+                    AlertDialog.Builder b = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                             .setTitle(getString(R.string.sync_backend_dialog_title))
                             .setMessage(getString(R.string.sync_backend_dialog_no_configure))
                             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -103,9 +106,6 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
                 Database db = Database.getInstance(getActivity());
                 db.dumpModel();
 
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-                prefs.edit().putBoolean(getString(R.string.sync_key_first_sync_completed), false).commit();
-
                 //Let the static listener update the summary.  This is ugly, but it will do
                 PreferenceListeners.sGenericPreferenceListener.onPreferenceChange(preference, newValue);
                 return true;
@@ -113,6 +113,6 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
         });
         PreferenceListeners.bindPreferenceSummaryToValue(backendPreference);
 
-
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 }

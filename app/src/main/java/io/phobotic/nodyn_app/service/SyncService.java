@@ -26,28 +26,26 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.Versioning;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
-import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.helper.FilterHelper;
 import io.phobotic.nodyn_app.database.model.Asset;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.FullDataModel;
-import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.email.ActionHtmlFormatter;
-import io.phobotic.nodyn_app.email.EmailRecipient;
-import io.phobotic.nodyn_app.email.EmailSender;
+import io.phobotic.nodyn_app.database.sync.SyncedAction;
+import io.phobotic.nodyn_app.database.sync.SyncAttempt;
+import io.phobotic.nodyn_app.database.sync.SyncDatabase;
 import io.phobotic.nodyn_app.reporting.CustomEvents;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 import io.phobotic.nodyn_app.sync.ActionSyncListener;
@@ -70,6 +68,9 @@ public class SyncService extends IntentService {
     public static final String BROADCAST_SYNC_PROGRESS_SUB_KEY = "sync_progress_sub_key";
     public static final String BROADCAST_SYNC_MESSAGE = "sync_message";
     public static final String BROADCAST_SYNC_SUB_MESSAGE = "sync_sub_message";
+    public static final String SYNC_TYPE_KEY = "sync_type";
+    public static final String SYNC_TYPE_FULL = "sync_type_full";
+    public static final String SYNC_TYPE_QUICK = "sync_type_quick";
     private static final String TAG = SyncService.class.getSimpleName();
 
 
@@ -79,48 +80,131 @@ public class SyncService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        // TODO: 2019-09-05 determine the type of sync that was requested
         final SyncAdapter syncAdapter = SyncManager.getPrefferedSyncAdapter(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
 
         LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
         Intent i = new Intent(BROADCAST_SYNC_START);
         broadcastManager.sendBroadcast(i);
 
+        //default to use the full sync
+        String syncType = intent.getStringExtra(SYNC_TYPE_KEY);
+        if (syncType == null) syncType = SYNC_TYPE_FULL;
+
+        boolean forceReschedule = false;
+
+        switch (syncType) {
+            case SYNC_TYPE_FULL:
+                forceReschedule = true;
+                performFullSync(syncAdapter, broadcastManager);
+                break;
+            case SYNC_TYPE_QUICK:
+                performQuickSync(syncAdapter, broadcastManager);
+                break;
+            default:
+                String message = String.format("Unknown sync type: %s.  Will not sync.", syncType);
+                Log.e(TAG, message);
+                Crashlytics.log(message);
+        }
+
+        SyncScheduler scheduler = new SyncScheduler(this);
+        if (forceReschedule) {
+            scheduler.forceScheduleSync();
+        } else {
+            scheduler.scheduleSyncIfNeeded();
+        }
+    }
+
+    /**
+     * Perform a quick sync with the backend.  Action items are sent out
+     */
+    private void performQuickSync(SyncAdapter syncAdapter, LocalBroadcastManager broadcastManager) {
+        performSync(syncAdapter, broadcastManager, false);
+    }
+
+    private void performFullSync(SyncAdapter syncAdapter, LocalBroadcastManager broadcastManager) {
+        performSync(syncAdapter, broadcastManager, true);
+    }
+
+    private void performSync(SyncAdapter syncAdapter, LocalBroadcastManager broadcastManager, boolean isFullSync) {
+        //generate a unique UUID to reference this sync attempt
+        String uuid = UUID.randomUUID().toString();
+
+        Log.i(TAG, String.format("Starting %s sync <%s>.", (isFullSync ? "full" : "quick"), uuid));
+        List<Action> unsyncedActions = new ArrayList<>();
+        //Failed actions are categorized by whether they are recoverable.  Recoverable actions will
+        //+ be left unsynced and can be tried again later
+        final List<SyncedAction> syncedActions = new ArrayList();
+        final List<SyncedAction> recoverableActions = new ArrayList<>();
+        long syncStart = System.currentTimeMillis();
+        long syncEnd = -1;
+        String exceptionClass = null;
+        String exceptionMessage = null;
+        boolean fullModelFetched = false;
+        boolean allActionItemsSynced = false;
+
         try {
-            //push out all local changes
-            pushLocalActions(syncAdapter);
-
-            //make sure our local copy matches the backend
             Database db = Database.getInstance(this);
-            pullRemoteModel(syncAdapter, db);
 
-            i = new Intent(BROADCAST_SYNC_FINISH);
-            broadcastManager.sendBroadcast(i);
 
-            //delete old action records
+            //push out all local changes then prune any old records that have synced
+            allActionItemsSynced = pushLocalActions(uuid, syncAdapter);
             db.pruneSyncedActions();
 
-            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_SUCCESS));
+            if (isFullSync) {
+                Log.d(TAG, "Asking sync adapter to fetch full data model");
+                //make sure our local copy matches the backend
+                pullRemoteModel(syncAdapter, db);
 
+                fullModelFetched = true;
+                Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_SUCCESS));
+            }
 
-            prefs.edit().putBoolean(getString(R.string.sync_key_first_sync_completed), true).apply();
+            Intent i = new Intent(BROADCAST_SYNC_FINISH);
+            broadcastManager.sendBroadcast(i);
         } catch (Exception e) {
             Crashlytics.logException(e);
             Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_FAILED));
-            i = new Intent(BROADCAST_SYNC_FAIL);
+            Intent i = new Intent(BROADCAST_SYNC_FAIL);
             i.putExtra(BROADCAST_SYNC_MESSAGE, e.getMessage());
             broadcastManager.sendBroadcast(i);
             Log.e(TAG, "Aborting sync process.  Unable to fetch full data model from remote host: "
                     + e.getMessage());
-        } finally {
-            //since the sync process finished (successfully or not) we can be sure that a new
-            //+ sync alarm should be scheduled
-            Log.d(TAG, "Scheduling new sync");
-            SyncScheduler scheduler = new SyncScheduler(this);
-            scheduler.forceScheduleSync();
+            exceptionClass = e.getClass().getSimpleName();
+            exceptionMessage = e.getMessage();
 
+        }
+        //record this sync attempt
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean emailEnabled = preferences.getBoolean("email_enable", false);
+        syncEnd = System.currentTimeMillis();
+        SyncAttempt syncAttempt = new SyncAttempt(uuid,
+                syncStart,
+                syncEnd,
+                (isFullSync ? SyncAttempt.SYNC_TYPE_FULL : SyncAttempt.SYNC_TYPE_QUICK),
+                fullModelFetched,
+                allActionItemsSynced,
+                exceptionClass,
+                exceptionMessage,
+                syncAdapter.getAdapterName(),
+                Versioning.getReleaseName(),
+                Versioning.getReleaseNumber(),
+                (emailEnabled ? 1 : 0),
+                false);
+        SyncDatabase syncDatabase = SyncDatabase.getInstance(this);
+        syncDatabase.syncAttemptDao().insert(syncAttempt);
 
-            //start the audit results email sender service
+        //Start the sync email service so any required notifications can be sent out
+        Intent ses = new Intent(this, SyncFailureNotificationService.class);
+        startService(ses);
+
+        //hold off on sending audit results until a full sync
+        if (isFullSync) {
+            //start the audit results email sender service.  Audits will be sent immediatly
+            //+ after completion.  If the transfer failed this will help ensure they get sent out
+            //+ in a timely manner
             Intent ai = new Intent(this, AuditEmailService.class);
             startService(ai);
         }
@@ -129,105 +213,89 @@ public class SyncService extends IntentService {
 //        startService(i2);
     }
 
-    private void pushLocalActions(final SyncAdapter syncAdapter) throws SyncException {
-        final List<FailedActions> failedActions = new ArrayList();
-        Database db = Database.getInstance(this);
-        List<Action> unsyncedActions = db.getUnsyncedActions();
-
-        //go ahead and convert the list of unsynced Actions into something we can attach
-        //+ to an email just in case the sync fails
-        String syncRecords = convertActionsToString(unsyncedActions);
+    /**
+     * Sync all outstanding Action items that have not synced yet
+     * @param syncUUID
+     * @param syncAdapter
+     * @return true if all action items could be synced, false otherwise
+     * @throws SyncException
+     */
+    private boolean pushLocalActions(final String syncUUID, final SyncAdapter syncAdapter) throws SyncException {
+        final boolean[] allActionItemsSynced = {true};
+        final Database actionDatabase = Database.getInstance(this);
+        List<Action> unsyncedActions = actionDatabase.getUnsyncedActions();
+        Log.d(TAG, String.format("Found %d unsycned actions", unsyncedActions.size()));
+        final SyncDatabase syncDatabase = SyncDatabase.getInstance(this);
 
         syncAdapter.syncActionItems(this, unsyncedActions, new ActionSyncListener() {
             @Override
             public void onActionSyncSuccess(Action action) {
+                Log.d(TAG, String.format("Action %s synced", action.toString()));
+
+                //mark this action as synced in the action database so we don't try to sync
+                //+ it again later
+                action.setSynced(true);
+                actionDatabase.insertAction(action);
+
+                //add a record to the sync database
+                SyncedAction syncedAction = SyncedAction.fromAction(syncUUID, action);
+                syncedAction.setSyncSuccess(true);
+                syncedAction.setWillRetrySync(false);
+                syncDatabase.syncedActionDao().insert(syncedAction);
 
             }
 
             @Override
-            public void onActionSyncError(Action action, Exception e, String message) {
-                failedActions.add(new FailedActions(action, e, message));
+            public void onActionSyncFatalError(Action action, Exception e, String message) {
+                allActionItemsSynced[0] = false;
+                Log.e(TAG, String.format("Action %s could not be synced.  A fatal error has " +
+                        "occurred.  This action will be marked as synced and will be inclued in the " +
+                        "sync exception email (if configured)", action.toString()));
+
+                //there is no point in tring to send this action later.  Go ahead and mark it as synced
+                action.setSynced(true);
+                actionDatabase.insertAction(action);
+
+                //add a record to the sync database
+                SyncedAction syncedAction = SyncedAction.fromAction(syncUUID, action);
+                syncedAction.setSyncSuccess(false);
+                syncedAction.setWillRetrySync(false);
+                syncedAction.setExceptionType(e.getClass().getSimpleName());
+                syncedAction.setExceptionMessage(e.getMessage());
+                syncDatabase.syncedActionDao().insert(syncedAction);
+            }
+
+            @Override
+            public void onActionSyncRecoverableError(Action action, @Nullable Exception e, @Nullable String message) {
+                Log.e(TAG, String.format("Action %s could not be synced.  A recoverable error " +
+                        "occurred.  This action will be kept unsynced and will be tried again " +
+                        "later. ", action.toString()));
+                allActionItemsSynced[0] = false;
+
+                //leave the action unchanged in the action table, but add an entry into the sync table
+                SyncedAction syncedAction = SyncedAction.fromAction(syncUUID, action);
+                syncedAction.setSyncSuccess(false);
+                syncedAction.setWillRetrySync(true);
+                syncedAction.setExceptionType(e.getClass().getSimpleName());
+                syncedAction.setExceptionMessage(message);
+                syncDatabase.syncedActionDao().insert(syncedAction);
             }
         });
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean emailEnabled = preferences.getBoolean("email_enable", false);
-        if (failedActions.size() > 0) {
-            //todo this should be updated so that the action items include a field showing the
-            //+ times a sync has been attempted, as well as the last attempt timestamp.  Only actions
-            //+ that have failed multiple sync attempts should be marked as synced and purged
-            //+ (how would this differentiate between actions rejected by the sync backend and
-            //+ ones that failed due to a recoverable error?
-            if (!emailEnabled) {
-                //if the user has the email service disabled then we need to go ahead and mark any
-                //+ failed actions as 'synced'.  If not these actions will continue to be resent
-                //+ (and fail) during each sync
-                List<Action> actionList = new ArrayList<>();
-                for (FailedActions fa : failedActions) {
-                    actionList.add(fa.getAction());
-                }
-                syncAdapter.markActionItemsSynced(SyncService.this, actionList);
-            } else if (emailEnabled) {
-                //otherwise we need to be careful about marking a failed action item 'synced'.  This
-                //+ should only be done if we are sure that an email with the failed sync actions
-                //+ was sent successfully.
-                Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_ACTION_FAILED));
-                StringBuilder sb = new StringBuilder();
-                sb.append(ActionHtmlFormatter.getHeader(this));
-
-                ActionHtmlFormatter formatter = new ActionHtmlFormatter();
-                for (FailedActions failedAction : failedActions) {
-                    sb.append(formatter.formatActionAsHtml(this, failedAction));
-                }
-
-
-                sb.append("<pre>\n\nSync records that were pushed during this update:\n\n");
-                sb.append(syncRecords + "</pre>");
-
-                sb.append(ActionHtmlFormatter.getFooter());
-
-                List<EmailRecipient> recipients = new ArrayList<>();
-                String addressesString = preferences.getString(
-                        getString(R.string.pref_key_equipment_managers_addresses),
-                        getString(R.string.pref_default_equipment_managers_addresses));
-                String[] addresses = addressesString.split(",");
-                for (String address : addresses) {
-                    recipients.add(new EmailRecipient(address));
-                }
-
-                EmailSender sender = new EmailSender(this)
-                        .setBody(sb.toString())
-                        .setSubject("Sync Exceptions")
-                        .setRecipientList(recipients)
-                        .setFailedListener(new EmailSender.EmailStatusListener() {
-                            @Override
-                            public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
-                                Log.e(TAG, "Sync exception send email failed with message: " + message);
-                                Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_EMAIL_NOT_SENT));
-                            }
-                        }, failedActions)
-                        .setSuccessListener(new EmailSender.EmailStatusListener() {
-                            @Override
-                            public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
-                                Log.d(TAG, "Sync exception send email succeeded with message: " + message);
-                                Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_EMAIL_SENT));
-                                if (tag instanceof List) {
-                                    List<Action> actions = new ArrayList<Action>();
-                                    for (FailedActions failedAction : failedActions) {
-                                        actions.add(failedAction.getAction());
-                                    }
-                                    syncAdapter.markActionItemsSynced(SyncService.this, actions);
-                                }
-                            }
-                        }, failedActions)
-                        .send();
-            }
-
-        }
+        return allActionItemsSynced[0];
     }
+
+
 
     private void pullRemoteModel(SyncAdapter syncAdapter, Database db) throws SyncException {
         FullDataModel model = syncAdapter.fetchFullModel(this);
+
+        //The sync adapter may have already filtered the asset list to the selected models
+        //+ and companies, but this behaviour is not guarenteed
+        FilterHelper.filterModels(this, model.getAssets());
+        FilterHelper.filterCompanies(this, model.getAssets());
+
+
         Intent i = new Intent(SyncService.BROADCAST_SYNC_UPDATE);
         i.putExtra(SyncService.BROADCAST_SYNC_MESSAGE, "Updating database");
         LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
@@ -236,82 +304,6 @@ public class SyncService extends IntentService {
         db.updateModel(model);
     }
 
-    private @NotNull
-    String convertActionsToString(@NotNull List<Action> actions) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<small><table><tr>");
-        sb.append("<th>Action ID</th>" +
-                "<th>Type</th>" +
-                "<th>Asset</th>" +
-                "<th>User</th>" +
-                "<th>Authorization</th>" +
-                "<th>Action Timestamp</th>" +
-                "<th>Expected Checkin</th>" +
-                "<th>Notes</th>" +
-                "</tr>");
 
-        String row = "<tr>" +
-                "<td>%d</td>" +
-                "<td>%s</td>" +
-                "<td>%s</td>" +
-                "<td>%s</td>" +
-                "<td>%s</td>" +
-                "<td>%s</td>" +
-                "<td>%s</td>" +
-                "<td>%s</td>" +
-                "</tr>";
-        for (Action a : actions) {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z");
 
-            String timestamp = String.valueOf(a.getTimestamp());
-            if (a.getTimestamp() > 0) {
-                Date d = new Date(a.getTimestamp());
-                timestamp = df.format(d);
-            }
-
-            String expectedCheckin = String.valueOf(a.getExpectedCheckin());
-            if (a.getExpectedCheckin() >= 0) {
-                Date d = new Date(a.getExpectedCheckin());
-                expectedCheckin = df.format(d);
-            }
-
-            String direction = Action.Direction.UNKNOWN.toString();
-            if (a.getDirection() != null) {
-                direction = a.getDirection().toString();
-            }
-
-            Database db = Database.getInstance(this);
-
-            //try to use the asset tag instead of the ID number if possible
-            String assetTag = a.getAssetID() + "<id>";
-            if (a.getAssetID() != -1) {
-                try {
-                    Asset asset = db.findAssetByID(a.getAssetID());
-                    assetTag = asset.getTag();
-                } catch (AssetNotFoundException e) {
-                    //just leave this field as the asset ID number
-                }
-            }
-
-            String username = a.getUserID() + "<id>";
-            if (a.getUserID() != -1) {
-                try {
-                    User user = db.findUserByID(a.getUserID());
-                    username = user.getName();
-                } catch (UserNotFoundException e) {
-                    //just leave this field as the user ID number
-                }
-            }
-
-            String line = String.format(row, a.getId(), direction,
-                    assetTag, username, a.getAuthorization(), timestamp, expectedCheckin,
-                    a.getNotes());
-
-            sb.append(line + "\n");
-        }
-
-        sb.append("</table></small>");
-
-        return sb.toString();
-    }
 }

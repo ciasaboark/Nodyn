@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
 import io.phobotic.nodyn_app.database.audit.model.AuditDefinition;
 import io.phobotic.nodyn_app.database.model.User;
 

@@ -23,6 +23,7 @@ import android.os.Bundle;
 
 import androidx.preference.PreferenceFragmentCompat;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
 
 /**
  * Created by Jonathan Nelson on 2019-05-27.
@@ -35,6 +36,8 @@ public class StatisticsPreferenceFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.pref_stats, rootKey);
         setHasOptionsMenu(true);
+
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences
         // to their values. When their values change, their summaries are

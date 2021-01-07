@@ -267,6 +267,8 @@ public class ScanInputView extends RelativeLayout {
                     break;
             }
 
+
+
             if (methodItem != null) {
                 methodItems.add(methodItem);
             }
@@ -292,7 +294,9 @@ public class ScanInputView extends RelativeLayout {
                     TextView tv = v.findViewById(android.R.id.text1);
 
                     tv.setText("");
-                    tv.setCompoundDrawablesWithIntrinsicBounds(items[position].iconRes, 0, 0, 0);
+                    Drawable d = getResources().getDrawable(items[position].iconRes);
+                    d.setTint(getResources().getColor(R.color.white));
+                    tv.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
 
                     return v;
                 }

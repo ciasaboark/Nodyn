@@ -82,6 +82,7 @@ public class EnableKioskDialogView extends RelativeLayout {
         return password;
     }
 
+
     public EnableKioskDialogView setOnPasswordChangedListener(OnPasswordChangedListener listener) {
         this.listener = listener;
         return this;

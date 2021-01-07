@@ -16,12 +16,13 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
                                    xmlns:app="http://schemas.android.com/apk/res-auto"
                                    android:layout_width="match_parent"
                                    android:layout_height="wrap_content"
                                    android:layout_marginLeft="8dp"
                                    android:layout_marginRight="8dp"
+                                   app:cardBackgroundColor="@color/generic_card_background_dark"
                                    android:transitionName="card">
 
     <RelativeLayout
@@ -54,6 +55,7 @@
                 android:layout_toLeftOf="@id/image"
                 android:text="asfasf"
                 android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                android:textColor="?android:textColorPrimary"
                 android:transitionName="name"
                 />
 
@@ -71,12 +73,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
-                    android:text="Username:"/>
+                    android:text="Username:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
                 <TextView
                     android:id="@+id/username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="TextView"/>
             </LinearLayout>
         </LinearLayout>
@@ -103,12 +107,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Groups:"/>
 
                 <TextView
                     android:id="@+id/groups"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="TextView"/>
             </LinearLayout>
 
@@ -123,12 +129,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Number of assets:"/>
 
                 <TextView
                     android:id="@+id/num_assets"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="TextView"/>
             </LinearLayout>
 
@@ -143,6 +151,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Employee number:"/>
 
                 <TextView
@@ -150,8 +159,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="monospace"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="TextView"/>
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

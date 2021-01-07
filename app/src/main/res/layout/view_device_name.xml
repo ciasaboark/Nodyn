@@ -31,7 +31,7 @@
         android:hint="@string/pref_dialog_device_name_unset"
         android:inputType="text"
         android:maxLines="1"
-        android:singleLine="true"/>
+        android:singleLine="true" />
 
     <TextView
         android:id="@+id/info1"

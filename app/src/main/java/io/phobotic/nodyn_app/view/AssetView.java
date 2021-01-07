@@ -19,6 +19,11 @@ package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -36,6 +41,7 @@ import java.util.Date;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
@@ -71,6 +77,7 @@ public class AssetView extends ConstraintLayout {
     private Integer highlightColor = null;
     private boolean isArchived = false;
     private View card;
+    private View statusBar;
 
 
     public AssetView(Context context, AttributeSet attrs) {
@@ -92,6 +99,7 @@ public class AssetView extends ConstraintLayout {
 
     private void findViews() {
         rootView = inflate(context, R.layout.view_asset, this);
+        statusBar = rootView.findViewById(R.id.status_color);
         card = rootView.findViewById(R.id.card);
         tag = rootView.findViewById(R.id.tag);
         name = rootView.findViewById(R.id.name);
@@ -109,7 +117,12 @@ public class AssetView extends ConstraintLayout {
     }
 
     public void setBackdropColor(@ColorInt int color) {
-        rootView.setBackgroundColor(color);
+        statusBar.setBackgroundColor(color);
+        statusBar.setVisibility(View.VISIBLE);
+    }
+
+    public void hideBackdropColor() {
+        statusBar.setVisibility(View.GONE);
     }
 
     private void setFields() {
@@ -185,11 +198,15 @@ public class AssetView extends ConstraintLayout {
                 .oval(false)
                 .build();
 
+        Drawable d = getResources().getDrawable(R.drawable.monitor_cellphone_star);
+        d.setTint(Color.parseColor("#ffffff"));
+
         Picasso.with(getContext())
                 .load(imageURL)
+                .transform(new SolidBackgroundTransform())
                 .transform(transformation)
                 .fit()
-                .placeholder(R.drawable.monitor_cellphone_star)
+                .placeholder(d)
                 .into(image, new Callback() {
                     @Override
                     public void onSuccess() {
@@ -241,5 +258,33 @@ public class AssetView extends ConstraintLayout {
     public void setArchived(boolean archived) {
         isArchived = archived;
         setFields();
+    }
+
+    private class SolidBackgroundTransform implements Transformation {
+
+        @Override
+        public Bitmap transform(Bitmap source) {
+            //overlay the image onto a white background so we don't have to deal
+            //+ with transparent pixels
+
+            Bitmap newBitmap = Bitmap.createBitmap(source.getWidth(), source.getHeight(),
+                    source.getConfig());
+            newBitmap.eraseColor(Color.WHITE);
+            Canvas canvas = new Canvas(newBitmap);
+            canvas.drawBitmap(source, 0f, 0f, null);
+
+
+            //recycle the old bitmap
+            if (!source.isRecycled()) {
+                source.recycle();
+            }
+
+            return newBitmap;
+        }
+
+        @Override
+        public String key() {
+            return SolidBackgroundTransform.class.getName();
+        }
     }
 }

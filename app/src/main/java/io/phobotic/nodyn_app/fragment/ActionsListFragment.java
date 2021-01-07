@@ -41,7 +41,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.list.adapter.ActionRecyclerViewAdapter;
 import io.phobotic.nodyn_app.list.decorator.VerticalSpaceItemDecoration;
 import io.phobotic.nodyn_app.service.SyncService;

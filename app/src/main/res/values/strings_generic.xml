@@ -34,8 +34,8 @@
     <string name="add">add</string>
     <string name="next">next</string>
     <string name="finish">finish</string>
-    <string name="view_more">view more</string>
-    <string name="view_less">view less</string>
+    <string name="view_more">more</string>
+    <string name="view_less">less</string>
     <string name="got_it">Got it!</string>
     <string name="help">help</string>
     <string name="please_wait_timer" formatted="true">Please wait %d seconds to continue</string>

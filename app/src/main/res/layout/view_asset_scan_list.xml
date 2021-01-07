@@ -65,8 +65,7 @@
                 android:layout_marginBottom="64dp"
                 android:layout_marginTop="16dp"
                 android:text="@string/asset_scan_list_scan_first_item"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-                android:textColor="?colorAccent"/>
+                style="@style/Text.Title" />
 
             <ImageSwitcher
                 android:id="@+id/switcher"
@@ -78,25 +77,6 @@
                 android:clipToPadding="false">
 
             </ImageSwitcher>
-
-            <TextView
-                android:id="@+id/textView6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="32dp"
-                android:text="Look for a property tag or a serial number plate on the asset you wish to check out"
-                android:visibility="gone"/>
-
-            <ImageSwitcher
-                android:id="@+id/example_switcher"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/asset_scan_view_example_image_height"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginEnd="8dp"
-                android:visibility="gone"
-                app:srcCompat="@drawable/property_tag_example"/>
-
         </LinearLayout>
     </RelativeLayout>
 

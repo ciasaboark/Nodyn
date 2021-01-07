@@ -17,7 +17,11 @@
   -->
 
 <resources>
-    <color name="asset_past_due_background">#D32F2F</color>
-    <color name="asset_checked_out_background">#FFC107</color>
-    <color name="asset_available_background">#00BCD4</color>
+    <!--<color name="asset_past_due_background">#D32F2F</color>-->
+    <!--<color name="asset_checked_out_background">#FFC107</color>-->
+    <!--<color name="asset_available_background">#00BCD4</color>-->
+
+    <color name="asset_past_due_background">@color/sync_status_error</color>
+    <color name="asset_checked_out_background">@color/sync_status_caution</color>
+    <color name="asset_available_background">@color/sync_status_ok</color>
 </resources>

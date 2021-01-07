@@ -136,7 +136,7 @@ public class SyncNotificationFragment extends Fragment {
         filter.addAction(SyncService.BROADCAST_SYNC_UPDATE);
         filter.addAction(BROADCAST_SYNC_DETAILS_SHOWN);
         filter.addAction(BROADCAST_SYNC_DETAILS_HIDDEN);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(br, filter);
+//        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(br, filter);
     }
 
     @Override

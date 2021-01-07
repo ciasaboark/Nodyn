@@ -40,6 +40,7 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -57,6 +58,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeoutException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -70,9 +72,11 @@ import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Model;
+import io.phobotic.nodyn_app.helper.ExecutorHelper;
 import io.phobotic.nodyn_app.helper.MediaHelper;
 import io.phobotic.nodyn_app.list.adapter.ScannedAssetRecyclerViewAdapter;
 import io.phobotic.nodyn_app.list.decorator.DividerItemDecoration;
+import io.phobotic.nodyn_app.sync.SyncManager;
 import io.phobotic.nodyn_app.transformer.RoundedTransformation;
 
 
@@ -89,16 +93,16 @@ public class AssetScannerView extends RelativeLayout {
     TimerTask timerTask;
     private ScanInputView input;
     private View rootView;
-    private ArrayList<Asset> scannedAssetsList;
+    private ArrayList<ScannedAsset> scannedAssetsList;
     private RecyclerView recyclerView;
     private ImageSwitcher modelSwitcher;
     private View error;
     private OnAssetScannedListener listener;
-    private boolean assetsRemovable = true;
-    private boolean isGhostMode;
-    private boolean isRestrictedInput;
+    private boolean isAssetsRemovable = true;
+    private boolean isCheckAssetAvailability = false;
+    private boolean isGhostMode = false;
+    private boolean isRestrictedInput = false;
     private Queue<String> modelImageURLs = new ArrayDeque<>();
-    private ImageSwitcher exampleSwitcher;
 
 
     public AssetScannerView(Context context, @Nullable AttributeSet attrs) {
@@ -129,25 +133,10 @@ public class AssetScannerView extends RelativeLayout {
         input = rootView.findViewById(R.id.input);
         error = rootView.findViewById(R.id.error);
         modelSwitcher = rootView.findViewById(R.id.switcher);
-        exampleSwitcher = rootView.findViewById(R.id.example_switcher);
-
     }
-
-//    @Override
-//    protected void onDetachedFromWindow() {
-//        super.onDetachedFromWindow();
-//        timer.cancel();
-//    }
-//
-//    @Override
-//    protected void onAttachedToWindow() {
-//        super.onAttachedToWindow();
-//        timer.scheduleAtFixedRate(timerTask, IMAGE_SWITCH_DELAY, IMAGE_SWITCH_PERIOD);
-//    }
 
     private void initImageSwitchers() {
         initModelImageSwitcher();
-        initExampleImageSwitcher();
     }
 
     private void initTimer() {
@@ -197,8 +186,9 @@ public class AssetScannerView extends RelativeLayout {
     }
 
     private void initModelImageSwitcher() {
-        Animation out = AnimationUtils.loadAnimation(getContext(), R.anim.exit_left);
-        Animation in = AnimationUtils.loadAnimation(getContext(), R.anim.enter_from_right);
+        Animation out = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_out);
+        Animation in = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
+        in.setStartOffset(400);
         modelSwitcher.setInAnimation(in);
         modelSwitcher.setOutAnimation(out);
         modelSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
@@ -243,54 +233,6 @@ public class AssetScannerView extends RelativeLayout {
         modelSwitcher.setImageDrawable(getResources().getDrawable(R.drawable.devices_1));
     }
 
-    private void initExampleImageSwitcher() {
-        Animation out = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_out);
-        Animation in = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
-
-        //a very slow fade between each example
-        in.setDuration(1000);
-        in.setInterpolator(new LinearInterpolator());
-        out.setDuration(1000);
-        out.setInterpolator(new LinearInterpolator());
-
-        exampleSwitcher.setInAnimation(in);
-        exampleSwitcher.setOutAnimation(out);
-        exampleSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
-            @Override
-            public View makeView() {
-                ImageView imageView = new ImageView(getContext());
-                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                ImageSwitcher.LayoutParams params = new ImageSwitcher.LayoutParams(
-                        ImageSwitcher.LayoutParams.MATCH_PARENT,
-                        ImageSwitcher.LayoutParams.MATCH_PARENT);
-                imageView.setLayoutParams(params);
-
-                return imageView;
-            }
-        });
-
-        //set the inital image drawable
-
-        final Queue<Drawable> exampleDrawables = new ArrayDeque<>();
-        exampleDrawables.add(getResources().getDrawable(R.drawable.property_tag_example));
-        exampleDrawables.add(getResources().getDrawable(R.drawable.qrcode_label_example));
-
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                final Drawable d = exampleDrawables.poll();
-                exampleDrawables.add(d);
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        exampleSwitcher.setImageDrawable(d);
-                    }
-                });
-
-            }
-        }, 0, 11000);
-    }
-
     private void updateImageSwitcher() {
         final String nextImageURL = modelImageURLs.poll();
         if (nextImageURL != null) {
@@ -298,10 +240,10 @@ public class AssetScannerView extends RelativeLayout {
 
             Transformation backgroundTransformation = new RoundedTransformation();
 
-            float borderWidth = getResources().getDimension(R.dimen.picasso_small_image_circle_border_width);
+            float borderWidth = getResources().getDimension(R.dimen.picasso_large_image_circle_border_width);
 
             Transformation borderTransformation = new RoundedTransformationBuilder()
-                    .borderColor(getResources().getColor(R.color.circleBorderLarge))
+                    .borderColor(getResources().getColor(R.color.grey300))
                     .borderWidthDp(borderWidth)
                     .cornerRadiusDp(300)
                     .oval(false)
@@ -366,7 +308,7 @@ public class AssetScannerView extends RelativeLayout {
             Log.d(TAG, "Unable to find asset matching input '" + inputString + "'");
 
 
-            final AlertDialog d = new AlertDialog.Builder(getContext())
+            final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                     .setTitle(getResources().getString(R.string.asset_scan_list_unknown_asset_title))
                     .setView(R.layout.view_unknown_asset)
                     .setNegativeButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -402,14 +344,13 @@ public class AssetScannerView extends RelativeLayout {
         }
     }
 
-
     @NonNull
     private ScannedAssetRecyclerViewAdapter getAdapter() {
         ScannedAssetRecyclerViewAdapter adapter = new ScannedAssetRecyclerViewAdapter(context,
-                scannedAssetsList, null, assetsRemovable);
+                scannedAssetsList, null, isAssetsRemovable, isCheckAssetAvailability);
         adapter.setAssetListChangeListener(new ScannedAssetRecyclerViewAdapter.OnAssetListChangeListener() {
             @Override
-            public void onAssetListChange(@NotNull List<Asset> assets) {
+            public void onAssetListChange(@NotNull List<ScannedAsset> assets) {
                 if (listener != null) {
                     listener.onAssetScanListChanged(assets);
                 }
@@ -451,19 +392,95 @@ public class AssetScannerView extends RelativeLayout {
     }
 
     public AssetScannerView setAssetsRemovable(boolean assetsRemovable) {
-        this.assetsRemovable = assetsRemovable;
+        this.isAssetsRemovable = assetsRemovable;
+        recyclerView.swapAdapter(getAdapter(), false);
         return this;
     }
 
-    public List<Asset> getScannedAssets() {
+    public AssetScannerView setCheckAssetAvailability(boolean checkAssetAvailability) {
+        this.isCheckAssetAvailability = checkAssetAvailability;
+        recyclerView.swapAdapter(getAdapter(), false);
+        return this;
+    }
+
+
+
+    public List<ScannedAsset> getScannedAssets() {
         return scannedAssetsList;
     }
 
     public void addAsset(Asset asset) {
-        scannedAssetsList.add(asset);
-        recyclerView.swapAdapter(getAdapter(), false);
+        AVAILABILITY availability = isCheckAssetAvailability ? AVAILABILITY.CHECKING : AVAILABILITY.UNDEFINED;
+        final ScannedAsset scannedAsset = new ScannedAsset(asset, isCheckAssetAvailability, availability);
+        scannedAssetsList.add(scannedAsset);
+        recyclerView.getAdapter().notifyItemInserted(scannedAssetsList.size() - 1);
         recyclerView.scrollToPosition(scannedAssetsList.size() - 1);
+
+        //notifiy the listener the asset list changed
+        if (listener != null) {
+            listener.onAssetScanListChanged(scannedAssetsList);
+        }
+
+        ExecutorHelper.fetchAssetInformation(context,
+                SyncManager.getPrefferedSyncAdapter(getContext()),
+                asset, 5000, new ExecutorHelper.ExecutorListener() {
+                    @Override
+                    public void onTimeoutException(final @NotNull Asset a, @NotNull TimeoutException e) {
+                        updateAvailability(a, AVAILABILITY.UNKNOWN);
+                    }
+
+                    @Override
+                    public void onException(final @NotNull Asset a, @NotNull Exception e) {
+                        updateAvailability(a, AVAILABILITY.UNKNOWN);
+                    }
+
+                    @Override
+                    public void onResult(final @NotNull Asset a) {
+                        AVAILABILITY availability;
+                        if (a.getAssignedToID() == -1) {
+                            availability = AVAILABILITY.AVAILABLE;
+                        } else {
+                            availability = AVAILABILITY.NOT_AVAILABLE;
+                        }
+
+                        updateAvailability(a, availability);
+                    }
+                });
+
         showIntroOrList();
+    }
+
+    private void updateAvailability(final Asset a, final AVAILABILITY availability) {
+        //switch back to the ui thread
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if (recyclerView != null) {
+                    int position = getScannedAssetPosition(a);
+                    ScannedAsset sa = scannedAssetsList.get(position);
+                    sa.setCheckInProgress(false);
+                    sa.setAvailability(availability);
+
+                    recyclerView.getAdapter().notifyItemChanged(position);
+                }
+
+                if (listener != null) {
+                    listener.onAssetScanListChanged(scannedAssetsList);
+                }
+            }
+        });
+    }
+
+    private int getScannedAssetPosition(Asset asset) {
+        int position = -1;
+        for (int i = 0; i < scannedAssetsList.size(); i++) {
+            ScannedAsset sa = scannedAssetsList.get(i);
+            if (sa.getAsset().equals(asset)) {
+                position = i;
+            }
+        }
+
+        return position;
     }
 
     public void reset() {
@@ -472,6 +489,12 @@ public class AssetScannerView extends RelativeLayout {
         recyclerView.getAdapter().notifyItemRangeRemoved(0, count);
         input.reset();
         showIntroOrList();
+    }
+
+    public void removeScannedItem(ScannedAsset scannedAsset) {
+        if (scannedAsset != null) {
+            scannedAssetsList.remove(scannedAsset);
+        }
     }
 
     @Override
@@ -485,8 +508,72 @@ public class AssetScannerView extends RelativeLayout {
     public interface OnAssetScannedListener {
         void onAssetScanned(@NotNull Asset asset);
 
-        void onAssetScanListChanged(@NotNull List<Asset> assets);
+        void onAssetScanListChanged(@NotNull List<ScannedAsset> assets);
 
         void onScanError(@NotNull String message);
+    }
+
+    public class ScannedAsset {
+        private Asset asset;
+        private boolean isCheckInProgress;
+        private AVAILABILITY availability;
+
+        public ScannedAsset(@NotNull Asset asset, boolean isCheckInProgress, @NotNull AVAILABILITY availability) {
+            if (asset == null) {
+                throw new IllegalArgumentException("Asset can not  be null");
+            }
+
+            this.asset = asset;
+            this.isCheckInProgress = isCheckInProgress;
+            this.availability = availability;
+        }
+
+        public Asset getAsset() {
+            return asset;
+        }
+
+        public boolean isCheckInProgress() {
+            return isCheckInProgress;
+        }
+
+        public void setCheckInProgress(boolean checkInProgress) {
+            isCheckInProgress = checkInProgress;
+        }
+
+        public void setAvailability(AVAILABILITY availability) {
+            this.availability = availability;
+        }
+
+        public AVAILABILITY getAvailability() {
+            return availability;
+        }
+
+        /**
+         * We should not have to worry about the same asset being scanned more than once.  Pass on
+         * all requests to hashCode() and equals() to the underlying asset
+         * @return
+         */
+        @Override
+        public int hashCode() {
+            return asset.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return asset.equals(obj);
+        }
+    }
+
+    public enum AVAILABILITY {
+        //the asset has been verified to be available for checkout.
+        AVAILABLE,
+        //the asset has been verified to be unavaiable
+        NOT_AVAILABLE,
+        //an attempt was made to verify the availability, but a result could not be determined
+        UNKNOWN,
+        //the availability of the asset is currently being checked
+        CHECKING,
+        //the availability of the asset is unknown and no attempt will be made to verify
+        UNDEFINED
     }
 }

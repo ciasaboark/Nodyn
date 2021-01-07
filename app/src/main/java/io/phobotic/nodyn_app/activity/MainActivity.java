@@ -18,25 +18,41 @@
 package io.phobotic.nodyn_app.activity;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.helper.StringUtil;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityOptionsCompat;
@@ -49,14 +65,19 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.Asset;
+import io.phobotic.nodyn_app.database.model.Manufacturer;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.database.sync.SyncAttempt;
+import io.phobotic.nodyn_app.database.sync.SyncDatabase;
 import io.phobotic.nodyn_app.fragment.ActionHistoryFragment;
 import io.phobotic.nodyn_app.fragment.BackendErrorFragment;
 import io.phobotic.nodyn_app.fragment.DashboardFragment;
 import io.phobotic.nodyn_app.fragment.FirstSyncErrorFragment;
 import io.phobotic.nodyn_app.fragment.asset.AssetListFragment;
+import io.phobotic.nodyn_app.fragment.dash.LastSyncFragment;
 import io.phobotic.nodyn_app.fragment.listener.OnListFragmentInteractionListener;
 import io.phobotic.nodyn_app.fragment.user.UserListFragment;
+import io.phobotic.nodyn_app.helper.AnimationHelper;
 import io.phobotic.nodyn_app.helper.SettingsHelper;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 import io.phobotic.nodyn_app.service.StatisticsService;
@@ -73,16 +94,16 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MAIN_FRAGMENT = "mainFragment";
     private Fragment currentFragment;
+    private ImageButton syncIcon;
+    private BroadcastReceiver br;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.Main);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -124,16 +145,47 @@ public class MainActivity extends AppCompatActivity
             hideSyncOverflowOption = true;
         }
 
-
         updateMainFragment(newFragment);
 
         Intent i = getIntent();
-        boolean syncNow = i.getBooleanExtra(SYNC_NOW, false);
+        final boolean syncNow = i.getBooleanExtra(SYNC_NOW, false);
         if (syncNow) {
             Intent si = new Intent(this, SyncService.class);
             startService(si);
         }
 
+        syncIcon = (ImageButton) toolbar.findViewById(R.id.sync_icon);
+        syncIcon.setVisibility(View.INVISIBLE);
+        br = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                switch (action) {
+                    case SyncService.BROADCAST_SYNC_START:
+                        syncIcon.setImageDrawable(getResources().getDrawable(R.drawable.sync));
+                        AnimationHelper.fadeIn(MainActivity.this, syncIcon, new AnimationHelper.AnimateListener() {
+                            @Override
+                            public void onAnimationFinished() {
+                                syncIcon.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.rotate));
+                            }
+                        });
+                        break;
+                    case SyncService.BROADCAST_SYNC_FINISH:
+                        AnimationHelper.fadeOutInvisible(MainActivity.this, syncIcon, new AnimationHelper.AnimateListener() {
+                            @Override
+                            public void onAnimationFinished() {
+                                syncIcon.clearAnimation();
+                            }
+                        });
+                        break;
+                    case SyncService.BROADCAST_SYNC_FAIL:
+                        syncIcon.clearAnimation();
+                        syncIcon.setVisibility(View.VISIBLE);
+                        syncIcon.setImageDrawable(getResources().getDrawable(R.drawable.sync_alert));
+                        break;
+                }
+            }
+        };
     }
 
     @Override
@@ -199,9 +251,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private boolean shouldShowFirstSyncError() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean firstSyncComplete = prefs.getBoolean(getString(R.string.sync_key_first_sync_completed), false);
-        return !firstSyncComplete;
+        return !SyncManager.isFirstSyncComplete(this);
     }
 
     private void updateMainFragment(Fragment fragment) {
@@ -241,7 +291,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.action_sync) {
             Log.d(TAG, "Sync button clicked, starting fetchFullModel process in background");
-            Intent i = new Intent(MainActivity.this, SyncService.class);
+            Intent i = new Intent(this, SyncService.class);
+            i.putExtra(SyncService.SYNC_TYPE_KEY, SyncService.SYNC_TYPE_FULL);
             startService(i);
             return true;
         }
@@ -262,6 +313,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(br);
     }
 
     @Override
@@ -285,6 +337,12 @@ public class MainActivity extends AppCompatActivity
 
         SyncScheduler scheduler = new SyncScheduler(this);
         scheduler.scheduleSyncIfNeeded();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(SyncService.BROADCAST_SYNC_START);
+        filter.addAction((SyncService.BROADCAST_SYNC_FINISH));
+        filter.addAction(SyncService.BROADCAST_SYNC_FAIL);
+        LocalBroadcastManager.getInstance(this).registerReceiver(br, filter);
     }
 
     /**
@@ -381,8 +439,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(i);
             highlightItem = false;
         } else if (id == R.id.nav_check_out) {
-            Intent i = new Intent(this, CheckoutActivity.class);
-            startActivity(i);
+            loadCheckoutOrShowError();
             highlightItem = false;
         } else if (id == R.id.nav_assets) {
             newFragment = AssetListFragment.newInstance(1);
@@ -425,6 +482,73 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return highlightItem;
+    }
+
+    /**
+     * Disable access to the check out function if this device has not had a full sync with the backend
+     * recently
+     */
+    private void loadCheckoutOrShowError() {
+        SyncAttempt lastSuccess = SyncManager.getLastSuccessfulSync(this);
+        boolean isAllowed = true;
+        SharedPreferences prefs = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
+        //disable access if we have never synced or if we have not synced within the last 4 requested sync timeframes
+        if (lastSuccess == null) {
+            isAllowed = false;
+        } else {
+            long now = System.currentTimeMillis();
+
+            String wakePeriodString = prefs.getString(this.getString(R.string.pref_key_sync_frequency),
+                    this.getString(R.string.pref_default_sync_frequency));
+            long syncFrequencyMs = Integer.parseInt(wakePeriodString) * 1000 * 60;
+
+            long warningEnd = now - (syncFrequencyMs * 4);
+            if (lastSuccess.getEndTime() < warningEnd) {
+                isAllowed = false;
+            }
+        }
+
+        if (isAllowed) {
+            Intent i = new Intent(this, CheckoutActivity.class);
+            startActivity(i);
+        } else {
+            //show the error dialog
+            View v = getLayoutInflater().inflate(R.layout.dialog_checkout_disabled, null);
+            TextView error = v.findViewById(R.id.error);
+            String msg;
+            if (lastSuccess == null) {
+                msg = getString(R.string.check_out_disable_no_sync_never_synced);
+            } else {
+                Date d = new Date(lastSuccess.getEndTime());
+                DateFormat df = DateFormat.getDateTimeInstance();
+                msg = getString(R.string.check_out_disable_no_sync_last_sync, df.format(d));
+            }
+
+            error.setText(msg);
+
+            //build the equipment managers string
+            TextView equipmentManagers = v.findViewById(R.id.equipment_managers);
+            String eqptMngrString;
+            String mngrName = prefs.getString(getString(R.string.pref_key_equipment_managers_name), null);
+            if (mngrName == null || StringUtils.trim(mngrName).length() == 0) {
+                mngrName = getString(R.string.pref_default_equipment_managers_name);
+            }
+
+            eqptMngrString = getString(R.string.check_out_disable_no_sync_equip_mngr, mngrName);
+            equipmentManagers.setText(eqptMngrString);
+
+            AlertDialog d = new MaterialAlertDialogBuilder(this)
+                    .setTitle("Asset Checkouts Unavailable")
+                    .setView(v)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //do nothing
+                        }
+                    })
+                    .create();
+            d.show();
+        }
     }
 
     @Override

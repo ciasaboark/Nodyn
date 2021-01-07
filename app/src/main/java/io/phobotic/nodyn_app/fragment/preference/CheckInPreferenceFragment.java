@@ -30,6 +30,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +44,7 @@ import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.model.Group;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
 
 /**
  * Created by Jonathan Nelson on 8/8/17.
@@ -61,6 +64,8 @@ public class CheckInPreferenceFragment extends PreferenceFragmentCompat {
 
         initListeners();
         initPreferences();
+
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
     private void initListeners() {
@@ -91,7 +96,7 @@ public class CheckInPreferenceFragment extends PreferenceFragmentCompat {
                         getString(R.string.pref_default_check_in_verification_text));
                 input.setText(curVerificationText);
 
-                final AlertDialog d = new AlertDialog.Builder(getContext())
+                final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                         .setTitle("Asset Check-in Verification Text")
                         .setView(v)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

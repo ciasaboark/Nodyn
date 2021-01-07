@@ -18,10 +18,13 @@
 package io.phobotic.nodyn_app.activity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,6 +41,7 @@ import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
 import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
 import io.phobotic.nodyn_app.database.audit.model.AuditDefinition;
 import io.phobotic.nodyn_app.database.model.Group;
 import io.phobotic.nodyn_app.database.model.User;
@@ -46,6 +50,7 @@ import io.phobotic.nodyn_app.fragment.audit.AssetAuditFragment;
 import io.phobotic.nodyn_app.fragment.audit.AuditDefinitionSelectorFragment;
 import io.phobotic.nodyn_app.fragment.audit.AuditStatusListener;
 import io.phobotic.nodyn_app.fragment.audit.OnAuditCreatedListener;
+import io.phobotic.nodyn_app.service.AuditEmailService;
 
 public class AuditActivity extends AppCompatActivity implements AuditStatusListener, OnAuditCreatedListener, UserAuthorizationFragment.OnUserAuthorizedListener {
 
@@ -75,6 +80,13 @@ public class AuditActivity extends AppCompatActivity implements AuditStatusListe
         }
         toolbar.setFocusable(false);
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Intent i = new Intent(getApplicationContext(), AuditEmailService.class);
+        startService(i);
     }
 
     private void init() {
@@ -129,7 +141,8 @@ public class AuditActivity extends AppCompatActivity implements AuditStatusListe
     @Override
     public void onDefinedAuditChosen(User user, AuditDefinition auditDefinition) {
         AuditDatabase db = AuditDatabase.getInstance(this);
-        Audit audit = db.createAuditFromDefinition(user, auditDefinition);
+
+        AuditHeader audit = AuditHeader.fromDefinition(this, user, auditDefinition);
 
         AssetAuditFragment fragment = AssetAuditFragment.newInstance(auditDefinition, audit, user);
         fragment.setListener(this);
@@ -145,12 +158,13 @@ public class AuditActivity extends AppCompatActivity implements AuditStatusListe
     @Override
     public void onAuditComplete(Audit audit) {
         AuditDatabase db = AuditDatabase.getInstance(this);
-        audit.setEnd(System.currentTimeMillis());
-        db.storeAudit(audit);
+        audit.getHeader().setEnd(System.currentTimeMillis());
+        db.headerDao().insert(audit.getHeader());
+        db.detailDao().insert(audit.getDetails());
 
-        AlertDialog d = new AlertDialog.Builder(this)
+        AlertDialog d = new MaterialAlertDialogBuilder(this, R.style.Widgets_Dialog)
                 .setTitle("Audit complete")
-                .setMessage("Thank you. Audit results have been stored and will be transmitted during next sync")
+                .setMessage("Thank you. Audit results have been stored and will be transmitted soon")
                 .setPositiveButton(android.R.string.ok, null)
                 .create();
 
@@ -176,7 +190,7 @@ public class AuditActivity extends AppCompatActivity implements AuditStatusListe
     }
 
     private void showExitWarning() {
-        AlertDialog d = new AlertDialog.Builder(this)
+        AlertDialog d = new MaterialAlertDialogBuilder(this, R.style.Widgets_Dialog)
                 .setTitle("Cancel Audit?")
                 .setMessage("Cancel the current asset audit?")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {

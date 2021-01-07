@@ -40,7 +40,9 @@ import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.fragment.dash.AssetStatusChartFragment;
 import io.phobotic.nodyn_app.fragment.dash.CheckoutOverviewFragment;
 import io.phobotic.nodyn_app.fragment.dash.HistoryChartFragment;
+import io.phobotic.nodyn_app.fragment.dash.LastSyncFragment;
 import io.phobotic.nodyn_app.fragment.dash.ModelGridFragment;
+import io.phobotic.nodyn_app.helper.Keyboardhelper;
 import io.phobotic.nodyn_app.service.SyncService;
 
 /**
@@ -54,10 +56,9 @@ public class DashboardFragment extends Fragment {
     private boolean isLoading = false;
     private Database db;
     private BroadcastReceiver br;
-    private AssetStatusChartFragment assetStatusChartFragment;
     private ModelGridFragment modelGridFragment;
     private CheckoutOverviewFragment overviewFragment;
-    private HistoryChartFragment historyChartFragment;
+    private LastSyncFragment lastSyncFragment;
 
 
     public static DashboardFragment newInstance() {
@@ -102,10 +103,9 @@ public class DashboardFragment extends Fragment {
 
     private void init() {
         FragmentManager fm = getChildFragmentManager();
+        lastSyncFragment = (LastSyncFragment) fm.findFragmentById(R.id.last_sync_fragment);
         modelGridFragment = (ModelGridFragment) fm.findFragmentById(R.id.model_grid_fragment);
-        assetStatusChartFragment = (AssetStatusChartFragment) fm.findFragmentById(R.id.status_chart_fragment);
         overviewFragment = (CheckoutOverviewFragment) fm.findFragmentById(R.id.checkout_overview_fragment);
-        historyChartFragment = (HistoryChartFragment) fm.findFragmentById(R.id.history_chart_fragment);
 
 
         br = new BroadcastReceiver() {
@@ -129,9 +129,7 @@ public class DashboardFragment extends Fragment {
      */
     private void refresh() {
         modelGridFragment.refresh();
-        assetStatusChartFragment.refresh();
         overviewFragment.refresh();
-        historyChartFragment.refresh();
         isLoading = false;
     }
 
@@ -142,7 +140,7 @@ public class DashboardFragment extends Fragment {
         filter.addAction((SyncService.BROADCAST_SYNC_FINISH));
         filter.addAction(SyncService.BROADCAST_SYNC_FAIL);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(br, filter);
-
+        Keyboardhelper.forceHideOSK(getContext(), rootView);
         refresh();
     }
 

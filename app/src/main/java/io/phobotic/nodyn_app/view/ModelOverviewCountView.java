@@ -18,14 +18,26 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
+
 import androidx.cardview.widget.CardView;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.database.model.Manufacturer;
+import io.phobotic.nodyn_app.database.model.Model;
+import io.phobotic.nodyn_app.helper.ColorHelper;
 
 
 /**
@@ -34,63 +46,116 @@ import io.phobotic.nodyn_app.R;
 
 public class ModelOverviewCountView extends RelativeLayout {
     private final Context context;
+    private final int color;
     private View rootView;
-    private TextView model;
-    private TextView manufacturer;
-    private TextView count;
+    private Model model;
+    private Manufacturer manufacturer;
+    private int count;
     private View wrapper;
     private CardView card;
+    private ImageView image;
+    private TextView countText;
+    private TextView modelText;
+    private TextView manufacturerText;
 
-    public ModelOverviewCountView(Context context, String name, int count) {
-        this(context, name, count, null);
-    }
-
-    public ModelOverviewCountView(Context context, String name, int count, AttributeSet attrs) {
-        super(context, attrs);
+    public ModelOverviewCountView(Context context, Model model, Manufacturer manufacturer, int count, int color) {
+        super(context);
+        this.model = model;
+        this.manufacturer = manufacturer;
+        this.count = count;
+        this.color = color;
         this.context = context;
         init();
-        setModel(name);
-        setCount(count);
     }
+
 
     private void init() {
         rootView = inflate(context, R.layout.view_model_overview_count, this);
         wrapper = rootView.findViewById(R.id.wrapper);
-        count = rootView.findViewById(R.id.count);
-        model = rootView.findViewById(R.id.model);
-        manufacturer = rootView.findViewById(R.id.manufacturer);
+        countText = rootView.findViewById(R.id.count);
+        modelText = rootView.findViewById(R.id.model);
+        manufacturerText = rootView.findViewById(R.id.manufacturer);
+        image = rootView.findViewById(R.id.image);
         card = rootView.findViewById(R.id.card);
+
+        setCount();
+        setManufacturer();
+        setModel();
+        loadImage();
+        setTextColor();
     }
 
-    public void setModel(String model) {
-        this.model.setText(model);
-    }
+//    private void setColor() {
+//        card.setCardBackgroundColor(color);
+//    }
 
-    public void setCount(int count) {
-        this.count.setText(String.valueOf(count));
-    }
 
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer.setText(manufacturer);
-    }
+    private void loadImage() {
+        //image does not exist on the smaller layouts
+        if (image != null) {
+            String imageURL = model.getImage();
+            //Picasso requires a non-empty path.  Just rely on the error handling
+            if (imageURL == null || imageURL.equals("")) {
+                imageURL = "foobar";
+            }
 
-    public void setColor(String color) throws IllegalArgumentException {
-        int c = Color.parseColor(color);
-        setColor(c);
-    }
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            boolean useStatusColor = prefs.getBoolean(getResources().getString(
+                    R.string.pref_key_asset_status_color), Boolean.parseBoolean(
+                    getResources().getString(R.string.pref_default_asset_status_color)));
 
-    public void setColor(int color) {
-        if (card != null) {
-            card.setCardBackgroundColor(color);
-        } else {
-            wrapper.setBackgroundColor(color);
+
+            float borderWidth = getResources().getDimension(R.dimen.picasso_small_image_circle_border_width);
+
+            Transformation transformation = new RoundedTransformationBuilder()
+                    .borderColor(color)
+                    .borderWidthDp(borderWidth)
+                    .cornerRadiusDp(50)
+                    .oval(false)
+                    .build();
+
+            Drawable d = getResources().getDrawable(R.drawable.monitor_cellphone_star);
+            d.setTint(Color.parseColor("#ffffff"));
+
+            Picasso.with(getContext())
+                    .load(imageURL)
+                    .transform(transformation)
+                    .fit()
+                    .placeholder(d)
+                    .into(image, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            //remove the image tint
+                            image.setColorFilter(null);
+                        }
+
+                        @Override
+                        public void onError() {
+                            //nothing to do here
+                        }
+                    });
         }
     }
 
-    public void setTextColor(int color) {
-        count.setTextColor(color);
-        model.setTextColor(color);
-        manufacturer.setTextColor(color);
+    private void setCount() {
+        this.countText.setText(String.valueOf(count));
+    }
+
+    private void setManufacturer() {
+        this.manufacturerText.setText(manufacturer.getName());
+    }
+
+    private void setModel() {
+        this.modelText.setText(model.getName());
+    }
+
+    private void setTextColor() {
+
+//        int textColor = ColorHelper.getValueTextColorForBackground(getContext(), color);
+        int textColor = color;
+        countText.setTextColor(textColor);
+        modelText.setTextColor(textColor);
+        manufacturerText.setTextColor(textColor);
     }
 
 }

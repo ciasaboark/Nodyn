@@ -35,7 +35,7 @@ import androidx.fragment.app.Fragment;
 import androidx.gridlayout.widget.GridLayout;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.view.ActionView;
 
 

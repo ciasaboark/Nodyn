@@ -21,7 +21,7 @@
                                                  android:layout_width="300dp"
                                                  android:layout_height="wrap_content"
                                                  android:background="@drawable/circle_flat_grey"
-                                                 android:backgroundTint="@color/white"
+                                                 android:backgroundTint="@color/generic_card_background_dark"
                                                  android:elevation="2dp"
                                                  android:orientation="vertical"
                                                  android:padding="16dp">
@@ -38,7 +38,7 @@
             android:layout_height="96dp"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/cloud_sync"
-            android:tint="#40C4FF"/>
+            android:tint="@color/white"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -47,7 +47,8 @@
             android:layout_marginBottom="16dp"
             android:layout_marginTop="16dp"
             android:text="Loading fresh data"
-            android:textAlignment="center"/>
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
         <ProgressBar
             android:id="@+id/progressBar2"
@@ -55,7 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:indeterminateDrawable="@drawable/progress_blue"/>
+            android:indeterminateDrawable="@drawable/progress_accent"/>
     </LinearLayout>
 
 

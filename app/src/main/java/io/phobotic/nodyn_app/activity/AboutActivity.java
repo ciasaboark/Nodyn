@@ -186,8 +186,6 @@ public class AboutActivity extends AppCompatActivity {
         String formattedVersion = String.format(getString(R.string.about_version),
                 Versioning.getVersionCode());
         versionText.setText(formattedVersion);
-        //textview using marquee scrolling, but this only works if the textview is selected
-        versionText.setSelected(true);
     }
 
     private void initLicenseView() {
@@ -226,7 +224,6 @@ public class AboutActivity extends AppCompatActivity {
                 animateInShine();
                 animateInBackground(background);
                 animateLogoChange();
-                animateIntroTextColorChange(intro, introContinued, versionText);
             }
         });
     }
@@ -269,66 +266,6 @@ public class AboutActivity extends AppCompatActivity {
         logoDrawable.setExitFadeDuration(2000);
         logoDrawable.setOneShot(true);
         logoDrawable.start();
-    }
-
-    private void animateIntroTextColorChange(final TextView intro, final TextView introContinued, final TextView versionText) {
-        animateTextColorChange(intro, introContinued, versionText);
-        animateLinkColorChange(intro, introContinued);
-    }
-
-    private void animateTextColorChange(final TextView intro, final TextView introContinued, final TextView versionText) {
-        final float[] from = new float[3],
-                to = new float[3];
-
-        Color.colorToHSV(getResources().getColor(android.R.color.secondary_text_light), from);
-        Color.colorToHSV(getResources().getColor(android.R.color.primary_text_dark), to);
-
-        ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
-        anim.setDuration(1500);
-
-        final float[] hsv = new float[3];
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                // Transition along each axis of HSV (hue, saturation, value)
-                hsv[0] = from[0] + (to[0] - from[0]) * animation.getAnimatedFraction();
-                hsv[1] = from[1] + (to[1] - from[1]) * animation.getAnimatedFraction();
-                hsv[2] = from[2] + (to[2] - from[2]) * animation.getAnimatedFraction();
-
-                versionText.setTextColor(Color.HSVToColor(hsv));
-                intro.setTextColor(Color.HSVToColor(hsv));
-                introContinued.setTextColor(Color.HSVToColor(hsv));
-            }
-        });
-
-        anim.start();
-    }
-
-    private void animateLinkColorChange(final TextView intro, final TextView introContinued) {
-        final float[] from = new float[3],
-                to = new float[3];
-
-        Color.colorToHSV(getResources().getColor(R.color.text_link_color_light), from);
-        Color.colorToHSV(getResources().getColor(R.color.text_link_color_dark), to);
-
-        ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
-        anim.setDuration(1500);
-
-        final float[] hsv = new float[3];
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                // Transition along each axis of HSV (hue, saturation, value)
-                hsv[0] = from[0] + (to[0] - from[0]) * animation.getAnimatedFraction();
-                hsv[1] = from[1] + (to[1] - from[1]) * animation.getAnimatedFraction();
-                hsv[2] = from[2] + (to[2] - from[2]) * animation.getAnimatedFraction();
-
-                intro.setLinkTextColor(Color.HSVToColor(hsv));
-                introContinued.setLinkTextColor(Color.HSVToColor(hsv));
-            }
-        });
-
-        anim.start();
     }
 
     @Override

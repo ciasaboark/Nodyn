@@ -27,7 +27,7 @@
         android:title="@string/pref_title_checkout_allow"/>
 
     <io.phobotic.nodyn_app.preference.NumberPickerPreference
-        style="@style/AppPreference.DialogPreference"
+        style="@style/Widgets.Dialog"
         android:defaultValue="@string/pref_default_check_out_timeout_limit"
         android:dependency="@string/pref_key_checkout_allow"
         android:icon="@drawable/ic_calendar_grey600_24dp"
@@ -58,7 +58,7 @@
             android:title="@string/pref_title_check_out_authorization_groups"/>
 
         <io.phobotic.nodyn_app.preference.NumberPickerPreference
-            style="@style/AppPreference.DialogPreference"
+            style="@style/Widgets.Dialog"
             android:defaultValue="@string/pref_default_check_out_timeout_limit"
             android:dependency="@string/pref_key_check_out_require_authorization"
             android:icon="@drawable/ic_clock_alert_grey600_24dp"
@@ -68,25 +68,7 @@
 
     <PreferenceCategory
         android:dependency="@string/pref_key_checkout_allow"
-        android:title="Allowed Assets">
-
-        <SwitchPreferenceCompat
-            android:defaultValue="@string/pref_default_check_out_all_models"
-            android:disableDependentsState="true"
-            android:key="@string/pref_key_check_out_all_models"
-            android:summary="@string/pref_description_check_out_all_models"
-            android:title="@string/pref_title_check_out_all_models"/>
-
-        <MultiSelectListPreference
-            android:defaultValue="@array/empty_array"
-            android:dependency="@string/pref_key_check_out_all_models"
-            android:entries="@array/empty_array"
-            android:entryValues="@array/empty_array"
-            android:key="@string/pref_key_check_out_models"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="OK"
-            android:title="@string/pref_title_check_out_models"/>
-
+        android:title="Allowed Status">
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:disableDependentsState="true"
@@ -143,7 +125,7 @@
 
 
         <io.phobotic.nodyn_app.preference.EmailRecipientsPreference
-            style="@style/AppPreference.DialogPreference"
+            style="@style/Widgets.Dialog"
             android:defaultValue="@string/pref_default_email_past_due_addresses"
             android:dependency="@string/pref_key_past_due_enabled"
             android:icon="@drawable/ic_send_grey600_24dp"

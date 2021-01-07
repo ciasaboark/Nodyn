@@ -18,6 +18,7 @@
 package io.phobotic.nodyn_app;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -48,22 +49,26 @@ import java.util.Map;
 import java.util.Set;
 
 import androidx.annotation.ColorInt;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.cache.EmailImageCache;
 import io.phobotic.nodyn_app.charts.AssetUsageChartBuilder;
 import io.phobotic.nodyn_app.charts.HistoryChartBuilder;
 import io.phobotic.nodyn_app.charts.HourlyUsageChartBuilder;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
-import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditDetail;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
+import io.phobotic.nodyn_app.database.exception.ManufacturerNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
+import io.phobotic.nodyn_app.database.model.Manufacturer;
 import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.database.statistics.UsageRecord;
-import io.phobotic.nodyn_app.database.statistics.assets.AssetStatistics;
-import io.phobotic.nodyn_app.database.statistics.assets.AssetStatisticsDatabase;
-import io.phobotic.nodyn_app.database.statistics.day_activity.DayActivity;
-import io.phobotic.nodyn_app.database.statistics.day_activity.DayActivityDatabase;
+import io.phobotic.nodyn_app.database.statistics.summary.assets.AssetStatistics;
+import io.phobotic.nodyn_app.database.statistics.summary.assets.AssetStatisticsDatabase;
+import io.phobotic.nodyn_app.database.statistics.summary.day_activity.DayActivitySummary;
+import io.phobotic.nodyn_app.database.statistics.summary.day_activity.DayActivitySummaryDatabase;
 import io.phobotic.nodyn_app.email.Attachment;
 import io.phobotic.nodyn_app.helper.AssetHelper;
 
@@ -74,8 +79,23 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
     private static final String TAG = WeeklyStatisticsEmailBuilder.class.getSimpleName();
     private static final String MARKER_IMAGE = "%image%";
     private static final String MARKER_BODY = "%body%";
-    private static final String IMAGE_SNIPPIT = "<img src=\"%image%\" />";
-    private static final String BODY_SNIPPIT = "<html><body><div>%body%</div></body></html>";
+    private static final String MARKER_HEADER = "%header%";
+    private static final String IMAGE_SNIPPIT = "<img width=\"100%\" style=\"max-width: 100%\" src=\"%image%\" />";
+    private static final String MODEL_SNIPPIT = "<p>" +
+            "<h3 style=\"color: black; font-size: 14pt\">%model_name%</h3>" +
+            "<div>Manufacturer: %manufacturer%</div>" +
+            "<p>%asset_count% available as of %generation_date%</p>" +
+            "<p><img width=\"100%\" style=\"max-width: 100%\" src=\"%image%\" /></p>" +
+            "</p>";
+    private static final String BODY_SNIPPIT = "<html><bodystyle=\"font-family: sans-serif; padding: 16px\">%header%<div>%body%</div></body></html>";
+    private static final String HEADER_SNIPPIT = "<div style=\"background-color: #FF9100; color: white; padding: 16px; margin-bottom: 16pt; border-radius: 5px\"><h1 style=\"margin: 0; padding: 0 0 8pt 0\">Nodyn Weekly Statistics</h1><div>Sent from device: %device_name%</div><div style=\"margin-top: 1em; font-size: 8pt; color: rgba(255, 255, 255, 0.7)\">Generated %generation_timestamp%</div></div><p>These statistics cover dates from %begin_date% through %end_date%.</p><p>During this time there were %total_checkouts% check-out events and %total_checkins% check-in events.</p><p>%total_audits% asset audits were completed</p><p>There are currently %total_asset_count% known assets.</p><div style=\"text-align: center; margin:auto; margin-bottom: 16pt;\"><table style=\"margin: auto; text-align: center\"><tr><td><div style=\"min-width: 15em; max-width: 15em; width: 15em; margin: 4pt; background-color: #95FF48; padding: 16px; border-radius: 5px;\"><div style=\"font-size: 15pt; font-weight: bold; text-align: center; color: black\">Available to Check Out</div><div style=\"font-size: 20pt; font-weight: bold; text-align: center; color: black\">%available_count%</div></div></td><td><div style=\"min-width: 15em; max-width: 15em; width: 15em; margin: 4pt; background-color: #FFCA6C; padding: 16px; border-radius: 5px;\"><div style=\"font-size: 15pt; font-weight: bold; text-align: center; color: black\">Checked Out</div><div style=\"font-size: 20pt; font-weight: bold; text-align: center; color: black\">%checked_out_count%</div></div></td><td><div style=\"min-width: 15em; max-width: 15em; width: 15em; margin: 4pt; background-color: #FF5D82; padding: 16px; border-radius: 5px;\"><div style=\"font-size: 15pt; font-weight: bold; text-align: center; color: black\">Past Due</div><div style=\"font-size: 20pt; font-weight: bold; text-align: center; color: black\">%past_due_count%</div></div></td></tr></table></div>";
+    private final long from;
+    private final long to;
+
+    public WeeklyStatisticsEmailBuilder(long from, long to) {
+        this.from = from;
+        this.to = to;
+    }
 
     @Override
     public String build(Context context, List<Attachment> attachments) {
@@ -90,6 +110,8 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
             imagesPart.append(buildModelUsageCharts(context, cache, attachments, cacheDir));
 
             html = BODY_SNIPPIT;
+            String headerHtml = generateHeaderHtml(context);
+            html = html.replace(MARKER_HEADER, headerHtml);
             html = html.replaceAll(MARKER_BODY, imagesPart.toString());
 
             Log.d(TAG, html);
@@ -98,6 +120,79 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
             Log.e(TAG, "Caught unexpected IOException while building weekly statistics email: " + e.getMessage());
             Crashlytics.logException(e);
         }
+
+        return html;
+    }
+
+    private String generateHeaderHtml(Context context) {
+        String html = HEADER_SNIPPIT;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        DateFormat df = DateFormat.getDateInstance();
+        DateFormat dtf = DateFormat.getDateTimeInstance();
+
+        //inject the device name and generation date
+        String deviceName = prefs.getString(context.getString(R.string.pref_key_general_id),
+                context.getString(R.string.pref_default_general_id));
+        html = html.replace("%device_name%", deviceName);
+        html = html.replace("%generation_timestamp%", dtf.format(new Date()));
+
+        html = html.replace("%begin_date%", df.format(new Date(from)));
+        html = html.replace("%end_date%", df.format(new Date(to)));
+
+        //find out how many check-out/check-in/audit events occurred during this period
+        int totalCheckouts = 0;
+        int totalCheckins = 0;
+        int totalAudits = 0;
+        List<DayActivitySummary> daySummaries = getDayActivitySummaries(context);
+        for (DayActivitySummary das: daySummaries) {
+            totalAudits += das.getTotalAudits();
+            totalCheckouts += das.getTotalCheckouts();
+            totalCheckins += das.getTotalCheckins();
+        }
+        html = html.replace("%total_checkouts%", String.valueOf(totalCheckouts));
+        html = html.replace("%total_checkins%", String.valueOf(totalCheckins));
+        html = html.replace("%total_audits%", String.valueOf(totalAudits));
+
+        //insert the total number of assets that are known
+        AssetHelper ah = new AssetHelper();
+        Set<Integer> allowedModels = ah.getAllowedModelIDs(context);
+        Database db = Database.getInstance(context);
+        List<Asset> assets = db.getAssets();
+        int totalAssets = assets.size();
+        html = html.replace("%total_asset_count%", String.valueOf(totalAssets));
+
+        //fill in the number of assets that are checked out or past due
+        boolean checkoutAllModels = prefs.getBoolean(context.getString(R.string.pref_key_check_out_all_models),
+                Boolean.parseBoolean(context.getString(R.string.pref_default_check_out_all_models)));
+        Set<String> availableModels = prefs.getStringSet(context.getString(R.string.pref_key_check_out_models), new HashSet<String>());
+        int availableCount = 0;
+        int checkedOutCount = 0;
+        int pastDueCount = 0;
+        for (Asset a : assets) {
+            //only look at the models that are allowed to be checked out
+            if (checkoutAllModels || availableModels.contains(String.valueOf(a.getModelID()))) {
+                if (a.getExpectedCheckin() == -1) {
+                    availableCount++;
+                } else {
+                    checkedOutCount++;
+
+                    //is this model past due?
+                    Date expectedCheckin = new Date(a.getExpectedCheckin());
+                    Date now = new Date();
+                    if (expectedCheckin.before(now)) {
+                        pastDueCount++;
+                    }
+                }
+            }
+        }
+
+        html = html.replace("%available_count%", String.valueOf(availableCount));
+        html = html.replace("%checked_out_count%", String.valueOf(checkedOutCount));
+        html = html.replace("%past_due_count%", String.valueOf(pastDueCount));
+
+
+
+
 
         return html;
     }
@@ -113,29 +208,10 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
                                             List<Attachment> attachments,
                                             File cacheDir) throws IOException {
         String imageSnippit = IMAGE_SNIPPIT;
-        DayActivityDatabase db = DayActivityDatabase.getInstance(context);
+        List<DayActivitySummary> list = getDayActivitySummaries(context);
 
-
-        //filter the list to only show the last 7 days worth of records
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, -7);
-        long cutoff = calendar.getTimeInMillis();
-
-        List<DayActivity> list = db.dayActivityDao().getActivityWithCutoff(cutoff);
-
-        //also include any audits.  Filter out anything that is too old or any audit headers
-        //+ without detail records
-        AuditDatabase auditDatabase = AuditDatabase.getInstance(context);
-        List<Audit> audits = auditDatabase.getAudits();
-        Iterator<Audit> it = audits.iterator();
-        while (it.hasNext()) {
-            Audit a = it.next();
-            if (a.getBegin() < cutoff) {
-                it.remove();
-            } else if (a.getDetailRecords() == null || a.getDetailRecords().isEmpty()) {
-                it.remove();
-            }
-        }
+        //also include any audits.
+        List<AuditHeader> audits = getAuditHeaders(context);
 
         LineChart chart = new LineChart(context);
         chart.layout(0, 0, 2000, 400);
@@ -152,7 +228,7 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
         bmp.eraseColor(Color.WHITE);
         Canvas canvas = new Canvas(bmp);
         chart.draw(canvas);
-        bmp.compress(Bitmap.CompressFormat.PNG, 95, fos);
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
 
         final String key = "checkout_history_chart";
         cache.cacheImage(key, imageFile, false);
@@ -166,11 +242,41 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
         return imageSnippit;
     }
 
+    /**
+     * Returns a list of Audit headers between the from and to timestamps
+     * @param context
+     * @return
+     */
+    private List<AuditHeader> getAuditHeaders(Context context) {
+        AuditDatabase auditDatabase = AuditDatabase.getInstance(context);
+        List<AuditHeader> audits = auditDatabase.headerDao().findAll();
+        Iterator<AuditHeader> it = audits.iterator();
+        while (it.hasNext()) {
+            AuditHeader a = it.next();
+            List<AuditDetail> details = auditDatabase.detailDao().findByAudit(a.getId());
+            if (a.getBegin() < from || a.getEnd() > to) {
+                it.remove();
+            } else if (details == null || details.isEmpty()) {
+                it.remove();
+            }
+        }
+        return audits;
+    }
+
+    /**
+     * Returns a list of DayActivitySummry that are between the from and to timestamps
+     * @param context
+     * @return
+     */
+    private List<DayActivitySummary> getDayActivitySummaries(Context context) {
+        DayActivitySummaryDatabase db = DayActivitySummaryDatabase.getInstance(context);
+        return db.dayActivityDao().getActivityBetween(from, to);
+    }
+
     public String buildModelUsageCharts(Context context, EmailImageCache cache,
                                         List<Attachment> attachments,
                                         File cacheDir) throws IOException {
-        AssetStatisticsDatabase assetStatisticsDatabase = AssetStatisticsDatabase.getInstance(context);
-        List<AssetStatistics> assetStatistics = assetStatisticsDatabase.assetStatisticsDao().getAll();
+
 
         StringBuilder sb = new StringBuilder();
 
@@ -183,6 +289,7 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
             modelMap.put(i, new ArrayList<AssetStatistics>());
         }
 
+        List<AssetStatistics> assetStatistics = getAssetStatistics(context);
         Database db = Database.getInstance(context);
         for (AssetStatistics statistics : assetStatistics) {
             try {
@@ -214,6 +321,13 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
         return sb.toString();
     }
 
+    private List<AssetStatistics> getAssetStatistics(Context context) {
+        AssetStatisticsDatabase assetStatisticsDatabase = AssetStatisticsDatabase.getInstance(context);
+        List<AssetStatistics> assetStatistics = assetStatisticsDatabase.assetStatisticsDao().getAll();
+
+        return assetStatistics;
+    }
+
     private void addCachedFileAsAttachment(List<Attachment> attachments, String filename,
                                            EmailImageCache cache) {
         File f = cache.getFileForFilename(filename);
@@ -227,7 +341,7 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
                                         List<Attachment> attachments, int modelID,
                                         List<AssetStatistics> assetStatistics,
                                         File cacheDir) throws IOException {
-        String imageSnippit = IMAGE_SNIPPIT;
+        String modelSnippit = MODEL_SNIPPIT;
         AssetHelper helper = new AssetHelper();
 
         try {
@@ -257,6 +371,11 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
             Model m = db.findModelByID(modelID);
             modelName = m.getName();
 
+            modelSnippit = modelSnippit.replace("%model_name%", modelName);
+
+            Manufacturer manufacturer = db.findManufacturerByID(m.getManufacturerID());
+            modelSnippit = modelSnippit.replace("%manufacturer%", manufacturer.getName());
+
             //filter the list down to only the assets that could possibly be checked out
             List<Asset> allModelAssets = db.findAssetsByModelID(modelID);
             Iterator<Asset> it = allModelAssets.iterator();
@@ -273,6 +392,9 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
             //+ usage record
             Set<Integer> assetsWithRecords = new HashSet<>();
             int totalAssets = allModelAssets.size();
+
+            modelSnippit = modelSnippit.replace("%asset_count%", String.valueOf(totalAssets));
+            modelSnippit = modelSnippit.replace("%generation_date%", df.format(new Date()));
 
             //once the placeholders are in all we need to do is loop through each set of statistics
             //+ and check if the asset checkout range includes the hour
@@ -360,13 +482,13 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
             String imageSrc = cache.getCachedImage(key);
             addCachedFileAsAttachment(attachments, imageSrc, cache);
             imageSrc = "cid:" + imageSrc;
-            imageSnippit = imageSnippit.replaceAll(MARKER_IMAGE, imageSrc);
-        } catch (ModelNotFoundException e) {
-            imageSnippit = String.format("<div>Model id %d could not be found. Hourly statistics could " +
+            modelSnippit = modelSnippit.replaceAll(MARKER_IMAGE, imageSrc);
+        } catch (ModelNotFoundException | ManufacturerNotFoundException e) {
+            modelSnippit = String.format("<div>Model id %d could not be found. Hourly statistics could " +
                     "not be built for this model</div>", modelID);
         }
 
-        return imageSnippit;
+        return modelSnippit;
     }
 
     private Map<Long, Integer> buildHourlyMap(long from, long to) {

@@ -104,14 +104,14 @@ public class AssetListFilterer {
     //filter the default asset listview to include only the status selected in settings
     private List<SimplifiedAsset> applyDefaultFilter(Context context, List<SimplifiedAsset> assets) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean showAll = prefs.getBoolean(context.getString(R.string.pref_key_asset_status_show_all),
-                Boolean.valueOf(context.getString(R.string.pref_default_asset_status_show_all)));
+        boolean showAll = prefs.getBoolean(context.getString(R.string.pref_key_asset_status_allow_all),
+                Boolean.valueOf(context.getString(R.string.pref_key_asset_status_allow_all)));
         if (showAll) {
             return assets;
         } else {
             List<SimplifiedAsset> filteredList = new ArrayList<>();
             Set<String> chosenStatuses = prefs.getStringSet(context.getString(
-                    R.string.pref_key_asset_status_selected_statuses), new HashSet<String>());
+                    R.string.pref_key_asset_status_allowed_statuses), new HashSet<String>());
             for (SimplifiedAsset asset : assets) {
                 if (chosenStatuses.contains(String.valueOf(asset.getStatusID()))) {
                     filteredList.add(asset);

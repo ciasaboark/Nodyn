@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2020 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+
+    <!-- Normal edit text -->
+    <style name="Widgets.DarkEditText" parent="@android:style/Widget.EditText">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textColorHint">?android:textColorSecondary</item>
+        <item name="android:textColorHighlight">?colorAccent</item>
+    </style>
+
+    <style name="Widgets.Spinner" parent="@android:style/Widget.Spinner">
+        <item name="android:background">@color/cardview_dark_background</item>
+        <item name="android:spinnerMode">dropdown</item>
+        <item name="android:divider">@color/white</item>
+        <item name="android:popupBackground">@color/window_background</item>
+        <item name="tint">@color/white</item>
+        <item name="android:dropDownSelector">#ffffff</item>
+
+        <item name="android:overlapAnchor">true</item>
+    </style>
+
+    <!-- An extended floating action button indicating a primary action.  Typically reserved for
+    an action that will close the current view -->
+    <style name="Widgets.FabExtPrimary" parent="Widget.MaterialComponents.ExtendedFloatingActionButton.Icon">
+        <item name="colorSecondary">?colorAccent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="strokeColor">@color/white</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="android:textAppearance">@style/Widgets.FabExtPrimary.Text</item>
+    </style>
+
+    <style name="Widgets.FabExtPrimary.Text">
+        <item name="colorOnPrimary">#FF4F4F</item>
+    </style>
+
+
+    <!-- An extended floating action button indicating a neutral action (cancel, close, etc...) -->
+    <style name="Widgets.FabExtNeutral" parent="Widget.MaterialComponents.ExtendedFloatingActionButton.Icon">
+        <item name="colorSecondary">#F1F1F1</item>
+        <item name="colorOnSecondary">@color/grey600</item>
+        <item name="strokeColor">@color/white</item>
+        <item name="strokeWidth">2dp</item>
+        <!--<item name="android:textAppearance">@style/Widgets.FabExtNeutral.Text</item>-->
+    </style>
+
+    <style name="Widgets.FabExtNeutral.Text">
+        <item name="android:textColor">@color/grey600</item>
+    </style>
+
+
+    <!-- A generic material button with a filled background -->
+    <style name="Widgets.MaterialButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="materialThemeOverlay">@style/Widgets.MaterialButton.ButtonStyleTextColor</item>
+    </style>
+
+    <style name="Widgets.MaterialButton.ButtonStyleTextColor">
+        <item name="colorPrimary">@android:color/transparent</item>
+        <item name="colorOnPrimary">#ffffff</item>
+        <item name="android:textColor">#fd3ddd</item>
+    </style>
+
+    <!-- A generic alert dialog window -->
+    <style name="Widgets.Dialog" parent="Theme.MaterialComponents.Dialog">
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="windowFixedHeightMinor">90%</item>
+        <item name="colorPrimary">@color/default_primary</item>
+        <item name="colorPrimaryDark">@color/default_primary_dark</item>
+        <item name="android:background">@color/dialog_window_background</item>
+
+        <item name="colorAccent">@color/default_accent</item>
+        <item name="colorAccentLight">@color/default_accent_light</item>
+
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/NeutralButtonStyle</item>
+        <item name="buttonBarStyle">@style/Widgets.Dialog.ButtonBarStyle</item>
+        <item name="buttonStyle">@style/Widgets.Dialog.ButtonStyle</item>
+
+        <item name="positiveButtonText">@android:string/ok</item>
+        <item name="negativeButtonText">@android:string/cancel</item>
+
+        <item name="android:windowTitleStyle">@style/Widgets.Dialog.WindowTitle</item>
+    </style>
+
+    <style name="Widgets.Dialog.WindowTitle">
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widgets.Dialog.ButtonBarStyle">
+
+        <!--<item name="android:padding">8dp</item>-->
+    </style>
+
+    <style name="Widgets.Dialog.ButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+
+    </style>
+
+
+    <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/warning_strong</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="rippleColor">?colorAccent</item>
+        <item name="android:backgroundTint">@android:color/white</item>
+    </style>
+
+    <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">?android:textColorPrimaryInverse</item>
+        <item name="rippleColor">?colorAccent</item>
+        <item name="android:backgroundTint">@android:color/white</item>
+    </style>
+
+    <style name="NeutralButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">?android:textColorSecondaryInverse</item>
+        <item name="rippleColor">?colorAccent</item>
+        <item name="android:backgroundTint">@android:color/white</item>
+    </style>
+</resources>

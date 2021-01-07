@@ -32,7 +32,7 @@
         android:layout_centerVertical="true"
         android:paddingEnd="32dp"
         android:src="@drawable/ic_arrow_left_white_36dp"
-        android:tint="?colorPrimaryDark"
+        android:tint="@color/white"
         android:visibility="gone"/>
 
     <ImageView
@@ -43,7 +43,7 @@
         android:layout_marginEnd="32dp"
         android:layout_toEndOf="@id/back"
         android:src="@drawable/ic_alert_outline_white_24dp"
-        android:tint="?colorPrimaryDark"/>
+        android:tint="@color/white"/>
 
     <TextView
         android:id="@+id/title"

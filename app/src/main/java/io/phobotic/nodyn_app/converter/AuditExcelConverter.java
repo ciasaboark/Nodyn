@@ -47,7 +47,8 @@ import java.util.Map;
 
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.model.Audit;
-import io.phobotic.nodyn_app.database.audit.model.AuditDetailRecord;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
+import io.phobotic.nodyn_app.database.audit.model.AuditDetail;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ManufacturerNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
@@ -156,13 +157,13 @@ public class AuditExcelConverter {
 
         String username = "unknown";
         try {
-            User user = db.findUserByID(audit.getUserID());
+            User user = db.findUserByID(audit.getHeader().getUserID());
             username = user.getName();
         } catch (UserNotFoundException e) {
 
         }
 
-        String timestamp = String.valueOf(audit.getBegin());
+        String timestamp = String.valueOf(audit.getHeader().getBegin());
         String filename = String.format(FILE_NAME_UNFORMATTED, username, timestamp);
 
         File dir = context.getFilesDir();
@@ -195,9 +196,9 @@ public class AuditExcelConverter {
 
     private void writeRows() {
         int rowNum = 1;
-        List<AuditDetailRecord> records = sortRecords();
+        List<AuditDetail> records = sortRecords();
 
-        for (AuditDetailRecord record : records) {
+        for (AuditDetail record : records) {
             Row row = sheet.createRow(rowNum);
             writeRecordRow(row, record);
             rowNum++;
@@ -224,13 +225,13 @@ public class AuditExcelConverter {
         }
     }
 
-    private List<AuditDetailRecord> sortRecords() {
-        List<AuditDetailRecord> records = audit.getDetailRecords();
+    private List<AuditDetail> sortRecords() {
+        List<AuditDetail> records = audit.getDetails();
         if (records == null) records = new ArrayList<>();
 
-        Collections.sort(records, new Comparator<AuditDetailRecord>() {
+        Collections.sort(records, new Comparator<AuditDetail>() {
             @Override
-            public int compare(AuditDetailRecord r1, AuditDetailRecord r2) {
+            public int compare(AuditDetail r1, AuditDetail r2) {
                 return ((Long) r1.getTimestamp()).compareTo(r2.getTimestamp());
             }
         });
@@ -238,15 +239,15 @@ public class AuditExcelConverter {
         return records;
     }
 
-    private void writeRecordRow(Row row, AuditDetailRecord record) {
-        if (record.getStatus().equals(AuditDetailRecord.Status.NOT_AUDITED)) {
+    private void writeRecordRow(Row row, AuditDetail record) {
+        if (record.getStatus().equals(AuditDetail.Status.NOT_AUDITED)) {
             writeRecord(row, record, missedAuditStyle);
         } else {
             writeRecord(row, record, recordStyle);
         }
     }
 
-    private void writeRecord(Row row, AuditDetailRecord record, CellStyle style) {
+    private void writeRecord(Row row, AuditDetail record, CellStyle style) {
         Asset asset = null;
         try {
             asset = db.findAssetByID(record.getAssetID());

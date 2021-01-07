@@ -50,7 +50,7 @@
         </RelativeLayout>
 
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
@@ -92,9 +92,9 @@
             </LinearLayout>
 
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -132,7 +132,6 @@
                     android:layout_marginBottom="8dp"
                     android:text="@string/no_backend_selected_info1"
                     android:textAlignment="textStart"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     />
 
                 <TextView
@@ -142,25 +141,23 @@
                     android:layout_below="@id/info1"
                     android:text="@string/about_intro_continued"
                     android:textAlignment="textStart"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textColorLink="#e10e0e"/>
+                    android:textColorLink="@color/text_link_color_dark"/>
 
             </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/settings_button"
-            android:layout_width="match_parent"
+            android:layout_below="@id/card"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@id/card"
-            android:layout_alignTop="@id/card"
-            android:layout_marginEnd="-40dp"
-            android:layout_marginTop="-45dp"
+            android:layout_marginTop="16dp"
+
             android:clickable="true"
             android:translationZ="8dp"
-            app:backgroundTint="?colorAccent"
-            app:fabSize="normal"
-            app:srcCompat="@drawable/ic_settings_white_24dp"
-            app:useCompatPadding="true"/>
+            android:theme="@style/Widgets.FabExtPrimary"
+            android:layout_centerHorizontal="true"
+            android:text="Open Settings"
+            app:icon="@drawable/ic_settings_white_24dp"/>
     </RelativeLayout>
 </RelativeLayout>

@@ -47,7 +47,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -84,9 +84,10 @@ public class FirstSyncErrorFragment extends Fragment {
     private View errorBox;
     private View syncNeededCard;
     private View syncSuccessCard;
-    private FloatingActionButton nextFab;
+
     private ProgressBar syncProgress;
     private OnSetupCompleteListener listener;
+    private ExtendedFloatingActionButton nextFab;
 
     public static FirstSyncErrorFragment newInstance() {
         FirstSyncErrorFragment fragment = new FirstSyncErrorFragment();
@@ -304,7 +305,7 @@ public class FirstSyncErrorFragment extends Fragment {
         settingsButton.setVisibility(View.VISIBLE);
 
         Drawable d = getResources().getDrawable(R.drawable.sync_alert);
-        int color = getResources().getColor(R.color.warning_strong);
+        int color = getResources().getColor(R.color.sync_status_error);
         animateCircle(d, color);
         addLine("Sync process failed: " + errorMsg);
 
@@ -319,7 +320,7 @@ public class FirstSyncErrorFragment extends Fragment {
 
         animateCards();
         Drawable d = getResources().getDrawable(R.drawable.check);
-        int color = getResources().getColor(R.color.success);
+        int color = getResources().getColor(R.color.sync_status_ok);
         animateCircle(d, color);
 
         //go ahead and unregister the broadcast receiver.  This will keep the text
@@ -330,13 +331,7 @@ public class FirstSyncErrorFragment extends Fragment {
     private void handleSyncUpdateMessage(Intent intent) {
         try {
             String updateMessage = intent.getStringExtra(BROADCAST_SYNC_MESSAGE);
-            String progressString = intent.getStringExtra(BROADCAST_SYNC_PROGRESS_MAIN);
-            int progress;
-            if (progressString == null) {
-                progress = -1;
-            } else {
-                progress = Integer.parseInt(progressString);
-            }
+            int progress = intent.getIntExtra(BROADCAST_SYNC_PROGRESS_MAIN, -1);
 
             String subProgressString = intent.getStringExtra(BROADCAST_SYNC_PROGRESS_SUB);
             int subProgress;

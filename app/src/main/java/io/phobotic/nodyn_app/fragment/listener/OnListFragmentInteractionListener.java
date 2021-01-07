@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.view.AssetScannerView;
 
 /**
  * This interface must be implemented by activities that contain this

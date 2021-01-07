@@ -19,33 +19,31 @@ package io.phobotic.nodyn_app.fragment.audit;
 
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.BounceInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -59,6 +57,7 @@ import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -67,8 +66,9 @@ import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
 import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
 import io.phobotic.nodyn_app.database.audit.model.AuditDefinition;
-import io.phobotic.nodyn_app.database.audit.model.AuditDetailRecord;
+import io.phobotic.nodyn_app.database.audit.model.AuditDetail;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.exception.StatusNotFoundException;
@@ -102,7 +102,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     private Audit audit;
     private User user;
     private List<Asset> unscannedAssets;
-    private List<AuditDetailRecord> detailRecords = new ArrayList<>();
+    private List<AuditDetail> detailRecords = new ArrayList<>();
     private RecyclerView auditedAssetsRecyclerView;
     private RecyclerView unscannedAssetsRecyclerView;
     private View unscannedAssetsWrapper;
@@ -110,21 +110,21 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     private AuditStatusListener listener;
     private View error;
     private View listHolder;
+    private boolean listExpaned = false;
     //    private View headerDetails;
 //    private TextView detailIntro;
 //    private TextView detailModels;
 //    private TextView detailStatuses;
     private TextView title;
     //    private TextView detailBlind;
-    private FloatingActionButton submitButton;
+    private ExtendedFloatingActionButton submitButton;
     private ScanInputView input;
-    private ImageView dragHandle;
-    private View dragHandleWrapper;
+    private View expandListWrapper;
     private boolean hasShownFirstCardShowcase = false;
     private View spacer;
     private View helpButton;
 
-    public static AssetAuditFragment newInstance(AuditDefinition auditDefinition, Audit audit, User user) {
+    public static AssetAuditFragment newInstance(AuditDefinition auditDefinition, AuditHeader audit, User user) {
         AssetAuditFragment f = new AssetAuditFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable(ARG_AUDIT_DEFINITION, auditDefinition);
@@ -149,7 +149,8 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
         if (getArguments() != null) {
             auditDefinition = (AuditDefinition) getArguments().getSerializable(ARG_AUDIT_DEFINITION);
-            audit = (Audit) getArguments().getSerializable(ARG_AUDIT);
+            AuditHeader header = (AuditHeader) getArguments().getSerializable(ARG_AUDIT);
+            audit = new Audit(header);
             user = (User) getArguments().getSerializable(ARG_USER);
         }
 
@@ -170,10 +171,6 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         rootView = inflater.inflate(R.layout.fragment_asset_audit, container, false);
         setHasOptionsMenu(true);
         init();
-
-        AuditDatabase db = AuditDatabase.getInstance(getContext());
-        List<Audit> auditHeaders = db.getAudits();
-        List<AuditDetailRecord> details = db.getDetailRecords();
 
         return rootView;
     }
@@ -238,27 +235,6 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                     unscannedAssetsWrapper.requestLayout();
                 }
             });
-            anim.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    dragHandle.getDrawable().setTint(getResources().getColor(R.color.white));
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    dragHandle.setImageTintList(null);
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            });
 
             anim.setDuration(2000);
             anim.setRepeatCount(1);
@@ -277,93 +253,59 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     }
 
     private void initDragHandle() {
-
-        dragHandleWrapper.setOnTouchListener(new View.OnTouchListener() {
-
-            float startY;
-            int startHeight;
-            ObjectAnimator cardElevationAnimator;
-            float startElevation;
-
-            public boolean onTouch(View v, MotionEvent e) {
-
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    dragHandle.getDrawable().setTint(getResources().getColor(R.color.audit_accent));
-                    // recalculate coordinates of starting point
-                    startY = e.getRawY();
-                    Log.d(TAG, "startY: " + startY);
-                    startHeight = unscannedAssetsWrapper.getHeight();
-                    Log.d(TAG, "start height: " + startHeight);
-                    startElevation = unscannedAssetsWrapper.getElevation();
-                    float endElevation = 8;
-                    cardElevationAnimator = ObjectAnimator.ofFloat(unscannedAssetsWrapper, "elevation", startElevation, endElevation);
-                    cardElevationAnimator.setDuration(300);
-                    cardElevationAnimator.start();
-
-                    //add a background color to the drag handle
-                    int colorFrom = Color.TRANSPARENT;
-                    int colorTo = getResources().getColor(R.color.drag_handle_overlay_light);
-                    ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-                    colorAnimation.setDuration(300); // milliseconds
-                    colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animator) {
-                            dragHandleWrapper.setBackgroundColor((int) animator.getAnimatedValue());
-                        }
-
-                    });
-                    colorAnimation.start();
-
-                } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
-                    // calculate new distance
-                    float newY = e.getRawY();
-                    Log.d(TAG, "newY: " + newY);
-
-                    float deltaY = startY - newY;
-                    Log.d(TAG, "delta: " + deltaY);
-
-                    int curHeight = unscannedAssetsWrapper.getHeight();
-                    Log.d(TAG, "cur height: " + curHeight);
-
-                    int newHeight = startHeight + ((int) deltaY);
-                    Log.d(TAG, "new height would be " + newHeight);
-                    newHeight = Math.min(Math.max(newHeight, MIN_CARD_HEIGHT), MAX_CARD_HEIGHT);
-                    Log.d(TAG, "new height after min/max:" + newHeight);
-
-                    unscannedAssetsWrapper.getLayoutParams().height = newHeight;
-                    unscannedAssetsWrapper.requestLayout();
-
-                } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                    dragHandle.setImageTintList(null);
-
-                    if (cardElevationAnimator.isRunning()) {
-                        cardElevationAnimator.pause();
-                    }
-                    float curElevation = unscannedAssetsWrapper.getElevation();
-                    cardElevationAnimator = ObjectAnimator.ofFloat(unscannedAssetsWrapper, "elevation", curElevation, startElevation);
-
-
-                    //remove the drag handle background color
-                    int colorFrom = getResources().getColor(R.color.drag_handle_overlay_light);
-                    int colorTo = Color.TRANSPARENT;
-                    ValueAnimator wrapperColorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-                    wrapperColorAnimator.setDuration(300); // milliseconds
-                    wrapperColorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animator) {
-                            dragHandleWrapper.setBackgroundColor((int) animator.getAnimatedValue());
-                        }
-
-                    });
-
-
-                    AnimatorSet set = new AnimatorSet();
-                    set.playTogether(wrapperColorAnimator, cardElevationAnimator);
-                    set.start();
+        expandListWrapper.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final ViewGroup.LayoutParams params = unscannedAssetsWrapper.getLayoutParams();
+                int fromHeight = params.height;
+                int toHeight;
+                if (listExpaned) {
+                    toHeight = 100;
+                } else {
+                    toHeight = 800;
                 }
-                return true;
+
+                listExpaned = !listExpaned;
+
+                ValueAnimator animator = ValueAnimator.ofInt(fromHeight, toHeight);
+                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        int h = (int) animation.getAnimatedValue();
+                        params.height = h;
+                        unscannedAssetsWrapper.setLayoutParams(params);
+                    }
+                });
+                animator.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        ImageView iv = rootView.findViewById(R.id.chevron);
+                        if (listExpaned) {
+                            iv.setImageDrawable(getContext().getResources().getDrawable(R.drawable.chevron_down));
+                        } else {
+                            iv.setImageDrawable(getContext().getResources().getDrawable(R.drawable.chevron_up));
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+                animator.setDuration(300);
+                animator.setInterpolator(new AccelerateInterpolator());
+                animator.start();
+
             }
         });
     }
@@ -414,7 +356,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     }
 
     private void showHelp() {
-        View v = getLayoutInflater().inflate(R.layout.dialog_audit_help, null);
+        ConstraintLayout v = (ConstraintLayout) getLayoutInflater().inflate(R.layout.dialog_audit_help, null);
         TextView detailIntro = v.findViewById(R.id.details_intro);
         TextView detailModels = v.findViewById(R.id.details_models);
         TextView detailStatuses = v.findViewById(R.id.details_statuses);
@@ -427,10 +369,10 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         initStatusesDescription(detailStatuses);
         initBlindDescription(detailBlind);
 
-        AlertDialog d = new AlertDialog.Builder(getContext())
+        AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setTitle("Audit Help")
                 .setView(v)
-                .setIcon(R.drawable.help_circle_outline)
+                .setIcon(R.drawable.ic_help_circle_outline_white_36dp)
                 .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -547,7 +489,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
     private void removeUnselectedStatuses() {
         //remove assets that do not match the asset status requirements
-        List<Integer> allowedStatusIDs = audit.getStatusIDs();
+        List<Integer> allowedStatusIDs = audit.getHeader().getStatusIDs();
         Iterator<Asset> it = unscannedAssets.iterator();
         while (it.hasNext()) {
             Asset a = it.next();
@@ -614,7 +556,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
             Asset a = it.next();
             boolean removeAsset = true;
             int modelID = a.getModelID();
-            if (audit.getModelIDs().contains(modelID)) {
+            if (audit.getHeader().getModelIDs().contains(modelID)) {
                 removeAsset = false;
             }
 
@@ -652,7 +594,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         String modelListString = getModelsListString();
 
         modelsText = String.format(modelsText, modelListString);
-        tv.setText(modelsText);
+        tv.setText(Html.fromHtml(modelsText));
     }
 
     private void initStatusesDescription(TextView tv) {
@@ -662,13 +604,12 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         } else {
             Database db = Database.getInstance(getContext());
             StringBuilder sb = new StringBuilder();
-            String prefix = "";
             for (Integer i : auditDefinition.getRequiredStatusIDs()) {
                 try {
                     Status s = db.findStatusByID(i);
-                    sb.append(prefix);
+                    sb.append("&#8226; ");
                     sb.append(s.getName());
-                    prefix = ", ";
+                    sb.append("<br/>");
                 } catch (StatusNotFoundException e) {
                     // TODO: 2/4/18
                 }
@@ -678,7 +619,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
             statusText = String.format(statusText, sb.toString());
         }
 
-        tv.setText(statusText);
+        tv.setText(Html.fromHtml(statusText));
     }
 
     private void animateDownUnscannedCard() {
@@ -720,8 +661,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         listHolder = rootView.findViewById(R.id.list_holder);
         submitButton = rootView.findViewById(R.id.submit_button);
         input = rootView.findViewById(R.id.input);
-        dragHandle = rootView.findViewById(R.id.drag_handle);
-        dragHandleWrapper = rootView.findViewById(R.id.drag_handle_wrapper);
+        expandListWrapper = rootView.findViewById(R.id.drag_handle_wrapper);
         spacer = rootView.findViewById(R.id.spacer);
     }
 
@@ -813,20 +753,22 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     }
 
     private String getStatusesString() {
-        StringBuilder statuses = new StringBuilder("[");
+        StringBuilder sb = new StringBuilder("[");
         String prefix = "";
         Database db = Database.getInstance(getContext());
-        for (Integer id : audit.getStatusIDs()) {
+        for (Integer id : audit.getHeader().getStatusIDs()) {
             try {
                 Status s = db.findStatusByID(id);
-                statuses.append(prefix + s.getName());
+                sb.append(prefix);
+                sb.append(s.getName());
                 prefix = ", ";
             } catch (StatusNotFoundException e) {
                 Crashlytics.logException(e);
             }
         }
-        statuses.append("]");
-        return statuses.toString();
+
+        sb.append("]");
+        return sb.toString();
     }
 
     private void confirmSubmitAuditResults() {
@@ -843,7 +785,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
             requirePause = true;
         }
 
-        final AlertDialog d = new AlertDialog.Builder(getContext())
+        final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setView(v)
                 .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                     @Override
@@ -948,7 +890,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
                 animateDownUnscannedCard();
 
-                addAuditedAsset(a, AuditDetailRecord.Status.UNDAMAGED);
+                addAuditedAsset(a, AuditDetail.Status.UNDAMAGED);
             }
 
         } catch (AssetNotFoundException e) {
@@ -956,7 +898,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
             Log.d(TAG, "Unable to find asset for scanned input string: '" + text + "'");
             Crashlytics.logException(e);
 
-            AlertDialog d = new AlertDialog.Builder(getContext())
+            AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                     .setTitle(getResources().getString(R.string.asset_scan_list_unknown_asset_title))
                     .setView(R.layout.view_unknown_asset)
                     .setNegativeButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -974,7 +916,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     }
 
     private void showAlreadyScannedDialog() {
-        final AlertDialog d = new AlertDialog.Builder(getContext())
+        final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setTitle("Asset already scanned")
                 .setMessage("This asset has already been scanned")
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -992,7 +934,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     }
 
     private void showUnwantedAssetDialog() {
-        AlertDialog d = new AlertDialog.Builder(getContext())
+        AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setTitle("Unexpected asset")
                 .setMessage("This asset is not one of the models selected for auditing.  Please scan another asset")
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -1026,11 +968,10 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         }
 
         StringBuilder sb = new StringBuilder();
-        String prefix = "";
         for (Model m : models) {
-            sb.append(prefix);
+            sb.append("&#8226; ");
             sb.append(m.getName());
-            prefix = ", ";
+            sb.append("<br/>");
         }
 
         return sb.toString();
@@ -1052,12 +993,12 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
         tv.setText(reasonText);
 
-        AlertDialog d = new AlertDialog.Builder(getContext())
+        AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setView(v)
                 .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        addAuditedAsset(a, AuditDetailRecord.Status.UNEXPECTED);
+                        addAuditedAsset(a, AuditDetail.Status.UNEXPECTED);
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -1072,9 +1013,9 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         d.show();
     }
 
-    private void addAuditedAsset(Asset a, AuditDetailRecord.Status status) {
+    private void addAuditedAsset(Asset a, AuditDetail.Status status) {
         MediaHelper.playSoundEffect(getContext(), R.raw.n_audioman__blip);
-        AuditDetailRecord record = new AuditDetailRecord(null, audit.getId(), a.getId(), System.currentTimeMillis(), status, null, false);
+        AuditDetail record = new AuditDetail(null, audit.getHeader().getId(), a.getId(), System.currentTimeMillis(), status, null, false);
         detailRecords.add(record);
         auditedAssetsRecyclerView.getAdapter().notifyItemInserted(detailRecords.size() - 1);
         auditedAssetsRecyclerView.smoothScrollToPosition(detailRecords.size() - 1);
@@ -1113,7 +1054,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                 getContext(), detailRecords);
         auditedAdapter.setOnAuditRemovedListener(new AuditedAssetRecyclerViewAdapter.OnAuditRemovedListener() {
             @Override
-            public void onAssetRemoved(@NotNull AuditDetailRecord record) {
+            public void onAssetRemoved(@NotNull AuditDetail record) {
                 detailRecords.remove(record);
 
                 try {
@@ -1151,15 +1092,15 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
     private void submitAuditResults() {
         for (Asset asset : unscannedAssets) {
-            AuditDetailRecord record = new AuditDetailRecord(null, audit.getId(), asset.getId(),
-                    System.currentTimeMillis(), AuditDetailRecord.Status.NOT_AUDITED,
+            AuditDetail record = new AuditDetail(null, audit.getHeader().getId(), asset.getId(),
+                    System.currentTimeMillis(), AuditDetail.Status.NOT_AUDITED,
                     "Asset was not found during audit", false);
             detailRecords.add(record);
         }
 
-        audit.setEnd(System.currentTimeMillis())
-                .setCompleted(true)
-                .setDetailRecords(detailRecords);
+        audit.getHeader().setEnd(System.currentTimeMillis());
+        audit.getHeader().setCompleted(true);
+        audit.setDetails(detailRecords);
 
         if (listener != null) {
             listener.onAuditComplete(audit);
@@ -1169,7 +1110,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     private boolean detailRecordsContains(Asset a) {
         boolean containsAsset = false;
 
-        for (AuditDetailRecord record : detailRecords) {
+        for (AuditDetail record : detailRecords) {
             if (record.getAssetID() == a.getId()) {
                 containsAsset = true;
                 break;

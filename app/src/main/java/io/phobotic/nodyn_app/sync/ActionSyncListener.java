@@ -19,7 +19,7 @@ package io.phobotic.nodyn_app.sync;
 
 
 import androidx.annotation.Nullable;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.sync.Action;
 
 /**
  * Created by Jonathan Nelson on 7/10/17.
@@ -27,5 +27,6 @@ import io.phobotic.nodyn_app.database.model.Action;
 
 public interface ActionSyncListener {
     void onActionSyncSuccess(Action action);
-    void onActionSyncError(Action action, @Nullable Exception e, @Nullable String message);
+    void onActionSyncFatalError(Action action, @Nullable Exception e, @Nullable String message);
+    void onActionSyncRecoverableError(Action action, @Nullable Exception e, @Nullable String message);
 }

@@ -28,13 +28,12 @@
               android:paddingTop="0dp"
               tools:context=".AboutActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/AppToolbar"/>
+    <include
+        android:id="@+id/tb"
+        layout="@layout/content_toolbar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -127,7 +126,7 @@
                             android:layout_marginBottom="8dp"
                             android:text="@string/about_intro"
                             android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            />
 
                         <TextView
                             android:id="@+id/about_intro_continued"
@@ -135,12 +134,12 @@
                             android:layout_height="wrap_content"
                             android:text="@string/about_intro_continued"
                             android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            />
                     </LinearLayout>
 
                 </LinearLayout>
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_source"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -150,7 +149,7 @@
                     android:layout_marginStart="32dp"
                     android:minWidth="500dp"
                     android:orientation="horizontal"
-                    app:cardBackgroundColor="@color/check"
+                    app:strokeColor="@color/check"
                     app:cardCornerRadius="@dimen/card_corner_radius">
 
                     <LinearLayout
@@ -170,7 +169,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginRight="16dp"
-                                android:src="@drawable/ic_github_face_grey600_24dp"/>
+                                android:src="@drawable/github_face"
+                                android:tint="@color/check"/>
 
                             <TextView
                                 android:id="@+id/about_source_title"
@@ -178,7 +178,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:text="@string/about_source_title"
-                                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                                android:textColor="@color/check"
+                                android:textAppearance="@style/Text.Card.Title" />
 
                         </LinearLayout>
 
@@ -188,20 +189,18 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:text="@string/about_source_text1"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
 
                         <TextView
                             android:id="@+id/about_source_text2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/about_source_text2"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_bugs"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -212,7 +211,7 @@
                     android:minWidth="500dp"
                     android:orientation="horizontal"
                     android:padding="16dp"
-                    app:cardBackgroundColor="@color/about_issues"
+                    app:strokeColor="@color/about_issues"
                     app:cardCornerRadius="@dimen/card_corner_radius">
 
                     <LinearLayout
@@ -232,7 +231,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginRight="16dp"
-                                android:src="@drawable/ic_android_debug_bridge_grey600_24dp"/>
+                                android:src="@drawable/android_debug_bridge"
+                                android:tint="@color/about_issues"/>
 
                             <TextView
                                 android:id="@+id/about_bugs_title"
@@ -240,7 +240,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:text="@string/about_bugs_title"
-                                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                                android:textAppearance="@style/Text.Card.Title"
+                                android:textColor="@color/about_issues"/>
 
                         </LinearLayout>
 
@@ -250,21 +251,19 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:text="@string/about_bugs_text1"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
 
                         <TextView
                             android:id="@+id/about_bugs_text2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/about_bugs_text2"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
                     </LinearLayout>
 
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_contact"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -274,8 +273,8 @@
                     android:layout_marginStart="32dp"
                     android:minWidth="500dp"
                     android:orientation="horizontal"
-                    app:cardBackgroundColor="@color/about_comments"
-                    app:cardCornerRadius="@dimen/card_corner_radius">
+                    app:cardCornerRadius="@dimen/card_corner_radius"
+                    app:strokeColor="@color/about_comments">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -294,7 +293,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginRight="16dp"
-                                android:src="@drawable/ic_mail_ru_grey600_24dp"/>
+                                android:src="@drawable/mail_ru"
+                                android:tint="@color/about_comments" />
 
                             <TextView
                                 android:id="@+id/about_comments_title"
@@ -302,7 +302,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:text="@string/about_comments_title"
-                                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                                android:textAppearance="@style/Text.Card.Title"
+                                android:textColor="@color/about_comments" />
 
                         </LinearLayout>
 
@@ -313,21 +314,19 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:text="@string/about_comments_text1"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
 
                         <TextView
                             android:id="@+id/about_comments_text2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/about_comments_text2"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_license"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -337,8 +336,8 @@
                     android:layout_marginStart="32dp"
                     android:minWidth="500dp"
                     android:orientation="horizontal"
-                    app:cardBackgroundColor="@color/about_legal"
-                    app:cardCornerRadius="@dimen/card_corner_radius">
+                    app:cardCornerRadius="@dimen/card_corner_radius"
+                    app:strokeColor="@color/about_legal">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -357,7 +356,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginRight="16dp"
-                                android:src="@drawable/ic_copyright_grey600_24dp"/>
+                                android:src="@drawable/copyright"
+                                android:tint="@color/about_legal" />
 
                             <TextView
                                 android:id="@+id/about_license_title"
@@ -365,28 +365,27 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:text="@string/about_license_title"
-                                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                                android:textAppearance="@style/Text.Card.Title"
+                                android:textColor="@color/about_legal" />
 
                         </LinearLayout>
 
                         <TextView
                             android:id="@+id/about_license_text1"
-                            android:layout_width="wrap_content"
+                            android:layout_width="481dp"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:text="@string/about_license_text1"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
 
                         <TextView
                             android:id="@+id/about_license_text2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/about_license_text2"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
         </ScrollView>

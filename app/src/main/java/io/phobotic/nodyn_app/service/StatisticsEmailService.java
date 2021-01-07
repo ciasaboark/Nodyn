@@ -77,12 +77,15 @@ public class StatisticsEmailService extends IntentService {
             Log.e(TAG, "Called without an email type key.  No action will be performed.  " +
                     "Remember to attach a TYPE_KEY to the bundle");
         } else if (TYPE_WEEKLY.equals(type)) {
-            builder = new WeeklyStatisticsEmailBuilder();
             DateFormat df = DateFormat.getDateInstance();
             calendar.add(Calendar.DAY_OF_YEAR, -7);
+            long from = calendar.getTimeInMillis();
+            long to = System.currentTimeMillis();
+
+            builder = new WeeklyStatisticsEmailBuilder(from, to);
             subject = String.format("Nodyn Weekly Statistics from %s to %s",
-                    df.format(new Date(calendar.getTimeInMillis())),
-                    df.format(new Date(System.currentTimeMillis())));
+                    df.format(new Date(from)),
+                    df.format(new Date(to)));
         } else if (TYPE_WEEKLY.equals(type)) {
             builder = new MonthlyStatisticsEmailBuilder();
             DateFormat df = new SimpleDateFormat("mmm - yyyy");

@@ -16,7 +16,7 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     android:id="@+id/card"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -29,7 +29,6 @@
     android:focusable="false"
     android:focusableInTouchMode="false"
     android:foreground="?selectableItemBackground"
-    app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="@dimen/card_corner_radius">
 
     <LinearLayout
@@ -77,4 +76,4 @@
 
         </RelativeLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

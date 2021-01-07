@@ -41,8 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:text="@string/placeholder"
-            android:textAppearance="@android:style/TextAppearance.Material.Medium"
-            android:textColor="@android:color/primary_text_light"/>
+            android:textAppearance="@style/Text.Default" />
 
     </LinearLayout>
 

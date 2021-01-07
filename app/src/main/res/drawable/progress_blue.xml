@@ -34,7 +34,6 @@
 
         <gradient
             android:angle="0"
-            android:centerColor="@color/window_background"
             android:endColor="#40C4FF"
             android:startColor="@android:color/transparent"
             android:type="sweep"

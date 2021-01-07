@@ -46,7 +46,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.list.adapter.ActionRecyclerViewAdapter;

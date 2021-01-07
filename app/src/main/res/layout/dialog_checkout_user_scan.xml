@@ -30,8 +30,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
         android:text="Scan your associate ID now"
-        android:textAppearance="@android:style/TextAppearance.Material.Medium"
-        android:textStyle="bold"/>
+        android:textAppearance="@style/Text.Heading" />
 
     <TextView
         android:id="@id/error"

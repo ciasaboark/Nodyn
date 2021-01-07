@@ -34,7 +34,7 @@
 
     </androidx.viewpager.widget.ViewPager>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,7 +43,6 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:elevation="2dp"
-
         app:cardCornerRadius="@dimen/card_corner_radius">
 
         <LinearLayout
@@ -59,25 +58,25 @@
                 android:layout_gravity="start"
                 android:layout_marginBottom="24dp"
                 android:text="QR Code Transfer"
-                android:textAppearance="@android:style/TextAppearance.Material.Title"
-                android:textColor="@color/section_title"/>
+                android:textAppearance="@style/Text.Card.Title"
+                android:textColor="?android:textColorPrimary"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginBottom="8dp"
-                android:text="Open Nodyn on the device you want to copy settings too.  Choose receive settings from the settings menu and select the QR Code option."
-                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                android:textColor="?android:textColorPrimary"
+                android:text="Open Nodyn on the device you want to copy settings too.  Choose receive settings from the settings menu and select the QR Code option."/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginBottom="8dp"
-                android:text="Scan each code on the target device.  The codes can be scanned in any order, but all codes must be scanned for this device's settings to transfer."
-                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                android:textColor="?android:textColorPrimary"
+                android:text="Scan each code on the target device.  The codes can be scanned in any order, but all codes must be scanned for this device's settings to transfer."/>
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </RelativeLayout>

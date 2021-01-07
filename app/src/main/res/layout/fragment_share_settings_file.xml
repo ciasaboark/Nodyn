@@ -96,7 +96,7 @@
 
     </ScrollView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -123,7 +123,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="16dp"
                 android:text="@string/share_settings_file_success_title"
-                android:textAppearance="@android:style/TextAppearance.Material.Large"
+                android:textAppearance="@style/Text.Card.Title"
                 android:textColor="@color/success"/>
 
             <TextView
@@ -155,6 +155,7 @@
                         android:inputType="none"
                         android:minEms="4"
                         android:text="@string/placeholder"
+                        android:textColor="@android:color/primary_text_light"
                         android:textAppearance="@android:style/TextAppearance.Material.Large"
                         android:textSize="36sp"
                         android:textStyle="bold"/>
@@ -171,6 +172,7 @@
                         android:inputType="none"
                         android:minEms="4"
                         android:text="@string/placeholder"
+                        android:textColor="@android:color/primary_text_light"
                         android:textAppearance="@android:style/TextAppearance.Material.Large"
                         android:textSize="36sp"
                         android:textStyle="bold"/>
@@ -193,6 +195,7 @@
                         android:inputType="none"
                         android:minEms="4"
                         android:text="@string/placeholder"
+                        android:textColor="@android:color/primary_text_light"
                         android:textAppearance="@android:style/TextAppearance.Material.Large"
                         android:textSize="36sp"
                         android:textStyle="bold"/>
@@ -209,6 +212,7 @@
                         android:inputType="none"
                         android:minEms="4"
                         android:text="@string/placeholder"
+                        android:textColor="@android:color/primary_text_light"
                         android:textAppearance="@android:style/TextAppearance.Material.Large"
                         android:textSize="36sp"
                         android:textStyle="bold"/>
@@ -259,9 +263,9 @@
         </LinearLayout>
 
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/error_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -311,6 +315,6 @@
         </LinearLayout>
 
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </RelativeLayout>

@@ -48,9 +48,10 @@ import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.charts.HistoryChartBuilder;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
-import io.phobotic.nodyn_app.database.audit.model.Audit;
-import io.phobotic.nodyn_app.database.statistics.day_activity.DayActivity;
-import io.phobotic.nodyn_app.database.statistics.day_activity.DayActivityDatabase;
+import io.phobotic.nodyn_app.database.audit.model.AuditDetail;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
+import io.phobotic.nodyn_app.database.statistics.summary.day_activity.DayActivitySummary;
+import io.phobotic.nodyn_app.database.statistics.summary.day_activity.DayActivitySummaryDatabase;
 import io.phobotic.nodyn_app.service.StatisticsService;
 
 
@@ -151,9 +152,9 @@ public class HistoryChartFragment extends Fragment {
         new Handler(getContext().getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                DayActivityDatabase db = DayActivityDatabase.getInstance(getContext());
+                DayActivitySummaryDatabase db = DayActivitySummaryDatabase.getInstance(getContext());
                 //this list will already be filtered to 30 days
-                List<DayActivity> list = db.dayActivityDao().getAll();
+                List<DayActivitySummary> list = db.dayActivityDao().getAll();
 
                 //filter the list to only show the last 7 days worth of records
                 Calendar calendar = Calendar.getInstance();
@@ -163,14 +164,15 @@ public class HistoryChartFragment extends Fragment {
                 //also include any audits.  Filter out anything that is too old or any audit headers
                 //+ without detail records
                 AuditDatabase auditDatabase = AuditDatabase.getInstance(getContext());
-                List<Audit> audits = auditDatabase.getAudits();
+                List<AuditHeader> audits = auditDatabase.headerDao().findAll();
 
-                Iterator<Audit> it = audits.iterator();
+                Iterator<AuditHeader> it = audits.iterator();
                 while (it.hasNext()) {
-                    Audit a = it.next();
+                    AuditHeader a = it.next();
+                    List<AuditDetail> details = auditDatabase.detailDao().findByAudit(a.getId());
                     if (a.getBegin() < cutoff) {
                         it.remove();
-                    } else if (a.getDetailRecords() == null || a.getDetailRecords().isEmpty()) {
+                    } else if (details == null || details.isEmpty()) {
                         it.remove();
                     }
                 }
@@ -180,21 +182,21 @@ public class HistoryChartFragment extends Fragment {
         });
     }
 
-    private void updateChart(@NotNull final List<DayActivity> dayActivityList, @NotNull final List<Audit> audits) {
+    private void updateChart(@NotNull final List<DayActivitySummary> dayActivitySummaryList, @NotNull final List<AuditHeader> audits) {
         Activity a = getActivity();
         if (a != null) {
             a.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    buildChart(dayActivityList, audits);
+                    buildChart(dayActivitySummaryList, audits);
                 }
             });
         }
     }
 
-    private void buildChart(@NotNull final List<DayActivity> dayActivityList, @NotNull List<Audit> audits) {
+    private void buildChart(@NotNull final List<DayActivitySummary> dayActivitySummaryList, @NotNull List<AuditHeader> audits) {
         HistoryChartBuilder builder = new HistoryChartBuilder();
-        builder.buildChart(getContext(), chart, dayActivityList, audits);
+        builder.buildChart(getContext(), chart, dayActivitySummaryList, audits);
 
         final int visibleRange = 7;
         chart.setVisibleXRangeMaximum(visibleRange);
@@ -209,7 +211,6 @@ public class HistoryChartFragment extends Fragment {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float val = (float) animation.getAnimatedValue();
                 chart.moveViewToX(val);
-                Log.d(TAG, "X val:" + val);
             }
         });
         animator.addListener(new Animator.AnimatorListener() {

@@ -83,7 +83,7 @@ public class VerifyCheckOutView extends LinearLayout {
             eulaText = getResources().getString(R.string.check_out_no_eula_set);
         }
 
-        markdownView.loadMarkdown(eulaText);
+        markdownView.loadMarkdown(eulaText, "file:///android_asset/markdown.css");
     }
 
     public ObservableMarkdownView getMarkdownView() {

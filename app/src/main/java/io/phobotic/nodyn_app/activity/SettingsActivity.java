@@ -26,11 +26,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,7 +63,7 @@ import io.phobotic.nodyn_app.fragment.preference.ExperimentalFragment;
 import io.phobotic.nodyn_app.fragment.preference.GeneralPreferenceFragment;
 import io.phobotic.nodyn_app.fragment.preference.StatisticsPreferenceFragment;
 import io.phobotic.nodyn_app.fragment.preference.UsersPreferenceFragment;
-import io.phobotic.nodyn_app.view.PreferenceSection;
+import io.phobotic.nodyn_app.view.PreferenceSectionView;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -258,8 +256,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                     }
                 }
 
-                if (v instanceof PreferenceSection) {
-                    ((PreferenceSection) v).setHighlighted(false);
+                if (v instanceof PreferenceSectionView) {
+                    ((PreferenceSectionView) v).setHighlighted(false);
                 }
             }
         }
@@ -445,11 +443,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         iv.setSoundEffectsEnabled(false);
         ObjectAnimator colorAnimator = ObjectAnimator.ofObject(iv, "colorFilter", new ArgbEvaluator(),
                 0, 0);
-        TypedValue typedValue = new TypedValue();
-        Resources.Theme theme = getTheme();
-        theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
-        @ColorInt int startColor = typedValue.data;
-
+        @ColorInt int startColor = getResources().getColor(R.color.grey300);
+;
         int endColor = getHighlightColor(i, startColor);
         colorAnimator.setObjectValues(startColor, endColor, startColor);
         colorAnimator.setInterpolator(new FastOutSlowInInterpolator());
@@ -586,9 +581,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
 
                 if (v.getId() == sectionID) {
-                    if (v instanceof PreferenceSection) {
+                    if (v instanceof PreferenceSectionView) {
                         //let the preference section know it has been selected
-                        ((PreferenceSection) v).setHighlighted(true);
+                        ((PreferenceSectionView) v).setHighlighted(true);
                     }
                 } else if (v.getVisibility() != View.GONE) {
                     //skip over already hidden views

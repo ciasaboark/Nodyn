@@ -30,9 +30,11 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
+import io.phobotic.nodyn_app.database.exception.CompanyNotFoundException;
 import io.phobotic.nodyn_app.database.exception.GroupNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.exception.StatusNotFoundException;
+import io.phobotic.nodyn_app.database.model.Company;
 import io.phobotic.nodyn_app.database.model.Group;
 import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.database.model.Status;
@@ -80,6 +82,44 @@ public class PreferenceListeners {
             return true;
         }
     };
+
+    /**
+     * A preference change listener specifically for converting company IDs into the company names
+     */
+    public static Preference.OnPreferenceChangeListener companiesChangeListener =
+            new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object value) {
+                    Database db = Database.getInstance(preference.getContext());
+                    String stringValue = value.toString();
+
+                    String summary = "";
+                    String prefix = "";
+
+                    if (value instanceof Set) {
+                        Set<String> values = (Set<String>) value;
+                        for (String s : values) {
+                            try {
+                                int id = Integer.parseInt(s);
+                                Company company = db.findCompanyById(id);
+                                summary += prefix + company.getName();
+                                prefix = ", ";
+                            } catch (CompanyNotFoundException e) {
+                                Log.d(TAG, "Unable to find company with ID :'" + s + "', this value will " +
+                                        "not be reflected in preference summary");
+                            }
+                        }
+                    }
+
+                    if (summary.length() == 0) {
+                        summary = "No companies selected";
+                    }
+
+                    preference.setSummary(summary);
+
+                    return true;
+                }
+            };
 
     /**
      * A preference change listener specifically for converting asset model IDs into the model names

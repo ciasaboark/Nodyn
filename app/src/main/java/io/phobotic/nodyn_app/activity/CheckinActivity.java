@@ -18,10 +18,13 @@
 package io.phobotic.nodyn_app.activity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,6 +45,7 @@ import io.phobotic.nodyn_app.fragment.CheckInFragment;
 import io.phobotic.nodyn_app.fragment.CheckOutFragment;
 import io.phobotic.nodyn_app.fragment.UserAuthorizationFragment;
 import io.phobotic.nodyn_app.fragment.listener.CheckInOutListener;
+import io.phobotic.nodyn_app.service.SyncService;
 import io.phobotic.nodyn_app.view.VerifyCheckinView;
 
 public class CheckinActivity extends AppCompatActivity implements CheckInOutListener, UserAuthorizationFragment.OnUserAuthorizedListener {
@@ -107,6 +111,15 @@ public class CheckinActivity extends AppCompatActivity implements CheckInOutList
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        //go ahead a schedule a quick sync so any checkout records can be pushed out as soon as possible
+        Intent i = new Intent(this, SyncService.class);
+        i.putExtra(SyncService.SYNC_TYPE_KEY, SyncService.SYNC_TYPE_QUICK);
+        startService(i);
+    }
+
+    @Override
     public void onUserAuthorized(User authorizedUser) {
         //if the authorized use is required to verify asset returns we need to show that dialog box now
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -121,7 +134,7 @@ public class CheckinActivity extends AppCompatActivity implements CheckInOutList
 
     private void verifyAssetCheckin(final User user) {
         View markdownView = new VerifyCheckinView(this, null);
-        AlertDialog d = new AlertDialog.Builder(this)
+        AlertDialog d = new MaterialAlertDialogBuilder(this, R.style.Widgets_Dialog)
                 .setTitle("Checkin Guidelines")
                 .setView(markdownView)
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

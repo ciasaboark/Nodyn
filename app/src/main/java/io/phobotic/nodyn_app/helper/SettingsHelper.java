@@ -27,6 +27,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -109,7 +111,7 @@ public class SettingsHelper {
         if (isSettingsLocked && storedPassword != null && storedPassword.length() > 0) {
             final KioskPasswordView kioskView = new KioskPasswordView(context);
 
-            final AlertDialog d = new AlertDialog.Builder(context)
+            final AlertDialog d = new MaterialAlertDialogBuilder(context, R.style.Widgets_Dialog)
                     .setTitle(context.getString(R.string.pref_settings_password_title))
                     .setView(kioskView)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -168,7 +170,7 @@ public class SettingsHelper {
     }
 
     private static void showKioskPasswordMismatchDialog(final Context context) {
-        AlertDialog d = new AlertDialog.Builder(context)
+        AlertDialog d = new MaterialAlertDialogBuilder(context, R.style.Widgets_Dialog)
                 .setTitle("Password Mismatch")
                 .setMessage("Sorry, the password you entered is not correct")
                 .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {

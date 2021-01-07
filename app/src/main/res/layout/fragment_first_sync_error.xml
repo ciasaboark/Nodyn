@@ -53,7 +53,7 @@
         </RelativeLayout>
 
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
@@ -95,18 +95,20 @@
             </LinearLayout>
 
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_need_sync"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/circle"
-            android:layout_margin="@dimen/focused_card_large_margin"
-            android:background="@color/white"
+            android:layout_marginBottom="@dimen/focused_card_large_margin"
+            android:layout_marginEnd="@dimen/focused_card_large_margin"
+            android:layout_marginStart="@dimen/focused_card_large_margin"
+            android:layout_marginTop="@dimen/focused_card_large_margin"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:visibility="visible"
+            android:visibility="gone"
             app:cardCornerRadius="@dimen/card_corner_radius">
 
             <RelativeLayout
@@ -238,18 +240,20 @@
                 </LinearLayout>
 
             </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_success"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/circle"
-            android:layout_margin="@dimen/focused_card_large_margin"
+            android:layout_marginBottom="@dimen/focused_card_large_margin"
+            android:layout_marginEnd="@dimen/focused_card_large_margin"
+            android:layout_marginStart="@dimen/focused_card_large_margin"
+            android:layout_marginTop="@dimen/focused_card_large_margin"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:visibility="gone"
-            app:cardBackgroundColor="@color/white"
+            android:visibility="visible"
             app:cardCornerRadius="@dimen/card_corner_radius">
 
             <LinearLayout
@@ -278,7 +282,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/title"
                     android:layout_marginBottom="8dp"
-                    android:text="Awesome!  Your first sync completed successfully.  Nodyn will sync with your backend every 5 minutes by default."
+                    android:text="@string/sync_first_success_intro"
                     />
 
                 <TextView
@@ -287,30 +291,29 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/title"
                     android:layout_marginBottom="8dp"
-                    android:text="Don't worry if there is no network connection during the next sync.  We'll hold on to your check-out/check-in records until until the backend can be reached again."/>
+                    tools:text="@string/sync_first_success_no_network"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/title"
                     android:layout_marginBottom="8dp"
-                    android:text="You can use this opportunity to further adjust your settings, or continue on to the dashboard"
-                    />
+                    android:text="@string/sync_first_success_continue"/>
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                     android:id="@+id/next_button"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:layout_gravity="center_horizontal"
                     android:clickable="true"
+                    android:text="@string/view_dashboard"
+                    android:theme="@style/Widgets.FabExtPrimary"
                     android:translationZ="8dp"
                     android:visibility="visible"
-                    app:backgroundTint="@color/success"
-                    app:fabSize="normal"
-                    app:srcCompat="@drawable/ic_arrow_right_white_24dp"
-                    app:useCompatPadding="true"/>
+                    app:icon="@drawable/ic_arrow_right_white_24dp"/>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
 
     </RelativeLayout>

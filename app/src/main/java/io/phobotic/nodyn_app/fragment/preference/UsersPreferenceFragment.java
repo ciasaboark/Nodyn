@@ -35,6 +35,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Verifiable;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
 import io.phobotic.nodyn_app.preference.ConfigureAvatarsDialogFragment;
 
 /**
@@ -60,6 +61,8 @@ public class UsersPreferenceFragment extends PreferenceFragmentCompat {
             }
         });
         initScanFieldSelect();
+
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
     private void initScanFieldSelect() {

@@ -32,6 +32,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -90,11 +91,11 @@ public class ConfigureAvatarsDialogFragment extends DialogFragment {
 
         init();
 
-        AlertDialog.Builder b = new AlertDialog.Builder(getActivity())
-                .setIcon(R.drawable.face)
+        AlertDialog.Builder b = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
+                .setIcon(R.drawable.ic_face_white_48dp)
                 .setTitle(getString(R.string.user_configure_avatars_title))
                 .setView(rootView)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();

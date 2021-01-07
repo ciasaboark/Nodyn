@@ -47,8 +47,9 @@ import io.phobotic.nodyn_app.converter.AuditExcelConverter;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
 import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
 import io.phobotic.nodyn_app.database.audit.model.AuditDefinition;
-import io.phobotic.nodyn_app.database.audit.model.AuditDetailRecord;
+import io.phobotic.nodyn_app.database.audit.model.AuditDetail;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.AuditDefinitionNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ManufacturerNotFoundException;
@@ -64,6 +65,8 @@ import io.phobotic.nodyn_app.email.Attachment;
 import io.phobotic.nodyn_app.email.EmailRecipient;
 import io.phobotic.nodyn_app.email.EmailSender;
 import io.phobotic.nodyn_app.reporting.CustomEvents;
+import io.phobotic.nodyn_app.sync.SyncManager;
+import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 
 /**
  * Created by Jonathan Nelson on 1/17/18.
@@ -87,35 +90,35 @@ public class AuditEmailService extends IntentService {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         imageCache = EmailImageCache.getInstance(this);
 
-        // TODO: 1/17/18 let the database handle fetching only the headers that have not been sent
-        List<Audit> auditHeaders = db.getAudits();
-        Iterator<Audit> it = auditHeaders.iterator();
+        AuditDatabase auditDatabase = AuditDatabase.getInstance(this);
+
+        List<Audit> unsentAudits = db.getAllUnextracted();
+        Iterator<Audit> it = unsentAudits.iterator();
+
+        //headers get inserted whenever an audit is started.  We need to make sure than only
+        //+ audits with detail records are sent
         while (it.hasNext()) {
-            Audit a = it.next();
-            if (a.isExtracted()) {
+            Audit audit = it.next();
+            if (audit.getDetails().isEmpty()) {
+                audit.getHeader().setExtracted(true);
+                db.headerDao().insert(audit.getHeader());
                 it.remove();
             }
         }
 
-        List<Audit> unsentAudits = new ArrayList<>();
-        for (Audit header : auditHeaders) {
-            Audit audit = db.getAudit(header.getId());
-
-            //headers get inserted whenever an audit is started.  We need to make sure than only
-            //+ audits with detail records are sent
-            if (audit.getDetailRecords() == null || audit.getDetailRecords().isEmpty()) {
-                audit.setExtracted(true);
-                db.storeAudit(audit);
-            } else {
-                unsentAudits.add(audit);
-            }
-        }
-
         if (!unsentAudits.isEmpty()) {
+            recordAuditWithBackend(unsentAudits);
             sendAuditEmails(unsentAudits);
         }
 
         pruneDatabase();
+    }
+
+    private void recordAuditWithBackend(List<Audit> unsentAudits) {
+        SyncAdapter adapter = SyncManager.getPrefferedSyncAdapter(this);
+        for (Audit audit: unsentAudits) {
+            adapter.recordAudit(this, audit);
+        }
     }
 
     private void sendAuditEmails(List<Audit> unsentAudits) {
@@ -133,7 +136,7 @@ public class AuditEmailService extends IntentService {
      * Remove all audit records from the database that have been extracted
      */
     private void pruneDatabase() {
-        db.pruneExtractedRecords();
+        db.pruneExtractedAudits();
     }
 
     private void sendAuditEmail(Audit audit) {
@@ -172,7 +175,7 @@ public class AuditEmailService extends IntentService {
     private void updateModelImageCache(Audit audit) {
         Database db = Database.getInstance(this);
         List<Model> modelList = new ArrayList<>();
-        for (int id : audit.getModelIDs()) {
+        for (int id : audit.getHeader().getModelIDs()) {
             try {
                 Model m = db.findModelByID(id);
                 modelList.add(m);
@@ -190,29 +193,29 @@ public class AuditEmailService extends IntentService {
 
         Database db = Database.getInstance(this);
         String user;
-        if (audit.getUserID() == -1) {
+        if (audit.getHeader().getUserID() == -1) {
             user = getString(R.string.user_authentication_not_required);
         } else {
             try {
-                User u = db.findUserByID(audit.getUserID());
+                User u = db.findUserByID(audit.getHeader().getUserID());
                 user = u.getName();
             } catch (UserNotFoundException e) {
-                user = String.format(getString(R.string.unknown_user), audit.getUserID());
+                user = String.format(getString(R.string.unknown_user), audit.getHeader().getUserID());
             }
         }
 
         DateFormat df = SimpleDateFormat.getDateTimeInstance();
-        String beginDate = df.format(new Date(audit.getBegin()));
-        String endDate = df.format(new Date(audit.getEnd()));
+        String beginDate = df.format(new Date(audit.getHeader().getBegin()));
+        String endDate = df.format(new Date(audit.getHeader().getEnd()));
 
         boolean notesIncluded = false;
-        for (AuditDetailRecord r : audit.getDetailRecords()) {
+        for (AuditDetail r : audit.getDetails()) {
             //undamaged and not_audited are the default audit statuses
-            boolean customStatus = r.getStatus() != AuditDetailRecord.Status.UNDAMAGED
-                    && r.getStatus() != AuditDetailRecord.Status.NOT_AUDITED;
+            boolean customStatus = r.getStatus() != AuditDetail.Status.UNDAMAGED
+                    && r.getStatus() != AuditDetail.Status.NOT_AUDITED;
 
             //filter out the unaudited assets, since they have notes added automatically
-            boolean noteAdded = r.getStatus() != AuditDetailRecord.Status.NOT_AUDITED &&
+            boolean noteAdded = r.getStatus() != AuditDetail.Status.NOT_AUDITED &&
                     r.getNotes() != null && r.getNotes().length() > 0;
             if (customStatus || noteAdded) {
                 notesIncluded = true;
@@ -230,23 +233,21 @@ public class AuditEmailService extends IntentService {
         String auditDefinitonName;
         String definitionLastAuditDate = "";
         AuditDatabase auditDatabase = AuditDatabase.getInstance(this);
-        if (audit.getDefinedAuditID() == -1) {
+        if (audit.getHeader().getDefinedAuditID() == -1) {
             auditDefinitonName = getString(R.string.custom_audit);
         } else {
-            try {
-                AuditDefinition definition = auditDatabase.findAuditDefinitionByID(audit.getDefinedAuditID());
+            AuditDefinition definition = auditDatabase.definitionDao().find(audit.getHeader().getDefinedAuditID());
+            if (definition == null) {
+                auditDefinitonName = String.format(getString(R.string.unknown_audit_definition), audit.getHeader().getDefinedAuditID());
+            } else {
                 auditDefinitonName = definition.getName();
-
-                // TODO: 2/11/18 the definition last audit timestamp will probably refer to this audit.  It would be nice if we could include a timestamp for the most recent audit prior to this one.
-            } catch (AuditDefinitionNotFoundException e) {
-                auditDefinitonName = String.format(getString(R.string.unknown_audit_definition), audit.getDefinedAuditID());
             }
         }
 
 
         StringBuilder statusBuilder = new StringBuilder();
         String prefix = "";
-        for (Integer i : audit.getStatusIDs()) {
+        for (Integer i : audit.getHeader().getStatusIDs()) {
             try {
                 Status s = db.findStatusByID(i);
                 statusBuilder.append(prefix + s.getName());
@@ -267,7 +268,7 @@ public class AuditEmailService extends IntentService {
         addAssetAsAttachment(attachments, "app_icon_96.png");
 //        addAssetAsAttachment(attachments, "devices_generic_48.png");
 
-        Log.d(TAG, "Sending audit email for audit id " + auditEmail.audit.getId());
+        Log.d(TAG, "Sending audit email for audit id " + auditEmail.audit.getHeader().getId());
 
         EmailSender sender = new EmailSender(this)
                 .setBody(body)
@@ -295,8 +296,8 @@ public class AuditEmailService extends IntentService {
                         Answers.getInstance().logCustom(new CustomEvent(CustomEvents.AUDIT_RESULTS_EMAIL_SENT));
                         if (tag instanceof AuditEmail) {
                             Audit audit = ((AuditEmail) tag).getAudit();
-                            audit.setExtracted(true);
-                            db.storeAudit(audit);
+                            audit.getHeader().setExtracted(true);
+                            db.headerDao().insert(audit.getHeader());
 
                             //delete the temporary file
                             File file = ((AuditEmail) tag).getFile();
@@ -336,7 +337,7 @@ public class AuditEmailService extends IntentService {
                         "</tr>";
         StringBuilder sb = new StringBuilder();
 
-        List<Integer> modelIDs = audit.getModelIDs();
+        List<Integer> modelIDs = audit.getHeader().getModelIDs();
         if (modelIDs == null) modelIDs = new ArrayList<>();
 
         Map<Integer, Integer> modelTotalCount = new HashMap<>();
@@ -344,10 +345,10 @@ public class AuditEmailService extends IntentService {
         Map<Integer, Integer> modelMissingCount = new HashMap<>();
 
         Database db = Database.getInstance(this);
-        List<AuditDetailRecord> details = audit.getDetailRecords();
+        List<AuditDetail> details = audit.getDetails();
 
         if (details != null) {
-            for (AuditDetailRecord record : details) {
+            for (AuditDetail record : details) {
                 int assetID = record.getAssetID();
                 try {
                     Asset asset = db.findAssetByID(assetID);
@@ -356,7 +357,7 @@ public class AuditEmailService extends IntentService {
                     if (total == null) total = 0;
                     modelTotalCount.put(modelID, ++total);
 
-                    if (record.getStatus() == AuditDetailRecord.Status.NOT_AUDITED) {
+                    if (record.getStatus() == AuditDetail.Status.NOT_AUDITED) {
                         Integer missing = modelMissingCount.get(modelID);
                         if (missing == null) missing = 0;
                         modelMissingCount.put(modelID, ++missing);

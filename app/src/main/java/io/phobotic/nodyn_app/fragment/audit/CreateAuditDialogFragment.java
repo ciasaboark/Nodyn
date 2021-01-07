@@ -69,6 +69,12 @@ public class CreateAuditDialogFragment extends DialogFragment implements AuditCr
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.Widgets_Dialog);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_create_audit, null);
@@ -157,8 +163,8 @@ public class CreateAuditDialogFragment extends DialogFragment implements AuditCr
                 modelIDs.add(m.getId());
             }
         }
-        createdAudit.setRequiredModelIDs(modelIDs)
-                .setAuditAllModels(auditAllModels);
+        createdAudit.setRequiredModelIDs(modelIDs);
+        createdAudit.setAuditAllModels(auditAllModels);
     }
 
     @Override
@@ -201,9 +207,9 @@ public class CreateAuditDialogFragment extends DialogFragment implements AuditCr
                 statusIDs.add(s.getId());
             }
         }
-        createdAudit.setRequiredStatusIDs(statusIDs)
-                .setAuditAllStatuses(auditAllStatuses)
-                .setMetaStatus(metaStatus);
+        createdAudit.setRequiredStatusIDs(statusIDs);
+        createdAudit.setAuditAllStatuses(auditAllStatuses);
+        createdAudit.setMetaStatus(metaStatus);
     }
 
     /**
@@ -214,9 +220,9 @@ public class CreateAuditDialogFragment extends DialogFragment implements AuditCr
      */
     @Override
     public void onAuditDetailsEntered(String name, String description, boolean isBlindAudit) {
-        createdAudit.setName(name)
-                .setDetails(description)
-                .setBlindAudit(isBlindAudit);
+        createdAudit.setName(name);
+        createdAudit.setDetails(description);
+        createdAudit.setBlindAudit(isBlindAudit);
 
         finishButton.setText(R.string.finish);
         finishButton.setEnabled(name != null && name.length() > 0);

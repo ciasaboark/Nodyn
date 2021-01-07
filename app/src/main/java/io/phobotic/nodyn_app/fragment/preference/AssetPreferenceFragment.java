@@ -35,7 +35,10 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
+import io.phobotic.nodyn_app.database.model.Company;
+import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.database.model.Status;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
 
 /**
  * Created by Jonathan Nelson on 9/11/17.
@@ -57,59 +60,74 @@ public class AssetPreferenceFragment extends PreferenceFragmentCompat {
 
         initListeners();
         initPreferences();
+
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
     private void initListeners() {
-        // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-        // to their values. When their values change, their summaries are
-        // updated to reflect the new value, per the Android Design
-        // guidelines.
-        Preference visibleStatuses = findPreference(getString(
-                R.string.pref_key_asset_status_selected_statuses));
-        visibleStatuses.setOnPreferenceChangeListener(PreferenceListeners.statusChangeListener);
+        Preference allowedModels = findPreference(getString(R.string.pref_key_check_out_models));
+        allowedModels.setOnPreferenceChangeListener(PreferenceListeners.modelsChangeListener);
+        PreferenceListeners.modelsChangeListener.onPreferenceChange(allowedModels,
+                prefs.getStringSet(allowedModels.getKey(), new HashSet<String>()));
 
-        //set the summary now
-        PreferenceListeners.statusChangeListener.onPreferenceChange(visibleStatuses,
-                prefs.getStringSet(visibleStatuses.getKey(), new HashSet<String>()));
 
+        Preference allowedCompanies = findPreference(getString(R.string.pref_key_sync_companies));
+        allowedCompanies.setOnPreferenceChangeListener(PreferenceListeners.companiesChangeListener);
+        PreferenceListeners.companiesChangeListener.onPreferenceChange(allowedCompanies,
+                prefs.getStringSet(allowedCompanies.getKey(), new HashSet<String>()));
     }
 
     private void initPreferences() {
-        initVisibleStatusesSelect();
+        initModelSelect();
+        initCompanySelect();
     }
 
-    private void initVisibleStatusesSelect() {
-        Set<String> chosenStatuses = prefs.getStringSet(getString(
-                R.string.pref_key_asset_status_selected_statuses), null);
-        Log.d(TAG, "visible statuses: " + chosenStatuses);
+    private void initModelSelect() {
+        Set<String> chosenModels = prefs.getStringSet(getString(
+                R.string.pref_key_check_out_models), null);
+        Log.d(TAG, "chosen models: " + chosenModels);
 
-        List<Status> statuses = db.getStatuses();
-        //sort the status alphabetically so the list stays in the same general order after every sync
-        Collections.sort(statuses, new Comparator<Status>() {
-            @Override
-            public int compare(Status o1, Status o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        List<Model> models = db.getModels();
+        String[] modelNames = new String[models.size()];
+        String[] modelValues = new String[models.size()];
 
-        String[] statusNames = new String[statuses.size()];
-        String[] statusValues = new String[statuses.size()];
+        for (int i = 0; i < models.size(); i++) {
+            Model model = models.get(i);
+            String name = model.getName();
+            String value = String.valueOf(model.getId());
 
-        for (int i = 0; i < statuses.size(); i++) {
-            Status status = statuses.get(i);
-            String name = status.getName();
-            String value = String.valueOf(status.getId());
-
-            statusNames[i] = name;
-            statusValues[i] = value;
+            modelNames[i] = name;
+            modelValues[i] = value;
         }
 
-        MultiSelectListPreference statusSelect = (MultiSelectListPreference) findPreference(
-                getString(R.string.pref_key_asset_status_selected_statuses));
-        statusSelect.setEntries(statusNames);
-        statusSelect.setEntryValues(statusValues);
-
+        MultiSelectListPreference modelSelect = (MultiSelectListPreference) findPreference(
+                getString(R.string.pref_key_check_out_models));
+        modelSelect.setEntries(modelNames);
+        modelSelect.setEntryValues(modelValues);
     }
 
+    private void initCompanySelect() {
+        Set<String> chosenCompany = prefs.getStringSet(getString(
+                R.string.pref_key_sync_companies), null);
+        Log.d(TAG, "chosen companies: " + chosenCompany);
+
+        List<Company> companies = db.getCompanies();
+        String[] companyNames = new String[companies.size()];
+        String[] companyValues = new String[companies.size()];
+
+        for (int i = 0; i < companies.size(); i++) {
+            Company company = companies.get(i);
+            String name = company.getName();
+            String value = String.valueOf(company.getId());
+
+            companyNames[i] = name;
+            companyValues[i] = value;
+        }
+
+        MultiSelectListPreference companySelect = (MultiSelectListPreference) findPreference(
+                getString(R.string.pref_key_sync_companies));
+        companySelect.setEntries(companyNames);
+        companySelect.setEntryValues(companyValues);
+    }
 
 }

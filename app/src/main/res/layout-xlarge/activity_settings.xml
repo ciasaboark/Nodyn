@@ -23,20 +23,18 @@
               android:orientation="vertical"
               android:weightSum="1">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/AppToolbar"/>
+    <include
+        android:id="@+id/tb"
+        layout="@layout/content_toolbar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:focusable="false"
-        android:focusableInTouchMode="false"
-        >
+        android:focusableInTouchMode="false">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,7 +43,7 @@
             android:focusableInTouchMode="false"
             android:orientation="vertical">
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -61,108 +59,97 @@
                     android:id="@+id/holder"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
+                    android:orientation="vertical">
 
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/general"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/ic_settings_white_36dp"
-                        app:title="General Preferences"
-                        />
+                        app:title="General Preferences" />
 
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/user"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/ic_account_multiple_white_36dp"
-                        app:title="Users"
-                        />
+                        app:title="Users" />
 
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/asset"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/ic_laptop_white_36dp"
-                        app:title="Assets"
-                        />
+                        app:title="Assets" />
 
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/checkout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/ic_arrow_up_bold_hexagon_outline_white_36dp"
-                        app:title="Check-out"
-                        />
+                        app:title="Check-out" />
 
-
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/checkin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/ic_arrow_down_bold_hexagon_outline_white_36dp"
-                        app:title="Check-in"
-                        />
+                        app:title="Check-in" />
 
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/audit"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/clipboard_check"
-                        app:title="Audits"
-                        />
+                        app:title="Audits" />
 
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/data"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/ic_cloud_sync_white_36dp"
-                        app:title="Sync Backend"
-                        />
+                        app:title="Sync Backend" />
 
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/email"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/ic_mail_ru_white_36dp"
-                        app:title="Email Preferences"
-                        />
+                        app:title="Email Preferences" />
 
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/statistics"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/chart_timeline_variant"
-                        app:title="Statistics"
-                        />
+                        app:title="Statistics" />
 
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/beta"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/ic_beta_white_36dp"
-                        app:title="Beta Preferences"
-                        />
+                        app:title="Beta Preferences" />
 
-                    <io.phobotic.nodyn_app.view.PreferenceSection
+                    <io.phobotic.nodyn_app.view.PreferenceSectionView
                         android:id="@+id/experimental"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onClick"
                         app:icon="@drawable/ic_flask_white_36dp"
-                        app:title="Experimental"
-                        />
+                        app:title="Experimental" >
+                    </io.phobotic.nodyn_app.view.PreferenceSectionView>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -180,7 +167,7 @@
                             android:onClick="onClick"
                             android:soundEffectsEnabled="false"
                             android:src="@drawable/ic_tablet_ipad_white_24dp"
-                            android:tint="?colorPrimary"/>
+                            android:tint="@color/grey300" />
 
                         <ImageView
                             android:id="@+id/icon2"
@@ -191,7 +178,7 @@
                             android:onClick="onClick"
                             android:soundEffectsEnabled="false"
                             android:src="@drawable/ic_printer_white_24dp"
-                            android:tint="?colorPrimary"/>
+                            android:tint="@color/grey300" />
 
                         <ImageView
                             android:id="@+id/icon3"
@@ -202,7 +189,7 @@
                             android:onClick="onClick"
                             android:soundEffectsEnabled="false"
                             android:src="@drawable/ic_laptop_white_24dp"
-                            android:tint="?colorPrimary"/>
+                            android:tint="@color/grey300" />
 
                         <ImageView
                             android:id="@+id/icon4"
@@ -213,7 +200,7 @@
                             android:onClick="onClick"
                             android:soundEffectsEnabled="false"
                             android:src="@drawable/ic_harddisk_white_24dp"
-                            android:tint="?colorPrimary"/>
+                            android:tint="@color/grey300" />
 
                         <ImageView
                             android:id="@+id/icon5"
@@ -224,34 +211,35 @@
                             android:onClick="onClick"
                             android:soundEffectsEnabled="false"
                             android:src="@drawable/ic_cellphone_white_24dp"
-                            android:tint="?colorPrimary"/>
+                            android:tint="@color/grey300" />
 
                     </LinearLayout>
                 </LinearLayout>
 
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/fragment_card"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="32dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="16dp"
-                android:clickable="false"
-                android:elevation="0dp"
-                android:focusable="false"
-                android:visibility="gone"
-                app:cardCornerRadius="@dimen/card_corner_radius">
-
-                <FrameLayout
-                    android:id="@+id/frame"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    />
-
-            </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/fragment_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:clickable="false"
+        android:elevation="0dp"
+        android:focusable="false"
+        android:visibility="gone"
+        app:cardCornerRadius="@dimen/card_corner_radius">
+
+        <FrameLayout
+            android:id="@+id/frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

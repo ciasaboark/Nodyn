@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:background="@drawable/circle_flat_grey"
-        android:backgroundTint="@color/white"
+        android:backgroundTint="@color/generic_card_background_dark"
         android:elevation="2dp"
         android:orientation="vertical"
         android:padding="16dp"
@@ -83,7 +83,7 @@
                 android:layout_height="96dp"
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/screwdriver"
-                android:tint="@color/grey600"/>
+                android:tint="@color/white"/>
 
             <TextView
                 android:id="@+id/title"
@@ -92,7 +92,8 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="16dp"
                 android:layout_marginTop="16dp"
-                android:text="No maintenance records yet!"/>
+                android:text="No maintenance records yet!"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
             <TextView
                 android:id="@+id/message"
@@ -104,7 +105,8 @@
                 android:paddingStart="30dp"
                 android:text="Maintenance records will show up here once an asset maintenance is recorded"
                 android:textAlignment="center"
-                android:textAppearance="@android:style/TextAppearance.Material.Small"/>
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:textColor="?android:textColorSecondary"/>
         </LinearLayout>
     </io.phobotic.nodyn_app.view.SquareRelativeLayout>
 

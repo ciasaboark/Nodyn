@@ -17,18 +17,30 @@
 
 package io.phobotic.nodyn_app.database.audit.model;
 
+import org.apache.poi.util.IntList;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+import io.phobotic.nodyn_app.database.converter.IntegerListTypeConverter;
 
 /**
  * Created by Jonathan Nelson on 1/23/18.
  */
 
+@Entity(tableName = "audit_definition")
+@TypeConverters({IntegerListTypeConverter.class})
 public class AuditDefinition implements Serializable {
     public static final String META_ALL_ASSETS = "ALL";
     public static final String META_ASSIGNED_ASSETS = "ASSIGNED";
-    private int id = -1;
+
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+
     private String name;
     private long createTimestamp = -1;
     private long updateTimestamp = -1;
@@ -42,146 +54,108 @@ public class AuditDefinition implements Serializable {
     private boolean isBlindAudit = false;
     private String schedule;
 
-//    public AuditDefinition(String name, long createTimestamp, List<Integer> requiredModelIDs,
-//                           boolean auditAllModels, List<Integer> requiredStatusIDs,
-//                           boolean auditAllStatuses, String metaStatus,String details,
-//                           boolean isBlindAudit) {
-//        this(-1, name, createTimestamp, -1, -1, requiredModelIDs, auditAllModels,
-//                requiredStatusIDs, auditAllStatuses, metaStatus, details, isBlindAudit);
-//    }
-//
-//    public AuditDefinition(int id, String name, long createTimestamp, long updateTimestamp,
-//                           long lastAuditTimestamp, List<Integer> requiredModelIDs, boolean auditAllModels,
-//                           List<Integer> requiredStatusIDs, boolean auditAllStatuses, String metaStatus,
-//                           String details, boolean isBlindAudit) {
-//        this.id = id;
-//        this.name = name;
-//        this.createTimestamp = createTimestamp;
-//        this.updateTimestamp = updateTimestamp;
-//        this.lastAuditTimestamp = lastAuditTimestamp;
-//        this.requiredModelIDs = requiredModelIDs;
-//        this.auditAllModels = auditAllModels;
-//        this.requiredStatusIDs = requiredStatusIDs;
-//        this.auditAllStatuses = auditAllStatuses;
-//        this.metaStatus = metaStatus;
-//        this.details = details;
-//        this.isBlindAudit = isBlindAudit;
-//    }
-
-    public boolean isBlindAudit() {
-        return isBlindAudit;
-    }
-
-    public AuditDefinition setBlindAudit(boolean blindAudit) {
-        isBlindAudit = blindAudit;
-        return this;
-    }
 
     public int getId() {
         return id;
     }
 
-    public AuditDefinition setId(int id) {
+    public void setId(int id) {
         this.id = id;
-        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public AuditDefinition setName(String name) {
+    public void setName(String name) {
         this.name = name;
-        return this;
     }
 
     public long getCreateTimestamp() {
         return createTimestamp;
     }
 
-    public AuditDefinition setCreateTimestamp(long createTimestamp) {
+    public void setCreateTimestamp(long createTimestamp) {
         this.createTimestamp = createTimestamp;
-        return this;
     }
 
     public long getUpdateTimestamp() {
         return updateTimestamp;
     }
 
-    public AuditDefinition setUpdateTimestamp(long updateTimestamp) {
+    public void setUpdateTimestamp(long updateTimestamp) {
         this.updateTimestamp = updateTimestamp;
-        return this;
     }
 
     public long getLastAuditTimestamp() {
         return lastAuditTimestamp;
     }
 
-    public AuditDefinition setLastAuditTimestamp(long lastAuditTimestamp) {
+    public void setLastAuditTimestamp(long lastAuditTimestamp) {
         this.lastAuditTimestamp = lastAuditTimestamp;
-        return this;
     }
 
     public List<Integer> getRequiredModelIDs() {
         return requiredModelIDs;
     }
 
-    public AuditDefinition setRequiredModelIDs(List<Integer> requiredModelIDs) {
+    public void setRequiredModelIDs(List<Integer> requiredModelIDs) {
         this.requiredModelIDs = requiredModelIDs;
-        return this;
-    }
-
-    public List<Integer> getRequiredStatusIDs() {
-        return requiredStatusIDs;
-    }
-
-    public AuditDefinition setRequiredStatusIDs(List<Integer> requiredStatusIDs) {
-        this.requiredStatusIDs = requiredStatusIDs;
-        return this;
-    }
-
-    public String getDetails() {
-        return details;
-    }
-
-    public AuditDefinition setDetails(String details) {
-        this.details = details;
-        return this;
     }
 
     public boolean isAuditAllModels() {
         return auditAllModels;
     }
 
-    public AuditDefinition setAuditAllModels(boolean auditAllModels) {
+    public void setAuditAllModels(boolean auditAllModels) {
         this.auditAllModels = auditAllModels;
-        return this;
+    }
+
+    public List<Integer> getRequiredStatusIDs() {
+        return requiredStatusIDs;
+    }
+
+    public void setRequiredStatusIDs(List<Integer> requiredStatusIDs) {
+        this.requiredStatusIDs = requiredStatusIDs;
     }
 
     public boolean isAuditAllStatuses() {
         return auditAllStatuses;
     }
 
-    public AuditDefinition setAuditAllStatuses(boolean auditAllStatuses) {
+    public void setAuditAllStatuses(boolean auditAllStatuses) {
         this.auditAllStatuses = auditAllStatuses;
-        return this;
     }
 
     public String getMetaStatus() {
         return metaStatus;
     }
 
-    public AuditDefinition setMetaStatus(String metaStatus) {
+    public void setMetaStatus(String metaStatus) {
         this.metaStatus = metaStatus;
-        return this;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    public boolean isBlindAudit() {
+        return isBlindAudit;
+    }
+
+    public void setBlindAudit(boolean blindAudit) {
+        isBlindAudit = blindAudit;
     }
 
     public String getSchedule() {
         return schedule;
     }
 
-    public AuditDefinition setSchedule(String schedule) {
+    public void setSchedule(String schedule) {
         this.schedule = schedule;
-        return this;
     }
 }

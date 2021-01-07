@@ -21,5 +21,7 @@ package io.phobotic.nodyn_app.database.exception;
  * Created by Jonathan Nelson on 9/13/17.
  */
 
+@Deprecated
+
 public class CategoryNotFoundException extends Exception {
 }

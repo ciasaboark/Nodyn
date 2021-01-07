@@ -30,6 +30,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -45,8 +47,11 @@ import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.model.Group;
-import io.phobotic.nodyn_app.database.model.Model;
+
 import io.phobotic.nodyn_app.database.model.Status;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
+import io.phobotic.nodyn_app.preference.EmailRecipientsPreference;
+import io.phobotic.nodyn_app.preference.EmailRecipientsPreferenceDialogFragmentCompat;
 import io.phobotic.nodyn_app.preference.NumberPickerPreference;
 import io.phobotic.nodyn_app.preference.NumberPickerPreferenceDialogFragmentCompat;
 
@@ -69,6 +74,8 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
 
         initListeners();
         initPreferences();
+
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
     private void initListeners() {
@@ -86,10 +93,7 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
         PreferenceListeners.groupsChangeListener.onPreferenceChange(allowedGroups,
                 prefs.getStringSet(allowedGroups.getKey(), new HashSet<String>()));
 
-        Preference allowedModels = findPreference(getString(R.string.pref_key_check_out_models));
-        allowedModels.setOnPreferenceChangeListener(PreferenceListeners.modelsChangeListener);
-        PreferenceListeners.modelsChangeListener.onPreferenceChange(allowedModels,
-                prefs.getStringSet(allowedModels.getKey(), new HashSet<String>()));
+
 
         Preference eulaPreference = findPreference(getString(R.string.pref_key_check_out_eula));
         eulaPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -103,7 +107,7 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
                         getString(R.string.pref_default_check_out_eula));
                 input.setText(curEula);
 
-                final AlertDialog d = new AlertDialog.Builder(getContext())
+                final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                         .setTitle("Asset Checkout EULA")
                         .setView(v)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -162,7 +166,6 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
 
     private void initPreferences() {
         initGroupSelect();
-        initModelSelect();
         initTimeout();
         initDuration();
         initAllowedStatusesSelect();
@@ -193,29 +196,7 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
         p.setEntryValues(groupValues);
     }
 
-    private void initModelSelect() {
-        Set<String> chosenModels = prefs.getStringSet(getString(
-                R.string.pref_key_check_out_models), null);
-        Log.d(TAG, "chosen models: " + chosenModels);
 
-        List<Model> models = db.getModels();
-        String[] modelNames = new String[models.size()];
-        String[] modelValues = new String[models.size()];
-
-        for (int i = 0; i < models.size(); i++) {
-            Model model = models.get(i);
-            String name = model.getName();
-            String value = String.valueOf(model.getId());
-
-            modelNames[i] = name;
-            modelValues[i] = value;
-        }
-
-        MultiSelectListPreference modelSelect = (MultiSelectListPreference) findPreference(
-                getString(R.string.pref_key_check_out_models));
-        modelSelect.setEntries(modelNames);
-        modelSelect.setEntryValues(modelValues);
-    }
 
     private void initTimeout() {
         Preference timeoutLimitPreference = findPreference(getString(
@@ -319,7 +300,7 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
     }
 
     private void showNoBackEndError() {
-        AlertDialog d = new AlertDialog.Builder(getContext())
+        AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setTitle("No Backend Configured")
                 .setMessage("No backend has been configured yet.  This setting will become available after the backend service is configured and after a successfull sync")
                 .setPositiveButton(android.R.string.ok, null)
@@ -328,7 +309,7 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
     }
 
     private void showNotSyncedError() {
-        AlertDialog d = new AlertDialog.Builder(getContext())
+        AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setTitle("Not Yet Synced")
                 .setMessage("This setting will become avaiable after a successfull sync with the backend service")
                 .setPositiveButton(android.R.string.ok, null)
@@ -354,6 +335,11 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
                 dialogFragment = NumberPickerPreferenceDialogFragmentCompat
                         .newInstance(preference.getKey(), "day", "days", "Indefinately");
             }
+        } else if (preference instanceof EmailRecipientsPreference) {
+            // Create a new instance of EmailRecipientsPreferenceDialogFragmentCompat with the key of the related
+            // Preference
+            dialogFragment = EmailRecipientsPreferenceDialogFragmentCompat
+                    .newInstance(preference.getKey());
         }
 
         // If it was one of our cutom Preferences, show its dialog

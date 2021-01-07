@@ -30,7 +30,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import io.phobotic.nodyn_app.database.DatabaseOpenHelper;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 
 /**

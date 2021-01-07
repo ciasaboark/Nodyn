@@ -153,9 +153,9 @@ public class AssetDetailsFragment extends DialogFragment {
                 R.string.pref_key_asset_status_color), Boolean.parseBoolean(
                 getResources().getString(R.string.pref_default_asset_status_color)));
 
-        if (useStatusColor) {
-            fadeInStatusColor();
-        }
+//        if (useStatusColor) {
+//            fadeInStatusColor();
+//        }
 
     }
 
@@ -177,72 +177,72 @@ public class AssetDetailsFragment extends DialogFragment {
         }
     }
 
-    private void fadeInStatusColor() {
-        TypedValue typedValue = new TypedValue();
-        Resources.Theme theme = getContext().getTheme();
-        theme.resolveAttribute(R.attr.colorAccent, typedValue, true);
-        @ColorInt int color = typedValue.data;
-        try {
-            Database db = Database.getInstance(getContext());
-            List<Status> statuses = db.getStatuses();
-            for (Status status : statuses) {
-                if (status.getId() == asset.getStatusID()) {
-                    color = Color.parseColor(status.getColor());
-                    break;
-                }
-            }
-
-            int[] colors = {
-                    color
-            };
-            Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-            bitmap.eraseColor(color);
-            Palette p = Palette.from(bitmap).generate();
-
-            Palette.Swatch swatch = p.getVibrantSwatch();
-            if (swatch == null) {
-                swatch = p.getDominantSwatch();
-            }
-
-            if (swatch == null) {
-                swatch = p.getMutedSwatch();
-            }
-
-            if (swatch == null) {
-                swatch = p.getDarkMutedSwatch();
-            }
-
-            int textColor = swatch.getBodyTextColor();
-            int backgroundColor = swatch.getRgb();
-
-
-            ValueAnimator colorFade = ValueAnimator.ofObject(new ArgbEvaluator(),
-                    getResources().getColor(android.R.color.white), backgroundColor);
-            colorFade.setDuration(1000);
-            colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    int color = (int) animation.getAnimatedValue();
-                    headerBox.setBackgroundColor(color);
-                }
-            });
-            colorFade.start();
-
-            int curTextColor = tag.getCurrentTextColor();
-            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), curTextColor, textColor);
-            colorAnimation.setDuration(1000); // milliseconds
-            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    int color = (int) animation.getAnimatedValue();
-                    tag.setTextColor(color);
-                    status.setTextColor(color);
-                }
-            });
-            colorAnimation.start();
-        } catch (Exception e) {
-        }
-    }
+//    private void fadeInStatusColor() {
+//        TypedValue typedValue = new TypedValue();
+//        Resources.Theme theme = getContext().getTheme();
+//        theme.resolveAttribute(R.attr.colorAccent, typedValue, true);
+//        @ColorInt int color = typedValue.data;
+//        try {
+//            Database db = Database.getInstance(getContext());
+//            List<Status> statuses = db.getStatuses();
+//            for (Status status : statuses) {
+//                if (status.getId() == asset.getStatusID()) {
+//                    color = Color.parseColor(status.getColor());
+//                    break;
+//                }
+//            }
+//
+//            int[] colors = {
+//                    color
+//            };
+//            Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+//            bitmap.eraseColor(color);
+//            Palette p = Palette.from(bitmap).generate();
+//
+//            Palette.Swatch swatch = p.getVibrantSwatch();
+//            if (swatch == null) {
+//                swatch = p.getDominantSwatch();
+//            }
+//
+//            if (swatch == null) {
+//                swatch = p.getMutedSwatch();
+//            }
+//
+//            if (swatch == null) {
+//                swatch = p.getDarkMutedSwatch();
+//            }
+//
+//            int textColor = swatch.getBodyTextColor();
+//            int backgroundColor = swatch.getRgb();
+//
+//
+//            ValueAnimator colorFade = ValueAnimator.ofObject(new ArgbEvaluator(),
+//                    getResources().getColor(android.R.color.white), backgroundColor);
+//            colorFade.setDuration(1000);
+//            colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//                @Override
+//                public void onAnimationUpdate(ValueAnimator animation) {
+//                    int color = (int) animation.getAnimatedValue();
+//                    headerBox.setBackgroundColor(color);
+//                }
+//            });
+//            colorFade.start();
+//
+//            int curTextColor = tag.getCurrentTextColor();
+//            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), curTextColor, textColor);
+//            colorAnimation.setDuration(1000); // milliseconds
+//            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//                @Override
+//                public void onAnimationUpdate(ValueAnimator animation) {
+//                    int color = (int) animation.getAnimatedValue();
+//                    tag.setTextColor(color);
+//                    status.setTextColor(color);
+//                }
+//            });
+//            colorAnimation.start();
+//        } catch (Exception e) {
+//        }
+//    }
 
     private void unHideAllViews() {
         tag.setVisibility(View.VISIBLE);

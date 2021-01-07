@@ -16,7 +16,7 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/apk/res-auto"
@@ -25,13 +25,30 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
+    <RelativeLayout
+        android:id="@+id/status_color"
+        android:layout_width="10dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:background="#f3dcdf"
+        app:layout_constraintBottom_toBottomOf="@id/card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/card">
+    </RelativeLayout>
+
     <com.github.captain_miao.optroundcardview.OptRoundCardView
         android:id="@+id/card"
 
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:elevation="2dp"
+        android:foreground="?selectableItemBackground"
         android:transitionName="card"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/status_color"
+        app:layout_constraintTop_toTopOf="parent"
+        app:optRoundCardBackgroundColor="@color/generic_card_background_dark"
         app:optRoundCardBottomEdges="false"
         app:optRoundCardCornerRadius="@dimen/card_corner_radius"
         app:optRoundCardLeftBottomCorner="false"
@@ -40,7 +57,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:foreground="?selectableItemBackground"
             android:padding="16dp">
 
             <RelativeLayout
@@ -56,7 +72,9 @@
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:text="Asset Tag"
-                    android:textAppearance="@android:style/TextAppearance.Material.Medium"
+                    android:textColor="?android:textColorPrimary"
+                    android:textColorHighlight="?android:textColorPrimary"
+                    android:textSize="18sp"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -92,6 +110,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:layout_toEndOf="@+id/image"
                     android:orientation="horizontal">
 
@@ -100,9 +119,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+
                         android:layout_toEndOf="@+id/image"
                         android:layout_weight="1"
                         android:orientation="vertical">
@@ -120,6 +138,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_weight="1"
+
+                                android:tint="@color/white"
                                 app:srcCompat="@drawable/ic_devices_other_black_24dp"/>
 
                             <TextView
@@ -131,7 +151,8 @@
                                 android:ellipsize="end"
                                 android:maxLines="1"
                                 android:text="model"
-                                android:textAlignment="viewStart"/>
+                                android:textAlignment="viewStart"
+                                />
                         </LinearLayout>
 
                         <LinearLayout
@@ -147,7 +168,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_weight="1"
-                                app:srcCompat="@drawable/ic_barcode_grey600_24dp"/>
+                                app:srcCompat="@drawable/ic_barcode_white_24dp"/>
 
                             <TextView
                                 android:id="@+id/serial"
@@ -161,7 +182,8 @@
                                 android:fontFamily="monospace"
                                 android:maxLines="1"
                                 android:text="serial"
-                                android:textAlignment="viewStart"/>
+                                android:textAlignment="viewStart"
+                                android:textAppearance="@style/Text.Mono"/>
                         </LinearLayout>
                     </LinearLayout>
 
@@ -187,7 +209,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_weight="1"
-                                app:srcCompat="@drawable/ic_account_grey600_24dp"/>
+                                app:srcCompat="@drawable/ic_account_white_24dp"/>
 
                             <TextView
                                 android:id="@+id/user"
@@ -199,7 +221,8 @@
                                 android:layout_weight="1"
                                 android:gravity="right"
                                 android:text="user"
-                                android:textAlignment="viewEnd"/>
+                                android:textAlignment="viewEnd"
+                                />
 
                         </LinearLayout>
 
@@ -217,7 +240,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_weight="1"
-                                app:srcCompat="@drawable/ic_calendar_clock_grey600_24dp"/>
+                                app:srcCompat="@drawable/ic_calendar_clock_white_24dp"/>
 
                             <TextView
                                 android:id="@+id/checkout"
@@ -227,7 +250,8 @@
                                 android:layout_marginLeft="8dp"
                                 android:layout_marginStart="8dp"
                                 android:layout_weight="1"
-                                android:text="checkout"/>
+                                android:text="checkout"
+                                />
                         </LinearLayout>
 
                     </LinearLayout>
@@ -238,4 +262,4 @@
             </RelativeLayout>
         </RelativeLayout>
     </com.github.captain_miao.optroundcardview.OptRoundCardView>
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

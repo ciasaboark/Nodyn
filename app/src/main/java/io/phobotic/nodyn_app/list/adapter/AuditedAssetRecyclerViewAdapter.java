@@ -33,7 +33,7 @@ import java.util.Map;
 import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.audit.model.AuditDetailRecord;
+import io.phobotic.nodyn_app.database.audit.model.AuditDetail;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
@@ -45,14 +45,14 @@ import io.phobotic.nodyn_app.view.AuditedAssetView;
  */
 
 public class AuditedAssetRecyclerViewAdapter extends RecyclerView.Adapter<AuditedAssetRecyclerViewAdapter.ViewHolder> {
-    private final List<AuditDetailRecord> detailRecords;
+    private final List<AuditDetail> detailRecords;
     private final Context context;
     private final Database db;
     private OnAuditRemovedListener onAuditRemovedListener;
     private int lastPosition = -1;
     private Map<Integer, String> modelMap = new HashMap<>();
 
-    public AuditedAssetRecyclerViewAdapter(Context context, List<AuditDetailRecord> detailRecords) {
+    public AuditedAssetRecyclerViewAdapter(Context context, List<AuditDetail> detailRecords) {
         this.context = context;
         this.db = Database.getInstance(context);
         this.detailRecords = detailRecords;
@@ -68,7 +68,7 @@ public class AuditedAssetRecyclerViewAdapter extends RecyclerView.Adapter<Audite
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.position = position;
-        AuditDetailRecord record = detailRecords.get(position);
+        AuditDetail record = detailRecords.get(position);
         holder.record = record;
         AuditedAssetView auditedAssetView = (AuditedAssetView) holder.view;
         auditedAssetView.collapse(false);
@@ -112,7 +112,7 @@ public class AuditedAssetRecyclerViewAdapter extends RecyclerView.Adapter<Audite
     }
 
     public void removeAt(int position) {
-        AuditDetailRecord detailRecord = detailRecords.remove(position);
+        AuditDetail detailRecord = detailRecords.remove(position);
         notifyItemRemoved(position);
         try {
             Database db = Database.getInstance(context);
@@ -143,14 +143,14 @@ public class AuditedAssetRecyclerViewAdapter extends RecyclerView.Adapter<Audite
     }
 
     public interface OnAuditRemovedListener {
-        void onAssetRemoved(@NotNull AuditDetailRecord auditDetailRecord);
+        void onAssetRemoved(@NotNull AuditDetail auditDetailRecord);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View view;
         public final Button deleteButton;
         public int position;
-        public AuditDetailRecord record;
+        public AuditDetail record;
 
         public ViewHolder(View view) {
             super(view);

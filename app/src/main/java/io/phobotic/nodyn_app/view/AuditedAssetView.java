@@ -39,7 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.audit.model.AuditDetailRecord;
+import io.phobotic.nodyn_app.database.audit.model.AuditDetail;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.helper.AnimationHelper;
@@ -52,7 +52,7 @@ import io.phobotic.nodyn_app.helper.ColorHelper;
 public class AuditedAssetView extends RelativeLayout {
     private static final String TAG = AuditedAssetView.class.getSimpleName();
     private final Context context;
-    private AuditDetailRecord detailRecord;
+    private AuditDetail detailRecord;
     private View rootView;
     private TextView serial;
     private TextView model;
@@ -75,7 +75,7 @@ public class AuditedAssetView extends RelativeLayout {
         this(context, attrs, null);
     }
 
-    public AuditedAssetView(@NotNull Context context, AttributeSet attrs, @Nullable AuditDetailRecord detalRecord) {
+    public AuditedAssetView(@NotNull Context context, AttributeSet attrs, @Nullable AuditDetail detalRecord) {
         super(context, attrs);
         this.context = context;
         this.detailRecord = detalRecord;
@@ -294,19 +294,19 @@ public class AuditedAssetView extends RelativeLayout {
         switch (button.getId()) {
             case R.id.radio_state_damaged:
                 if (checked)
-                    detailRecord.setStatus(AuditDetailRecord.Status.DAMAGED);
+                    detailRecord.setStatus(AuditDetail.Status.DAMAGED);
                 break;
             case R.id.radio_state_undamaged:
                 if (checked)
-                    detailRecord.setStatus(AuditDetailRecord.Status.UNDAMAGED);
+                    detailRecord.setStatus(AuditDetail.Status.UNDAMAGED);
                 break;
             case R.id.radio_state_unknown:
                 if (checked)
-                    detailRecord.setStatus(AuditDetailRecord.Status.OTHER);
+                    detailRecord.setStatus(AuditDetail.Status.OTHER);
                 break;
             case R.id.radio_state_unexpected:
                 if (checked)
-                    detailRecord.setStatus(AuditDetailRecord.Status.UNEXPECTED);
+                    detailRecord.setStatus(AuditDetail.Status.UNEXPECTED);
                 break;
         }
     }
@@ -323,11 +323,11 @@ public class AuditedAssetView extends RelativeLayout {
         return this;
     }
 
-    public AuditDetailRecord getDetailRecord() {
+    public AuditDetail getDetailRecord() {
         return detailRecord;
     }
 
-    public AuditedAssetView setDetailRecord(AuditDetailRecord detailRecord) {
+    public AuditedAssetView setDetailRecord(AuditDetail detailRecord) {
         this.detailRecord = detailRecord;
         setFields();
         return this;

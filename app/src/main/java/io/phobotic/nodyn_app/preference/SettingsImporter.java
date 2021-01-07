@@ -18,7 +18,6 @@
 package io.phobotic.nodyn_app.preference;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,6 +29,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.BuildConfig;
 import io.phobotic.nodyn_app.R;
@@ -101,7 +102,7 @@ public class SettingsImporter {
             warning.setText(String.format(activity.getString(R.string.import_warning_version), str));
         }
 
-        final AlertDialog d = new AlertDialog.Builder(activity)
+        final AlertDialog d = new MaterialAlertDialogBuilder(activity, R.style.Widgets_Dialog)
                 .setTitle(R.string.import_dialog_title)
                 .setView(v)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

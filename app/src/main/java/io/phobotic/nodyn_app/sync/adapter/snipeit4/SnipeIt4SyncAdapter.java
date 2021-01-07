@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.logging.Filter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,10 +55,15 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
+import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
+import io.phobotic.nodyn_app.database.audit.model.AuditDetail;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.helper.FilterHelper;
+import io.phobotic.nodyn_app.database.model.Company;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Category;
 import io.phobotic.nodyn_app.database.model.FullDataModel;
@@ -78,6 +84,7 @@ import io.phobotic.nodyn_app.sync.adapter.snipeit4.response.ActivityResponse;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.response.AssetResponse;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.response.CategoryResponse;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.response.CheckoutResponse;
+import io.phobotic.nodyn_app.sync.adapter.snipeit4.response.CompanyResponse;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.response.GroupResponse;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.response.MaintenanceResponse;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.response.ManufacturersResponse;
@@ -88,6 +95,7 @@ import io.phobotic.nodyn_app.sync.adapter.snipeit4.response.UserResponse;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.Snipeit4Activity;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.Snipeit4Asset;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.Snipeit4Category;
+import io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.Snipeit4Company;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.Snipeit4Group;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.Snipeit4MaintenanceRecord;
 import io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.Snipeit4Manufacturer;
@@ -108,10 +116,12 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     private static final String MODELS_URL_PART = "/api/v1/models";
     private static final String USERS_URL_PART = "/api/v1/users";
     private static final String MANUFACTURER_URL_PART = "/api/v1/manufacturers";
+    private static final String COMPANY_URL_PART = "/api/v1/companies";
     private static final String GROUPS_URL_PART = "/api/v1/groups";
     private static final String CATEGORIES_URL_PART = "/api/v1/categories";
     private static final String STATUS_URL_PART = "/api/v1/statuslabels";
     private static final String MAINT_URL_PART = "/api/v1/maintenances";
+    private static final String AUDIT_URL_PART = "/api/v1/hardware/audit";
     private static final int SHORT_TIMEOUT = 1000 * 30;
     private static final Integer DEFAULT_CONNECTION_TIMEOUT = 1000 * 30;
     private static final Integer DEFAULT_READ_TIMEOUT = 1000 * 60;
@@ -128,6 +138,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     private static final int PROGRESS_GROUPS = 50;
     private static final int PROGRESS_STATUSES = 60;
     private static final int PROGRESS_MANUFACTURERS = 70;
+    private static final int PROGRESS_COMPANIES = 80;
     private static final int PROGRESS_DB_UPDATE = 90;
     private Gson gson = new Gson();
     private HttpURLConnection conn;
@@ -137,22 +148,86 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         sendMessageBroadcast(context, message);
         Log.i(TAG, "Beginning fetching list of assets");
         List<Asset> assets = new ArrayList<>();
-        List<String> parts = fetchParts(context, ASSET_URL_PART, new ProgressListener() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        //only search for the specific asset models this device is allowed to check out
+        boolean isAllModelsAllowed = prefs.getBoolean(context.getString(R.string.pref_key_check_out_all_models),
+                Boolean.parseBoolean(context.getString(R.string.pref_default_check_out_all_models)));
+
+        if (isAllModelsAllowed) {
+            assets = fetchAssetParts(context, "Fetching all assets", ASSET_URL_PART);
+        } else {
+            Set<String> allowedModels = prefs.getStringSet(context.getString(R.string.pref_key_check_out_models),
+                    new HashSet<String>());
+            assets = fetchAssetPartsFromModelList(context, allowedModels);
+        }
+
+        Database db = Database.getInstance(context);
+
+        Log.i(TAG, String.format("Finished building list of assets. Found %d total assets.", assets.size()));
+        return assets;
+    }
+
+    /**
+     * Fetch a list of all assets from the backend service that have a model ID listed in the provided set
+     * @param context
+     * @param prefs
+     * @param allowedModels
+     * @param db
+     * @return
+     */
+    private List<Asset> fetchAssetPartsFromModelList(final Context context, Set<String> allowedModels) {
+        List<Asset> assets = new ArrayList<>();
+        Database db = Database.getInstance(context);
+
+        for (String modelNo: allowedModels) {
+            int modelID;
+            try {
+                modelID = Integer.parseInt(modelNo);
+                String progressMessage = "Fetching model";
+                try {
+                    Model m = db.findModelByID(modelID);
+                    progressMessage = String.format("Fetching assets (model %s)", m.getName());
+                } catch (ModelNotFoundException e) {
+
+                }
+
+                String baseURL = String.format("%s?model_id=%d", ASSET_URL_PART, modelID);
+
+                List<Asset> modelAssets = fetchAssetParts(context, progressMessage, baseURL);
+                assets.addAll(modelAssets);
+            } catch (Exception e) {
+                Crashlytics.logException(e);
+                Log.e(TAG, String.format("Unable to parse model id %s as integer value, skipping this model", modelNo));
+            }
+        }
+
+        return assets;
+    }
+
+    private List<Asset> fetchAssetParts(final Context context, final String progressMessage,
+                                 String baseURL) throws SyncException {
+        List<Asset> assets = new ArrayList<>();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        List<String> parts = fetchParts(context, baseURL, new ProgressListener() {
             @Override
             public void onProgressUpdate(int progress, int total) {
+                Log.d(TAG, String.format("Progress update p: %d, t: %d", progress, total));
                 float curProgress = ((float) progress / (float) total);
                 curProgress *= 100f;
-                sendProgressBroadcast(context, message, "Fetching parts", PROGRESS_ASSETS,
+
+                String subMessage = String.format("Page %d of %d", progress, total);
+                sendProgressBroadcast(context, progressMessage, subMessage, PROGRESS_ASSETS,
                         (int) curProgress, "fetch_assets");
             }
         });
         Log.i(TAG, String.format("Finished fetching asset list with a total of %d pages", parts.size()));
-        //convert the JSON pages back into a list of users
+        //convert the JSON pages back into a list of assets
         for (String part : parts) {
             AssetResponse response = gson.fromJson(part, AssetResponse.class);
             List<Snipeit4Asset> resultObjects = response.getAssets();
             sendDebugBroadcast(context, "Found " + resultObjects.size() + " assets");
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             boolean isServerUTC = prefs.getBoolean(context.getString(R.string.pref_key_snipeit4_utc_time),
                     Boolean.parseBoolean(context.getString(R.string.pref_default_snipeit4_utc_time)));
 
@@ -163,7 +238,6 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             }
         }
 
-        Log.i(TAG, String.format("Finished building list of assets. Found %d total assets.", assets.size()));
         return assets;
     }
 
@@ -241,7 +315,13 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             Log.i(TAG, String.format("Fetching data from %s with offset of %d and max records of " +
                     "%d", baseURL, offset, MAX_RECORD_DOWNLOAD));
             StringBuilder sb = new StringBuilder(baseURL);
-            sb.append("?limit=" + MAX_RECORD_DOWNLOAD);
+            String initialSeparator = "?";
+            if (baseURL.contains("?" )) {
+                initialSeparator = "&";
+            }
+
+            sb.append(initialSeparator);
+            sb.append("limit=" + MAX_RECORD_DOWNLOAD);
             sb.append("&offset=" + offset);
 
             String result = getPageContent(context, getUrl(context, sb.toString()));
@@ -252,9 +332,12 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
             //are there any more pages of data left?  If so call outselves recursivly with a reset try count
             //we can assume that we have reached this record number
-            int curProgress = offset + MAX_RECORD_DOWNLOAD;
+            int curProgress = Math.min(offset + MAX_RECORD_DOWNLOAD, response.getTotal());
+
+            int curPage = 1 + (offset / MAX_RECORD_DOWNLOAD);
+            int totalPages = (int) Math.ceil((double)response.getTotal() / MAX_RECORD_DOWNLOAD);
             if (listener != null) {
-                listener.onProgressUpdate(curProgress, response.getTotal());
+                listener.onProgressUpdate(curPage, totalPages);
             }
 
             if (curProgress >= response.getTotal()) {
@@ -502,9 +585,35 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         return manufacturers;
     }
 
+    private List<Company> fetchCompanies(Context context) throws SyncException {
+        sendMessageBroadcast(context, "Fetching companies");
+        List<Company> companies = new ArrayList<>();
+
+        try {
+            String companyResult = getPageContent(context, getUrl(context, COMPANY_URL_PART));
+            CompanyResponse companyResponse = gson.fromJson(companyResult, CompanyResponse.class);
+            List<Snipeit4Company> snipeit4Companies = companyResponse.getCompanies();
+            sendDebugBroadcast(context, "Found " + snipeit4Companies.size() + " companies");
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            boolean isServerUTC = prefs.getBoolean(context.getString(R.string.pref_key_snipeit4_utc_time),
+                    Boolean.parseBoolean(context.getString(R.string.pref_default_snipeit4_utc_time)));
+
+            for (Snipeit4Company snipeit4Company : snipeit4Companies) {
+                companies.add(snipeit4Company.toCompany(isServerUTC));
+            }
+        } catch (Exception e) {
+            sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
+            e.printStackTrace();
+            throw new SyncException("Unable to fetch companies");
+        }
+
+        return companies;
+    }
+
     @Override
     public String getAdapterName() {
-        return "Snipe-it";
+        return "Snipe-it 4.x";
     }
 
     @Override
@@ -532,6 +641,9 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             sendProgressBroadcast(context, PROGRESS_MANUFACTURERS);
             List<Manufacturer> manufacturers = fetchManufacturers(context);
 
+            sendProgressBroadcast(context, PROGRESS_COMPANIES);
+            List<Company> companies = fetchCompanies(context);
+
 
             sendProgressBroadcast(context, PROGRESS_DB_UPDATE);
             sendMessageBroadcast(context, "Updating database");
@@ -542,7 +654,8 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                     .setManufacturers(manufacturers)
                     .setCategories(categories)
                     .setGroups(groups)
-                    .setStatuses(statuses);
+                    .setStatuses(statuses)
+                    .setCompanies(companies);
 
             sendProgressBroadcast(context, 100);
 
@@ -605,7 +718,8 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             }
         }
 
-        if (expectedCheckin != null) {
+        //expected checkin date may be null or -1 if the asset should be checked out indefinately
+        if (expectedCheckin != -1 && expectedCheckin != null) {
             Date d = new Date(expectedCheckin);
             String expectedCheckinString = df.format(d);
             try {
@@ -733,12 +847,12 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
                         User user = db.findUserByID(action.getUserID());
                         //did the associate checking out the asset have to agree to the eula?
-                        notes.append(" EULA accepted: " + action.isVerified() + ".");
+                        notes.append(" EULA shown: " + action.isVerified() + ".");
                         checkoutAssetTo(context, asset.getId(), asset.getTag(), user.getId(),
                                 action.getTimestamp(), action.getExpectedCheckin(), notes.toString());
                         break;
                     default:
-                        listener.onActionSyncError(action, null, "Unknown direction " +
+                        listener.onActionSyncFatalError(action, null, "Unknown direction " +
                                 action.getDirection());
                 }
 
@@ -750,38 +864,35 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             //+ and continue on the the next one
             catch (UserNotFoundException e) {
                 e.printStackTrace();
-                listener.onActionSyncError(action, e, "Unable to find user in database with " +
+                listener.onActionSyncFatalError(action, e, "Unable to find user in database with " +
                         "username: '" + action.getUserID() + "'");
             } catch (AssetNotFoundException e) {
                 e.printStackTrace();
-                listener.onActionSyncError(action, e, "Unable to find asset in database with " +
+                listener.onActionSyncFatalError(action, e, "Unable to find asset in database with " +
                         "tag: '" + action.getAssetID() + "'");
             } catch (CheckinException e) {
                 e.printStackTrace();
-                listener.onActionSyncError(action, e, "Unable to check in asset with ID: '" +
+                listener.onActionSyncFatalError(action, e, "Unable to check in asset with ID: '" +
                         action.getAssetID() + "'");
             } catch (CheckoutException e) {
                 e.printStackTrace();
-                listener.onActionSyncError(action, e, "Unable to check out asset with ID: '" +
+                listener.onActionSyncFatalError(action, e, "Unable to check out asset with ID: '" +
                         action.getAssetID() + "' to user ID " + action.getUserID());
             }
 
             //all other exceptions we will keep the action un-synced so we can try again later
             catch (ParseException e) {
+                Crashlytics.logException(e);
                 e.printStackTrace();
                 Log.e(TAG, "Caught parse exception reading response from server.  Action " +
                         "will remain unsynced and will be included in sync exception report");
-                action.setSynced(false);
-                db.insertAction(action);
-                listener.onActionSyncError(action, e, "Caught parse exception reading " +
+                listener.onActionSyncRecoverableError(action, e, "Caught parse exception reading " +
                         "response from server.");
             } catch (Exception e) {
-
-                Log.d(TAG, "Caught non-fatal error pushing action item, this action will " +
+                Log.e(TAG, "Caught non-fatal error pushing action item, this action will " +
                         "remain unsynced " + action.toString() +
                         ": [" + e.getClass().getSimpleName() + "->" + e.getMessage() + "]");
-                action.setSynced(false);
-                db.insertAction(action);
+                listener.onActionSyncRecoverableError(action, e, "Caught general Exception while syncing action item");
             }
             subProgress += percent;
 
@@ -790,15 +901,6 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         sendProgressBroadcast(context, message, null, 0, 100, key);
     }
 
-    @Override
-    public void markActionItemsSynced(Context context, List<Action> actions) {
-        Database db = Database.getInstance(context);
-
-        for (Action action : actions) {
-            action.setSynced(true);
-            db.insertAction(action);
-        }
-    }
 
     @Override
     public List<MaintenanceRecord> getMaintenanceRecords(Context context, Asset asset) throws SyncException,
@@ -830,6 +932,38 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         return maintenanceRecords;
     }
 
+    @NotNull
+    @Override
+    public Asset getAsset(@NotNull Context context, @NotNull Asset asset) throws SyncNotSupportedException, SyncException {
+        Asset a = null;
+        int id = asset.getId();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean isServerUTC = prefs.getBoolean(context.getString(R.string.pref_key_snipeit4_utc_time),
+                Boolean.parseBoolean(context.getString(R.string.pref_default_snipeit4_utc_time)));
+
+        try {
+            String url = String.format("%s/%d", ASSET_URL_PART, id);
+            String result = getPageContent(context, getUrl(context, url));
+            Log.d(TAG, result);
+            Snipeit4Asset snipeit4Asset = gson.fromJson(result, Snipeit4Asset.class);
+
+            a = snipeit4Asset.toAsset(isServerUTC);
+        } catch (Exception e) {
+            Crashlytics.logException(e);
+            String message = String.format("Unable to fetch up to date asset information for asset ID %d: %s", id, e.getMessage());
+            Log.e(TAG, String.format(message));
+            throw new SyncException(message);
+        }
+
+
+        if (a == null) {
+            throw new SyncException("Unable to fetch details for asset. An unknown error occurred");
+        }
+
+        return a;
+    }
+
+
     @Override
     public List<Action> getAssetActivity(Context context, Asset asset, int page) throws SyncException,
             SyncNotSupportedException {
@@ -859,9 +993,16 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             ActivityResponse activityResponse = gson.fromJson(statusResult, ActivityResponse.class);
             List<Snipeit4Activity> snipeit4ActivityList = activityResponse.getActivityList();
 
+            List<Action> filterList = new ArrayList();
             for (Snipeit4Activity snipeit4Activity : snipeit4ActivityList) {
-                actionList.add(snipeit4Activity.toAction(isServerUTC));
+                Action action = snipeit4Activity.toAction(isServerUTC);
+                filterList.add(action);
             }
+
+            //filter the list to exclude actions for other companies or for asset models we are not
+            //+ interested in.
+            FilterHelper.filterActions(context, filterList);
+            actionList.addAll(filterList);
         } catch (Exception e) {
             e.printStackTrace();
             throw new SyncException("Unable to fetch activity records: " + e.getMessage());
@@ -884,12 +1025,12 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     }
 
     @Override
+    public List<Action> getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException {
+        return getActivityToCutoff(context, cutoff);
+    }
+
+    @Override
     public List<Action> getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
-        //convert the page into a record offset
-        final int pageSize = 50;
-        int page = 0;
-
-
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMinimum(Calendar.HOUR_OF_DAY));
         calendar.set(Calendar.MINUTE, calendar.getActualMinimum(Calendar.MINUTE));
@@ -898,12 +1039,26 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         calendar.add(Calendar.DAY_OF_MONTH, -30);
         long cutoff = calendar.getTimeInMillis();
 
+        return getActivityToCutoff(context, cutoff);
+    }
+
+    private List<Action> getActivityToCutoff(@NotNull Context context, long cutoff) throws SyncException,
+            SyncNotSupportedException {
+        //convert the page into a record offset
+        final int pageSize = 50;
+        int page = 0;
+
         List<Action> actionList = new ArrayList<>();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         boolean isServerUTC = prefs.getBoolean(context.getString(R.string.pref_key_snipeit4_utc_time),
                 Boolean.parseBoolean(context.getString(R.string.pref_default_snipeit4_utc_time)));
+
+        //We can't prefilter the action history coming from SnipeIt.  It is possible that most (or all)
+        //+ of the history will be stripped because it is for a company or model we aren't using.  Limit
+        //+ the maximum number of pages we can pull before we give up
+        int maxPageCount = 99;
         boolean keepFetching = true;
-        while (keepFetching) {
+        while (page <= maxPageCount && keepFetching) {
             try {
                 int offset = page * pageSize;
                 String url = ACTIVITY_URL_PART;
@@ -913,13 +1068,21 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 ActivityResponse activityResponse = gson.fromJson(statusResult, ActivityResponse.class);
                 List<Snipeit4Activity> snipeit4ActivityList = activityResponse.getActivityList();
 
+                //no more history to pull
                 if (snipeit4ActivityList.isEmpty()) {
                     keepFetching = false;
                     break;
                 }
 
+                List<Action> filterList = new ArrayList();
                 for (Snipeit4Activity snipeit4Activity : snipeit4ActivityList) {
                     Action action = snipeit4Activity.toAction(isServerUTC);
+                    filterList.add(action);
+                }
+
+                FilterHelper.filterActions(context, filterList);
+
+                for (Action action: filterList) {
                     //stop fetching as soon as we hit the first action record that occurred before
                     //+ the cutoff
                     if (action.getTimestamp() < cutoff) {
@@ -937,6 +1100,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             }
         }
 
+        Log.d(TAG, String.format("Found %d action history records", actionList.size()));
         return actionList;
     }
 
@@ -953,8 +1117,46 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         return d;
     }
 
+    @Override
+    public void recordAudit(@NotNull Context context, @NotNull Audit audit) {
+        try {
+            Database db = Database.getInstance(context);
+            List<AuditDetail> records = audit.getDetails();
+            for (AuditDetail record: records) {
+                //Snipeit only has limited support for recording audits, basically just a timestamp
+                //+ Skip any detail records for assets that have a status of NOT_AUDITED
+                switch (record.getStatus()) {
+                    case OTHER:
+                    case DAMAGED:
+                    case UNEXPECTED:
+                    case UNDAMAGED:
+                        tryRecordAssetAudit(context, db, record);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, String.format("Unable to record audit record: %s", e.getMessage()));
+        }
+    }
+
+    private void tryRecordAssetAudit(@NotNull Context context, @NotNull Database db,
+                                     @NotNull AuditDetail record) {
+        int assetID = record.getAssetID();
+        try {
+            Asset asset = db.findAssetByID(assetID);
+            String params = String.format("asset_tag=%s", asset.getTag());
+            sendPost(context, getUrl(context, AUDIT_URL_PART), params);
+        } catch (AssetNotFoundException e) {
+            Log.e(TAG, String.format("Skipping sending audit results for asset ID %d. This asset " +
+                    "could not be found", assetID));
+        } catch (Exception e) {
+            Crashlytics.logException(e);
+            Log.e(TAG, String.format("Caught exception recording audit for asset id %d: %s",
+                    assetID, e.getMessage()));
+        }
+    }
+
     private String getPageContent(Context context, String url) throws Exception {
-        return getPageContent(context, url, DEFAULT_CONNECTION_TIMEOUT, DEFAULT_READ_TIMEOUT);
+        return getPageContent(context, url, DEFAULT_CONNECTION_TIMEOUT, DEFAULT_READ_TIMEOUT, 1);
     }
 
     private String getUrl(Context context, String url) {
@@ -1060,48 +1262,69 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
     }
 
     private String getPageContent(Context context, String url, Integer connectionTimeout,
-                                  Integer readTimeout) throws Exception {
+                                  Integer readTimeout, Integer tryCount) throws Exception {
+        if (tryCount > MAX_TRY_COUNT) {
+
+        }
         sendDebugBroadcast(context, "Fetching json data from: " + url);
 
-        URL obj = new URL(url);
-        Log.d(TAG, "Sending 'GET' request to URL : " + url);
-        conn = (HttpURLConnection) obj.openConnection();
+        String result = "";
 
-        // default is GET
-        conn.setRequestMethod("GET");
 
-        conn.setUseCaches(false);
-        if (connectionTimeout != null) {
-            conn.setConnectTimeout(connectionTimeout);
+        try {
+
+            URL obj = new URL(url);
+            Log.d(TAG, "Sending 'GET' request to URL : " + url);
+            conn = (HttpURLConnection) obj.openConnection();
+
+            // default is GET
+            conn.setRequestMethod("GET");
+
+            conn.setUseCaches(false);
+            if (connectionTimeout != null) {
+                conn.setConnectTimeout(connectionTimeout);
+            }
+
+            if (readTimeout != null) {
+                conn.setReadTimeout(readTimeout);
+            }
+
+            conn.setRequestProperty("Authorization", "Bearer " + getAPIKey(context));
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
+                throw new ForbiddenException("HTTP 403 error.  Access forbidden");
+            } else if (responseCode != HttpURLConnection.HTTP_OK) {
+                throw new Exception(String.format("Server responded with error code %d", responseCode));
+            }
+
+            Log.d(TAG, "Response Code : " + responseCode);
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            result = response.toString();
+        } catch (Exception e) {
+            Log.d(TAG, String.format("Caught exception %s fetching page content from %s " +
+                    "on try %d: %s", e.getClass().getSimpleName(), url, tryCount, e.getMessage()));
+            if (tryCount >= MAX_TRY_COUNT) {
+                throw new Exception("Unable to fetch data.  Max try limit reached: " + e.getMessage());
+            } else {
+                tryCount += 1;
+                getPageContent(context, url, connectionTimeout, readTimeout, tryCount);
+            }
         }
 
-        if (readTimeout != null) {
-            conn.setReadTimeout(readTimeout);
-        }
 
-        conn.setRequestProperty("Authorization", "Bearer " + getAPIKey(context));
-        conn.setRequestProperty("Accept", "application/json");
-        conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-
-        int responseCode = conn.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
-            throw new ForbiddenException("HTTP 403 error.  Access forbidden");
-        } else if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw new Exception(String.format("Server responded with error code %d", responseCode));
-        }
-
-        Log.d(TAG, "Response Code : " + responseCode);
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        return response.toString();
+        return result;
     }
 
     private String sendPost(Context context, String url, String postParams) throws Exception {

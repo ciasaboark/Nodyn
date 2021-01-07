@@ -32,7 +32,7 @@ import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Status;
 import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.service.FailedActions;
+import io.phobotic.nodyn_app.database.sync.SyncedAction;
 
 /**
  * Created by Jonathan Nelson on 8/29/17.
@@ -122,20 +122,20 @@ public class ActionHtmlFormatter {
 //            "</div>";
 
 
-    public static String formatActionAsHtml(Context context, FailedActions action) {
+    public static String formatActionAsHtml(Context context, SyncedAction action) {
         Database db = Database.getInstance(context);
         StringBuilder sb = new StringBuilder();
         sb.append(PRE);
-        String direction = action.getAction().getDirection().toString();
+        String direction = action.getDirection();
         sb.append(String.format(ACTION, direction));
         DateFormat df = DateFormat.getDateTimeInstance();
-        Date d = new Date(action.getAction().getTimestamp());
+        Date d = new Date(action.getTimestamp());
         String date = df.format(d);
         sb.append(String.format(TIMESTAMP, date));
 
         //wite the asset tag if possible, otherwise just use the asset id provided in the action
         try {
-            Asset asset = db.findAssetByID(action.getAction().getAssetID());
+            Asset asset = db.findAssetByID(action.getAssetID());
             sb.append(String.format(ASSET_ID, asset.getTag()));
             if (asset.getSerial() != null && asset.getSerial().length() > 0) {
                 sb.append(String.format(SERIAL_NO, asset.getSerial()));
@@ -151,17 +151,17 @@ public class ActionHtmlFormatter {
         } catch (AssetNotFoundException e) {
             //if fetching the asset failed, then only write the asset id and do not insert
             //+ the serial or status
-            sb.append(String.format(ASSET_ID, action.getAction().getAssetID()));
+            sb.append(String.format(ASSET_ID, action.getAssetID()));
 
         }
 
         //try to write the username if possible, use the user ID number if required
         try {
-            User user = db.findUserByID(action.getAction().getUserID());
+            User user = db.findUserByID(action.getUserID());
             sb.append(String.format(USER, user.getName()));
             sb.append(String.format(LOGIN, user.getUsername()));
         } catch (UserNotFoundException e) {
-            sb.append(String.format(USER, action.getAction().getUserID()));
+            sb.append(String.format(USER, action.getUserID()));
         }
 
         //the rest of the properties are nullable
@@ -169,9 +169,9 @@ public class ActionHtmlFormatter {
             sb.append(String.format(MESSAGE, action.getMessage()));
         }
 
-        if (action.getException() != null) {
-            sb.append(String.format(EXCEPTION_CLASS, action.getException().getClass().getSimpleName()));
-            sb.append(String.format(EXCEPTION_MESSAGE, action.getException().getMessage()));
+        if (action.getExceptionType() != null) {
+            sb.append(String.format(EXCEPTION_CLASS, action.getExceptionType()));
+            sb.append(String.format(EXCEPTION_MESSAGE, action.getExceptionMessage()));
         }
 
         sb.append(POST);

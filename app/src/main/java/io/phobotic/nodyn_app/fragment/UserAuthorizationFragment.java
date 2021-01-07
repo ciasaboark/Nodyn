@@ -41,6 +41,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -50,7 +51,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
@@ -80,11 +80,8 @@ public class UserAuthorizationFragment extends Fragment {
 
     private OnUserAuthorizedListener listener;
     private View rootView;
-    private FloatingActionButton fabGo;
+    private ExtendedFloatingActionButton nextButton;
     private TextView groups;
-    private TextView authenticatedMessage;
-    private CardView card;
-    private View cardContent;
     private User authorizedUser;
     private Button deauthorizeButton;
     private Database db;
@@ -190,10 +187,7 @@ public class UserAuthorizationFragment extends Fragment {
 
     private void init() {
         title = rootView.findViewById(R.id.title);
-        card = rootView.findViewById(R.id.card);
-        card.setVisibility(View.GONE);
-        cardContent = rootView.findViewById(R.id.card_content);
-        cardContent.setVisibility(View.INVISIBLE);
+
 
         error = rootView.findViewById(R.id.error);
         error.setVisibility(View.GONE);
@@ -201,48 +195,6 @@ public class UserAuthorizationFragment extends Fragment {
         inputBox = rootView.findViewById(R.id.input_box);
         inputBox.setVisibility(View.VISIBLE);
         badgeScanner = rootView.findViewById(R.id.badge_scanner);
-        authenticatedMessage = rootView.findViewById(R.id.authenticated_message);
-
-        deauthorizeButton = rootView.findViewById(R.id.unauthorize_button);
-        deauthorizeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //reset the fragment view state to show a blank card without the bottom area
-                authorizedUser = null;
-                fabGo.setEnabled(false);
-                deauthorizeButton.setEnabled(false);
-
-                Animation bottomDown = AnimationUtils.loadAnimation(getContext(), R.anim.exit_down);
-                bottomDown.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        cardContent.setVisibility(View.INVISIBLE);
-                        card.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-                bottomDown.setDuration(400);
-
-                card.setAnimation(bottomDown);
-                card.animate();
-
-                AnimationHelper.expandAndFadeIn(getContext(), message);
-                AnimationHelper.collapse(error);
-
-
-                //handle the badge scanner reset last so that input focus returns to the scanner
-                badgeScanner.reset();
-            }
-        });
 
         message = rootView.findViewById(R.id.message);
         message.setVisibility(View.VISIBLE);
@@ -256,7 +208,7 @@ public class UserAuthorizationFragment extends Fragment {
 
 
         initTextViews();
-        initFabs();
+        initButtons();
         initGroupList();
         initInput();
     }
@@ -279,15 +231,39 @@ public class UserAuthorizationFragment extends Fragment {
     }
 
 
-    private void initFabs() {
-        fabGo = rootView.findViewById(R.id.fab_go);
+    private void initButtons() {
+        nextButton = rootView.findViewById(R.id.fab_go);
 
-        fabGo.setOnClickListener(new View.OnClickListener() {
+        nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {
                     listener.onUserAuthorized(authorizedUser);
                 }
+            }
+        });
+
+        nextButton.setEnabled(false);
+
+
+        deauthorizeButton = rootView.findViewById(R.id.unauthorize_button);
+        deauthorizeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //reset the fragment view state to show a blank card without the bottom area
+                authorizedUser = null;
+                nextButton.setEnabled(false);
+                AnimationHelper.scaleOut(nextButton);
+
+                deauthorizeButton.setEnabled(false);
+                AnimationHelper.scaleOut(deauthorizeButton);
+
+                AnimationHelper.expandAndFadeIn(getContext(), message);
+                AnimationHelper.collapse(error);
+
+
+                //handle the badge scanner reset last so that input focus returns to the scanner
+                badgeScanner.reset();
             }
         });
     }
@@ -407,121 +383,13 @@ public class UserAuthorizationFragment extends Fragment {
                 break;
         }
 
-        authenticatedMessage.setText(message);
-        fabGo.setEnabled(true);
+        nextButton.setEnabled(true);
+        AnimationHelper.scaleIn(nextButton);
+
         deauthorizeButton.setEnabled(true);
+        AnimationHelper.scaleIn(deauthorizeButton);
+
         badgeScanner.disableInput();
-
-        //show the bottom card then animate in the card content
-        Animation bottomUp = AnimationUtils.loadAnimation(getContext(), R.anim.enter_from_bottom);
-        bottomUp.setDuration(600);
-        bottomUp.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                card.setVisibility(View.VISIBLE);
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                animateUpFabs();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        card.setAnimation(bottomUp);
-        card.animate();
-
-        animateCardReveal();
-    }
-
-    private void animateUpFabs() {
-        Resources res = getResources();
-        @ColorInt int fabGoFinalColor = ColorHelper.getStyleAccentColor(getContext());
-        animateUpFab(fabGo, fabGoFinalColor);
-
-//        @ColorInt int deauthorizeFinalColor = res.getColor(R.color.grey300);
-//        animateUpFab(deauthorizeButton, deauthorizeFinalColor);
-    }
-
-    private void animateCardReveal() {
-        final Resources res = getResources();
-        int x = card.getLeft();
-        int y = card.getTop();
-        int startRadius = 0;
-        int endRadius = (int) Math.hypot(rootView.getWidth(), rootView.getHeight());
-        Animator anim = ViewAnimationUtils.createCircularReveal(cardContent, x, y, startRadius, endRadius);
-
-        anim.setDuration(700);
-        anim.setStartDelay(200);
-        anim.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                cardContent.setVisibility(View.VISIBLE);
-
-                fabGo.setElevation(0f);
-                fabGo.setBackgroundTintList(ColorStateList.valueOf(res.getColor(R.color.white)));
-                deauthorizeButton.setElevation(0f);
-                deauthorizeButton.setBackgroundTintList(ColorStateList.valueOf(res.getColor(R.color.white)));
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                //we need to be careful here.  When using keyboard input (like with a
-                //+ barcode scanner) the focus may have shifted back to the close
-                //+ button in the toolbar.  Scanning another barcode will typically
-                //+ end with a carrage return, which will trigger the activity close.
-                //+ Shift focus to the fab, so that any errant scans will not close the authentication
-                if (getActivity() != null) {
-                    View v = getActivity().getCurrentFocus();
-                    if (v != null) v.clearFocus();
-
-                    rootView.requestFocus();
-                }
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-
-        anim.start();
-    }
-
-    @NonNull
-    private void animateUpFab(final FloatingActionButton fab, @ColorInt int finalColor) {
-        //animate the arrow next fab
-        ValueAnimator backgroundTint = ValueAnimator.ofInt(Color.rgb(255, 255, 255), finalColor);
-        backgroundTint.setEvaluator(new ArgbEvaluator());
-        backgroundTint.setDuration(400);
-        backgroundTint.setInterpolator(new DecelerateInterpolator(2));
-        backgroundTint.addUpdateListener(new ObjectAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int animatedValue = (int) animation.getAnimatedValue();
-                fab.setBackgroundTintList(ColorStateList.valueOf(animatedValue));
-            }
-        });
-
-
-        final ObjectAnimator elevation = ObjectAnimator.ofFloat(fab, "elevation", 0f, 2f);
-        elevation.setEvaluator(new FloatEvaluator());
-        elevation.setInterpolator(new DecelerateInterpolator(2));
-        elevation.setDuration(400);
-
-        AnimatorSet set = new AnimatorSet();
-        set.playSequentially(backgroundTint, elevation);
-        set.setStartDelay(500);
-        set.start();
     }
 
     public enum Role {

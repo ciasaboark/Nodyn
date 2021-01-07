@@ -20,7 +20,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    style="@style/Theme.MaterialComponents.Dialog">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:text="Define a new Audit"
+        android:textAppearance="@style/Text.Title" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -33,14 +42,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"
-                android:text="Define a new Audit"
-                android:textAppearance="@android:style/TextAppearance.Material.Title"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -75,30 +76,29 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?colorPrimaryDark"
         android:orientation="horizontal"
         android:padding="8dp">
 
         <Button
             android:id="@+id/cancel_button"
+            style="@style/NegativeButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginEnd="16dp"
             android:layout_toStartOf="@id/finish_button"
             android:background="?android:attr/selectableItemBackground"
-            android:text="cancel"
-            android:textColor="?android:attr/textColorSecondaryInverse"/>
+            android:text="cancel" />
 
         <Button
             android:id="@+id/finish_button"
+            style="@style/PositiveButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="?android:attr/selectableItemBackground"
-            android:text="@string/next"
-            android:textColor="?android:attr/textColorPrimaryInverse"/>
+            android:text="@string/next" />
     </RelativeLayout>
 
 </LinearLayout>

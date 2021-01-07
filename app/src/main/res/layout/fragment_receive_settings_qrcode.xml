@@ -33,13 +33,11 @@
         android:layout_alignParentBottom="true"
         android:visibility="visible">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:layout_margin="16dp"
-            android:background="?colorSecondaryLight"
             android:elevation="2dp"
             android:padding="16dp"
             app:cardCornerRadius="@dimen/card_corner_radius">
@@ -92,7 +90,7 @@
                 </HorizontalScrollView>
             </LinearLayout>
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </RelativeLayout>
 
 

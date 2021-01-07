@@ -29,4 +29,9 @@
 
     <string name="check_out_warning_message_1" formatted="false">Warning.  Check-out authorization will automatically expire in %s %s.</string>
     <string name="check_out_warning_message_2">Scan an asset or checkout now to reset this timer.</string>
+
+    <string name="check_out_disable_no_sync_last_sync" formatted="false">The last successful sync occurred on %s.</string>
+    <string name="check_out_disable_no_sync2">Asset checkouts have been disabled until a full sync has been completed.</string>
+    <string name="check_out_disable_no_sync_never_synced">This device has never synced with the backend service.</string>
+    <string name="check_out_disable_no_sync_equip_mngr">If this problem persists please contact %s.</string>
 </resources>

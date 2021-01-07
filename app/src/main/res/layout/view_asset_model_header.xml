@@ -35,7 +35,7 @@
             android:layout_alignParentStart="true"
             android:text="@string/placeholder"
             android:textAppearance="@android:style/TextAppearance.Material.SearchResult.Title"
-            android:textColor="?colorAccent"/>
+            android:textColor="?colorAccentLight"/>
 
         <TextView
             android:id="@+id/model"
@@ -46,7 +46,7 @@
             android:layout_below="@id/manufacturer"
             android:text="@string/placeholder"
             android:textAppearance="@android:style/TextAppearance.Material.SearchResult.Subtitle"
-            android:textColor="?colorAccent"/>
+            android:textColor="?colorAccentLight"/>
 
         <TextView
             android:id="@+id/count_available"
@@ -55,7 +55,8 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:paddingBottom="4dp"
-            android:text="@string/placeholder"/>
+            android:text="@string/placeholder"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
         <TextView
             android:id="@+id/count_assigned"
@@ -64,7 +65,8 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_below="@id/count_available"
-            android:text="@string/placeholder"/>
+            android:text="@string/placeholder"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
     </RelativeLayout>
 

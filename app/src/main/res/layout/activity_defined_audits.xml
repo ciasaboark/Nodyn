@@ -24,13 +24,12 @@
     android:layout_height="match_parent"
     tools:context="io.phobotic.nodyn_app.activity.AuditDefinitionsActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/AppToolbar"/>
+    <include
+        android:id="@+id/tb"
+        layout="@layout/content_toolbar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <LinearLayout
         android:id="@+id/list_error"
@@ -71,17 +70,19 @@
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@id/tb"
         android:visibility="gone"
         tools:listitem="@layout/view_audit_definition"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_plus_white_24dp"/>
+        android:text="Create Audit"
+        app:icon="@drawable/plus"
+        android:theme="@style/Widgets.FabExtPrimary"/>
 
 </RelativeLayout>

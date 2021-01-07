@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.CategoryNotFoundException;
+import io.phobotic.nodyn_app.database.exception.CompanyNotFoundException;
 import io.phobotic.nodyn_app.database.exception.GroupNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ManufacturerNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
@@ -38,12 +39,14 @@ import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.helper.ActionTableHelper;
 import io.phobotic.nodyn_app.database.helper.AssetTableHelper;
 import io.phobotic.nodyn_app.database.helper.CategoryTableHelper;
+import io.phobotic.nodyn_app.database.helper.CompanyTableHelper;
 import io.phobotic.nodyn_app.database.helper.GroupTableHelper;
 import io.phobotic.nodyn_app.database.helper.ManufacturerTableHelper;
 import io.phobotic.nodyn_app.database.helper.ModelTableHelper;
 import io.phobotic.nodyn_app.database.helper.StatusTableHelper;
 import io.phobotic.nodyn_app.database.helper.UserTableHelper;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.model.Company;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Category;
 import io.phobotic.nodyn_app.database.model.FullDataModel;
@@ -66,6 +69,7 @@ public class Database {
     private final SQLiteDatabase db;
     private final CategoryTableHelper categoryHelper;
     private final GroupTableHelper groupHelper;
+    private final CompanyTableHelper companyHelper;
     private final UserTableHelper userHelper;
     private final AssetTableHelper assetHelper;
     private final ModelTableHelper modelHelper;
@@ -86,6 +90,7 @@ public class Database {
         this.db = helper.getWritableDatabase();
         categoryHelper = new CategoryTableHelper(db);
         groupHelper = new GroupTableHelper(db);
+        companyHelper = new CompanyTableHelper(db);
         userHelper = new UserTableHelper(db);
         assetHelper = new AssetTableHelper(db);
         modelHelper = new ModelTableHelper(db);
@@ -97,6 +102,7 @@ public class Database {
         replaceAssets(model.getAssets());
         replaceUsers(model.getUsers());
         replaceGroups(model.getGroups());
+        replaceCompanies(model.getCompanies());
         replaceCategories(model.getCategories());
         replaceModels(model.getModels());
         replaceStatus(model.getStatuses());
@@ -113,6 +119,10 @@ public class Database {
 
     private void replaceGroups(List<Group> groups) {
         groupHelper.replace(groups);
+    }
+
+    private void replaceCompanies(List<Company> companies) {
+        companyHelper.replace(companies);
     }
 
     private void replaceCategories(List<Category> categories) {
@@ -139,6 +149,7 @@ public class Database {
         replaceModels(new ArrayList<Model>());
         replaceStatus(new ArrayList<Status>());
         replaceManufacturers(new ArrayList<Manufacturer>());
+        replaceCompanies(new ArrayList<Company>());
     }
 
     public List<Action> getActions() {
@@ -183,6 +194,11 @@ public class Database {
     public List<Model> getModels() {
         List<Model> models = modelHelper.findAll();
         return models;
+    }
+
+    public List<Company> getCompanies() {
+        List<Company> companies = companyHelper.findAll();
+        return companies;
     }
 
     public List<Group> getGroups() {
@@ -280,6 +296,16 @@ public class Database {
         }
 
         return group;
+    }
+
+    public Company findCompanyById(int id) throws CompanyNotFoundException {
+        Company company = companyHelper.findByID(id);
+
+        if (company == null) {
+            throw new CompanyNotFoundException();
+        }
+
+        return company;
     }
 
     public Model findModelByID(int id) throws ModelNotFoundException {

@@ -95,7 +95,7 @@
         </TableRow>
     </TableLayout>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -120,14 +120,15 @@
                 android:layout_gravity="start"
                 android:layout_marginBottom="24dp"
                 android:text="Transfer application settings"
-                android:textAppearance="@android:style/TextAppearance.Material.Title"
-                android:textColor="@color/section_title"/>
+                android:textAppearance="@style/Text.Card.Title"
+                android:textColor="?android:textColorPrimary"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginBottom="16dp"
+                android:textColor="?android:textColorPrimary"
                 android:text="Nodyn has many settings available.  You can easily transfer settings from one device to another."
                 />
 
@@ -135,11 +136,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
+                android:textColor="?android:textColorPrimary"
                 android:text="Select a transfer method for more information."
                 />
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </RelativeLayout>
 
 

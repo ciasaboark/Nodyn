@@ -32,6 +32,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -65,7 +67,7 @@ public class ModelGridFragment extends Fragment {
     private GridLayout gridView;
     private Database db;
     private GridLayout gridOverflowView;
-    private Button button;
+    private MaterialButton button;
     private int[] colors;
     private HashMap<Model, Integer> overFlowModels;
     private View overflowBox;
@@ -123,7 +125,7 @@ public class ModelGridFragment extends Fragment {
     }
 
     private void initColors() {
-        TypedArray ta = getContext().getResources().obtainTypedArray(R.array.material_colors);
+        TypedArray ta = getContext().getResources().obtainTypedArray(R.array.material_colors_light);
         colors = new int[ta.length()];
         for (int i = 0; i < ta.length(); i++) {
             colors[i] = ta.getColor(i, 0);
@@ -159,11 +161,7 @@ public class ModelGridFragment extends Fragment {
         for (Asset asset : allAssets) {
             int modelId = asset.getModelID();
             if (allowAllModels || allowedModels.contains(String.valueOf(modelId))) {
-                if (modelId == -1) {
-                    Log.d(TAG, "Asset " + asset.getTag() + " has no assigned model, skipping");
-                } else if (!isAssetStatusValid(asset)) {
-                    Log.d(TAG, "Asset " + asset.getTag() + " does not have an allowed status, skipping");
-                } else {
+                if (modelId != -1 && isAssetStatusValid(asset)) {
                     try {
                         Model m = db.findModelByID(modelId);
                         Integer count = modelCount.get(m);
@@ -183,7 +181,7 @@ public class ModelGridFragment extends Fragment {
 
         Random r = new Random(System.currentTimeMillis());
 
-        int maxItems = 8;
+        int maxItems = 9;
         int itemCount = 0;
         for (Map.Entry<Model, Integer> entry : modelCount.entrySet()) {
             Model model = entry.getKey();
@@ -232,32 +230,27 @@ public class ModelGridFragment extends Fragment {
             gridLayout.addView(container);
         } else {
             LinearLayout l = (LinearLayout) gridLayout.getChildAt(gridLayout.getChildCount() - 1);
-            if (l.getChildCount() > 1) {
+            if (l.getChildCount() <= 2) {
+                //set each sub container hold 3 child cards
+                container = l;
+            } else {
                 container = getNewContainer();
                 gridLayout.addView(container);
-            } else {
-                container = l;
             }
         }
 
-        String manufacturer = "";
-        final ModelOverviewCountView modelOverviewCountView = new ModelOverviewCountView(getContext(),
-                model.getName(), count);
+        Manufacturer manufacturer = null;
 
         try {
-            Manufacturer man = db.findManufacturerByID(model.getManufacturerID());
-            manufacturer = man.getName();
+            manufacturer = db.findManufacturerByID(model.getManufacturerID());
         } catch (ManufacturerNotFoundException e) {
             //just use a blank manufacturer field
         }
-
-        modelOverviewCountView.setManufacturer(manufacturer);
 
         int color;
         if (colors != null && colors.length > 0) {
             int hash = Math.abs(model.hashCode());
             int index = hash % colors.length;
-            Log.d(TAG, model.getName() + " hash '" + hash + "' using color index " + index);
             color = colors[index];
         } else {
             TypedValue typedValue = new TypedValue();
@@ -266,19 +259,19 @@ public class ModelGridFragment extends Fragment {
             color = typedValue.data;
         }
 
-        int textColor = ColorHelper.getValueTextColorForBackground(getContext(), color);
-        modelOverviewCountView.setTextColor(textColor);
-        modelOverviewCountView.setColor(color);
+
+        final ModelOverviewCountView modelOverviewCountView = new ModelOverviewCountView(getContext(),
+                model, manufacturer, count, color);
 
         modelOverviewCountView.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f));
         modelOverviewCountView.setVisibility(View.INVISIBLE);
         container.addView(modelOverviewCountView);
 
-        Animation inFromLeft = AnimationUtils.loadAnimation(getContext(), R.anim.enter_from_left);
+        Animation fadeIn = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
         Random random = new Random(System.currentTimeMillis());
         long delay = (long) random.nextInt(250);
-        inFromLeft.setStartOffset(delay);
-        inFromLeft.setAnimationListener(new Animation.AnimationListener() {
+        fadeIn.setStartOffset(delay);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
                 modelOverviewCountView.setVisibility(View.VISIBLE);
@@ -294,7 +287,7 @@ public class ModelGridFragment extends Fragment {
 
             }
         });
-        modelOverviewCountView.setAnimation(inFromLeft);
+        modelOverviewCountView.setAnimation(fadeIn);
         modelOverviewCountView.animate();
     }
 
@@ -310,6 +303,8 @@ public class ModelGridFragment extends Fragment {
         container = new LinearLayout(getContext());
         container.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 2f));
         container.setOrientation(LinearLayout.HORIZONTAL);
+        container.setClipChildren(false);
+        container.setClipToPadding(false);
         return container;
     }
 

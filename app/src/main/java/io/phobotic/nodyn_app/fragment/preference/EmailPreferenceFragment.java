@@ -25,6 +25,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
 import io.phobotic.nodyn_app.preference.EmailRecipientsPreference;
 import io.phobotic.nodyn_app.preference.EmailRecipientsPreferenceDialogFragmentCompat;
 
@@ -49,6 +50,7 @@ public class EmailPreferenceFragment extends PreferenceFragmentCompat {
         PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_email_password)));
 
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
     @Override

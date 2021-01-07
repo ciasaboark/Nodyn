@@ -19,6 +19,6 @@
 <resources>
     <color name="about_source">#69F0AE</color>
     <color name="about_comments">#8ceaff</color>
-    <color name="about_issues">#FFD08C</color>
+    <color name="about_issues">#FFF08C</color>
     <color name="about_legal">#dea6fc</color>
 </resources>

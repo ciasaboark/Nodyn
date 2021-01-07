@@ -112,7 +112,7 @@ public class AssetCountView extends LinearLayout {
             public View makeView() {
                 TextView t = new TextView(getContext());
                 t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material);
-
+                t.setTypeface(null, Typeface.BOLD);
                 int textColor = ColorHelper.getValueTextColorForBackground(getContext(), getCardColor());
                 t.setTextColor(textColor);
                 return t;
@@ -141,11 +141,11 @@ public class AssetCountView extends LinearLayout {
     }
 
     private void updateViews() {
-        card.setCardBackgroundColor(cardColor);
         label.setText(labelText);
+        ((TextView)label.getCurrentView()).setTextColor(cardColor);
         count.setText(countText);
-        int tintColor = ColorHelper.getSecondaryValueTextColorForBackground(getContext(), cardColor);
-        icon.setColorFilter(tintColor);
+        ((TextView)count.getCurrentView()).setTextColor(cardColor);
+        icon.setColorFilter(cardColor);
 
     }
 

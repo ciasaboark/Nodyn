@@ -19,4 +19,7 @@
 <resources>
     <string name="sync_all_records_pushed_to_backend" formatted="true">All records from this device have been pushed to %s</string>
     <string name="sync_up_to_date">Sync is up to date!</string>
+    <string name="sync_first_success_intro">Awesome!  Your first sync completed successfully.  Nodyn will sync with your backend every 5 minutes by default.</string>
+    <string name="sync_first_success_no_network">If there is no network connection during the next sync we\'ll hold on to your check-out/check-in records until the backend can be reached again.</string>
+    <string name="sync_first_success_continue">You can use this opportunity to further adjust your settings, or continue on to the dashboard.</string>
 </resources>

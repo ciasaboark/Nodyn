@@ -17,6 +17,7 @@
 
 package io.phobotic.nodyn_app.activity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +40,7 @@ import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.fragment.CheckOutFragment;
 import io.phobotic.nodyn_app.fragment.UserAuthorizationFragment;
 import io.phobotic.nodyn_app.fragment.listener.CheckInOutListener;
+import io.phobotic.nodyn_app.service.SyncService;
 
 public class CheckoutActivity extends AppCompatActivity implements CheckInOutListener, UserAuthorizationFragment.OnUserAuthorizedListener {
     private static final String TAG = CheckoutActivity.class.getSimpleName();
@@ -80,6 +82,15 @@ public class CheckoutActivity extends AppCompatActivity implements CheckInOutLis
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.add(R.id.frame, newFragment).commit();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //go ahead a schedule a quick sync so any checkout records can be pushed out as soon as possible
+        Intent i = new Intent(this, SyncService.class);
+        i.putExtra(SyncService.SYNC_TYPE_KEY, SyncService.SYNC_TYPE_QUICK);
+        startService(i);
     }
 
     /**

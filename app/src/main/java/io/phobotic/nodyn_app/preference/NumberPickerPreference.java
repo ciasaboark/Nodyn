@@ -36,16 +36,7 @@ public class NumberPickerPreference extends DialogPreference {
     }
 
     public NumberPickerPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-
-    public NumberPickerPreference(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, defStyleAttr);
-    }
-
-    public NumberPickerPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs);
     }
 
     public int getSelectedValue() {

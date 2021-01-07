@@ -24,6 +24,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -46,7 +48,7 @@ public class AuditDefinitionsActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private View error;
-    private FloatingActionButton fab;
+    private ExtendedFloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +95,7 @@ public class AuditDefinitionsActivity extends AppCompatActivity {
 
     private void updateList() {
         AuditDatabase db = AuditDatabase.getInstance(this);
-        List<AuditDefinition> auditDefinitions = db.getDefinedAudits();
+        List<AuditDefinition> auditDefinitions = db.definitionDao().findAll();
         if (auditDefinitions.isEmpty()) {
             showError();
         } else {
@@ -122,7 +124,7 @@ public class AuditDefinitionsActivity extends AppCompatActivity {
                     @Override
                     public void onAuditCreated(AuditDefinition auditDefinition) {
                         AuditDatabase db = AuditDatabase.getInstance(AuditDefinitionsActivity.this);
-                        db.storeDefinedAudit(auditDefinition);
+                        db.definitionDao().insert(auditDefinition);
                         updateList();
                     }
 
@@ -172,14 +174,14 @@ public class AuditDefinitionsActivity extends AppCompatActivity {
 
         public void removeAt(final int position) {
             final AuditDefinition audit = items.remove(position);
-            AlertDialog d = new AlertDialog.Builder(AuditDefinitionsActivity.this)
+            AlertDialog d = new MaterialAlertDialogBuilder(AuditDefinitionsActivity.this, R.style.Widgets_Dialog)
                     .setTitle("Delete Defined Audit?")
                     .setMessage("Are you sure you want to delete this audit?")
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            AuditDatabase db = AuditDatabase.getInstance(getApplicationContext());
-                            db.deleteDefinedAudit(audit.getId());
+                            AuditDatabase db = AuditDatabase.getInstance(AuditDefinitionsActivity.this);
+                            db.definitionDao().delete(audit.getId());
                             notifyItemRemoved(position);
                             notifyItemRangeChanged(position, items.size());
                             if (items.isEmpty()) {

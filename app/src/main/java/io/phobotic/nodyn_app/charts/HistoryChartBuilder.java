@@ -42,8 +42,8 @@ import java.util.Map;
 
 import androidx.annotation.ColorInt;
 import io.phobotic.nodyn_app.R;
-import io.phobotic.nodyn_app.database.audit.model.Audit;
-import io.phobotic.nodyn_app.database.statistics.day_activity.DayActivity;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
+import io.phobotic.nodyn_app.database.statistics.summary.day_activity.DayActivitySummary;
 
 /**
  * Created by Jonathan Nelson on 2019-05-12.
@@ -55,7 +55,7 @@ public class HistoryChartBuilder {
     }
 
     public void buildChart(Context context, final LineChart chart,
-                           final List<DayActivity> dayActivityList, final List<Audit> audits) {
+                           final List<DayActivitySummary> dayActivitySummaryList, final List<AuditHeader> audits) {
         initChart(context, chart);
         List<Entry> checkoutEntries = new ArrayList<>();
         List<Entry> checkinEntries = new ArrayList<>();
@@ -65,8 +65,8 @@ public class HistoryChartBuilder {
         //+ data after the daily activity has been processed
         Map<Long, Integer> dayIndexMap = new HashMap<>();
 
-        for (int i = 0; i < dayActivityList.size(); i++) {
-            DayActivity activity = dayActivityList.get(i);
+        for (int i = 0; i < dayActivitySummaryList.size(); i++) {
+            DayActivitySummary activity = dayActivitySummaryList.get(i);
             long timestamp = activity.getTimestamp();
             dayIndexMap.put(timestamp, i);
 
@@ -82,7 +82,7 @@ public class HistoryChartBuilder {
         //insert the audit data.  We don't really care how many audits were performed on a specific
         //+ day, just that at least one was completed
         Calendar calendar = Calendar.getInstance();
-        for (Audit audit : audits) {
+        for (AuditHeader audit : audits) {
             //reset the audit time to the beginning of the day so we can match it to a grid index
             calendar.setTimeInMillis(audit.getBegin());
             calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -126,8 +126,8 @@ public class HistoryChartBuilder {
             public String getFormattedValue(float value, AxisBase axis) {
                 float[] values = axis.mEntries;
                 int index = (int) value;
-                DayActivity dayActivity = dayActivityList.get(index);
-                long timeStamp = dayActivity.getTimestamp();
+                DayActivitySummary dayActivitySummary = dayActivitySummaryList.get(index);
+                long timeStamp = dayActivitySummary.getTimestamp();
                 String dateString = df.format(new Date(timeStamp));
                 dateString = dateString.toUpperCase();
                 return dateString;

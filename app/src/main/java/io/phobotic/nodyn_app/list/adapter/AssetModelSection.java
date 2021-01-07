@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
@@ -168,9 +169,9 @@ public class AssetModelSection extends StatelessSection {
         assetViewHolder.view.setHighlightColor(statusColor);
 
         View card = ((AssetViewHolder) holder).view.findViewById(R.id.card);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
+        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                ConstraintLayout.LayoutParams.WRAP_CONTENT
         );
 
         int horzMargin = context.getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);

@@ -16,12 +16,12 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+                                    xmlns:android="http://schemas.android.com/apk/res/android"
                                    xmlns:app="http://schemas.android.com/apk/res-auto"
                                    android:layout_width="match_parent"
                                    android:layout_height="wrap_content"
                                    android:layout_marginBottom="8dp"
-                                   app:cardBackgroundColor="@color/white"
                                    app:cardCornerRadius="@dimen/view_action_card_radius">
 
     <RelativeLayout
@@ -45,8 +45,9 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@string/placeholder"
+                android:textColor="?android:textColorPrimary"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
-                android:textColor="@android:color/primary_text_light"/>
+                />
 
             <TextView
                 android:id="@+id/create_date"
@@ -54,7 +55,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:text="@string/placeholder"/>
+                android:text="@string/placeholder"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
         </RelativeLayout>
 
 
@@ -75,12 +77,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Type: "/>
 
                 <TextView
                     android:id="@+id/type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
 
             </LinearLayout>
@@ -97,12 +101,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Created by: "/>
 
                 <TextView
                     android:id="@+id/user"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
             </LinearLayout>
 
@@ -117,12 +123,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Supplier: "/>
 
                 <TextView
                     android:id="@+id/supplier"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
             </LinearLayout>
 
@@ -137,12 +145,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Start date: "/>
 
                 <TextView
                     android:id="@+id/start_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
             </LinearLayout>
 
@@ -157,12 +167,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Complete date: "/>
 
                 <TextView
                     android:id="@+id/complete_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
             </LinearLayout>
 
@@ -177,15 +189,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Notes: "/>
 
                 <TextView
                     android:id="@+id/notes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
             </LinearLayout>
 
         </LinearLayout>
     </RelativeLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

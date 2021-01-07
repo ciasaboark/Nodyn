@@ -29,7 +29,7 @@ import java.util.List;
 
 import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.fragment.listener.OnListFragmentInteractionListener;
 import io.phobotic.nodyn_app.list.RecyclerViewFastScroller;
 import io.phobotic.nodyn_app.view.ActionView;

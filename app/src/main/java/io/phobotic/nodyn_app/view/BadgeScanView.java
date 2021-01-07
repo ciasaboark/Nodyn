@@ -32,7 +32,7 @@ import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.RoomDBWrapper;
-import io.phobotic.nodyn_app.database.UserHelper;
+import io.phobotic.nodyn_app.database.helper.UserHelper;
 import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.database.scan.ScanRecord;

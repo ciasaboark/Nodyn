@@ -21,5 +21,6 @@ package io.phobotic.nodyn_app.database.exception;
  * Created by Jonathan Nelson on 9/14/17.
  */
 
+@Deprecated
 public class ManufacturerNotFoundException extends Exception {
 }

@@ -20,10 +20,12 @@
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:orientation="vertical"
-                android:paddingTop="16dp">
+                android:orientation="vertical">
 
     <com.github.captain_miao.optroundcardview.OptRoundCardView
         android:id="@+id/card"
@@ -32,7 +34,9 @@
         android:elevation="2dp"
         app:optRoundCardCornerRadius="@dimen/card_corner_radius"
         app:optRoundCardLeftBottomCorner="false"
-        app:optRoundCardRightBottomCorner="false">
+        app:optRoundCardLeftTopCorner="false"
+        app:optRoundCardRightBottomCorner="false"
+        app:optRoundCardRightTopCorner="true">
 
         <RelativeLayout
             android:id="@+id/box"
@@ -48,6 +52,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="32dp"
+                android:layout_marginStart="16dp"
 
                 android:src="@drawable/calendar_clock"
                 android:tint="@color/grey600"/>
@@ -59,7 +64,7 @@
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/icon"
                 android:text="@string/placeholder"
-                android:textAppearance="@android:style/TextAppearance.Material.SearchResult.Title"
+                android:textAppearance="@style/Text.Title"
                 android:textColor="?colorAccent"/>
 
             <TextView
@@ -68,9 +73,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_below="@id/count_available"
                 android:layout_centerVertical="true"
-                android:text="@string/placeholder"/>
+                android:text="@string/placeholder"
+                android:textAppearance="@style/Text.Heading"/>
 
         </RelativeLayout>
     </com.github.captain_miao.optroundcardview.OptRoundCardView>

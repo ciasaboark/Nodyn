@@ -18,16 +18,23 @@
 package io.phobotic.nodyn_app.helper;
 
 import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import org.jetbrains.annotations.NotNull;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 
 /**
@@ -36,11 +43,69 @@ import io.phobotic.nodyn_app.R;
 
 public class AnimationHelper {
     public static void fadeOut(@NotNull final Context context, @NotNull final View v) {
-        fadeOut(context, v, View.GONE);
+        fadeOut(context, v, View.GONE, null);
     }
 
-    private static void fadeOut(@NotNull final Context context, @NotNull final View v, final int mode) {
+    public static void fadeOut(@NotNull final Context context, @NotNull final View v, @Nullable AnimateListener listener) {
+        fadeOut(context, v, View.GONE, listener);
+    }
+
+    public static void scaleIn(@NotNull View view) {
+        if (view.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 0, 1);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 0, 1);
+        AnimatorSet animSetXY = new AnimatorSet();
+        animSetXY.playTogether(scaleX, scaleY);
+        animSetXY.setInterpolator(new DecelerateInterpolator());
+        animSetXY.setDuration(300);
+        view.setVisibility(View.VISIBLE);
+        animSetXY.start();
+    }
+
+    public static void scaleOut(@NotNull final View view) {
+        if (view.getVisibility() == View.GONE) {
+            return;
+        }
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1, 0);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1, 0);
+        AnimatorSet animSetXY = new AnimatorSet();
+        animSetXY.playTogether(scaleX, scaleY);
+        animSetXY.setInterpolator(new DecelerateInterpolator());
+        animSetXY.setDuration(300);
+        animSetXY.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                view.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animSetXY.start();
+    }
+
+    public interface AnimateListener {
+        void onAnimationFinished();
+    }
+
+    private static void fadeOut(@NotNull final Context context, @NotNull final View v, final int mode, @Nullable final AnimateListener listener) {
         if (v.getVisibility() != View.VISIBLE) {
+            if (listener != null) listener.onAnimationFinished();
             return;
         }
 
@@ -54,6 +119,7 @@ public class AnimationHelper {
             @Override
             public void onAnimationEnd(Animation animation) {
                 v.setVisibility(mode);
+                if (listener != null) listener.onAnimationFinished();
             }
 
             @Override
@@ -65,7 +131,10 @@ public class AnimationHelper {
     }
 
     public static void fadeOutInvisible(@NotNull final Context context, @NotNull final View v) {
-        fadeOut(context, v, View.INVISIBLE);
+        fadeOutInvisible(context, v, null);
+    }
+    public static void fadeOutInvisible(@NotNull final Context context, @NotNull final View v, AnimateListener listener) {
+        fadeOut(context, v, View.INVISIBLE, listener);
     }
 
 
@@ -218,7 +287,11 @@ public class AnimationHelper {
     }
 
     public static void fadeIn(@NotNull final Context context, @NotNull final View v) {
+        fadeIn(context, v, null);
+    }
+    public static void fadeIn(@NotNull final Context context, @NotNull final View v, @Nullable final AnimateListener listener) {
         if (v.getVisibility() == View.VISIBLE) {
+            if (listener != null) listener.onAnimationFinished();
             return;
         }
 
@@ -231,7 +304,7 @@ public class AnimationHelper {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-
+                if (listener != null) listener.onAnimationFinished();
             }
 
             @Override

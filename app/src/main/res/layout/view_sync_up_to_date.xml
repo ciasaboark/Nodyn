@@ -16,13 +16,12 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
                                    xmlns:app="http://schemas.android.com/apk/res-auto"
                                    android:layout_width="wrap_content"
                                    android:layout_height="wrap_content"
                                    android:layout_centerHorizontal="true"
                                    android:elevation="2dp"
-                                   app:cardBackgroundColor="#5AEC60"
                                    app:cardCornerRadius="@dimen/card_corner_radius">
 
     <RelativeLayout
@@ -46,7 +45,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/checkbox_marked_circle_outline"
-                android:tint="@color/white"/>
+                android:tint="#5AEC60"/>
 
             <TextView
                 android:id="@+id/title"
@@ -55,7 +54,7 @@
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/icon"
                 android:text="@string/sync_up_to_date"
-                android:textColor="@android:color/primary_text_dark"
+                android:textColor="#5AEC60"
                 android:textStyle="bold"/>
         </RelativeLayout>
 
@@ -66,6 +65,6 @@
             android:layout_below="@id/main"
             android:layout_centerInParent="true"
             android:text="@string/placeholder"
-            android:textColor="@color/white"/>
+            android:textColor="#5AEC60"/>
     </RelativeLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

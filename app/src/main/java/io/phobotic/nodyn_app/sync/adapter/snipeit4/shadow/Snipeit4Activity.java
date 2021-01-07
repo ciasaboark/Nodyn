@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName;
 
 import org.jsoup.Jsoup;
 
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.sync.Action;
 
 import static io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.TimeHelper.toTimestamp;
 

@@ -25,7 +25,9 @@ import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.FullDataModel;
 import io.phobotic.nodyn_app.database.model.MaintenanceRecord;
@@ -50,10 +52,19 @@ public interface SyncAdapter {
 
     void syncActionItems(Context context, List<Action> unsyncedActions, ActionSyncListener listener) throws SyncException;
 
-    void markActionItemsSynced(Context context, List<Action> actions);
-
     List<MaintenanceRecord> getMaintenanceRecords(Context context, Asset asset) throws SyncException,
             SyncNotSupportedException;
+
+    /**
+     * Fetches up-to-date information about the specified asset.
+     * @param context
+     * @param asset
+     * @return
+     * @throws SyncNotSupportedException if the backend does not support fetching information about
+     * individual assets
+     * @throws SyncException if any exception is encountered while fetching asset information
+     */
+    @NotNull Asset getAsset(@NotNull Context context, @NotNull Asset asset) throws SyncNotSupportedException, SyncException;
 
     /**
      * Fetch all activity records for the specified Asset.  Returned records should not be limited
@@ -103,6 +114,14 @@ public interface SyncAdapter {
 
 
     /**
+     * Fetch all activity records from now back to the UTC epoch cutoff
+     * @param context
+     * @param cutoff
+     * @return
+     */
+    List<Action> getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException;
+
+    /**
      * Fetch all activity records for the previous 30 days.
      *
      * @param context
@@ -118,4 +137,12 @@ public interface SyncAdapter {
 
     @Nullable
     DialogFragment getConfigurationDialogFragment(Context context);
+
+    /**
+     * Push the results of an audit to the backend service.  This function is non critical, so
+     * adapters that do not support recording audits should only implement a stub method
+     * @param context
+     * @param audit
+     */
+    void recordAudit(@NotNull Context context, @NotNull Audit audit);
 }

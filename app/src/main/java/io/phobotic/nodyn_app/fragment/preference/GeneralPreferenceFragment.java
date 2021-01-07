@@ -18,6 +18,7 @@
 package io.phobotic.nodyn_app.fragment.preference;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -30,6 +31,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.Random;
 import java.util.UUID;
 
@@ -40,6 +43,8 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.helper.Keyboardhelper;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
 import io.phobotic.nodyn_app.preference.EmailRecipientsPreference;
 import io.phobotic.nodyn_app.preference.EmailRecipientsPreferenceDialogFragmentCompat;
 import io.phobotic.nodyn_app.view.EnableKioskDialogView;
@@ -73,7 +78,7 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
                         getString(R.string.pref_default_general_id));
                 input.setText(curDeviceName);
 
-                final AlertDialog d = new AlertDialog.Builder(getContext())
+                final AlertDialog d = new MaterialAlertDialogBuilder(getContext())
                         .setTitle("Device Name")
                         .setView(v)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -168,7 +173,7 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
                     if (activeInputs >= 2) {
                         changeAllowed = true;
                     } else {
-                        final AlertDialog d = new AlertDialog.Builder(getContext())
+                        final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                                 .setTitle("Input mode restriction")
                                 .setMessage("At least one input mode must remain active.")
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -222,6 +227,8 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
+
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
     /**
@@ -244,7 +251,7 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
 
     private void showLockedSettingsChangePasswordDialog() {
         final EnableKioskDialogView view = new EnableKioskDialogView(getContext(), null);
-        final AlertDialog d = new AlertDialog.Builder(getContext())
+        final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
@@ -292,6 +299,19 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
                         return false;
                     }
                 });
+
+                view.getPasswordInput().requestFocus();
+            }
+        });
+        d.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                Activity a = getActivity();
+                if (a != null) {
+                    View v = a.getCurrentFocus();
+                    Keyboardhelper.forceHideOSK(getContext(), v);
+                }
+
             }
         });
 

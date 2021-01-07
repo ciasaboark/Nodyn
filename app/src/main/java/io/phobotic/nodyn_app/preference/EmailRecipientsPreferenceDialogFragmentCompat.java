@@ -17,7 +17,6 @@
 
 package io.phobotic.nodyn_app.preference;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -32,11 +31,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.preference.DialogPreference;
 import androidx.preference.PreferenceDialogFragmentCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -173,7 +175,7 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
     public void tryAddEmailAddress() {
         String recipient = input.getText().toString();
         if (recipientsList.contains(recipient)) {
-            AlertDialog d = new AlertDialog.Builder(getContext())
+            AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                     .setTitle("Duplicate address")
                     .setMessage("The email address \"" + recipient + "\" has already been added")
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

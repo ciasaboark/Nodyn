@@ -37,18 +37,9 @@ public class EmailRecipientsPreference extends DialogPreference {
     }
 
     public EmailRecipientsPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
     }
 
-
-    public EmailRecipientsPreference(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, defStyleAttr);
-    }
-
-    public EmailRecipientsPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-//        setLayoutResource(R.layout.preference_email_recipients);
-    }
 
     public String getRecipientsString() {
         return recipientsString;

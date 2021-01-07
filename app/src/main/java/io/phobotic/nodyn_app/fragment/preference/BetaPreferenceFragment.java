@@ -26,6 +26,7 @@ import android.os.Bundle;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
 import io.phobotic.nodyn_app.service.StatisticsEmailService;
 import io.phobotic.nodyn_app.service.StatisticsService;
 
@@ -44,6 +45,7 @@ public class BetaPreferenceFragment extends PreferenceFragmentCompat {
         setHasOptionsMenu(true);
 
         init();
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
     private void init() {

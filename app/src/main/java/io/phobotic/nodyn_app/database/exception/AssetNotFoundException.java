@@ -20,6 +20,7 @@ package io.phobotic.nodyn_app.database.exception;
 /**
  * Created by Jonathan Nelson on 8/31/17.
  */
+@Deprecated
 public class AssetNotFoundException extends Exception {
 
 }

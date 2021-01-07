@@ -16,7 +16,7 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/verify"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -27,13 +27,56 @@
     android:visibility="visible"
     tools:context="io.phobotic.nodyn_app.fragment.UserAuthorizationFragment">
 
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/unauthorize_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:backgroundTint="@color/white"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:icon="@drawable/ic_close_black_24dp"
+        android:text="cancel"
+        app:iconTint="@color/grey600"
+        android:textColor="@color/grey600"
+        app:rippleColor="#EEEEEE"
+        app:strokeColor="@color/white"
+        app:strokeWidth="2dp"
+        android:visibility="gone"
+       />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_go"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:text="Next"
+        android:transitionName="check_out_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:icon="@drawable/arrow_right"
+        app:iconGravity="textEnd"
+        android:theme="@style/Widgets.FabExtPrimary"
+        android:visibility="gone"/>
+
     <RelativeLayout
         android:id="@+id/input_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="false"
         android:padding="16dp"
-        android:visibility="visible">
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <TextView
             android:id="@+id/title"
@@ -42,7 +85,7 @@
             android:layout_centerHorizontal="true"
             android:text="Asset check ins must be authorized"
             android:textAlignment="center"
-            android:textAppearance="@android:style/TextAppearance.Material.Large"/>
+            style="@style/Text.Title" />
 
         <TextView
             android:id="@+id/message"
@@ -51,7 +94,8 @@
             android:layout_below="@id/title"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="16dp"
-            android:text="@string/badge_scan_scan_now"/>
+            android:text="@string/badge_scan_scan_now"
+            style="@style/Text.Heading"/>
 
         <TextView
             android:id="@id/error"
@@ -73,106 +117,4 @@
     </RelativeLayout>
 
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:clipChildren="true"
-        android:clipToPadding="true"
-        android:elevation="2dp"
-        android:focusableInTouchMode="false"
-        app:cardBackgroundColor="@color/default_accent"
-        app:cardCornerRadius="@dimen/card_corner_radius"
-        app:cardPreventCornerOverlap="true"
-        app:cardUseCompatPadding="false">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/relativeLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:clipChildren="false"
-            android:clipToPadding="false">
-
-            <LinearLayout
-                android:id="@+id/card_content"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:elevation="0dp"
-                android:focusableInTouchMode="false"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:visibility="visible"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_marginBottom="24dp"
-                    android:text="Authorization accepted"
-                    android:textAppearance="@android:style/TextAppearance.Material.Title"
-                    android:textColor="@color/section_title"/>
-
-                <TextView
-                    android:id="@+id/authenticated_message"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/authenticated_title"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/placeholder"/>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/linearLayout3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipChildren="false"
-                    android:clipToPadding="false">
-
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/fab_go"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:src="@drawable/arrow_right"
-                        android:tint="@color/white"
-                        android:transitionName="check_out_button"
-                        app:backgroundTint="@color/white"
-                        app:fabSize="normal"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"/>
-
-                    <Button
-                        android:id="@+id/unauthorize_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:src="@drawable/ic_close_black_24dp"
-                        android:text="@android:string/cancel"
-                        android:textColor="?android:textColorSecondary"
-                        app:elevation="0dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </LinearLayout>
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.cardview.widget.CardView>
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

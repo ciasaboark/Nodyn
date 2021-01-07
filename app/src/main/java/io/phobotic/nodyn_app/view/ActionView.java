@@ -39,7 +39,7 @@ import io.phobotic.nodyn_app.avatar.AvatarHelper;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.helper.AnimationHelper;

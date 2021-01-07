@@ -37,8 +37,8 @@ import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.database.statistics.assets.AssetStatistics;
-import io.phobotic.nodyn_app.database.statistics.assets.AssetStatisticsDatabase;
+import io.phobotic.nodyn_app.database.statistics.summary.assets.AssetStatistics;
+import io.phobotic.nodyn_app.database.statistics.summary.assets.AssetStatisticsDatabase;
 import io.phobotic.nodyn_app.helper.AnimationHelper;
 import io.phobotic.nodyn_app.view.CloudErrorView;
 

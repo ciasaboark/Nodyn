@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.fragment.app.Fragment;
@@ -38,7 +39,7 @@ import io.phobotic.nodyn_app.helper.SettingsHelper;
  */
 public class BackendErrorFragment extends Fragment {
     private View rootView;
-    private FloatingActionButton buttonSettings;
+    private ExtendedFloatingActionButton buttonSettings;
 
     public static BackendErrorFragment newInstance() {
         BackendErrorFragment fragment = new BackendErrorFragment();

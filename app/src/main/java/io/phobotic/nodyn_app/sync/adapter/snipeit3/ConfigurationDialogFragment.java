@@ -22,6 +22,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import io.phobotic.nodyn_app.R;
@@ -44,7 +46,7 @@ public class ConfigurationDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View rootView = getActivity().getLayoutInflater().inflate(R.layout.fragment_snipe_it_3, null);
 
-        AlertDialog.Builder b = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder b = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setIcon(R.drawable.ic_sync_black_24dp)
                 .setTitle("SnipeIt version 3.x")
                 .setView(rootView)

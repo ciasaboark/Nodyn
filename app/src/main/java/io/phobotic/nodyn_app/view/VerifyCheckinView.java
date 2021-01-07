@@ -66,7 +66,7 @@ public class VerifyCheckinView extends LinearLayout {
                 //+ default, just indicate that no verification has been set
                 verifcationText = getResources().getString(R.string.check_in_no_verification_text);
             }
-            markdownView.loadMarkdown(verifcationText);
+            markdownView.loadMarkdown(verifcationText, "file:///android_asset/markdown.css");
         }
     }
 }

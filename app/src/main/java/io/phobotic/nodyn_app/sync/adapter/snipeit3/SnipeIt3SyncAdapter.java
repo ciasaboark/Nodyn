@@ -62,9 +62,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
+import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.model.Company;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Category;
 import io.phobotic.nodyn_app.database.model.FullDataModel;
@@ -350,7 +353,7 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
 
     @Override
     public String getAdapterName() {
-        return "Snipe-it";
+        return "Snipe-it 3.x";
     }
 
     @Override
@@ -377,7 +380,6 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
             sendProgressBroadcast(context, 90);
             List<Status> statuses = fetchStatuses(context);
 
-
             sendMessageBroadcast(context, "Updating database");
             FullDataModel model = new FullDataModel()
                     .setAssets(assets)
@@ -386,6 +388,9 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
                     .setCategories(categories)
                     .setGroups(groups)
                     .setStatuses(statuses);
+
+            //no support for fetching companies
+            model.setCompanies(new ArrayList<Company>());
 
             sendProgressBroadcast(context, 100);
 
@@ -561,43 +566,32 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
                                 action.getTimestamp(), action.getExpectedCheckin(), notes.toString());
                         break;
                     default:
-                        listener.onActionSyncError(action, null, "Unknown direction " +
+                        listener.onActionSyncFatalError(action, null, "Unknown direction " +
                                 action.getDirection());
                 }
 
-                action.setSynced(true);
-                db.insertAction(action);
+                listener.onActionSyncSuccess(action);
 
             } catch (UserNotFoundException e) {
                 e.printStackTrace();
-                listener.onActionSyncError(action, e, "Unable to find user in database with " +
+                listener.onActionSyncFatalError(action, e, "Unable to find user in database with " +
                         "username: '" + action.getUserID() + "'");
             } catch (AssetNotFoundException e) {
                 e.printStackTrace();
-                listener.onActionSyncError(action, e, "Unable to find asset in database with " +
+                listener.onActionSyncFatalError(action, e, "Unable to find asset in database with " +
                         "tag: '" + action.getAssetID() + "'");
             } catch (CheckinException e) {
                 e.printStackTrace();
-                listener.onActionSyncError(action, e, "Unable to check in asset with tag: '" +
+                listener.onActionSyncFatalError(action, e, "Unable to check in asset with tag: '" +
                         action.getAssetID() + "'");
             } catch (CheckoutException e) {
                 e.printStackTrace();
-                listener.onActionSyncError(action, e, "Unable to check out asset with tag: '" +
+                listener.onActionSyncFatalError(action, e, "Unable to check out asset with tag: '" +
                         action.getAssetID() + "' to user ID " + action.getUserID());
             } catch (Exception e) {
                 //all other exceptions we will keep the action un-synced so we can try again later
-                actionSynced = false;
+                listener.onActionSyncRecoverableError(action, e, "Unknown exception");
             }
-        }
-    }
-
-    @Override
-    public void markActionItemsSynced(Context context, List<Action> actions) {
-        Database db = Database.getInstance(context);
-
-        for (Action action : actions) {
-            action.setSynced(true);
-            db.insertAction(action);
         }
     }
 
@@ -607,6 +601,12 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
         throw new SyncNotSupportedException("Sync adapter does not support pulling maintenance records",
                 "SnipeIt version 3.x does not support pulling maintenance records");
 
+    }
+
+    @Override
+    public Asset getAsset(Context context, Asset asset) throws SyncNotSupportedException, SyncException {
+        throw new SyncNotSupportedException("Unsupported",
+                "SnipeIt version 3.x does not support pulling individual asset records");
     }
 
     @Override
@@ -629,6 +629,12 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
     }
 
     @Override
+    public List<Action> getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException {
+        throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
+                "SnipeIt version 3.x does not support pulling history records");
+    }
+
+    @Override
     public List<Action> getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "SnipeIt version 3.x does not support pulling history records");
@@ -644,6 +650,16 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
     public DialogFragment getConfigurationDialogFragment(Context context) {
         DialogFragment dialog = ConfigurationDialogFragment.newInstance();
         return dialog;
+    }
+
+    /**
+     * Not supported by Snipeit v3
+     * @param context
+     * @param audit
+     */
+    @Override
+    public void recordAudit(@NotNull Context context, @NotNull Audit audit) {
+
     }
 
     private List<Asset> convertShadowAssets(Context context, List<Snipeit3Asset> snipeit3Assets) {

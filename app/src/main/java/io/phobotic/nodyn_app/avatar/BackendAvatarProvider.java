@@ -18,6 +18,7 @@
 package io.phobotic.nodyn_app.avatar;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +51,7 @@ public class BackendAvatarProvider extends AvatarProvider {
     @Nullable
     @Override
     public Drawable getIconDrawable(@NotNull Context context) {
-        Drawable d = context.getDrawable(R.drawable.cloud_sync);
+        Drawable d = context.getDrawable(R.drawable.ic_cloud_sync_white_48dp);
         return d;
     }
 

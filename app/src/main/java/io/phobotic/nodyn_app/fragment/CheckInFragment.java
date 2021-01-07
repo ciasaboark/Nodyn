@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -78,12 +79,9 @@ public class CheckInFragment extends Fragment {
     private CheckInOutListener listener;
     private View rootView;
     private AssetScannerView scanner;
-    private TextSwitcher title;
-    private TextSwitcher message;
     private User authorizingUser;
     private SharedPreferences prefs;
     private FloatingActionButton checkinButton;
-    private View footer;
     private View warning;
     private CountDownTimer timer;
     private ProgressBar warningProgress;
@@ -152,14 +150,12 @@ public class CheckInFragment extends Fragment {
     }
 
     private void init() {
-        footer = rootView.findViewById(R.id.footer);
         warning = rootView.findViewById(R.id.warning);
         warning = rootView.findViewById(R.id.countdown_warning);
         warningProgress = rootView.findViewById(R.id.warning_progress);
         warningProgress.setMax(MAX_PROGRESS);
         warningProgress.setProgress(MAX_PROGRESS);
         warningMessage = rootView.findViewById(R.id.warning_text_1);
-        initTextSwitchers();
         initScanner();
 
         resetCountdown();
@@ -169,30 +165,6 @@ public class CheckInFragment extends Fragment {
         this.listener = listener;
     }
 
-    private void initTextSwitchers() {
-        title = rootView.findViewById(R.id.title);
-        title.setFactory(new ViewSwitcher.ViewFactory() {
-            @Override
-            public View makeView() {
-                TextView t = new TextView(getContext());
-                t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material_Title);
-                t.setTextColor(getResources().getColor(R.color.section_title));
-                return t;
-            }
-        });
-        title.setCurrentText(getResources().getString(R.string.check_out_title_scan_an_asset));
-
-        message = rootView.findViewById(R.id.message);
-        message.setFactory(new ViewSwitcher.ViewFactory() {
-            @Override
-            public View makeView() {
-                TextView t = new TextView(getContext());
-                t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material);
-                return t;
-            }
-        });
-        message.setCurrentText(getResources().getString(R.string.blank));
-    }
 
     private void fadeInText(TextSwitcher view, String newText) {
         Animation in = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
@@ -211,12 +183,8 @@ public class CheckInFragment extends Fragment {
             }
 
             @Override
-            public void onAssetScanListChanged(@NotNull List<Asset> assets) {
+            public void onAssetScanListChanged(@NotNull List<AssetScannerView.ScannedAsset> assets) {
                 if (assets.isEmpty() && checkinButton.getVisibility() != View.GONE) {
-                    if (footer.getVisibility() != View.GONE) {
-                        hideFooter();
-                    }
-
                     scanner.requestFocus();
                 }
             }
@@ -329,7 +297,7 @@ public class CheckInFragment extends Fragment {
 
             View v = getLayoutInflater(null).inflate(R.layout.view_model_unavailable, null);
 
-            AlertDialog d = new AlertDialog.Builder(getContext())
+            AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                     .setTitle("Model not available")
                     .setView(v)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -342,10 +310,9 @@ public class CheckInFragment extends Fragment {
         } else {
             try {
                 tryAddAssetToScannedList(asset);
-                fadeInText(title, getResources().getString(R.string.check_in_title_continue_scan_assets));
                 checkinAsset(asset);
             } catch (AssetAlreadyScannedException e) {
-                AlertDialog d = new AlertDialog.Builder(getContext())
+                AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                         .setTitle("Asset Not Available")
                         .setMessage("Asset '" + asset.getTag() + "' has already been scanned")
                         .setPositiveButton(getResources().getString(android.R.string.ok),
@@ -359,7 +326,7 @@ public class CheckInFragment extends Fragment {
                 d.show();
 
             } catch (AssetNotCheckedOutException e) {
-                AlertDialog d = new AlertDialog.Builder(getContext())
+                AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                         .setTitle("Asset Not Checked Out")
                         .setMessage("Asset '" + asset.getTag() + "' is not checked out and can not " +
                                 "be checked back in")
@@ -414,11 +381,9 @@ public class CheckInFragment extends Fragment {
             asset.setAssignedToID(-1);
             List<Asset> l = new ArrayList<>();
             l.add(asset);
+
             db.checkinAssets(l, authorizingUser, System.currentTimeMillis(), authorizingUser, checkInsVerified);
             String username = authorizingUser == null ? "" : authorizingUser.getName() + " ";
-
-            fadeInText(title, getResources().getString(R.string.check_in_title_continue_scan_assets));
-            fadeInText(message, getResources().getString(R.string.check_in_message_check_in_immediate));
 
             playSoundEffect(getContext(), R.raw.n_audioman__blip);
 
@@ -449,24 +414,9 @@ public class CheckInFragment extends Fragment {
             throw new AssetNotCheckedOutException("Asset " + asset.getTag() + " is not checked out and can not be checked in");
         } else {
             scanner.addAsset(asset);
-
-            //if this was the first asset scanned then transition the instructions
-            if (scanner.getScannedAssets().size() == 1) {
-                fadeInText(title, getResources().getString(R.string.check_in_title_continue_scan_assets));
-                fadeInText(message, getResources().getString(R.string.check_in_message_scan_badge_to_complete));
-
-                showFooter();
-            }
         }
     }
 
-    private void showFooter() {
-        AnimationHelper.expand(footer);
-    }
-
-    private void hideFooter() {
-        AnimationHelper.collapse(footer);
-    }
 
     private class AssetAlreadyScannedException extends Exception {
         public AssetAlreadyScannedException(String message) {

@@ -21,7 +21,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.model.Company;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Category;
 import io.phobotic.nodyn_app.database.model.Group;
@@ -42,12 +43,13 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     public static final String TABLE_MODEL = "models";
     public static final String TABLE_MANUFACTURER = "manufacturer";
     public static final String TABLE_GROUP = "groups";
+    public static final String TABLE_COMPANY = "company";
     public static final String TABLE_CATEGORY = "category";
     public static final String TABLE_STATUS = "status";
     public static final String TABLE_ACTIONS = "actions";
     public static final String TABLE_SYNC_HISTORY = "sync_history";
 
-    private static final int VERSION = 16;
+    private static final int VERSION = 18;
 
     public DatabaseOpenHelper(Context ctx) {
         super(ctx, DB_NAME, null, VERSION);
@@ -66,6 +68,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODEL);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MANUFACTURER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMPANY);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATUS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTIONS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SYNC_HISTORY);
@@ -79,6 +82,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         createManufacturersTable(db);
         createGroupsTable(db);
         createCategoriesTable(db);
+        createCompanyTable(db);
         createStatusTable(db);
         createActionsTable(db);
         createSyncHistoryTable(db);
@@ -91,21 +95,21 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 Asset.Columns.NAME + " varchar(100), " +
                 Asset.Columns.TAG + " varchar(100), " +
                 Asset.Columns.SERIAL + " varchar(100), " +
-                Asset.Columns.MODEL_ID + " integer, " +
-                Asset.Columns.STATUS_ID + " integer, " +
-                Asset.Columns.ASSIGNED_TO_ID + " integer, " +
-                Asset.Columns.LOCATION_ID + " integer, " +
-                Asset.Columns.CATEGORY_ID + " integer, " +
-                Asset.Columns.MANUFACTURER_ID + " integer, " +
+                Asset.Columns.MODEL_ID + " integer default -1, " +
+                Asset.Columns.STATUS_ID + " integer default -1, " +
+                Asset.Columns.ASSIGNED_TO_ID + " integer default -1, " +
+                Asset.Columns.LOCATION_ID + " integer default -1, " +
+                Asset.Columns.CATEGORY_ID + " integer default -1, " +
+                Asset.Columns.MANUFACTURER_ID + " integer default -1, " +
                 Asset.Columns.EOL + " varchar(100)," +
                 Asset.Columns.PURCHASE_COST + " varchar(100), " +
                 Asset.Columns.PURCHASE_DATE + " varchar(100), " +
                 Asset.Columns.NOTES + " varchar(100), " +
                 Asset.Columns.ORDER_NUMBER + " varchar(100), " +
-                Asset.Columns.LAST_CHECKOUT + " integer, " +
-                Asset.Columns.EXPECTED_CHECKIN + " integer, " +
-                Asset.Columns.CREATED_AT + " integer, " +
-                Asset.Columns.COMPANY_ID + " varchar(100) " +
+                Asset.Columns.LAST_CHECKOUT + " integer default -1, " +
+                Asset.Columns.EXPECTED_CHECKIN + " integer default -1, " +
+                Asset.Columns.CREATED_AT + " integer default -1, " +
+                Asset.Columns.COMPANY_ID + " integer default -1 " +
                 ")");
     }
 
@@ -116,13 +120,13 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 User.Columns.JOB_TITLE + " varchar(100), " +
                 User.Columns.EMAIL + " varchar(100), " +
                 User.Columns.USERNAME + " varchar(100), " +
-                User.Columns.LOCATION_ID + " integer, " +
-                User.Columns.MANAGER_ID + " integer, " +
+                User.Columns.LOCATION_ID + " integer default -1, " +
+                User.Columns.MANAGER_ID + " integer default -1, " +
                 User.Columns.NUM_ASSETS + " integer default 0, " +
                 User.Columns.EMPLOYEE_NUM + " varchar(100), " +
                 User.Columns.GROUP_IDS + " varchar(200), " +
                 User.Columns.NOTES + " varchar(100), " +
-                User.Columns.COMPANY_ID + " integer, " +
+                User.Columns.COMPANY_ID + " integer default -1, " +
                 User.Columns.AVATAR_URL + " varchar(100)" +
                 ")");
     }
@@ -130,17 +134,17 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     private void createModelsTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_MODEL + " ( " +
                 Model.Columns.ID + " integer primary key not null, " +
-                Model.Columns.MANUFACTURER_ID + " integer, " +
+                Model.Columns.MANUFACTURER_ID + " integer default -1, " +
                 Model.Columns.NAME + " varchar(100), " +
                 Model.Columns.IMAGE + " varchar(100), " +
                 Model.Columns.MODEL_NUMBER + " varchar(100), " +
                 Model.Columns.NUM_ASSETS + " integer default 0, " +
                 Model.Columns.DEPRECIATION + " varchar(100), " +
-                Model.Columns.CATEGORY_ID + " integer, " +
+                Model.Columns.CATEGORY_ID + " integer default -1, " +
                 Model.Columns.EOL + " varchar(100), " +
                 Model.Columns.NOTES + " varchar(100), " +
                 Model.Columns.FIELDSET_ID + " integer, " +
-                Model.Columns.CREATED_AT + " varchar(100)" +
+                Model.Columns.CREATED_AT + " integer default -1" +
                 ")");
     }
 
@@ -148,7 +152,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + TABLE_MANUFACTURER + " ( " +
                 Manufacturer.Columns.ID + " integer primary key not null, " +
                 Manufacturer.Columns.NAME + " varchar(100), " +
-                Manufacturer.Columns.CREATED_AT + " varchar(100), " +
+                Manufacturer.Columns.CREATED_AT + " integer default -1, " +
                 Manufacturer.Columns.SUPPORT_EMAIL + " varchar(100), " +
                 Manufacturer.Columns.SUPPORT_PHONE + " varchar(100), " +
                 Manufacturer.Columns.SUPPORT_URL + " varchar(100), " +
@@ -160,8 +164,19 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + TABLE_GROUP + " ( " +
                 Group.Columns.ID + " integer primary key not null, " +
                 Group.Columns.NAME + " varchar(100), " +
-                Group.Columns.USER_COUNT + " varchar(100), " +
-                Group.Columns.CREATED_AT + " varchar(100) " +
+                Group.Columns.USER_COUNT + " integer default 0, " +
+                Group.Columns.CREATED_AT + " integer default -1 " +
+                ")");
+    }
+
+    private void createCompanyTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_COMPANY + " ( " +
+                Company.Columns.ID + " integer primary key not null, " +
+                Company.Columns.NAME + " varchar(100), " +
+                Company.Columns.IMAGE + " varchar(100), " +
+                Company.Columns.USER_COUNT + " integer default 0, " +
+                Company.Columns.ASSET_COUNT + " integer default 0, " +
+                Company.Columns.CREATED_AT + " integer default -1 " +
                 ")");
     }
 

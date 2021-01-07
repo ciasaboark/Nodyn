@@ -34,25 +34,20 @@
     <string name="pref_key_check_out_authorization_groups">check_out_authorization_group</string>
     <string name="pref_title_check_out_authorization_groups">Authorizing groups</string>
 
-    <string name="pref_key_check_out_all_models">check_out_all_models</string>
-    <string name="pref_default_check_out_all_models">false</string>
-    <string name="pref_title_check_out_all_models">All asset models</string>
-    <string name="pref_description_check_out_all_models">Allow all asset models to be checked out</string>
 
-    <string name="pref_key_check_out_models">check_out_allowed_models</string>
-    <string name="pref_title_check_out_models">Allowed models</string>
-    <string name="pref_description_check_out_models">Allow only selected asset models to be checked out</string>
+
+
 
     <string name="pref_key_check_out_verify">check_out_show_verify</string>
     <string name="pref_default_check_out_verify">false</string>
-    <string name="pref_title_check_out_verify">Require verification</string>
+    <string name="pref_title_check_out_verify">Show EULA</string>
     <string name="pref_description_enabled_check_out_verify">Users will be required to accept the terms of the EULA to complete check out</string>
     <string name="pref_description_disabled_check_out_verify">Asset check outs will be complete immediately after user authentication</string>
 
     <string name="pref_key_check_out_eula">check_out_eula</string>
     <string name="pref_title_check_out_eula">Change EULA text</string>
     <string name="pref_description_check_out_eula">Github flavored Markdown supported</string>
-    <string name="pref_default_check_out_eula">Equipment may be provided to certain employees for the purpose of performing job related tasks. All employees receiving equipment must abide by this agreement.\n\nEquipment may be checked out to employees in order to perform their assigned job duties. Equipment shall not be used by non-employees or for non-work related purposes. By checking out the equipment the employee certifies that he/she is authorized to check out the equipment and agrees to abide by all posted responsibilities.</string>
+    <string name="pref_default_check_out_eula">Equipment may be provided to employees for the purpose of performing job related tasks. All employees receiving equipment must abide by this agreement.\n\nEquipment may be checked out to employees in order to perform their assigned job duties. Equipment shall not be used by non-employees or for non-work related purposes. By checking out the equipment the employee certifies that he/she is authorized to check out the equipment and agrees to abide by all posted responsibilities.</string>
     <string name="eula_markdown_description">Github flavored <a href='https://guides.github.com/features/mastering-markdown/'>markdown</a> is supported</string>
 
     <string name="pref_key_check_out_timeout_limit">check_out_timeout_limit</string>

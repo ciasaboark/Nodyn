@@ -152,6 +152,7 @@
                     android:layout_marginBottom="4dp"
                     android:layout_toLeftOf="@id/image"
                     android:text="@string/placeholder"
+                    android:textColor="@android:color/primary_text_light"
                     android:textStyle="bold"
                     android:transitionName="name"/>
 
@@ -165,8 +166,8 @@
                         android:id="@+id/username"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_toEndOf="@id/username_label"
-                        android:text="@string/placeholder"/>
+                        android:text="@string/placeholder"
+                        android:textColor="@android:color/primary_text_light"/>
                 </RelativeLayout>
 
                 <LinearLayout
@@ -181,7 +182,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="monospace"
-                        android:text="@string/placeholder"/>
+                        android:text="@string/placeholder"
+                        android:textColor="@android:color/primary_text_light"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -195,7 +197,8 @@
                         android:id="@+id/groups"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/placeholder"/>
+                        android:text="@string/placeholder"
+                        android:textColor="@android:color/primary_text_light"/>
                 </LinearLayout>
 
 

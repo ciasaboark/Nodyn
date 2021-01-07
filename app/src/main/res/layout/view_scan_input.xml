@@ -25,7 +25,7 @@
                 android:padding="8dp"
                 tools:context="io.phobotic.nodyn_app.view.ScanInputView">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/spinner_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:entries="@array/input_methods"/>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/preview"
@@ -85,6 +85,7 @@
                 android:inputType="textNoSuggestions"
                 android:lines="1"
                 android:minEms="10"
+                android:textColor="@color/white"
                 android:textCursorDrawable="@drawable/cursor_drawable"
                 android:visibility="visible"/>
 
@@ -189,7 +190,7 @@
             android:clipToPadding="false"
             android:visibility="gone">
 
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -227,11 +228,11 @@
                         android:layout_marginStart="8dp"
                         android:background="?selectableItemBackgroundBorderless"
                         android:padding="16dp"
-                        android:src="@drawable/ic_magnify_grey600_24dp"/>
+                        android:src="@drawable/ic_magnify_white_24dp"/>
                 </LinearLayout>
 
 
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
         </RelativeLayout>
     </RelativeLayout>
 

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import androidx.annotation.ColorInt;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
@@ -135,9 +136,9 @@ public class AssetStatusSection extends StatelessSection {
         assetViewHolder.view.setAsset(asset);
 
         View card = ((AssetViewHolder) holder).view.findViewById(R.id.card);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
+        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                ConstraintLayout.LayoutParams.WRAP_CONTENT
         );
 
         if (highlightColor != null) {
@@ -158,13 +159,13 @@ public class AssetStatusSection extends StatelessSection {
             //otherwise show corners only on the top of the first card and the bottom of the last
             if (position == 0) {
                 if (card instanceof OptRoundCardView) {
-                    ((OptRoundCardView) card).showCorner(true, true, false, false);
+                    ((OptRoundCardView) card).showCorner(false, false, false, false);
                     topMargin = horzMargin;
                 }
             } else if (position == items.size() - 1) {
-                //if this is the
+                //if this is the last card in the list
                 if (card instanceof OptRoundCardView) {
-                    ((OptRoundCardView) card).showCorner(false, false, true, true);
+                    ((OptRoundCardView) card).showCorner(false, false, false, true);
                     bottomMargin = horzMargin;
                 }
             } else {

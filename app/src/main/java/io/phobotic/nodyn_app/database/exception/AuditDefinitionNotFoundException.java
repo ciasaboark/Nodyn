@@ -20,6 +20,7 @@ package io.phobotic.nodyn_app.database.exception;
 /**
  * Created by Jonathan Nelson on 1/31/18.
  */
+@Deprecated
 public class AuditDefinitionNotFoundException extends Exception {
     public AuditDefinitionNotFoundException() {
     }

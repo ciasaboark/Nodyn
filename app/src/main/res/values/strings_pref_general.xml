@@ -21,7 +21,7 @@
     <string name="pref_header_general">General</string>
 
     <string name="pref_key_equipment_managers_name">email_sync_equipment_managers_name</string>
-    <string name="pref_default_equipment_managers_name"></string>
+    <string name="pref_default_equipment_managers_name">the equipment managers</string>
     <string name="pref_title_equipment_managers_name">Equipment managers</string>
     <string name="pref_description_equipment_managers_name">The name of the person or group that manages the assets or equipment that can be checked out from this device.  This value will appear on various screens. </string>
 

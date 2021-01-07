@@ -551,7 +551,7 @@ public class AssetListFragment extends Fragment {
             public View makeView() {
                 TextView t = new TextView(getContext());
                 t.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-                t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material_Small_Inverse);
+                t.setTextAppearance(getContext(), R.style.Text_Default);
                 return t;
             }
         });

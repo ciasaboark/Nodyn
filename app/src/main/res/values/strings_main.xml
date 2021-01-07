@@ -20,4 +20,5 @@
     <string name="no_backend_selected_info1">Nodyn requires a backend asset tracking system to function.</string>
     <string name="no_backend_selected_info2">You can select a backend sync provider in app settings. For a list of available backend solutions please check the <a href='https://github.com/ciasaboark/Nodyn/wiki/Manual'>online manual</a>.</string>
     <string name="no_backend_selected_title">No sync backend selected</string>
+    <string name="view_dashboard">View Dashboard</string>
 </resources>

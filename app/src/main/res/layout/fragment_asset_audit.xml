@@ -20,14 +20,12 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/scroll_view_background"
                 tools:context="io.phobotic.nodyn_app.fragment.audit.AssetAuditFragment">
 
     <RelativeLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:elevation="4dp"
@@ -42,7 +40,6 @@
             android:text="Audit details"
             android:textAppearance="@android:style/TextAppearance.Material.Title"/>
     </RelativeLayout>
-
 
 
     <LinearLayout
@@ -124,13 +121,11 @@
         android:layout_alignParentBottom="true"
         android:layout_marginTop="130dp"/>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/unscanned_assets_wrapper"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
         android:elevation="4dp"
         android:stateListAnimator="@animator/lift_on_touch"
         app:cardBackgroundColor="?colorSecondaryLight">
@@ -143,14 +138,22 @@
             <RelativeLayout
                 android:id="@+id/drag_handle_wrapper"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:orientation="horizontal"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp">
 
                 <ImageView
-                    android:id="@+id/drag_handle"
+                    android:id="@+id/chevron"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:src="@drawable/ic_drag_horizontal_white_36dp"/>
+                    android:src="@drawable/chevron_up"
+                    android:tint="@color/white"/>
+
+
             </RelativeLayout>
 
 
@@ -168,9 +171,9 @@
         </RelativeLayout>
 
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/submit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -178,12 +181,17 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="32dp"
         android:layout_marginEnd="32dp"
-        android:elevation="6dp"
+        android:backgroundTint="@color/default_accent"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:src="@drawable/ic_cloud_upload_white_24dp"
-        app:backgroundTint="?colorAccent"
-        app:elevation="6dp"/>
+        android:text="Submit"
+        android:textColor="@color/white"
+        app:icon="@drawable/ic_cloud_upload_white_24dp"
+        app:iconTint="@color/white"
+        app:rippleColor="@color/default_accent_light"
+        app:strokeColor="@color/white"
+        app:strokeWidth="2dp"
+        />
 
 
 </RelativeLayout>
