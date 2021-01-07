@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Statistic">
+    <option name="excludedDirectories">
+      <list>
+        <option value="$USER_HOME$/Dropbox/Projects/Nodyn/app/build" />
+        <option value="$USER_HOME$/Dropbox/Projects/Nodyn/app/libs" />
+        <option value="$USER_HOME$/Dropbox/Projects/Nodyn/app/src/androidTest" />
+        <option value="$USER_HOME$/Dropbox/Projects/Nodyn/gradle" />
+        <option value="$USER_HOME$/Dropbox/Projects/Nodyn/projectFilesBackup" />
+      </list>
+    </option>
+  </component>
+</project>
