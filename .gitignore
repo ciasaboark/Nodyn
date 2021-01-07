@@ -75,6 +75,9 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+#Firebase plugin
+app/google-services.json
+
 # Editor-based Rest Client
 .idea/httpRequests
 
