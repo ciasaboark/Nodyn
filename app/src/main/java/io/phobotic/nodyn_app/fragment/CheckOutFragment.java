@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -42,9 +43,8 @@ import android.widget.ProgressBar;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -68,7 +68,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
-import io.fabric.sdk.android.services.concurrency.AsyncTask;
+
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.animation.ProgressBarAnimation;
 import io.phobotic.nodyn_app.database.Database;
@@ -178,9 +178,9 @@ public class CheckOutFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         listener = null;
-        CustomEvent ce = new CustomEvent(CustomEvents.CHECKOUT_SESSION_COMPLETE)
-                .putCustomAttribute(CustomEvents.CHECKOUT_COUNTS_FOR_SESSION, usersCheckedOut);
-        Answers.getInstance().logCustom(ce);
+        Bundle bundle = new Bundle();
+        bundle.putInt(CustomEvents.CHECKOUT_COUNTS_FOR_SESSION, usersCheckedOut);
+        FirebaseAnalytics.getInstance(getContext()).logEvent(CustomEvents.CHECKOUT_SESSION_COMPLETE, bundle);
         if (timer != null) {
             timer.cancel();
         }
@@ -479,7 +479,7 @@ public class CheckOutFragment extends Fragment {
         try {
             minutes = Integer.parseInt(timeLimitString);
         } catch (NumberFormatException e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
 
         if (minutes > 0 && authorizingUser != null) {
@@ -920,10 +920,10 @@ public class CheckOutFragment extends Fragment {
 
             scanner.requestFocus();
 
-            CustomEvent ce = new CustomEvent(CustomEvents.USER_CHECKOUT)
-                    .putCustomAttribute(CustomEvents.USER_CHECKOUT_COUNT, assetList.size());
+            Bundle bundle = new Bundle();
+            bundle.putInt(CustomEvents.USER_CHECKOUT_COUNT, assetList.size());
             usersCheckedOut++;
-            Answers.getInstance().logCustom(ce);
+            FirebaseAnalytics.getInstance(getContext()).logEvent(CustomEvents.USER_CHECKOUT, bundle);
         } catch (Exception e) {
             showNotification("Caught exception " + e.getClass().getSimpleName() + " checking out assets");
         } finally {

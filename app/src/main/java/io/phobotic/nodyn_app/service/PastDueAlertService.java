@@ -22,8 +22,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -81,7 +80,7 @@ public class PastDueAlertService extends IntentService {
 
         if (pastDueAssets.size() > 0) {
             List<Asset> dueSoonAssets = getDueSoonAssets();
-            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.ASSET_PAST_DUE));
+            FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(CustomEvents.ASSET_PAST_DUE, null);
 
             //should we also send an alert to the current asset holder
             boolean includeCurrentHolder = prefs.getBoolean(

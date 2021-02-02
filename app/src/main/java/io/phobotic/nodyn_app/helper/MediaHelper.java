@@ -21,7 +21,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
@@ -42,7 +42,7 @@ public class MediaHelper {
                 final MediaPlayer mp = MediaPlayer.create(context, soundResID);
                 mp.start();
             } catch (Exception e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 e.printStackTrace();
             }
         }

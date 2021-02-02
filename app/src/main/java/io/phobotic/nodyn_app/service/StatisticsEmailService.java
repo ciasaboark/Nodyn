@@ -26,9 +26,9 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -125,20 +125,20 @@ public class StatisticsEmailService extends IntentService {
                                     @Override
                                     public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
                                         Log.e(TAG, "Statistics email failed with message: " + message);
-                                        Answers.getInstance().logCustom(new CustomEvent(CustomEvents.STATISTICS_EMAIL_NOT_SENT));
+                                        FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.STATISTICS_EMAIL_NOT_SENT, null);
                                     }
                                 }, null)
                                 .setSuccessListener(new EmailSender.EmailStatusListener() {
                                     @Override
                                     public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
                                         Log.d(TAG, "Statistics email succeeded with message: " + message);
-                                        Answers.getInstance().logCustom(new CustomEvent(CustomEvents.STATISTICS_EMAIL_SENT));
+                                        FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.STATISTICS_EMAIL_SENT, null);
                                     }
                                 }, null)
                                 .send();
 
                     } catch (Exception e) {
-                        Crashlytics.logException(e);
+                        FirebaseCrashlytics.getInstance().recordException(e);
                         Log.e(TAG, "Caught error while sending statistics email: " + e.getMessage());
                         e.printStackTrace();
                     }

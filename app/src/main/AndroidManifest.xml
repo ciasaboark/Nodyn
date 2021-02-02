@@ -182,10 +182,6 @@
                 android:value="io.phobotic.nodyn_app.activity.MainActivity"/>
         </activity>
 
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="3a8beb947bb71118e0b546ad35a311f886cf00c8"/>
-
         <activity
             android:name=".activity.CheckoutActivity"
             android:label="@string/title_activity_check_out"

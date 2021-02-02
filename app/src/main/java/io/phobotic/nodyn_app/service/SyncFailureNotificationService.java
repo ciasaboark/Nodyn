@@ -22,8 +22,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -111,14 +111,14 @@ public class SyncFailureNotificationService extends IntentService {
                             //we were unable to send the sync error email.  Leave the sync attempt record unmodified
                             //+ so we can attempt to send an email later
                             Log.e(TAG, "Sync exception send email failed with message: " + message);
-                            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_EMAIL_NOT_SENT));
+                            FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(CustomEvents.SYNC_ERROR_EMAIL_NOT_SENT, null);
                         }
                     }, syncAttempt)
                     .setSuccessListener(new EmailSender.EmailStatusListener() {
                         @Override
                         public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
                             Log.d(TAG, "Sync exception send email succeeded with message: " + message);
-                            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_ERROR_EMAIL_SENT));
+                            FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(CustomEvents.SYNC_ERROR_EMAIL_SENT, null);
 
                             //update the sync attempt database so we do not try sending this error email again
                             syncAttempt.setNoticeSent(true);

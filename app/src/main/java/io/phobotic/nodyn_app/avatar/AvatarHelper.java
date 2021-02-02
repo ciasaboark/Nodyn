@@ -31,7 +31,7 @@ import android.graphics.RectF;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -72,7 +72,7 @@ public class AvatarHelper {
                 Object object = ctor.newInstance();
                 loaders.add((AvatarProvider) object);
             } catch (Exception e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 e.printStackTrace();
             }
         }

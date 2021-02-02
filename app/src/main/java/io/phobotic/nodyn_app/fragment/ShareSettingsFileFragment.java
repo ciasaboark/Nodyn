@@ -40,7 +40,7 @@ import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
@@ -299,7 +299,7 @@ public class ShareSettingsFileFragment extends Fragment {
                             } catch (Exception e) {
                                 // TODO: 3/3/19
                                 Log.e(TAG, "Caught exception creating file: " + e.getMessage());
-                                Crashlytics.logException(e);
+                                FirebaseCrashlytics.getInstance().recordException(e);
                                 step3.complete();
                             }
 
@@ -321,7 +321,7 @@ public class ShareSettingsFileFragment extends Fragment {
 
         } catch (Exception e) {
             Log.e(TAG, "Caught exception creating file: " + e.getMessage());
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 
@@ -402,7 +402,7 @@ public class ShareSettingsFileFragment extends Fragment {
         } catch (Exception e) {
             Exception e1 = new Exception(String.format("Caught exception [%s] writing data to " +
                     "file %s: %s", e.getClass().getSimpleName(), filePath, e.getMessage()));
-            Crashlytics.logException(e1);
+            FirebaseCrashlytics.getInstance().recordException(e1);
             throw e1;
         }
 

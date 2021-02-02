@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.NotNull;
@@ -201,7 +201,7 @@ public class AssetMaintenanceFragment extends Fragment {
                 showRemoteError("Backend error", String.format("%s does not support fetching maintenace records", name));
             } catch (Exception e) {
                 //we should never receive anything other than a SyncException or a SyncNotSupportedException
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 showRemoteError(null, "Unknown error");
             }
 

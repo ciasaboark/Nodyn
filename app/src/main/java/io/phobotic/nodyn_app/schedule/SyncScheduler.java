@@ -26,8 +26,8 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -109,7 +109,7 @@ public class SyncScheduler {
 
         schedulePendingIntent(pi, d.getTime());
 
-        Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_SCHEDULED));
+        FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.SYNC_SCHEDULED, null);
     }
 
     private

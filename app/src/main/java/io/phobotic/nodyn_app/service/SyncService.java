@@ -22,9 +22,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -106,7 +106,7 @@ public class SyncService extends IntentService {
             default:
                 String message = String.format("Unknown sync type: %s.  Will not sync.", syncType);
                 Log.e(TAG, message);
-                Crashlytics.log(message);
+                FirebaseCrashlytics.getInstance().log(message);
         }
 
         SyncScheduler scheduler = new SyncScheduler(this);
@@ -159,14 +159,15 @@ public class SyncService extends IntentService {
                 pullRemoteModel(syncAdapter, db);
 
                 fullModelFetched = true;
-                Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_SUCCESS));
+                FirebaseAnalytics.getInstance(this).logEvent(CustomEvents.SYNC_SUCCESS, null);
+
             }
 
             Intent i = new Intent(BROADCAST_SYNC_FINISH);
             broadcastManager.sendBroadcast(i);
         } catch (Exception e) {
-            Crashlytics.logException(e);
-            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_FAILED));
+            FirebaseCrashlytics.getInstance().recordException(e);
+            FirebaseAnalytics.getInstance(this).logEvent(CustomEvents.SYNC_FAILED, null);
             Intent i = new Intent(BROADCAST_SYNC_FAIL);
             i.putExtra(BROADCAST_SYNC_MESSAGE, e.getMessage());
             broadcastManager.sendBroadcast(i);

@@ -20,7 +20,7 @@ package io.phobotic.nodyn_app.converter;
 import android.content.Context;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -254,7 +254,7 @@ public class AuditExcelConverter {
         } catch (AssetNotFoundException e) {
             e.printStackTrace();
             Log.e(TAG, "unable to find asset with ID " + record.getAssetID() + ".  Was this asset deleted from backend since audit was performed");
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
 
         for (int col = 0; col < FIELDS.length; col++) {

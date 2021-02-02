@@ -23,7 +23,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -319,7 +319,7 @@ public class EmailSender {
                         if (message != null) {
                             Log.e(TAG, message);
                         }
-                        Crashlytics.logException(e);
+                        FirebaseCrashlytics.getInstance().recordException(e);
                         notifyFail(message);
                     }
                 }

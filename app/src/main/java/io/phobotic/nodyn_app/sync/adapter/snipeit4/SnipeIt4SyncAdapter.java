@@ -22,7 +22,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
@@ -197,7 +197,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 List<Asset> modelAssets = fetchAssetParts(context, progressMessage, baseURL);
                 assets.addAll(modelAssets);
             } catch (Exception e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 Log.e(TAG, String.format("Unable to parse model id %s as integer value, skipping this model", modelNo));
             }
         }
@@ -386,14 +386,14 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 try {
                     groups = fetchWorkaroundGroups(context);
                 } catch (Exception e1) {
-                    Crashlytics.logException(e1);
+                    FirebaseCrashlytics.getInstance().recordException(e1);
                     e1.printStackTrace();
                     throw new SyncException("Unable to fetch groups using workaround");
                 }
             }
         } catch (Exception e) {
             sendDebugBroadcast(context, "Caught exception: " + e.getMessage());
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
             throw new SyncException("Unable to fetch groups");
         }
@@ -429,7 +429,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                         }
 
                     } catch (Exception e) {
-                        Crashlytics.logException(e);
+                        FirebaseCrashlytics.getInstance().recordException(e);
                         e.printStackTrace();
                         String message = "Unable to parse group information: " + e.getMessage();
                         Log.d(TAG, message);
@@ -476,7 +476,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                                 .setName(snippet.getName());
                         manufacturerSet.add(manufacturer);
                     } catch (Exception e) {
-                        Crashlytics.logException(e);
+                        FirebaseCrashlytics.getInstance().recordException(e);
                         e.printStackTrace();
                         String message = "Unable to parse group information: " + e.getMessage();
                         Log.d(TAG, message);
@@ -571,7 +571,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 try {
                     manufacturers = fetchWorkaroundManufacturers(context);
                 } catch (Exception e1) {
-                    Crashlytics.logException(e1);
+                    FirebaseCrashlytics.getInstance().recordException(e1);
                     e1.printStackTrace();
                     throw new SyncException("Unable to fetch manufacturers using workaround");
                 }
@@ -882,7 +882,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
             //all other exceptions we will keep the action un-synced so we can try again later
             catch (ParseException e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 e.printStackTrace();
                 Log.e(TAG, "Caught parse exception reading response from server.  Action " +
                         "will remain unsynced and will be included in sync exception report");
@@ -949,7 +949,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
             a = snipeit4Asset.toAsset(isServerUTC);
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             String message = String.format("Unable to fetch up to date asset information for asset ID %d: %s", id, e.getMessage());
             Log.e(TAG, String.format(message));
             throw new SyncException(message);
@@ -1149,7 +1149,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             Log.e(TAG, String.format("Skipping sending audit results for asset ID %d. This asset " +
                     "could not be found", assetID));
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             Log.e(TAG, String.format("Caught exception recording audit for asset id %d: %s",
                     assetID, e.getMessage()));
         }

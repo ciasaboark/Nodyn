@@ -20,12 +20,15 @@ package io.phobotic.nodyn_app;
 import android.app.Application;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+
 
 import androidx.preference.PreferenceManager;
-import io.fabric.sdk.android.Fabric;
+
 import io.phobotic.nodyn_app.database.RoomDBWrapper;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
+
+import com.google.firebase.BuildConfig;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by Jonathan Nelson on 10/19/17.
@@ -45,14 +48,12 @@ public class Nodyn extends Application {
 
         Log.d(TAG, "Starting Crashlytics");
         //start crashlytics only if not a debug build
-        Crashlytics crashlytics = new Crashlytics.Builder().disabled(BuildConfig.DEBUG).build();
-        try {
-            String id = Installation.id(this);
-            crashlytics.setUserIdentifier(id);
-        } catch (RuntimeException e) {
+        FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
 
-        }
-        Fabric.with(this, crashlytics);
+        //disable crashlytics on debug builds
+        Log.d(TAG, "Crashlytics collection is " + (BuildConfig.DEBUG ? "disabled" : "enabled"));
+        crashlytics.setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
+
 
         Log.d(TAG, "Forcing sync schedule reset");
         SyncScheduler scheduler = new SyncScheduler(this);

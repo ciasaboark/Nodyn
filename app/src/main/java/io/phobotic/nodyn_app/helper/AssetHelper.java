@@ -20,7 +20,7 @@ package io.phobotic.nodyn_app.helper;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -99,7 +99,7 @@ public class AssetHelper {
             try {
                 modelIDs.add(Integer.parseInt(s));
             } catch (NumberFormatException e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
             }
         }
 

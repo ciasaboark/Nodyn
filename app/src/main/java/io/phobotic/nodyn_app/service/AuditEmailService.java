@@ -23,9 +23,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -126,8 +126,8 @@ public class AuditEmailService extends IntentService {
             try {
                 sendAuditEmail(audit);
             } catch (Exception e) {
-                Crashlytics.logException(e);
-                Answers.getInstance().logCustom(new CustomEvent(CustomEvents.AUDIT_RESULTS_ERROR_EMAIL_NOT_SENT));
+                FirebaseCrashlytics.getInstance().recordException(e);
+                FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(CustomEvents.AUDIT_RESULTS_ERROR_EMAIL_NOT_SENT, null);
             }
         }
     }
@@ -168,7 +168,7 @@ public class AuditEmailService extends IntentService {
         } catch (IOException e) {
             e.printStackTrace();
             Log.e(TAG, "Could not generate audit excel file: " + e.getMessage());
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 
@@ -279,7 +279,7 @@ public class AuditEmailService extends IntentService {
                     @Override
                     public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
                         Log.e(TAG, "Audit results send email failed with message: " + message);
-                        Answers.getInstance().logCustom(new CustomEvent(CustomEvents.AUDIT_RESULTS_ERROR_EMAIL_NOT_SENT));
+                        FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(CustomEvents.AUDIT_RESULTS_ERROR_EMAIL_NOT_SENT, null);
 
                         if (tag instanceof AuditEmail) {
                             //delete the temporary file even if the email was not sent
@@ -293,7 +293,7 @@ public class AuditEmailService extends IntentService {
                     @Override
                     public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
                         Log.d(TAG, "Audit results send email succeeded with message: " + message);
-                        Answers.getInstance().logCustom(new CustomEvent(CustomEvents.AUDIT_RESULTS_EMAIL_SENT));
+                        FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(CustomEvents.AUDIT_RESULTS_EMAIL_SENT, null);
                         if (tag instanceof AuditEmail) {
                             Audit audit = ((AuditEmail) tag).getAudit();
                             audit.getHeader().setExtracted(true);
@@ -367,7 +367,7 @@ public class AuditEmailService extends IntentService {
                         modelFoundCount.put(modelID, ++found);
                     }
                 } catch (AssetNotFoundException e) {
-                    Crashlytics.logException(e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                 }
             }
         }
@@ -406,14 +406,14 @@ public class AuditEmailService extends IntentService {
                     e.printStackTrace();
                     Log.e(TAG, "Unable to find manufacturer with ID " + manufacturerID + ", was this model" +
                             "deleted after audit was completed?");
-                    Crashlytics.logException(e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                 }
 
             } catch (ModelNotFoundException e) {
                 e.printStackTrace();
                 Log.e(TAG, "Unable to find model with ID " + modelID + ", was this model" +
                         "deleted after audit was completed?");
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
             }
         }
 
@@ -435,7 +435,7 @@ public class AuditEmailService extends IntentService {
             fos.write(buffer);
             fos.close();
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
 
         Attachment attachment = new Attachment(f, assetName, assetName);

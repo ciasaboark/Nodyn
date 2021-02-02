@@ -22,7 +22,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.TypedValue;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -71,7 +71,7 @@ public class ColorHelper {
             color = a.getColor(0, 0);
             a.recycle();
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
 
         return color;

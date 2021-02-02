@@ -49,7 +49,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.ResultPoint;
@@ -406,7 +406,7 @@ public class ScanInputView extends RelativeLayout {
         });
 
         if (allowedInputModes.size() == 0) {
-            Crashlytics.log(Log.ERROR, TAG, "Allowed input methods list size empty.  This should not have happened.  At least one input method should always be available");
+            FirebaseCrashlytics.getInstance().log(Log.ERROR + " " + TAG + " Allowed input methods list size empty.  This should not have happened.  At least one input method should always be available");
         }
 
         //use the last used input method (if possible)
@@ -417,7 +417,7 @@ public class ScanInputView extends RelativeLayout {
             try {
                 lastInputMethod = InputMethod.getInputMethodForValue(lastInput);
             } catch (IllegalArgumentException e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
             }
         }
 

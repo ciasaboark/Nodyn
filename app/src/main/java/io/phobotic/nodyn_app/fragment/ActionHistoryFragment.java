@@ -32,7 +32,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -502,7 +502,7 @@ public class ActionHistoryFragment extends Fragment {
                 showUnsyncedActions(actions);
             } catch (Exception e) {
                 e.printStackTrace();
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
 
                 //make sure we call showUnsyncedActions so we can continue pulling records
                 showUnsyncedActions(new ArrayList<Action>());
@@ -540,7 +540,7 @@ public class ActionHistoryFragment extends Fragment {
                 showSyncedActions(actions);
             } catch (Exception e) {
                 e.printStackTrace();
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
 
                 //make sure we call showSyncedActions so the proper view can be shown
                 showSyncedActions(new ArrayList<Action>());

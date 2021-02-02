@@ -22,9 +22,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -116,19 +116,19 @@ public class PastDueEmailHelper {
 //                                @Override
 //                                public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
 //                                    Log.e(TAG, "Past due assets reminder email failed with message: " + message);
-//                                    Answers.getInstance().logCustom(new CustomEvent(CustomEvents.PAST_DUE_EMAIL_NOT_SENT));
+//                                    FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(CustomEvents.PAST_DUE_EMAIL_NOT_SENT, null);
 //                                }
 //                            }, null)
 //                            .setSuccessListener(new EmailSender.EmailStatusListener() {
 //                                @Override
 //                                public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
 //                                    Log.d(TAG, "Past due assets reminder email succeeded with message: " + message);
-//                                    Answers.getInstance().logCustom(new CustomEvent(CustomEvents.PAST_DUE_EMAIL_SENT));
+//                                    FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(CustomEvents.PAST_DUE_EMAIL_SENT, null);
 //                                }
 //                            }, null)
 //                            .send();
 //                } catch (Exception e) {
-//                    Crashlytics.logException(e);
+//                    FirebaseCrashlytics.getInstance().recordException(e);
 //                    e.printStackTrace();
 //                    Log.e(TAG, "Caught exception while sending bulk past-due asset " +
 //                            "reminder email to address <" + userEmailAddress + ">: " + e.getMessage());
@@ -192,19 +192,19 @@ public class PastDueEmailHelper {
                         @Override
                         public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
                             Log.e(TAG, "Past due assets reminder email failed with message: " + message);
-                            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.PAST_DUE_EMAIL_NOT_SENT));
+                            FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.PAST_DUE_EMAIL_NOT_SENT, null);
                         }
                     }, pastDueAssets)
                     .setSuccessListener(new EmailSender.EmailStatusListener() {
                         @Override
                         public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
                             Log.d(TAG, "Past due assets reminder email succeeded with message: " + message);
-                            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.PAST_DUE_EMAIL_SENT));
+                            FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.PAST_DUE_EMAIL_SENT, null);
                         }
                     }, pastDueAssets)
                     .send();
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
             Log.e(TAG, "Caught exception while sending bulk past-due asset reminder email: " + e.getMessage());
         }

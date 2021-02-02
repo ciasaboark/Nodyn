@@ -34,9 +34,10 @@ import android.view.animation.BounceInterpolator;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
 
 import org.apache.poi.util.IOUtils;
@@ -358,7 +359,7 @@ public class SettingsImportActivity extends AppCompatActivity {
                     tryParseText(decryptedText);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Crashlytics.logException(e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
 
                     step1.fail();
                     String reason = String.format("Caught %s while decrypting bytes", e.getClass().getSimpleName());
@@ -409,7 +410,7 @@ public class SettingsImportActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                     step2.fail();
-                    Crashlytics.logException(e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                 }
             }
         }, MIN_MS);

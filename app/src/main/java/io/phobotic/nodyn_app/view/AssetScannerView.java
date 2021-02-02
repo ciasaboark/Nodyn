@@ -39,7 +39,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
@@ -284,7 +284,7 @@ public class AssetScannerView extends RelativeLayout {
                                 });
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Crashlytics.logException(e);
+                        FirebaseCrashlytics.getInstance().recordException(e);
                     }
                 }
             });
@@ -370,7 +370,7 @@ public class AssetScannerView extends RelativeLayout {
             timer.scheduleAtFixedRate(timerTask, IMAGE_SWITCH_DELAY, IMAGE_SWITCH_PERIOD);
         } catch (IllegalStateException e) {
             e.printStackTrace();
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 

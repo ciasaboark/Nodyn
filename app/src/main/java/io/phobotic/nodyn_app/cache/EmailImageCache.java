@@ -22,7 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.apache.commons.io.FileUtils;
 
@@ -77,7 +77,7 @@ public class EmailImageCache {
                 throw new Exception("Files remain after purging cache directory: " + f.getAbsolutePath());
             }
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
             Log.e(TAG, "Unable to clean cache directory");
         }
@@ -105,7 +105,7 @@ public class EmailImageCache {
                 md5 = "0" + md5;
             }
         } catch (NoSuchAlgorithmException e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
         }
 
@@ -154,7 +154,7 @@ public class EmailImageCache {
         try {
             cacheImage(String.valueOf(model.getId()), model.getImage(), true);
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
             Log.e(TAG, String.format("Caught Exception trying to cache image for model id %d " +
                     "using URL %s, %s:%s", model.getId(), model.getImage(), e.getClass().getSimpleName(), e.getMessage()));

@@ -49,7 +49,7 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -347,7 +347,7 @@ public class AssetListFragment extends Fragment {
 
                     AssetListFragment.this.assets = simplifiedAssets;
                 } catch (Exception e) {
-                    Crashlytics.logException(e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                     new Handler(getContext().getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {

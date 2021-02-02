@@ -23,7 +23,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +80,7 @@ public class ExecutorHelper {
                 } catch (Exception e) {
                     String message = String.format("Caught exception while waiting for sync adapter to " +
                             "return asset information for id %d: %s", asset.getId(), e.getMessage());
-                    Crashlytics.logException(e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                     Log.e(TAG, message);
                     if (listener != null) {
                         listener.onException(asset, new SyncException(message));

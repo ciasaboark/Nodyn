@@ -23,7 +23,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -124,7 +124,7 @@ public class StatisticsService extends IntentService {
                 Log.e(TAG, String.format("Sync adapter %s does not support fetching action " +
                         "history", syncAdapter.getAdapterName()));
             } catch (SyncException e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 e.printStackTrace();
                 Log.e(TAG, String.format("Caught SyncException fetching thirty day activty " +
                         "using adapter %s: %s", syncAdapter.getAdapterName(), e.getMessage()));
@@ -147,7 +147,7 @@ public class StatisticsService extends IntentService {
 
         } catch (Exception e) {
             Log.e(TAG, "Caught exception building 30 day statistics: " + e.getMessage());
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 

@@ -41,7 +41,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
@@ -714,7 +714,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                 String err = String.format("Only expected statuses of 'ASSIGNED' or 'UNASSIGNED', " +
                         "found status of %s", auditDefinition.getMetaStatus());
                 Log.d(TAG, err);
-                Crashlytics.logException(new Exception(err));
+                FirebaseCrashlytics.getInstance().recordException(new Exception(err));
         }
 
         String reason = "";
@@ -746,7 +746,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
             Status s = db.findStatusByID(a.getStatusID());
             assetStatus = s.getName();
         } catch (StatusNotFoundException e) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
         statusText = String.format(statusText, assetStatus, expectedStatusesString);
         return statusText;
@@ -763,7 +763,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                 sb.append(s.getName());
                 prefix = ", ";
             } catch (StatusNotFoundException e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
             }
         }
 
@@ -896,7 +896,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         } catch (AssetNotFoundException e) {
             e.printStackTrace();
             Log.d(TAG, "Unable to find asset for scanned input string: '" + text + "'");
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
 
             AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                     .setTitle(getResources().getString(R.string.asset_scan_list_unknown_asset_title))
@@ -1068,7 +1068,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                     Log.e(TAG, "Could not find asset matching asset ID " + record.getAssetID()
                             + " from deleted asset audit detail record.  This asset will not be " +
                             "added back to list of unaudited assets");
-                    Crashlytics.logException(e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                 }
 
                 showHideIntro();

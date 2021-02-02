@@ -22,8 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import io.phobotic.nodyn_app.reporting.CustomEvents;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
@@ -42,6 +41,6 @@ public class UpgradeReceiver extends BroadcastReceiver {
         SyncScheduler scheduler = new SyncScheduler(context);
         scheduler.forceScheduleSync();
 
-        Answers.getInstance().logCustom(new CustomEvent(CustomEvents.UPGRADE_RECEIVER_FIRED));
+        FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.UPGRADE_RECEIVER_FIRED, null);
     }
 }

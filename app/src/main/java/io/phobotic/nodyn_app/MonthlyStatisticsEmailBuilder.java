@@ -23,7 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
@@ -105,7 +105,7 @@ public class MonthlyStatisticsEmailBuilder implements StatisticsEmailBuilder {
         } catch (IOException e) {
             e.printStackTrace();
             Log.e(TAG, "Caught unexpected IOException while building weekly statistics email: " + e.getMessage());
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
 
         return html;
