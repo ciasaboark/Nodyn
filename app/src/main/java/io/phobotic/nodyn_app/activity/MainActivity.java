@@ -113,9 +113,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        final View v = findViewById(R.id.drawer_layout);
-
+        
         FrameLayout frame = findViewById(R.id.frame);
 
         Fragment newFragment = null;
@@ -273,6 +271,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
 
@@ -439,7 +438,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(i);
             highlightItem = false;
         } else if (id == R.id.nav_check_out) {
-            loadCheckoutOrShowError();
+            Intent i = new Intent(this, CheckoutActivity.class);
             highlightItem = false;
         } else if (id == R.id.nav_assets) {
             newFragment = AssetListFragment.newInstance(1);
@@ -484,73 +483,6 @@ public class MainActivity extends AppCompatActivity
         return highlightItem;
     }
 
-    /**
-     * Disable access to the check out function if this device has not had a full sync with the backend
-     * recently
-     */
-    private void loadCheckoutOrShowError() {
-        SyncAttempt lastSuccess = SyncManager.getLastSuccessfulSync(this);
-        boolean isAllowed = true;
-        SharedPreferences prefs = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
-        //disable access if we have never synced or if we have not synced within the last 4 requested sync timeframes
-        if (lastSuccess == null) {
-            isAllowed = false;
-        } else {
-            long now = System.currentTimeMillis();
-
-            String wakePeriodString = prefs.getString(this.getString(R.string.pref_key_sync_frequency),
-                    this.getString(R.string.pref_default_sync_frequency));
-            long syncFrequencyMs = Integer.parseInt(wakePeriodString) * 1000 * 60;
-
-            long warningEnd = now - (syncFrequencyMs * 4);
-            if (lastSuccess.getEndTime() < warningEnd) {
-                isAllowed = false;
-            }
-        }
-
-        if (isAllowed) {
-            Intent i = new Intent(this, CheckoutActivity.class);
-            startActivity(i);
-        } else {
-            //show the error dialog
-            View v = getLayoutInflater().inflate(R.layout.dialog_checkout_disabled, null);
-            TextView error = v.findViewById(R.id.error);
-            String msg;
-            if (lastSuccess == null) {
-                msg = getString(R.string.check_out_disable_no_sync_never_synced);
-            } else {
-                Date d = new Date(lastSuccess.getEndTime());
-                DateFormat df = DateFormat.getDateTimeInstance();
-                msg = getString(R.string.check_out_disable_no_sync_last_sync, df.format(d));
-            }
-
-            error.setText(msg);
-
-            //build the equipment managers string
-            TextView equipmentManagers = v.findViewById(R.id.equipment_managers);
-            String eqptMngrString;
-            String mngrName = prefs.getString(getString(R.string.pref_key_equipment_managers_name), null);
-            if (mngrName == null || StringUtils.trim(mngrName).length() == 0) {
-                mngrName = getString(R.string.pref_default_equipment_managers_name);
-            }
-
-            eqptMngrString = getString(R.string.check_out_disable_no_sync_equip_mngr, mngrName);
-            equipmentManagers.setText(eqptMngrString);
-
-            AlertDialog d = new MaterialAlertDialogBuilder(this)
-                    .setTitle("Asset Checkouts Unavailable")
-                    .setView(v)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //do nothing
-                        }
-                    })
-                    .create();
-            d.show();
-        }
-    }
-
     @Override
     public void onListFragmentInteraction(User user, @Nullable Pair<View, String>... sharedElements) {
         Intent i = new Intent(this, UserDetailsActivity.class);
@@ -565,14 +497,14 @@ public class MainActivity extends AppCompatActivity
     public void onListFragmentInteraction(Asset asset, @Nullable Pair<View, String>... sharedElements) {
         //make sharedElements null safe
         int size = 0;
-        for (Pair p : sharedElements) {
+        for (Pair<View, String> p : sharedElements) {
             if (p != null) {
                 size++;
             }
         }
         Pair<View, String>[] safePairs = new Pair[size];
         int index = 0;
-        for (Pair p : sharedElements) {
+        for (Pair<View, String> p : sharedElements) {
             if (p != null) {
                 safePairs[index] = p;
                 index++;
