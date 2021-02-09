@@ -67,6 +67,7 @@ public class VerifyCheckinView extends LinearLayout {
                 verifcationText = getResources().getString(R.string.check_in_no_verification_text);
             }
             markdownView.loadMarkdown(verifcationText, "file:///android_asset/markdown.css");
+            markdownView.setBackgroundColor(getContext().getResources().getColor(R.color.dialog_window_background));
         }
     }
 }
