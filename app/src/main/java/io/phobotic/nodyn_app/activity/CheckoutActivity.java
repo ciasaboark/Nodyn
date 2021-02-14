@@ -45,6 +45,7 @@ import io.phobotic.nodyn_app.service.SyncService;
 public class CheckoutActivity extends AppCompatActivity implements CheckInOutListener, UserAuthorizationFragment.OnUserAuthorizedListener {
     private static final String TAG = CheckoutActivity.class.getSimpleName();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +90,7 @@ public class CheckoutActivity extends AppCompatActivity implements CheckInOutLis
         super.onStop();
         //go ahead a schedule a quick sync so any checkout records can be pushed out as soon as possible
         Intent i = new Intent(this, SyncService.class);
-        i.putExtra(SyncService.SYNC_TYPE_KEY, SyncService.SYNC_TYPE_QUICK);
+        i.putExtra(SyncService.SYNC_TYPE_KEY, SyncService.SYNC_TYPE_FULL);
         startService(i);
     }
 
@@ -99,6 +100,7 @@ public class CheckoutActivity extends AppCompatActivity implements CheckInOutLis
     private void setupActionBar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        toolbar.setTitle(R.string.title_activity_check_out);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();

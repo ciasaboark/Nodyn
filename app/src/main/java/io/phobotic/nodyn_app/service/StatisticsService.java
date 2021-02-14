@@ -54,6 +54,7 @@ import io.phobotic.nodyn_app.database.statistics.summary.models.ModelStatisticsB
 import io.phobotic.nodyn_app.database.statistics.summary.models.ModelStatisticsDatabase;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 import io.phobotic.nodyn_app.sync.SyncManager;
+import io.phobotic.nodyn_app.sync.adapter.ActionHistory;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
 import io.phobotic.nodyn_app.sync.adapter.SyncNotSupportedException;
@@ -119,7 +120,8 @@ public class StatisticsService extends IntentService {
 
             List<Action> actions = new ArrayList<>();
             try {
-                actions = syncAdapter.getThirtyDayActivity(this);
+                ActionHistory actionHistory = syncAdapter.getThirtyDayActivity(this);
+                actions = actionHistory.getList();
             } catch (SyncNotSupportedException e) {
                 Log.e(TAG, String.format("Sync adapter %s does not support fetching action " +
                         "history", syncAdapter.getAdapterName()));
@@ -186,6 +188,15 @@ public class StatisticsService extends IntentService {
     private List<AssetStatistics> getAssetStatistics(List<Action> actions, long minTimestamp) {
         Map<Integer, AssetStatisticsBuilder> assetStatisticsMap = new HashMap<>();
         Database db = Database.getInstance(this);
+
+        //its possible that an asset had no history within the action history.  Go ahead and add
+        //+ placeholder records for every asset known
+        List<Asset> allAssets = db.getAssets();
+        for (Asset asset: allAssets) {
+            AssetStatisticsBuilder builder = new AssetStatisticsBuilder(this, asset);
+            assetStatisticsMap.put(asset.getId(), builder);
+        }
+
         for (Action action : actions) {
             int assetID = action.getAssetID();
             try {
@@ -215,7 +226,6 @@ public class StatisticsService extends IntentService {
         Map<Long, DayActivitySummary> dayActivityMap = new HashMap<>();
         Calendar calendar = Calendar.getInstance();
         normalize(calendar);
-
 
         //insert placeholders for every day within the previous 30 days.  This will simplify building
         //+ the chart later on

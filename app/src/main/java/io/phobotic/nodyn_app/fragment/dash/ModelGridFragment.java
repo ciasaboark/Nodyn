@@ -72,7 +72,7 @@ public class ModelGridFragment extends Fragment {
     private HashMap<Model, Integer> overFlowModels;
     private View overflowBox;
 
-    public static ModelGridFragment newInstance(String param1, String param2) {
+    public static ModelGridFragment newInstance() {
         ModelGridFragment fragment = new ModelGridFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -181,15 +181,16 @@ public class ModelGridFragment extends Fragment {
 
         Random r = new Random(System.currentTimeMillis());
 
-        int maxItems = 9;
+        int maxItems = getContext().getResources().getInteger(R.integer.model_fragment_grid_max_records);;
         int itemCount = 0;
+        int maxColumns = getContext().getResources().getInteger(R.integer.model_fragment_grid_columns);
         for (Map.Entry<Model, Integer> entry : modelCount.entrySet()) {
             Model model = entry.getKey();
             int count = entry.getValue();
             if (itemCount >= maxItems) {
-                addModelToGrid(gridOverflowView, count, model);
+                addModelToGrid(gridOverflowView, count, model, maxColumns);
             } else {
-                addModelToGrid(gridView, count, model);
+                addModelToGrid(gridView, count, model, maxColumns);
 
             }
             itemCount++;
@@ -223,14 +224,16 @@ public class ModelGridFragment extends Fragment {
         return statusValid;
     }
 
-    private void addModelToGrid(GridLayout gridLayout, int count, Model model) {
+
+
+    private void addModelToGrid(GridLayout gridLayout, int count, Model model, int maxColumns) {
         LinearLayout container = null;
         if (gridLayout.getChildCount() == 0) {
             container = getNewContainer();
             gridLayout.addView(container);
         } else {
             LinearLayout l = (LinearLayout) gridLayout.getChildAt(gridLayout.getChildCount() - 1);
-            if (l.getChildCount() <= 2) {
+            if (l.getChildCount() < maxColumns) {
                 //set each sub container hold 3 child cards
                 container = l;
             } else {

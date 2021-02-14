@@ -73,7 +73,7 @@ public class FilterHelper {
             Action action = it.next();
             boolean isActionUserAllowed = isActionUserAllowed(context, db, action, syncAllCompanies, allowedCompanies);
             boolean isActionAssetAllowed = isActionAssetAllowed(context, db, action, syncAllCompanies, allowedCompanies, syncAllModels, allowedModels);
-            if (!isActionAssetAllowed && !isActionUserAllowed) {
+            if (!isActionAssetAllowed || !isActionUserAllowed) {
                 it.remove();
             }
         }

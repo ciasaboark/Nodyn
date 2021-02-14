@@ -26,7 +26,7 @@ import androidx.room.RoomDatabase;
 /**
  * Created by Jonathan Nelson on 2019-05-11.
  */
-@Database(entities = {AssetStatistics.class}, version = 4)
+@Database(entities = {AssetStatistics.class}, version = 5)
 public abstract class AssetStatisticsDatabase extends RoomDatabase {
     private static AssetStatisticsDatabase instance;
 

@@ -17,11 +17,17 @@
 
 package io.phobotic.nodyn_app.database.sync;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import java.text.DateFormat;
 import java.util.Date;
 
+import androidx.preference.PreferenceManager;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
 
@@ -164,6 +170,60 @@ public class Action {
         Date d = new Date(timestamp);
 
         return df.format(d) + " <" + userID + "> " + direction.toString() + " [" + assetID + "]";
+    }
+
+    /**
+     * Returns a String sutable to be used in the notes field
+     * @param a
+     * @return
+     */
+    public String generateNotes(Context context) {
+        return Action.generateNotesFromAction(context, this);
+    }
+
+    public static String generateNotesFromAction(Context context, Action action) {
+        return generateNotesFromData(context, action.getDirection(),
+                action.getAuthorization(), action.isVerified());
+    }
+
+    public static String generateNotesFromData(Context context,
+                   Direction direction, String authorizingUser, boolean isVerified) {
+        StringBuilder notes = new StringBuilder("Nodyn ");
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Database db = Database.getInstance(context);
+
+        String deviceName = prefs.getString(context.getString(R.string.pref_key_general_id),
+                context.getString(R.string.pref_default_general_id));
+        if (deviceName != null && deviceName.length() > 0) {
+            notes.append("<" + deviceName + "> ");
+        }
+
+        switch (direction) {
+            case CHECKIN:
+                notes.append("checkin.");
+
+                //who (if anyone) authorized the asset check in?
+                if (authorizingUser != null) {
+                    notes.append(" Authorization: '" + authorizingUser + "'.");
+                }
+
+                //did the authorizing user verify the asset was undamaged during checkin?
+                notes.append(" Asset verified undamaged: " + isVerified + ".");
+                break;
+            case CHECKOUT:
+                notes.append("checkout.");
+
+                //who (if anyone) authorized the asset check out?
+                if (authorizingUser != null) {
+                    notes.append(" Authorization: '" + authorizingUser + "'.");
+                }
+
+                //did the associate checking out the asset have to agree to the eula?
+                notes.append(" EULA shown: " + isVerified + ".");
+                break;
+        }
+
+        return notes.toString();
     }
 
     public enum Direction {

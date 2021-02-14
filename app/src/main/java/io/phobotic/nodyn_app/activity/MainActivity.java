@@ -36,6 +36,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +51,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity
     private Fragment currentFragment;
     private ImageButton syncIcon;
     private BroadcastReceiver br;
+    private ProgressBar syncProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +106,10 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        this.syncProgress = findViewById(R.id.progress);
+        this.syncProgress.setVisibility(View.GONE);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Nodyn");
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -113,7 +119,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        
+
         FrameLayout frame = findViewById(R.id.frame);
 
         Fragment newFragment = null;
@@ -121,6 +127,7 @@ public class MainActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             //use the default fragment if we did not have a previous one (i.e. app first start)
             newFragment = getDefaultMainFragment();
+            updateMainFragment(newFragment);
         } else {
             //if we already had a fragment loaded then use that
             currentFragment = getSupportFragmentManager().getFragment(savedInstanceState, MAIN_FRAGMENT);
@@ -137,13 +144,15 @@ public class MainActivity extends AppCompatActivity
         if (shouldShowAdapterError()) {
             newFragment = BackendErrorFragment.newInstance();
             hideSyncOverflowOption = true;
+            updateMainFragment(newFragment);
         } else if (shouldShowFirstSyncError()) {
             newFragment = FirstSyncErrorFragment.newInstance();
             ((FirstSyncErrorFragment) newFragment).setOnSetupCompleteListener(this);
             hideSyncOverflowOption = true;
+            updateMainFragment(newFragment);
         }
 
-        updateMainFragment(newFragment);
+
 
         Intent i = getIntent();
         final boolean syncNow = i.getBooleanExtra(SYNC_NOW, false);
@@ -167,19 +176,32 @@ public class MainActivity extends AppCompatActivity
                                 syncIcon.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.rotate));
                             }
                         });
+                        syncProgress.setIndeterminate(true);
+                        AnimationHelper.fadeIn(MainActivity.this, syncProgress);
                         break;
                     case SyncService.BROADCAST_SYNC_FINISH:
-                        AnimationHelper.fadeOutInvisible(MainActivity.this, syncIcon, new AnimationHelper.AnimateListener() {
+                        AnimationHelper.fadeOut(MainActivity.this, syncIcon, new AnimationHelper.AnimateListener() {
                             @Override
                             public void onAnimationFinished() {
                                 syncIcon.clearAnimation();
                             }
                         });
+                        AnimationHelper.fadeOut(MainActivity.this, syncProgress);
                         break;
                     case SyncService.BROADCAST_SYNC_FAIL:
                         syncIcon.clearAnimation();
                         syncIcon.setVisibility(View.VISIBLE);
                         syncIcon.setImageDrawable(getResources().getDrawable(R.drawable.sync_alert));
+                        AnimationHelper.fadeOut(MainActivity.this, syncProgress);
+                        break;
+                    case SyncService.BROADCAST_SYNC_UPDATE:
+                        int progress = intent.getIntExtra(SyncService.BROADCAST_SYNC_PROGRESS_MAIN, -1);
+
+                        if (progress > 0) {
+                            syncProgress.setIndeterminate(false);
+                            syncProgress.setProgress(progress);
+                        }
+
                         break;
                 }
             }
@@ -215,16 +237,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putInt("foo", 1);
         super.onSaveInstanceState(outState);
+    }
 
-        Fragment curFragment = getSupportFragmentManager().findFragmentById(R.id.frame);
-        //Save the fragment's instance
-        if (curFragment == null) {
-            Log.e(TAG, "Main activity current fragment is null.  Unable to store current fragment");
-        } else {
-            getSupportFragmentManager().putFragment(outState, MAIN_FRAGMENT, curFragment);
-        }
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     private Fragment getDefaultMainFragment() {
@@ -255,19 +275,15 @@ public class MainActivity extends AppCompatActivity
     private void updateMainFragment(Fragment fragment) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (currentFragment == null) {
-            ft.add(R.id.frame, fragment).commit();
+            ft.add(R.id.frame, fragment, "main_fragment").commit();
         } else {
-            ft.replace(R.id.frame, fragment).commit();
+            ft.replace(R.id.frame, fragment, "main_fragment").commit();
         }
 
         currentFragment = fragment;
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
 
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -341,6 +357,7 @@ public class MainActivity extends AppCompatActivity
         filter.addAction(SyncService.BROADCAST_SYNC_START);
         filter.addAction((SyncService.BROADCAST_SYNC_FINISH));
         filter.addAction(SyncService.BROADCAST_SYNC_FAIL);
+        filter.addAction(SyncService.BROADCAST_SYNC_UPDATE);
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter);
     }
 
@@ -439,6 +456,7 @@ public class MainActivity extends AppCompatActivity
             highlightItem = false;
         } else if (id == R.id.nav_check_out) {
             Intent i = new Intent(this, CheckoutActivity.class);
+            startActivity(i);
             highlightItem = false;
         } else if (id == R.id.nav_assets) {
             newFragment = AssetListFragment.newInstance(1);

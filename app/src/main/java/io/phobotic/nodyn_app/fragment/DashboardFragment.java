@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -52,6 +54,9 @@ import io.phobotic.nodyn_app.service.SyncService;
  */
 public class DashboardFragment extends Fragment {
     private static final String TAG = DashboardFragment.class.getSimpleName();
+    private static final String KEY_FRAGMENT_LAST_SYNC = "last_sync_fragment";
+    private static final String KEY_FRAGMENT_MODEL_GRID = "model_grid_fragment";
+    private static final String KEY_FRAGMENT_CHECKOUT_OVERVIEW = "checkout_overview_fragment";
     private View rootView;
     private boolean isLoading = false;
     private Database db;
@@ -87,8 +92,22 @@ public class DashboardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if (getArguments() != null) {
+        FragmentManager fm = getChildFragmentManager();
+        if (savedInstanceState == null) {
 
+            this.lastSyncFragment = LastSyncFragment.newInstance();
+            this.modelGridFragment = ModelGridFragment.newInstance();
+            this.overviewFragment = CheckoutOverviewFragment.newInstance();
+
+            fm.beginTransaction().setReorderingAllowed(true)
+                    .add(R.id.last_sync_fragment, this.lastSyncFragment, "last_sync")
+                    .add(R.id.model_grid_fragment, this.modelGridFragment, "model_grid")
+                    .add(R.id.checkout_overview_fragment, this.overviewFragment, "checkout_overview")
+                    .commit();
+        } else {
+            lastSyncFragment = (LastSyncFragment) fm.findFragmentByTag("last_sync");
+            modelGridFragment = (ModelGridFragment) fm.findFragmentByTag("model_grid");
+            overviewFragment = (CheckoutOverviewFragment) fm.findFragmentByTag("checkout_overview");
         }
     }
 
@@ -102,12 +121,6 @@ public class DashboardFragment extends Fragment {
     }
 
     private void init() {
-        FragmentManager fm = getChildFragmentManager();
-        lastSyncFragment = (LastSyncFragment) fm.findFragmentById(R.id.last_sync_fragment);
-        modelGridFragment = (ModelGridFragment) fm.findFragmentById(R.id.model_grid_fragment);
-        overviewFragment = (CheckoutOverviewFragment) fm.findFragmentById(R.id.checkout_overview_fragment);
-
-
         br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -122,15 +135,23 @@ public class DashboardFragment extends Fragment {
                 }
             }
         };
+
     }
 
     /**
      * Force the internal fragments to re-load their data
      */
     private void refresh() {
+        Log.d(TAG, "refresh()");
         modelGridFragment.refresh();
         overviewFragment.refresh();
         isLoading = false;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        getChildFragmentManager().putFragment(outState, KEY_FRAGMENT_LAST_SYNC, this.lastSyncFragment);
     }
 
     @Override

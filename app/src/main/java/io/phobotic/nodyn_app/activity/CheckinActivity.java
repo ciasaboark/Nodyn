@@ -17,12 +17,15 @@
 
 package io.phobotic.nodyn_app.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -48,6 +51,8 @@ import io.phobotic.nodyn_app.fragment.listener.CheckInOutListener;
 import io.phobotic.nodyn_app.service.SyncService;
 import io.phobotic.nodyn_app.view.VerifyCheckinView;
 
+import static io.phobotic.nodyn_app.fragment.SyncNotificationFragment.BROADCAST_SYNC_DETAILS_SHOWN;
+
 public class CheckinActivity extends AppCompatActivity implements CheckInOutListener, UserAuthorizationFragment.OnUserAuthorizedListener {
     private static final String TAG = CheckinActivity.class.getSimpleName();
 
@@ -60,13 +65,13 @@ public class CheckinActivity extends AppCompatActivity implements CheckInOutList
         if (savedInstanceState == null) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             boolean authorizationRequired = prefs.getBoolean(
-                    getString(R.string.pref_key_check_in_require_scan), Boolean.parseBoolean(
-                            getString(R.string.pref_default_check_in_require_scan)));
+                    getString(R.string.pref_key_check_out_require_authorization), Boolean.parseBoolean(
+                            getString(R.string.pref_default_check_out_require_authorization)));
 
             Fragment newFragment;
             if (authorizationRequired) {
                 Set<String> groupSet = prefs.getStringSet(getResources()
-                        .getString(R.string.pref_key_check_in_authenticating_groups), new HashSet<String>());
+                        .getString(R.string.pref_key_check_out_authorization_groups), new HashSet<String>());
                 ArrayList<Integer> groupIDList = new ArrayList<>();
                 for (String s : groupSet) {
                     try {
@@ -88,6 +93,8 @@ public class CheckinActivity extends AppCompatActivity implements CheckInOutList
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.add(R.id.frame, newFragment).commit();
         }
+
+
     }
 
     /**
@@ -96,6 +103,7 @@ public class CheckinActivity extends AppCompatActivity implements CheckInOutList
     private void setupActionBar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        toolbar.setTitle(R.string.title_activity_check_in);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();

@@ -24,3 +24,17 @@ Licensed under the Createive Commons Attribution License https://creativecommons
 https://freesound.org/people/original_sound/sounds/372198/
 
 Licensed under the Createive Commons Attribution License https://creativecommons.org/licenses/by/3.0/
+
+
+
+<div>Icons made by <a href="https://www.flaticon.com/authors/dinosoftlabs" title="DinosoftLabs">DinosoftLabs</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+[
+  ](https://flaticon.zendesk.com/hc/en-us/articles/207248209-How-I-must-insert-the-attribution-)
+
+
+ic_devices_tech_isometric from  <a href="https://www.freepik.com/vectors/technology">Technology vector created by natalka_dmitrova - www.freepik.com</a>
+
+<a href="https://www.freepik.com/vectors/business">Business vector created by fullvector - www.freepik.com</a>
+<a href="https://www.freepik.com/vectors/laptop">Laptop vector created by macrovector - www.freepik.com</a>
+

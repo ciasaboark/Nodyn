@@ -18,6 +18,7 @@
 package io.phobotic.nodyn_app.activity;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 
@@ -26,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.fragment.asset.AssetDetailsFragment;

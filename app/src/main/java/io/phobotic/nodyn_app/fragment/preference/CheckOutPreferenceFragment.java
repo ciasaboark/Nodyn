@@ -40,6 +40,7 @@ import java.util.Set;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.preference.DropDownPreference;
 import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -169,6 +170,12 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
         initTimeout();
         initDuration();
         initAllowedStatusesSelect();
+        initEULA();
+    }
+
+    private void initEULA() {
+        DropDownPreference eulaType = findPreference(getString(R.string.pref_key_check_out_eula_type));
+        //dropdown does not
     }
 
     private void initGroupSelect() {
@@ -333,7 +340,7 @@ public class CheckOutPreferenceFragment extends PreferenceFragmentCompat {
                         .newInstance(preference.getKey(), "minute", "minutes", "Never");
             } else if (preference.equals(durationPreference)) {
                 dialogFragment = NumberPickerPreferenceDialogFragmentCompat
-                        .newInstance(preference.getKey(), "day", "days", "Indefinately");
+                        .newInstance(preference.getKey(), "day", "days", "Indefinitely");
             }
         } else if (preference instanceof EmailRecipientsPreference) {
             // Create a new instance of EmailRecipientsPreferenceDialogFragmentCompat with the key of the related

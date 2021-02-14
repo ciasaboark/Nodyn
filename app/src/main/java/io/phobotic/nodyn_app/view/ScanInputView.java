@@ -26,6 +26,9 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Animatable2;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.usb.UsbManager;
@@ -45,6 +48,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -73,12 +77,14 @@ import java.util.Random;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.RoomDBWrapper;
 import io.phobotic.nodyn_app.database.scan.ScanRecord;
 import io.phobotic.nodyn_app.database.scan.ScanRecordDatabase;
 import io.phobotic.nodyn_app.helper.AnimationHelper;
-import pl.bclogic.pulsator4droid.library.PulsatorLayout;
+
 
 public class ScanInputView extends RelativeLayout {
     private static final String TAG = ScanInputView.class.getSimpleName();
@@ -98,7 +104,7 @@ public class ScanInputView extends RelativeLayout {
     private ScanRecordDatabase db;
 
     private View hardwareWrapper;
-    private PulsatorLayout pulsator;
+    private ImageView pulsator;
     private EditText hardwareEditText;
 
     private View oskWrapper;
@@ -140,7 +146,7 @@ public class ScanInputView extends RelativeLayout {
         oskEditText.setText("");
         hardwareEditText.setText("");
         updatePreview(null);
-        focusInput();
+        focus();
     }
 
     private void updatePreview(String str) {
@@ -153,8 +159,11 @@ public class ScanInputView extends RelativeLayout {
         preview.setText(str);
     }
 
-    public void focusInput() {
+    public void focus() {
         if (this.inputMethod != null) {
+            requestFocus();
+            clearFocus();
+
             switch (this.inputMethod) {
                 case OSK:
                     oskEditText.requestFocus();
@@ -214,7 +223,7 @@ public class ScanInputView extends RelativeLayout {
 
             oskEditText.clearFocus();
             hardwareEditText.clearFocus();
-            focusInput();
+            focus();
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             isGhostMode = prefs.getBoolean(getResources().getString(R.string.pref_key_general_kiosk_echo),
@@ -472,15 +481,11 @@ public class ScanInputView extends RelativeLayout {
         torchButton = rootView.findViewById(R.id.torch_button);
     }
 
-    public void focus() {
-        focusInput();
-    }
-
     @Override
     protected void onFocusChanged(boolean gainFocus, int direction, @Nullable Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         if (gainFocus) {
-            focusInput();
+            focus();
         }
     }
 
@@ -505,11 +510,19 @@ public class ScanInputView extends RelativeLayout {
         hardwareEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    pulsator.start();
-                } else {
-                    pulsator.stop();
-                }
+                //delay stopping the pulse animation in case the focus was just temporarily reassigned
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        AnimatedVectorDrawableCompat animatable = (AnimatedVectorDrawableCompat) pulsator.getDrawable();
+                        if (hardwareEditText.hasFocus()) {
+                            animatable.start();
+                        } else {
+                            animatable.stop();
+                        }
+                    }
+                }, 100);
+
             }
         });
 
@@ -743,8 +756,25 @@ public class ScanInputView extends RelativeLayout {
 
         }
 
+        final AnimatedVectorDrawableCompat animated = AnimatedVectorDrawableCompat
+                .create(getContext(), R.drawable.barcode_animation);
+        pulsator.setImageDrawable(animated);
+
         AnimationHelper.fadeIn(getContext(), hardwareWrapper);
-        pulsator.start();
+
+
+        //keep looping the animation while the hardware input has focus
+        animated.registerAnimationCallback(new Animatable2Compat.AnimationCallback() {
+            @Override
+            public void onAnimationEnd(Drawable drawable) {
+                super.onAnimationEnd(drawable);
+                if (hardwareWrapper.hasFocus()) {
+                    animated.start();
+                }
+            }
+        });
+        animated.start();
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

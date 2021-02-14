@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2021 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -16,16 +16,16 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/list"
-    android:name="io.phobotic.nodyn.fragment.UserListFragment"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clipChildren="false"
-    android:background="@color/window_background"
-    app:layoutManager="LinearLayoutManager"
-    tools:context="io.phobotic.nodyn_app.fragment.user.UserListFragment"
-    tools:listitem="@layout/view_user"/>
+<resources>
+    <string-array name="eula_display_type_name">
+        <item>Do not display EULA</item>
+        <item>Default EULA only</item>
+        <item>Asset category EULA or fallback to default EULA</item>
+    </string-array>
+
+    <string-array name="eula_display_type_key">
+        <item>none</item>
+        <item>default</item>
+        <item>category_and_default</item>
+    </string-array>
+</resources>

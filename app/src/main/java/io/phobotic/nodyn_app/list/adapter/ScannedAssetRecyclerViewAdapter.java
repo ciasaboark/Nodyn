@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -174,23 +175,44 @@ public class ScannedAssetRecyclerViewAdapter extends
         if (isCheckAssetAvailability) {
             availabliltyBox.setVisibility(View.VISIBLE);
             AssetScannerView.AVAILABILITY availability = holder.item.getAvailability();
+            ImageView availabilityIV = holder.view.findViewById(R.id.availability_icon);
+            availabilityIV.setVisibility(View.GONE);
+
             String statusString = null;
             switch (availability) {
                 case UNKNOWN:
                     statusString = "Unknown status";
+                    availabilityIV.setVisibility(View.VISIBLE);
+                    availabilityIV.setImageDrawable(context.getDrawable(R.drawable.cloud_question));
+                    availabilityIV.setColorFilter(context.getResources().getColor(R.color.white));
                     break;
                 case AVAILABLE:
-                    statusString = "Available!";
+                    statusString = "Confirmed available!";
+                    availabilityIV.setVisibility(View.VISIBLE);
+                    availabilityIV.setImageDrawable(context.getDrawable(R.drawable.check));
+                    availabilityIV.setColorFilter(context.getResources().getColor(R.color.success));
                     break;
                 case CHECKING:
                     statusString = "Checking availablility...";
                     break;
                 case NOT_AVAILABLE:
-                    statusString = "Item not available!";
+                    availabilityIV.setVisibility(View.VISIBLE);
+                    availabilityIV.setImageDrawable(context.getDrawable(R.drawable.close));
+                    availabilityIV.setColorFilter(context.getResources().getColor(R.color.warning_strong));
+                    statusString = "Asset not available!";
                     break;
             }
             TextView availabilityText = holder.view.findViewById(R.id.availability);
             availabilityText.setText(statusString);
+
+            TextView optionalMessage = holder.view.findViewById(R.id.message);
+            String message = holder.item.getMessage();
+            if (message == null) {
+                optionalMessage.setVisibility(View.GONE);
+            } else {
+                optionalMessage.setVisibility(View.VISIBLE);
+                optionalMessage.setText(message);
+            }
 
             View progress = holder.view.findViewById(R.id.progress);
             if (holder.item.isCheckInProgress()) {

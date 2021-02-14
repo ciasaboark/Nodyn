@@ -239,7 +239,7 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
     }
 
     private String getRecipientsString() {
-        String recipientsString = null;
+        String recipientsString = "";
         String prefix = "";
         if (recipientsList.size() > 0) {
             recipientsString = "";

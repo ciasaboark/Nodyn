@@ -68,54 +68,33 @@ public class UserView extends LinearLayout {
         rootView = inflate(context, R.layout.view_user, this);
 
         name = rootView.findViewById(R.id.model);
-
         username = rootView.findViewById(R.id.username);
-        usernameBox = rootView.findViewById(R.id.username_box);
-
         groups = rootView.findViewById(R.id.groups);
-        groupsBox = rootView.findViewById(R.id.groups_box);
-
         numAssets = rootView.findViewById(R.id.num_assets);
-        numAssetsBox = rootView.findViewById(R.id.num_assets_box);
-
         employeeNo = rootView.findViewById(R.id.employee_no);
-        employeeNoBox = rootView.findViewById(R.id.employee_no_box);
-
         image = rootView.findViewById(R.id.image);
         setFields();
     }
 
     private void setFields() {
         if (!isInEditMode()) {
-            unHideAllViews();
             if (user != null) {
-                setTextOrHide(name, name, user.getName());
-                setTextOrHide(usernameBox, username, user.getUsername());
+                setTextOrHide(name, user.getName());
+                setTextOrHide(username, user.getUsername());
                 // TODO: 9/13/17 update this to use names instead of IDs
-                setTextOrHide(groupsBox, groups, getGroupString());
+                setTextOrHide(groups, getGroupString());
                 List<Asset> assetList = db.findAssetByUserID(user.getId());
-                setTextOrHide(numAssetsBox, numAssets, String.valueOf(assetList.size()));
-                setTextOrHide(employeeNoBox, employeeNo, user.getEmployeeNum());
+                setTextOrHide(numAssets, String.valueOf(assetList.size()));
+                setTextOrHide(employeeNo, user.getEmployeeNum());
                 loadImage();
             }
         }
     }
 
-    private void unHideAllViews() {
-        name.setVisibility(View.VISIBLE);
-        usernameBox.setVisibility(View.VISIBLE);
-        numAssetsBox.setVisibility(View.VISIBLE);
-        groupsBox.setVisibility(View.VISIBLE);
-        employeeNoBox.setVisibility(View.VISIBLE);
-    }
 
-    private void setTextOrHide(View view, TextView tv, @Nullable String text) {
-        if (text == null || text.equals("")) {
-            view.setVisibility(View.GONE);
-        } else {
-            view.setVisibility(View.VISIBLE);
-            tv.setText(text);
-        }
+
+    private void setTextOrHide(TextView tv, @Nullable String text) {
+        tv.setText(text);
     }
 
     private String getGroupString() {

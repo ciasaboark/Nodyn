@@ -348,18 +348,17 @@ public class AssetListFragment extends Fragment {
                     AssetListFragment.this.assets = simplifiedAssets;
                 } catch (Exception e) {
                     FirebaseCrashlytics.getInstance().recordException(e);
-                    new Handler(getContext().getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Activity a = getActivity();
-                            if (a != null) {
-                                //already on the main looper.  no need for runOnUiThread()
+                    Log.e(TAG, String.format("Caught exception showing proper asset list view: %s", e.getMessage()));
+                    Activity a = getActivity();
+                    if (a != null) {
+                        a.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
                                 assets = new ArrayList<>();
                                 showEmptyListError();
                             }
-                            ;
-                        }
-                    });
+                        });
+                    }
                 }
 
                 Activity a = getActivity();

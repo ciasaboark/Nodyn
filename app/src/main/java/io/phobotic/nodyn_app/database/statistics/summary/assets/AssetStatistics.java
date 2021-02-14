@@ -42,6 +42,9 @@ public class AssetStatistics {
     @ColumnInfo(name = "percent_in_use")
     private float percentInUse;
 
+    @ColumnInfo(name = "hours_in_use")
+    private float hoursInUse;
+
     @ColumnInfo(name = "favoring_user")
     private int favoringUser;
 
@@ -56,11 +59,12 @@ public class AssetStatistics {
     }
 
     @Ignore
-    public AssetStatistics(int id, String tag, float percentInUse, int favoringUser,
+    public AssetStatistics(int id, String tag, float percentInUse, float hoursInUse, int favoringUser,
                            long lastUpdated, List<UsageRecord> usageRecords) {
         this.id = id;
         this.tag = tag;
         this.percentInUse = percentInUse;
+        this.hoursInUse = hoursInUse;
         this.favoringUser = favoringUser;
         this.lastUpdated = lastUpdated;
         this.usageRecords = usageRecords;
@@ -112,5 +116,13 @@ public class AssetStatistics {
 
     public void setFavoringUser(int favoringUser) {
         this.favoringUser = favoringUser;
+    }
+
+    public float getHoursInUse() {
+        return hoursInUse;
+    }
+
+    public void setHoursInUse(float hoursInUse) {
+        this.hoursInUse = hoursInUse;
     }
 }

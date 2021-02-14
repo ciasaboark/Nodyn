@@ -323,6 +323,13 @@ public class Database {
                                      long expectedCheckin, @Nullable User authorizingUser,
                                      boolean isVerified) throws
             UserNotFoundException, AssetNotFoundException {
+        checkoutAssetsToUser(user, assetList, expectedCheckin, authorizingUser, isVerified, false);
+    }
+
+    public void checkoutAssetsToUser(@NotNull User user, @NotNull List<Asset> assetList,
+                                     long expectedCheckin, @Nullable User authorizingUser,
+                                     boolean isVerified, boolean isSynced) throws
+            UserNotFoundException, AssetNotFoundException {
         if (assetList == null || user == null) {
             throw new IllegalArgumentException("Asset list and user must not be null");
         }
@@ -330,12 +337,14 @@ public class Database {
         //write the action records to the database
         for (Asset asset : assetList) {
             Action action = new Action(asset, user,
-                    System.currentTimeMillis(), expectedCheckin, Action.Direction.CHECKOUT, false);
+                    System.currentTimeMillis(), expectedCheckin, Action.Direction.CHECKOUT,
+                    isSynced);
             if (authorizingUser != null) {
                 action.setAuthorization(authorizingUser.getName());
             }
 
             action.setVerified(isVerified);
+            action.setSynced(isSynced);
             insertActionItem(action);
         }
 

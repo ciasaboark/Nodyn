@@ -17,6 +17,7 @@
 
 package io.phobotic.nodyn_app.fragment.user;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import io.phobotic.nodyn_app.R;
@@ -126,6 +128,20 @@ public class UserDetailsFragment extends Fragment {
 
             }
         });
+
+        // TODO: 2/9/2021 actually add the user statistics portion at some point
+//        //hide the statistics tab if that has been disabled in settings
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+//        boolean isStatsEnabled = prefs.getBoolean(getString(R.string.pref_key_stats_enable),
+//                Boolean.parseBoolean(getString(R.string.pref_default_stats_enable)));
+//        boolean isUserStatsEnabled = prefs.getBoolean(getString(R.string.pref_key_user_statistics),
+//                Boolean.parseBoolean(getString(R.string.pref_default_user_statistics)));
+//        TabLayout.Tab tab = tabs.getTabAt(1);
+//
+//        tab.view.setVisibility(View.GONE);
+//        if (isStatsEnabled && isUserStatsEnabled && tab != null){
+//            tab.view.setVisibility(View.VISIBLE);
+//        }
 
 
         setFields();

@@ -83,6 +83,7 @@ public class AboutActivity extends AppCompatActivity {
     private void setupActionBar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        toolbar.setTitle(R.string.title_activity_about);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();

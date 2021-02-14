@@ -116,21 +116,20 @@ public class CheckoutOverviewFragment extends Fragment implements View.OnClickLi
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         boolean checkoutAllModels = prefs.getBoolean(getString(R.string.pref_key_check_out_all_models), false);
         Set<String> availableModels = prefs.getStringSet(getString(R.string.pref_key_check_out_models), new HashSet<String>());
+        long now = System.currentTimeMillis();
 
         for (Asset a : assetList) {
             //only look at the models that are allowed to be checked out
             if (checkoutAllModels || availableModels.contains(String.valueOf(a.getModelID()))) {
-                if (a.getExpectedCheckin() == -1) {
-                    availableCount++;
-                } else {
-                    checkedOutCount++;
-
-                    //is this model past due?
-                    Date expectedCheckin = new Date(a.getExpectedCheckin());
-                    Date now = new Date();
-                    if (expectedCheckin.before(now)) {
+                if (a.getAssignedToID() != -1) {
+                    long dueDate = a.getExpectedCheckin();
+                    if (dueDate <= now) {
                         pastDueCount++;
+                    } else {
+                        checkedOutCount++;
                     }
+                } else {
+                    availableCount++;
                 }
             }
 

@@ -49,4 +49,12 @@ public class CustomEvents {
     public static final String AUDIT_RESULTS_EMAIL_SENT = "audit_results_email_sent_successfully";
     public static final String STATISTICS_EMAIL_SENT = "stats_rslts_email_sent";
     public static final String STATISTICS_EMAIL_NOT_SENT = "stats_rslts_email_not_sent";
+
+    //one or more assets have been checked out using a custom duration
+    public static final String CUSTOM_CHECKOUT_DURATION = "custom_checkout_duration";
+
+    //an event to represent when the asset scanner view checked on the availability of a scanned asset
+    //+ Attached bundle should include a results key to record whether the check succeeded
+    public static final String ASSET_AVAILABLITY_CHECK = "asset_availability_check";
+    public static final String ASSET_AVAILABLITY_CHECK_RESULTS = "asset_availability_check_results";
 }

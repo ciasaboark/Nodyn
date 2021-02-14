@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Html;
@@ -39,6 +40,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
@@ -48,6 +50,7 @@ import com.squareup.picasso.Transformation;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,12 +73,15 @@ import io.phobotic.nodyn_app.DropShadowTransformation;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
+import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Model;
+import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.helper.ExecutorHelper;
 import io.phobotic.nodyn_app.helper.MediaHelper;
 import io.phobotic.nodyn_app.list.adapter.ScannedAssetRecyclerViewAdapter;
 import io.phobotic.nodyn_app.list.decorator.DividerItemDecoration;
+import io.phobotic.nodyn_app.reporting.CustomEvents;
 import io.phobotic.nodyn_app.sync.SyncManager;
 import io.phobotic.nodyn_app.transformer.RoundedTransformation;
 
@@ -144,7 +150,7 @@ public class AssetScannerView extends RelativeLayout {
         timerTask = new TimerTask() {
             @Override
             public void run() {
-                updateImageSwitcher();
+//                updateImageSwitcher();
             }
         };
     }
@@ -230,7 +236,7 @@ public class AssetScannerView extends RelativeLayout {
         modelImageURLs.addAll(modelImageList);
 
         //set the inital image drawable
-        modelSwitcher.setImageDrawable(getResources().getDrawable(R.drawable.devices_1));
+        modelSwitcher.setImageDrawable(getResources().getDrawable(R.drawable.ic_devices_tech_isometric));
     }
 
     private void updateImageSwitcher() {
@@ -261,8 +267,8 @@ public class AssetScannerView extends RelativeLayout {
                     try {
                         Picasso.with(getContext())
                                 .load(nextImageURL)
-                                .placeholder(R.drawable.devices_1)
-                                .error(R.drawable.devices_1)
+                                .placeholder(R.drawable.ic_devices_tech_isometric)
+                                .error(R.drawable.ic_devices_tech_isometric)
                                 .transform(transformations)
                                 .resizeDimen(R.dimen.asset_scan_view_carousel_image_width, R.dimen.asset_scan_view_carousel_image_height)
                                 .into(new Target() {
@@ -369,8 +375,6 @@ public class AssetScannerView extends RelativeLayout {
         try {
             timer.scheduleAtFixedRate(timerTask, IMAGE_SWITCH_DELAY, IMAGE_SWITCH_PERIOD);
         } catch (IllegalStateException e) {
-            e.printStackTrace();
-            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 
@@ -409,6 +413,13 @@ public class AssetScannerView extends RelativeLayout {
         return scannedAssetsList;
     }
 
+    /**
+     * Add the given asset to the list of scanned assets.  The availablility of the asset will
+     * initially be set the CHECKING or UNDEFINED.  If availability checking has been requested
+     * the availability will be updated to either AVAILABLE, NOT_AVAILABLE, or UNKNOWN after 5
+     * seconds
+     * @param asset
+     */
     public void addAsset(Asset asset) {
         AVAILABILITY availability = isCheckAssetAvailability ? AVAILABILITY.CHECKING : AVAILABILITY.UNDEFINED;
         final ScannedAsset scannedAsset = new ScannedAsset(asset, isCheckAssetAvailability, availability);
@@ -426,31 +437,49 @@ public class AssetScannerView extends RelativeLayout {
                 asset, 5000, new ExecutorHelper.ExecutorListener() {
                     @Override
                     public void onTimeoutException(final @NotNull Asset a, @NotNull TimeoutException e) {
-                        updateAvailability(a, AVAILABILITY.UNKNOWN);
+                        String message = String.format("Timeout while checking status");
+                        updateAvailability(a, AVAILABILITY.UNKNOWN, message);
                     }
 
                     @Override
                     public void onException(final @NotNull Asset a, @NotNull Exception e) {
-                        updateAvailability(a, AVAILABILITY.UNKNOWN);
+                        String message = String.format("Error while checking status");
+                        updateAvailability(a, AVAILABILITY.UNKNOWN, message);
                     }
 
                     @Override
                     public void onResult(final @NotNull Asset a) {
                         AVAILABILITY availability;
+                        String message = null;
                         if (a.getAssignedToID() == -1) {
                             availability = AVAILABILITY.AVAILABLE;
                         } else {
                             availability = AVAILABILITY.NOT_AVAILABLE;
+
+                            //if the item is not available try to add some additional
+                            //+ context to the message that will display
+                            Database db = Database.getInstance(getContext());
+                            try {
+                                User u = db.findUserByID(a.getAssignedToID());
+                                message = String.format("Currently checked out to %s", u.getName());
+                            } catch (UserNotFoundException e) {
+                                FirebaseCrashlytics.getInstance().recordException(e);
+                            }
                         }
 
-                        updateAvailability(a, availability);
+                        Bundle b = new Bundle();
+                        b.putString(CustomEvents.ASSET_AVAILABLITY_CHECK_RESULTS, String.format("Asset availability %s", availability));
+                        FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.ASSET_AVAILABLITY_CHECK, b);
+
+                        updateAvailability(a, availability, message);
                     }
                 });
 
         showIntroOrList();
     }
 
-    private void updateAvailability(final Asset a, final AVAILABILITY availability) {
+    private void updateAvailability(final Asset a, final AVAILABILITY availability,
+                                    @Nullable final String message) {
         //switch back to the ui thread
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
@@ -460,6 +489,8 @@ public class AssetScannerView extends RelativeLayout {
                     ScannedAsset sa = scannedAssetsList.get(position);
                     sa.setCheckInProgress(false);
                     sa.setAvailability(availability);
+                    sa.setMessage(message);
+
 
                     recyclerView.getAdapter().notifyItemChanged(position);
                 }
@@ -489,6 +520,9 @@ public class AssetScannerView extends RelativeLayout {
         recyclerView.getAdapter().notifyItemRangeRemoved(0, count);
         input.reset();
         showIntroOrList();
+        if (listener != null) {
+            listener.onAssetScanListChanged(new ArrayList<ScannedAsset>());
+        }
     }
 
     public void removeScannedItem(ScannedAsset scannedAsset) {
@@ -500,10 +534,18 @@ public class AssetScannerView extends RelativeLayout {
     @Override
     protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+        Log.d(TAG, "focus changed");
         if (gainFocus) {
-            input.requestFocus();
+            input.focus();
         }
     }
+
+    public void focus() {
+        input.clearFocus();
+        clearFocus();
+        input.focus();
+    }
+
 
     public interface OnAssetScannedListener {
         void onAssetScanned(@NotNull Asset asset);
@@ -517,6 +559,11 @@ public class AssetScannerView extends RelativeLayout {
         private Asset asset;
         private boolean isCheckInProgress;
         private AVAILABILITY availability;
+        private String message;
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
 
         public ScannedAsset(@NotNull Asset asset, boolean isCheckInProgress, @NotNull AVAILABILITY availability) {
             if (asset == null) {
@@ -530,6 +577,10 @@ public class AssetScannerView extends RelativeLayout {
 
         public Asset getAsset() {
             return asset;
+        }
+
+        public String getMessage() {
+            return message;
         }
 
         public boolean isCheckInProgress() {

@@ -100,9 +100,6 @@ public class ModelOverviewCountView extends RelativeLayout {
             }
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            boolean useStatusColor = prefs.getBoolean(getResources().getString(
-                    R.string.pref_key_asset_status_color), Boolean.parseBoolean(
-                    getResources().getString(R.string.pref_default_asset_status_color)));
 
 
             float borderWidth = getResources().getDimension(R.dimen.picasso_small_image_circle_border_width);

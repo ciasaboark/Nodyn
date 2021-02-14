@@ -64,12 +64,10 @@ public class SyncScheduler {
     }
 
     public void scheduleSyncIfNeeded() {
-        if (SyncManager.isFirstSyncComplete(context)) {
+        if (!SyncManager.isFirstSyncComplete(context)) {
             Log.d(TAG, "Skipping scheduling sync alarm.  Backend has not completed first sync yet");
-        } else if (isAlarmScheduled()) {
-            Log.d(TAG, "Skipping scheduling sync alarm, one is already set");
         } else {
-            Log.d(TAG, "No repeating sync alarm set.  Setting one now");
+            Log.d(TAG, "Scheduling alarm now");
             scheduleSync(getNewPendingIntent());
         }
     }
@@ -77,7 +75,7 @@ public class SyncScheduler {
     private boolean isAlarmScheduled() {
         //pi will be null if it already exists
         PendingIntent pi = getExistingPendingIntent();
-        return pi == null;
+        return pi != null;
     }
 
     public static Date getNextWakeTimestamp(Context context) {

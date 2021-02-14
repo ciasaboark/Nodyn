@@ -62,28 +62,14 @@ public class CheckInPreferenceFragment extends PreferenceFragmentCompat {
         db = Database.getInstance(getContext());
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        initListeners();
         initPreferences();
 
         PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
-    private void initListeners() {
-        // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-        // to their values. When their values change, their summaries are
-        // updated to reflect the new value, per the Android Design
-        // guidelines.
-        MultiSelectListPreference allowedGroups =
-                (MultiSelectListPreference) findPreference(
-                        getString(R.string.pref_key_check_in_authenticating_groups));
-        allowedGroups.setOnPreferenceChangeListener(PreferenceListeners.groupsChangeListener);
-        PreferenceListeners.groupsChangeListener.onPreferenceChange(allowedGroups,
-                prefs.getStringSet(allowedGroups.getKey(), new HashSet<String>()));
-    }
+
 
     private void initPreferences() {
-        initGroupPreference();
-
         Preference verificationTextPreference = findPreference(getString(R.string.pref_key_check_in_verification_text));
         verificationTextPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -151,31 +137,5 @@ public class CheckInPreferenceFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-    }
-
-    private void initGroupPreference() {
-        MultiSelectListPreference allowedGroups =
-                (MultiSelectListPreference) findPreference(
-                        getString(R.string.pref_key_check_in_authenticating_groups));
-        Set<String> chosenGroups = prefs.getStringSet(
-                getString(R.string.pref_key_check_in_authenticating_groups), null);
-        Log.d(TAG, "chosen groups: " + chosenGroups);
-
-
-        List<Group> groupList = db.getGroups();
-        String[] groupNames = new String[groupList.size()];
-        String[] groupValues = new String[groupList.size()];
-
-        for (int i = 0; i < groupList.size(); i++) {
-            Group group = groupList.get(i);
-            String name = group.getName();
-            String value = String.valueOf(group.getId());
-
-            groupNames[i] = name;
-            groupValues[i] = value;
-        }
-
-        allowedGroups.setEntries(groupNames);
-        allowedGroups.setEntryValues(groupValues);
     }
 }

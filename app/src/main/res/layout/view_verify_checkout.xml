@@ -17,15 +17,19 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:padding="16dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
 
     <LinearLayout
+        android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp">
+
+        >
 
         <ImageView
             android:id="@+id/image"
@@ -33,7 +37,7 @@
             android:layout_height="60dp"
             android:layout_gravity="center_vertical"
             android:layout_marginEnd="16dp"
-            android:src="@drawable/grey_circle"/>
+            android:src="@drawable/grey_circle" />
 
         <TextView
             android:id="@+id/username"
@@ -45,11 +49,41 @@
 
     </LinearLayout>
 
-
-    <io.phobotic.nodyn_app.view.ObservableMarkdownView
-        android:id="@+id/markdown"
+    <TextView
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/placeholder"
         />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <io.phobotic.nodyn_app.view.ObservableMarkdownView
+            android:id="@+id/markdown"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </io.phobotic.nodyn_app.view.ObservableMarkdownView>
+
+        <ImageView
+            android:id="@+id/fade_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:src="@drawable/bottom_fade_indicator"
+            android:translationZ="10dp"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            android:clickable="false"
+            android:focusable="false"/>
+    </RelativeLayout>
+
 
 </LinearLayout>

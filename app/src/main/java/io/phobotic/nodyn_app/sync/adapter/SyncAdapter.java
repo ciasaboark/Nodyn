@@ -26,7 +26,6 @@ import java.util.List;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import io.phobotic.nodyn_app.database.audit.model.Audit;
-import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
 import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.FullDataModel;
@@ -78,7 +77,7 @@ public interface SyncAdapter {
      * @throws SyncException
      * @throws SyncNotSupportedException
      */
-    List<Action> getAssetActivity(Context context, @NotNull Asset asset, int page) throws SyncException,
+    ActionHistory getAssetActivity(Context context, @NotNull Asset asset, int page) throws SyncException,
             SyncNotSupportedException;
 
     /**
@@ -95,7 +94,7 @@ public interface SyncAdapter {
      * @throws SyncNotSupportedException if the SyncAdapter does not support fetching activity
      *                                   records
      */
-    List<Action> getUserActivity(@NotNull Context context, @NotNull User user, int page) throws SyncException,
+    ActionHistory getUserActivity(@NotNull Context context, @NotNull User user, int page) throws SyncException,
             SyncNotSupportedException;
 
     /**
@@ -110,7 +109,7 @@ public interface SyncAdapter {
      *                                   was encountered
      * @throws SyncNotSupportedException if the backend system has no ability to fetch actions
      */
-    List<Action> getActivity(@NotNull Context context, int page) throws SyncException, SyncNotSupportedException;
+     ActionHistory getActivity(@NotNull Context context, int page) throws SyncException, SyncNotSupportedException;
 
 
     /**
@@ -119,7 +118,7 @@ public interface SyncAdapter {
      * @param cutoff
      * @return
      */
-    List<Action> getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException;
+    ActionHistory getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException;
 
     /**
      * Fetch all activity records for the previous 30 days.
@@ -130,7 +129,7 @@ public interface SyncAdapter {
      *                                   unrecoverable Exception occurred while fetching action records
      * @throws SyncNotSupportedException if the SyncAdapter does not support pulling action records
      */
-    List<Action> getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException;
+    ActionHistory getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException;
 
     List<Asset> getAssets(Context context, User user) throws SyncException,
             SyncNotSupportedException;

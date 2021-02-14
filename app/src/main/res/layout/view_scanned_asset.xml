@@ -93,7 +93,7 @@
             app:layout_constraintStart_toEndOf="@+id/image"
             app:layout_constraintTop_toBottomOf="@id/model"/>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/availability_box"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -103,20 +103,56 @@
             app:layout_constraintTop_toBottomOf="@id/serial"
             tools2:visibility="gone">
 
-            <ProgressBar
-                android:id="@+id/progress"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:indeterminate="true" />
-
             <TextView
                 android:id="@+id/availability"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Checking availability..." />
+                android:text="Checking availability..."
+                app:layout_constraintBottom_toBottomOf="@+id/constraintLayout"
+                app:layout_constraintStart_toEndOf="@+id/constraintLayout"
+                app:layout_constraintTop_toTopOf="@+id/constraintLayout" />
 
-        </LinearLayout>
+
+            <TextView
+                android:id="@+id/message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="optional message"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
+                tools2:visibility="visible" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/availability_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:focusable="false"
+                    android:src="@drawable/ic_check_white_48dp"
+                    android:tint="@color/check"
+                    android:visibility="gone"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ProgressBar
+                    android:id="@+id/progress"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:indeterminate="true"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools2:visibility="gone" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         <ImageButton
@@ -129,10 +165,10 @@
             android:padding="16dp"
             android:src="@drawable/ic_delete_white_24dp"
             android:tint="@color/delete"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ProgressBar
             android:id="@+id/progress_large"
@@ -156,7 +192,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/error_icon"
@@ -164,11 +200,11 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:focusable="false"
-            android:src="@drawable/ic_close_black_48dp"
+            android:src="@drawable/cloud_alert"
             android:tint="@color/warning_strong"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

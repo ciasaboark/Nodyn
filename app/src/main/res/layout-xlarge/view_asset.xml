@@ -63,33 +63,32 @@
 
             <TextView
                 android:id="@+id/tag"
+                style="@style/Text.AssetTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
+
                 android:text="Asset Tag"
+
                 android:textAlignment="viewStart"
-
-                style="@style/Text.AssetTitle"
-
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                />
+                app:layout_constraintStart_toEndOf="@+id/image"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/image"
                 android:layout_width="@dimen/view_asset_hero_size"
                 android:layout_height="@dimen/view_asset_hero_size"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
                 android:clickable="false"
                 android:contextClickable="false"
                 android:cropToPadding="false"
                 android:scaleType="fitCenter"
                 android:src="@drawable/circle_mask"
                 android:transitionName="image"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tag"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/status"

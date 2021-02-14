@@ -190,11 +190,11 @@ public class AssetView extends ConstraintLayout {
         }
 
         float borderWidth = getResources().getDimension(R.dimen.picasso_small_image_circle_border_width);
-
+        float cornerRadius = getContext().getResources().getDimension(R.dimen.view_asset_hero_size) / 2;
         Transformation transformation = new RoundedTransformationBuilder()
                 .borderColor(circleColor)
                 .borderWidthDp(borderWidth)
-                .cornerRadiusDp(50)
+                .cornerRadiusDp(cornerRadius)
                 .oval(false)
                 .build();
 

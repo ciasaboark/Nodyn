@@ -34,6 +34,15 @@
         android:key="@string/pref_key_check_out_duration"
         android:title="@string/pref_title_check_out_duration"/>
 
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_check_out_allow_duration_override"
+        android:dependency="@string/pref_key_checkout_allow"
+        android:key="@string/pref_key_check_out_allow_duration_override"
+        android:summaryOff="@string/pref_description_disabled_check_out_allow_duration_override"
+        android:summaryOn="@string/pref_description_enabled_check_out_allow_duration_override"
+        android:title="@string/pref_title_check_out_allow_duration_override"
+        />
+
     <PreferenceCategory
         android:dependency="@string/pref_key_checkout_allow"
         android:title="Authorization">
@@ -92,20 +101,28 @@
         android:dependency="@string/pref_key_checkout_allow"
         android:title="EULA">
 
-        <SwitchPreferenceCompat
-            android:defaultValue="@string/pref_default_check_out_verify"
-            android:icon="@drawable/ic_approval_grey600_24dp"
-            android:key="@string/pref_key_check_out_verify"
-            android:summaryOff="@string/pref_description_disabled_check_out_verify"
-            android:summaryOn="@string/pref_description_enabled_check_out_verify"
-            android:title="@string/pref_title_check_out_verify"/>
+<!--        <SwitchPreferenceCompat-->
+<!--            android:defaultValue="@string/pref_default_check_out_verify"-->
+<!--            android:icon="@drawable/ic_approval_grey600_24dp"-->
+<!--            android:key="@string/pref_key_check_out_verify"-->
+<!--            android:summaryOff="@string/pref_description_disabled_check_out_verify"-->
+<!--            android:summaryOn="@string/pref_description_enabled_check_out_verify"-->
+<!--            android:title="@string/pref_title_check_out_verify"/>-->
 
         <Preference
-            android:dependency="@string/pref_key_check_out_verify"
             android:icon="@drawable/ic_pencil_grey600_24dp"
             android:key="@string/pref_key_check_out_eula"
             android:summary="@string/pref_description_check_out_eula"
             android:title="@string/pref_title_check_out_eula"/>
+
+        <DropDownPreference
+            android:icon="@drawable/signature"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="none"
+            android:key="@string/pref_key_check_out_eula_type"
+            android:title="@string/pref_title_check_out_eula_type"
+            android:entries="@array/eula_display_type_name"
+            android:entryValues="@array/eula_display_type_key" />
     </PreferenceCategory>
 
     <PreferenceCategory

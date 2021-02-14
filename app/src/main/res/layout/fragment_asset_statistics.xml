@@ -92,7 +92,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:gravity="center_horizontal"
+                        android:gravity="start"
                         android:text="Asset is most often used by"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -105,7 +105,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
-                        android:text="John Smith"
+                        android:text="@string/placeholder"
+                        android:gravity="start"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/user_icon"
                         app:layout_constraintTop_toBottomOf="@+id/user_usage_title"/>
@@ -116,7 +117,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
-                        android:text="Total check outs: 5.  Total time in use: 55.5 hours"
+                        android:gravity="start"
+                        android:text="@string/placeholder"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/user_icon"
                         app:layout_constraintTop_toBottomOf="@+id/username"/>

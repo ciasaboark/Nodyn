@@ -134,11 +134,12 @@ public class AssetStatisticsFragment extends Fragment {
 
     public void showUsageChartData(AssetStatistics statistics) {
         AssetUsageChartBuilder builder = new AssetUsageChartBuilder();
-        builder.buildSevenDayChart(getContext(), chart, statistics);
+        builder.buildSevenDayChart(getContext(), chart, statistics, asset);
     }
 
     private void showFavoringUser(AssetStatistics statistics) {
         int favoringUserID = statistics.getFavoringUser();
+
         try {
             Database db = Database.getInstance(getContext());
             User u = db.findUserByID(favoringUserID);

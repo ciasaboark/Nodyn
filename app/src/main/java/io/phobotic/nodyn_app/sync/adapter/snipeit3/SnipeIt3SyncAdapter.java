@@ -84,6 +84,7 @@ import io.phobotic.nodyn_app.sync.CheckoutException;
 import io.phobotic.nodyn_app.sync.HtmlEncoded;
 import io.phobotic.nodyn_app.sync.Image;
 import io.phobotic.nodyn_app.sync.Link;
+import io.phobotic.nodyn_app.sync.adapter.ActionHistory;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
 import io.phobotic.nodyn_app.sync.adapter.SyncNotSupportedException;
@@ -610,32 +611,32 @@ public class SnipeIt3SyncAdapter implements SyncAdapter {
     }
 
     @Override
-    public List<Action> getAssetActivity(Context context, Asset asset, int page) throws SyncException,
+    public ActionHistory getAssetActivity(Context context, Asset asset, int page) throws SyncException,
             SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "SnipeIt version 3.x does not support pulling asset history records");
     }
 
     @Override
-    public List<Action> getUserActivity(Context context, User user, int page) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getUserActivity(Context context, User user, int page) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling user history records",
                 "SnipeIt version 3.x does not support pulling user history records");
     }
 
     @Override
-    public List<Action> getActivity(Context context, int page) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getActivity(Context context, int page) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "SnipeIt version 3.x does not support pulling history records");
     }
 
     @Override
-    public List<Action> getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "SnipeIt version 3.x does not support pulling history records");
     }
 
     @Override
-    public List<Action> getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "SnipeIt version 3.x does not support pulling history records");
     }

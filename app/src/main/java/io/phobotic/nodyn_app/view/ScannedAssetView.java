@@ -60,9 +60,9 @@ public class ScannedAssetView extends RelativeLayout {
     private ProgressBar progress_large;
     private ImageView errorIcon;
 
-//    public ScannedAssetView(Context context, AttributeSet attrs) {
-//        this(context, attrs, null);
-//    }
+    public ScannedAssetView(Context context, AttributeSet attrs) {
+        this(context, attrs, null);
+    }
 
     public ScannedAssetView(@NotNull Context context, AttributeSet attrs, @Nullable AssetScannerView.ScannedAsset scannedAsset) {
         super(context, attrs);
@@ -74,48 +74,58 @@ public class ScannedAssetView extends RelativeLayout {
     private void init() {
         rootView = inflate(context, R.layout.view_scanned_asset, this);
 
-        findViews();
-        setFields();
+        if (!isInEditMode()) {
+            findViews();
+            setFields();
+        }
     }
 
 
 
     private void findViews() {
         card = rootView.findViewById(R.id.card);
+        //asset specific views
         tag = rootView.findViewById(R.id.tag);
-
         serial = rootView.findViewById(R.id.serial);
         model = rootView.findViewById(R.id.model);
+        image = findViewById(R.id.image);
 
+        //the small area at the bottom to show the current status
         availabilityBox = rootView.findViewById(R.id.availability_box);
+        availabilityBox.setVisibility(View.GONE);
         progress = rootView.findViewById(R.id.progress);
         progress_large = rootView.findViewById(R.id.progress_large);
         availability = rootView.findViewById(R.id.availability);
 
+        //the larger icons to the right
         deleteButton = findViewById(R.id.delete_button);
+        deleteButton.setVisibility(View.GONE);
         checkIcon = findViewById(R.id.check_button);
+        checkIcon.setVisibility(View.GONE);
         errorIcon = findViewById(R.id.error_icon);
-        image = findViewById(R.id.image);
+        errorIcon.setVisibility(View.GONE);
+
     }
 
     private void setFields() {
-        if (!isInEditMode()) {
-            if (scannedAsset != null) {
-                tag.setText(scannedAsset.getAsset().getTag());
-                serial.setText(scannedAsset.getAsset().getSerial() == null ? "No serial number" :
-                        scannedAsset.getAsset().getSerial());
-                model.setText(modelName == null ? "No model information" : modelName);
-                loadImage();
-
-                if (!assetRemovable) {
-                    deleteButton.setVisibility(View.GONE);
-                    checkIcon.setVisibility(View.VISIBLE);
-                } else {
-                    deleteButton.setVisibility(View.VISIBLE);
-                    checkIcon.setVisibility(View.GONE);
-                }
-            }
+        if (scannedAsset != null) {
+            tag.setText(scannedAsset.getAsset().getTag());
+            serial.setText(scannedAsset.getAsset().getSerial() == null ? "No serial number" :
+                    scannedAsset.getAsset().getSerial());
+            model.setText(modelName == null ? "No model information" : modelName);
+            loadImage();
         }
+
+
+        if (!assetRemovable) {
+            deleteButton.setVisibility(View.GONE);
+            checkIcon.setVisibility(View.VISIBLE);
+        } else {
+            deleteButton.setVisibility(View.VISIBLE);
+            checkIcon.setVisibility(View.GONE);
+        }
+
+
     }
 
     private void loadImage() {
@@ -159,7 +169,6 @@ public class ScannedAssetView extends RelativeLayout {
         this.checkIcon.setVisibility(View.GONE);
         this.deleteButton.setVisibility(View.GONE);
         this.errorIcon.setVisibility(View.GONE);
-
         return this;
     }
 
@@ -184,6 +193,7 @@ public class ScannedAssetView extends RelativeLayout {
 
     public ScannedAssetView showCheck() {
         this.progress_large.setVisibility(View.GONE);
+        this.availabilityBox.setVisibility(View.GONE);
         this.checkIcon.setVisibility(View.VISIBLE);
         this.deleteButton.setVisibility(View.GONE);
         this.errorIcon.setVisibility(View.GONE);

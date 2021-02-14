@@ -26,6 +26,7 @@
 
     <!-- Strings related to Settings -->
 
+    <string name="last_known_app_version">last_known_app_version</string>
 
     <string-array name="list_preference_entries">
         <item>Entry 1</item>

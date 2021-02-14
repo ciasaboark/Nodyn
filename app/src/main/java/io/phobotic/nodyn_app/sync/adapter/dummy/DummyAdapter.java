@@ -42,6 +42,7 @@ import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.sync.ActionSyncListener;
 import io.phobotic.nodyn_app.sync.CheckinException;
 import io.phobotic.nodyn_app.sync.CheckoutException;
+import io.phobotic.nodyn_app.sync.adapter.ActionHistory;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
 import io.phobotic.nodyn_app.sync.adapter.SyncNotSupportedException;
@@ -112,33 +113,33 @@ public class DummyAdapter implements SyncAdapter {
     }
 
     @Override
-    public List<Action> getAssetActivity(Context context, Asset asset, int page) throws SyncException,
+    public ActionHistory getAssetActivity(Context context, Asset asset, int page) throws SyncException,
             SyncNotSupportedException {
         throw new SyncNotSupportedException("No sync adapter selected",
                 "Dummy adapter does not support pulling asset history records");
     }
 
     @Override
-    public List<Action> getUserActivity(Context context, User user, int page) throws SyncException,
+    public ActionHistory getUserActivity(Context context, User user, int page) throws SyncException,
             SyncNotSupportedException {
         throw new SyncNotSupportedException("No sync adapter selected",
                 "Dummy adapter does not support pulling user history records");
     }
 
     @Override
-    public List<Action> getActivity(Context context, int page) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getActivity(Context context, int page) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "Sync adapter does not support pulling asset history records");
     }
 
     @Override
-    public List<Action> getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "Sync adapter does not support pulling asset history records");
     }
 
     @Override
-    public List<Action> getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "Sync adapter does not support pulling asset history records");
     }

@@ -17,6 +17,7 @@
 
 package io.phobotic.nodyn_app.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -180,14 +181,22 @@ public class UserAssetsListFragment extends Fragment {
                 List<Asset> userAssets = db.findAssetByUserID(user.getId());
 
                 //convert these assets into a list of SimplifiedAssets
-                List<SimplifiedAsset> simplifiedAssets = new ArrayList<>();
+                final List<SimplifiedAsset> simplifiedAssets = new ArrayList<>();
                 for (Asset a : userAssets) {
                     SimplifiedAsset simplifiedAsset = new SimplifiedAsset.Builder()
                             .fromAsset(getContext(), a);
                     simplifiedAssets.add(simplifiedAsset);
                 }
 
-                showList(simplifiedAssets);
+                Activity a = getActivity();
+                if (a != null) {
+                    a.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showList(simplifiedAssets);
+                        }
+                    });
+                }
 
             } catch (Exception e) {
                 showError(e.getClass().getSimpleName(), e.getMessage());

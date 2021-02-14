@@ -14,9 +14,9 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
                 xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -25,29 +25,13 @@
                 android:padding="8dp"
                 tools:context="io.phobotic.nodyn_app.view.ScanInputView">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/spinner_wrapper"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="@dimen/card_corner_radius">
-
-        <Spinner
-            android:id="@+id/spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:entries="@array/input_methods"/>
-    </com.google.android.material.card.MaterialCardView>
-
     <TextView
         android:id="@+id/preview"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/spinner_wrapper"
-        android:layout_centerHorizontal="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="16dp"
         android:text=""
         android:textAlignment="center"
@@ -55,65 +39,31 @@
         android:textColor="?colorAccent"
         android:visibility="visible"/>
 
-    <RelativeLayout
-        android:id="@+id/input_container"
+
+    <!-- Just a static indicator to show that hardware keyboard input is being accepted -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/preview"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:clipChildren="false"
-        android:clipToPadding="false">
-
-        <!-- Just a static indicator to show that hardware keyboard input is being accepted -->
-        <RelativeLayout
-            android:id="@+id/hardware_wrapper"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:visibility="visible">
-
-            <EditText
-                android:id="@+id/hardware_edit_text"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:alpha="0.001"
-                android:imeOptions="actionSearch"
-                android:inputType="textNoSuggestions"
-                android:lines="1"
-                android:minEms="10"
-                android:textColor="@color/white"
-                android:textCursorDrawable="@drawable/cursor_drawable"
-                android:visibility="visible"/>
-
-            <pl.bclogic.pulsator4droid.library.PulsatorLayout
-                android:id="@+id/pulse"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:layout_centerInParent="true"
-                app:pulse_color="?colorAccent"
-                app:pulse_count="3"
-                app:pulse_duration="5000"
-                app:pulse_interpolator="Decelerate"
-                app:pulse_repeat="0"
-                app:pulse_startFromScratch="true"/>
-
-        </RelativeLayout>
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preview">
 
         <LinearLayout
             android:id="@+id/camera_wrapper"
             android:layout_width="match_parent"
             android:layout_height="@dimen/scan_input_view_barcode_preview_height"
-            android:layout_marginEnd="32dp"
-            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
             android:clipChildren="true"
             android:clipToPadding="true"
             android:maxWidth="50dp"
             android:orientation="horizontal"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinner_wrapper">
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -141,7 +91,7 @@
                     android:tint="@color/grey600"
                     app:backgroundTint="@color/white"
                     app:elevation="2dp"
-                    app:fabSize="mini"/>
+                    app:fabSize="mini" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/torch_button"
@@ -160,7 +110,7 @@
                     android:tint="@color/grey600"
                     app:backgroundTint="@color/white"
                     app:elevation="2dp"
-                    app:fabSize="mini"/>
+                    app:fabSize="mini" />
 
             </RelativeLayout>
 
@@ -180,15 +130,69 @@
 
         </LinearLayout>
 
-        <!-- EditText for the OSK input -->
+
+        <RelativeLayout
+            android:id="@+id/hardware_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/spinner_wrapper"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <EditText
+                android:id="@+id/hardware_edit_text"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:alpha="0.001"
+                android:imeOptions="actionSearch"
+                android:inputType="textNoSuggestions"
+                android:lines="1"
+                android:minEms="10"
+                android:textColor="@color/white"
+                android:textCursorDrawable="@drawable/cursor_drawable"
+                android:visibility="visible" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="5dp">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/pulse"
+                        android:layout_width="100dp"
+                        android:layout_height="72dp"
+
+                        android:src="@drawable/barcode_animation" />
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+        </RelativeLayout>
+
         <RelativeLayout
             android:id="@+id/osk_wrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+            android:layout_marginStart="16dp"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/spinner_wrapper"
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="wrap_content"
@@ -219,7 +223,7 @@
                         android:lines="1"
                         android:minEms="10"
                         android:textCursorDrawable="@drawable/cursor_drawable"
-                        android:visibility="visible"/>
+                        android:visibility="visible" />
 
                     <ImageButton
                         android:id="@+id/search_button"
@@ -228,13 +232,36 @@
                         android:layout_marginStart="8dp"
                         android:background="?selectableItemBackgroundBorderless"
                         android:padding="16dp"
-                        android:src="@drawable/ic_magnify_white_24dp"/>
+                        android:src="@drawable/ic_magnify_white_24dp" />
                 </LinearLayout>
 
 
             </com.google.android.material.card.MaterialCardView>
         </RelativeLayout>
-    </RelativeLayout>
+
+        <!-- EditText for the OSK input -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/spinner_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:visibility="visible"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/input_methods"
+                android:focusable="false" />
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</RelativeLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

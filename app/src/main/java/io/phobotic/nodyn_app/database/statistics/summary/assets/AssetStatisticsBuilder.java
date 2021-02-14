@@ -74,11 +74,27 @@ public class AssetStatisticsBuilder {
         assetStatistics.setLastUpdated(System.currentTimeMillis());
         assetStatistics.setId(asset.getId());
         assetStatistics.setTag(asset.getTag());
-        assetStatistics.setUsageRecords(getUsageRecords(minTimestamp));
+        List<UsageRecord> usageRecords = getUsageRecords(minTimestamp);
+        assetStatistics.setUsageRecords(usageRecords);
         assetStatistics.setFavoringUser(getFavoringUser());
+
+        //usage records need to be set before these are called
+        assetStatistics.setHoursInUse(getHoursInUse(usageRecords));
+
 
         return assetStatistics;
     }
+
+    private float getHoursInUse(List<UsageRecord> usageRecords) {
+        float hoursInUse = 0;
+        for (UsageRecord r: usageRecords) {
+            long out = r.getCheckoutTimestamp();
+            long in = r.getCheckinTimestamp();
+        }
+
+        return hoursInUse;
+    }
+
 
     private List<UsageRecord> getUsageRecords(long minTimestamp) {
         Collections.sort(actionList, new Comparator<Action>() {
@@ -93,7 +109,8 @@ public class AssetStatisticsBuilder {
 
         for (Action action : actionList) {
             //special case.  the action history only goes far back enough to see the checkin record
-            //+ but not the initial checkout record
+            //+ but not the initial checkout record.  Assume the asset was checked out at the
+            //+ minTimestamp
             if (action.getDirection() == Action.Direction.CHECKIN && record == null) {
                 record = new UsageRecord();
                 record.setCheckoutTimestamp(minTimestamp);
@@ -114,6 +131,23 @@ public class AssetStatisticsBuilder {
 
                 }
             }
+        }
+
+//        //special case.  The last record in the list may be an asset that was checked out, but not checked in
+//        if (!usageRecords.isEmpty()) {
+//            UsageRecord lastRecord = usageRecords.get(usageRecords.size() - 1);
+//            if (lastRecord.getCheckinTimestamp() == 0) {
+//                lastRecord.setCheckinTimestamp(System.currentTimeMillis());
+//            }
+//        }
+
+        //special case.  The action list was empty, but the asset is currently checked out.  Assume
+        //+ the asset was checked out at the min timestamp and is still checked out
+        if (usageRecords.isEmpty() && asset.getAssignedToID() != -1) {
+            record = new UsageRecord();
+            record.setAssignedUser(asset.getAssignedToID());
+            record.setCheckoutTimestamp(minTimestamp);
+            usageRecords.add(record);
         }
 
         return usageRecords;

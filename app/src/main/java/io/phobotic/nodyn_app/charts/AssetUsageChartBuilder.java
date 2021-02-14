@@ -40,6 +40,7 @@ import java.util.List;
 
 import androidx.annotation.ColorInt;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.statistics.UsageRecord;
 import io.phobotic.nodyn_app.database.statistics.summary.assets.AssetStatistics;
 
@@ -49,11 +50,13 @@ import io.phobotic.nodyn_app.database.statistics.summary.assets.AssetStatistics;
 public class AssetUsageChartBuilder {
     private static final String TAG = AssetUsageChartBuilder.class.getSimpleName();
 
-    public void buildThirtyDayChart(Context context, HorizontalBarChart chart, AssetStatistics statistics) {
-        buildFilteredChart(context, chart, statistics, 30);
+    public void buildThirtyDayChart(Context context, HorizontalBarChart chart,
+                                    AssetStatistics statistics, Asset asset) {
+        buildFilteredChart(context, chart, statistics, 30, asset);
     }
 
-    private void buildFilteredChart(Context context, HorizontalBarChart chart, AssetStatistics statistics, int range) {
+    private void buildFilteredChart(Context context, HorizontalBarChart chart,
+                                    AssetStatistics statistics, int range, Asset asset) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, -range);
         long cutoff = calendar.getTimeInMillis();
@@ -75,6 +78,9 @@ public class AssetUsageChartBuilder {
                 checkin = now;
             }
 
+            r.setCheckoutTimestamp(checkout);
+            r.setCheckinTimestamp(checkin);
+
             //exclude records that have a range completely outisde the range we are looking at, but
             //+ include everything else
             if (checkin < cutoff || checkout > now) {
@@ -83,6 +89,7 @@ public class AssetUsageChartBuilder {
                 usageRecords.add(r);
             }
         }
+
         buildChart(context, chart, usageRecords, cutoff, now);
     }
 
@@ -136,7 +143,7 @@ public class AssetUsageChartBuilder {
         }
 
         //add a placeholder record
-        if (lastCheckIn < to) {
+        if (lastCheckIn != null && lastCheckIn < to) {
             long usage = to - lastCheckIn;
             barValues.add((float) usage);
         }
@@ -220,7 +227,8 @@ public class AssetUsageChartBuilder {
         chart.setExtraOffsets(20, 20, 20, 20);
     }
 
-    public void buildSevenDayChart(Context context, HorizontalBarChart chart, AssetStatistics statistics) {
-        buildFilteredChart(context, chart, statistics, 7);
+    public void buildSevenDayChart(Context context, HorizontalBarChart chart,
+                                   AssetStatistics statistics, Asset asset) {
+        buildFilteredChart(context, chart, statistics, 7, asset);
     }
 }

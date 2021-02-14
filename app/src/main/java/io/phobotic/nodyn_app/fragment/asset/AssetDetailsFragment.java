@@ -110,6 +110,7 @@ public class AssetDetailsFragment extends DialogFragment {
     public void onResume() {
         super.onResume();
 
+
     }
 
     private void init() {
@@ -117,7 +118,6 @@ public class AssetDetailsFragment extends DialogFragment {
         headerBox = rootView.findViewById(R.id.header_box);
 
         status = rootView.findViewById(R.id.status);
-
         image = rootView.findViewById(R.id.image);
 
         tabs = rootView.findViewById(R.id.tabs);
@@ -157,6 +157,18 @@ public class AssetDetailsFragment extends DialogFragment {
 //            fadeInStatusColor();
 //        }
 
+        //hide the statistics tab if that has been disabled in settings
+        boolean isStatsEnabled = prefs.getBoolean(getString(R.string.pref_key_stats_enable),
+                Boolean.parseBoolean(getString(R.string.pref_default_stats_enable)));
+        boolean isAssetStatsEnabled = prefs.getBoolean(getString(R.string.pref_key_asset_statistics),
+                Boolean.parseBoolean(getString(R.string.pref_default_asset_statistics)));
+        TabLayout.Tab tab = tabs.getTabAt(1);
+
+        tab.view.setVisibility(View.GONE);
+        if (isStatsEnabled && isAssetStatsEnabled && tab != null){
+            tab.view.setVisibility(View.VISIBLE);
+        }
+
     }
 
     private void setFields() {
@@ -176,73 +188,6 @@ public class AssetDetailsFragment extends DialogFragment {
             loadImage();
         }
     }
-
-//    private void fadeInStatusColor() {
-//        TypedValue typedValue = new TypedValue();
-//        Resources.Theme theme = getContext().getTheme();
-//        theme.resolveAttribute(R.attr.colorAccent, typedValue, true);
-//        @ColorInt int color = typedValue.data;
-//        try {
-//            Database db = Database.getInstance(getContext());
-//            List<Status> statuses = db.getStatuses();
-//            for (Status status : statuses) {
-//                if (status.getId() == asset.getStatusID()) {
-//                    color = Color.parseColor(status.getColor());
-//                    break;
-//                }
-//            }
-//
-//            int[] colors = {
-//                    color
-//            };
-//            Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-//            bitmap.eraseColor(color);
-//            Palette p = Palette.from(bitmap).generate();
-//
-//            Palette.Swatch swatch = p.getVibrantSwatch();
-//            if (swatch == null) {
-//                swatch = p.getDominantSwatch();
-//            }
-//
-//            if (swatch == null) {
-//                swatch = p.getMutedSwatch();
-//            }
-//
-//            if (swatch == null) {
-//                swatch = p.getDarkMutedSwatch();
-//            }
-//
-//            int textColor = swatch.getBodyTextColor();
-//            int backgroundColor = swatch.getRgb();
-//
-//
-//            ValueAnimator colorFade = ValueAnimator.ofObject(new ArgbEvaluator(),
-//                    getResources().getColor(android.R.color.white), backgroundColor);
-//            colorFade.setDuration(1000);
-//            colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//                @Override
-//                public void onAnimationUpdate(ValueAnimator animation) {
-//                    int color = (int) animation.getAnimatedValue();
-//                    headerBox.setBackgroundColor(color);
-//                }
-//            });
-//            colorFade.start();
-//
-//            int curTextColor = tag.getCurrentTextColor();
-//            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), curTextColor, textColor);
-//            colorAnimation.setDuration(1000); // milliseconds
-//            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//                @Override
-//                public void onAnimationUpdate(ValueAnimator animation) {
-//                    int color = (int) animation.getAnimatedValue();
-//                    tag.setTextColor(color);
-//                    status.setTextColor(color);
-//                }
-//            });
-//            colorAnimation.start();
-//        } catch (Exception e) {
-//        }
-//    }
 
     private void unHideAllViews() {
         tag.setVisibility(View.VISIBLE);
@@ -265,111 +210,23 @@ public class AssetDetailsFragment extends DialogFragment {
             imageURL = "foobar";
         }
 
-        Transformation backgroundTransformation = new RoundedTransformation();
-
-        float borderWidth = getResources().getDimension(R.dimen.picasso_small_image_circle_border_width);
-
-        Transformation borderTransformation = new RoundedTransformationBuilder()
-                .borderColor(getResources().getColor(R.color.circleBorderLarge))
+        float borderWidth = getResources().getDimension(R.dimen.picasso_large_image_circle_border_width);
+        Transformation backgroundTransformation = new RoundedTransformationBuilder()
+                .borderColor(getContext().getResources().getColor(R.color.white))
                 .borderWidthDp(borderWidth)
-                .cornerRadiusDp(175)
-                .oval(false)
+                .oval(true)
                 .build();
 
         List<Transformation> transformations = new ArrayList<>();
         transformations.add(backgroundTransformation);
-        transformations.add(borderTransformation);
 
+        int size = (int) getResources().getDimension(R.dimen.asset_header_box_hero_size);
         Picasso.with(getContext())
                 .load(imageURL)
-                .transform(new ArrayList<Transformation>())
-                .transform(transformations)
-                .into(new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        image.setColorFilter(null);
-                        image.setImageDrawable(new BitmapDrawable(bitmap));
-                        updateHeaderColor(bitmap);
-                    }
-
-                    @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
-                        Drawable d = getResources().getDrawable(R.drawable.monitor_cellphone_star, null);
-                        Drawable b = headerBox.getBackground();
-                        if (b instanceof ColorDrawable) {
-                            int color = ((ColorDrawable) b).getColor();
-                            int tintColor = ColorHelper.getSecondaryValueTextColorForBackground(getContext(), color);
-                            image.setColorFilter(tintColor);
-                        }
-                        image.setImageDrawable(d);
-                    }
-
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-                        Drawable d = getResources().getDrawable(R.drawable.monitor_cellphone_star, null);
-                        Drawable b = headerBox.getBackground();
-                        if (b instanceof ColorDrawable) {
-                            int color = ((ColorDrawable) b).getColor();
-                            int tintColor = ColorHelper.getSecondaryValueTextColorForBackground(getContext(), color);
-                            image.setColorFilter(tintColor);
-                        }
-                        image.setImageDrawable(d);
-                    }
-                });
-    }
-
-    private void updateHeaderColor(Bitmap bitmap) {
-        Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
-            @Override
-            public void onGenerated(@Nullable Palette palette) {
-                @ColorInt int defaultColor = getResources().getColor(R.color.default_accent);
-                Palette.Swatch swatch = palette.getVibrantSwatch();
-                if (swatch != null) {
-                    applySwatch(swatch);
-                }
-            }
-        });
-    }
-
-    private void applySwatch(@NotNull Palette.Swatch swatch) {
-        final int duration = 400;
-
-        int fromBackground = getResources().getColor(R.color.default_accent);
-        Drawable d = headerBox.getBackground();
-        if (d != null && d instanceof ColorDrawable) {
-            fromBackground = ((ColorDrawable) d).getColor();
-        }
-
-        int fromTextColor = tag.getCurrentTextColor();
-
-        int toBackground = swatch.getRgb();
-        int toTextColor = swatch.getTitleTextColor();
-
-        ValueAnimator backgroundAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
-                fromBackground, toBackground);
-        backgroundAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int color = (int) animation.getAnimatedValue();
-                headerBox.setBackgroundColor(color);
-            }
-        });
-        backgroundAnimation.setDuration(duration);
-        backgroundAnimation.start();
-
-
-        ValueAnimator textAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
-                fromTextColor, toTextColor);
-        textAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int color = (int) animation.getAnimatedValue();
-                tag.setTextColor(color);
-                status.setTextColor(color);
-            }
-        });
-        textAnimation.setDuration(duration);
-        textAnimation.start();
+                .resize(size, size)
+                .transform(backgroundTransformation)
+                .placeholder(R.drawable.monitor_cellphone_star)
+                .into(image);
     }
 
     @Override

@@ -77,6 +77,7 @@ import io.phobotic.nodyn_app.service.SyncService;
 import io.phobotic.nodyn_app.sync.ActionSyncListener;
 import io.phobotic.nodyn_app.sync.CheckinException;
 import io.phobotic.nodyn_app.sync.CheckoutException;
+import io.phobotic.nodyn_app.sync.adapter.ActionHistory;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
 import io.phobotic.nodyn_app.sync.adapter.SyncNotSupportedException;
@@ -506,8 +507,8 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
         try {
             String categoryResult = getPageContent(context, getUrl(context, CATEGORIES_URL_PART));
-            CategoryResponse groupResponse = gson.fromJson(categoryResult, CategoryResponse.class);
-            List<Snipeit4Category> shadowCategories = groupResponse.getCategories();
+            CategoryResponse categoryResponse = gson.fromJson(categoryResult, CategoryResponse.class);
+            List<Snipeit4Category> shadowCategories = categoryResponse.getCategories();
             sendDebugBroadcast(context, "Found " + shadowCategories.size() + " categories");
 
             for (Snipeit4Category snipeit4Category : shadowCategories) {
@@ -731,7 +732,6 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             }
         }
 
-
         String result = sendPost(context, getUrl(context, checkoutURL), params);
         Gson gson = new Gson();
         CheckoutResponse response = gson.fromJson(result, CheckoutResponse.class);
@@ -813,42 +813,15 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
             try {
                 Asset asset = db.findAssetByID(action.getAssetID());
-
-                StringBuilder notes = new StringBuilder("Nodyn ");
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-                String deviceName = prefs.getString(context.getString(R.string.pref_key_general_id),
-                        context.getString(R.string.pref_default_general_id));
-                if (deviceName != null && deviceName.length() > 0) {
-                    notes.append("<" + deviceName + "> ");
-                }
+                String notes = action.generateNotes(context);
 
                 switch (action.getDirection()) {
                     case CHECKIN:
-                        notes.append("checkin.");
-
-                        //who (if anyone) authorized the asset check in?
-                        if (action.getAuthorization() != null) {
-                            notes.append(" Authorization: '" + action.getAuthorization() + "'.");
-                        }
-
-                        //did the authorizing user verify the asset was undamaged during checkin?
-                        notes.append(" Asset verified undamaged: " + action.isVerified() + ".");
-
                         checkinAsset(context, asset.getId(), asset.getTag(), action.getTimestamp(),
-                                notes.toString());
+                                notes);
                         break;
                     case CHECKOUT:
-                        notes.append("checkout.");
-
-                        //who (if anyone) authorized the asset check out?
-                        if (action.getAuthorization() != null) {
-                            notes.append(" Authorization: '" + action.getAuthorization() + "'.");
-                        }
-
-                        User user = db.findUserByID(action.getUserID());
-                        //did the associate checking out the asset have to agree to the eula?
-                        notes.append(" EULA shown: " + action.isVerified() + ".");
-                        checkoutAssetTo(context, asset.getId(), asset.getTag(), user.getId(),
+                        checkoutAssetTo(context, asset.getId(), asset.getTag(), action.getUserID(),
                                 action.getTimestamp(), action.getExpectedCheckin(), notes.toString());
                         break;
                     default:
@@ -965,13 +938,13 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
 
     @Override
-    public List<Action> getAssetActivity(Context context, Asset asset, int page) throws SyncException,
+    public ActionHistory getAssetActivity(Context context, Asset asset, int page) throws SyncException,
             SyncNotSupportedException {
         String filter = "item_id=" + asset.getId() + "&item_type=asset&order=desc";
         return getActivityWithFilter(context, filter, page);
     }
 
-    public List<Action> getActivityWithFilter(@NotNull Context context, @Nullable String filterText, int page) throws SyncException {
+    public ActionHistory getActivityWithFilter(@NotNull Context context, @Nullable String filterText, int page) throws SyncException {
         //convert the page into a record offset
         final int pageSize = 50;
         int offset = page * pageSize;
@@ -980,6 +953,8 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         boolean isServerUTC = prefs.getBoolean(context.getString(R.string.pref_key_snipeit4_utc_time),
                 Boolean.parseBoolean(context.getString(R.string.pref_default_snipeit4_utc_time)));
+        boolean hasMoreRecords = false;
+
         try {
             String url = ACTIVITY_URL_PART;
             if (filterText != null && filterText.length() > 0) {
@@ -999,6 +974,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                 filterList.add(action);
             }
 
+            hasMoreRecords = filterList.size() > 0;
             //filter the list to exclude actions for other companies or for asset models we are not
             //+ interested in.
             FilterHelper.filterActions(context, filterList);
@@ -1008,29 +984,30 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
             throw new SyncException("Unable to fetch activity records: " + e.getMessage());
         }
 
-        return actionList;
+        ActionHistory actionHistory = new ActionHistory(actionList, hasMoreRecords);
+        return actionHistory;
     }
 
     @Override
-    public List<Action> getUserActivity(Context context, User user, int page) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getUserActivity(Context context, User user, int page) throws SyncException, SyncNotSupportedException {
         String filter = "target_id=" + user.getId() + "&target_type=user&order=desc";
         return getActivityWithFilter(context, filter, page);
 
     }
 
     @Override
-    public List<Action> getActivity(Context context, int page) throws SyncException,
+    public ActionHistory getActivity(Context context, int page) throws SyncException,
             SyncNotSupportedException {
         return getActivityWithFilter(context, "order=desc", page);
     }
 
     @Override
-    public List<Action> getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException {
         return getActivityToCutoff(context, cutoff);
     }
 
     @Override
-    public List<Action> getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMinimum(Calendar.HOUR_OF_DAY));
         calendar.set(Calendar.MINUTE, calendar.getActualMinimum(Calendar.MINUTE));
@@ -1042,7 +1019,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         return getActivityToCutoff(context, cutoff);
     }
 
-    private List<Action> getActivityToCutoff(@NotNull Context context, long cutoff) throws SyncException,
+    private ActionHistory getActivityToCutoff(@NotNull Context context, long cutoff) throws SyncException,
             SyncNotSupportedException {
         //convert the page into a record offset
         final int pageSize = 50;
@@ -1058,7 +1035,8 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         //+ the maximum number of pages we can pull before we give up
         int maxPageCount = 99;
         boolean keepFetching = true;
-        while (page <= maxPageCount && keepFetching) {
+        boolean reachedEnd = false;
+        while (page <= maxPageCount && !reachedEnd) {
             try {
                 int offset = page * pageSize;
                 String url = ACTIVITY_URL_PART;
@@ -1070,7 +1048,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
 
                 //no more history to pull
                 if (snipeit4ActivityList.isEmpty()) {
-                    keepFetching = false;
+                    reachedEnd = true;
                     break;
                 }
 
@@ -1086,7 +1064,7 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
                     //stop fetching as soon as we hit the first action record that occurred before
                     //+ the cutoff
                     if (action.getTimestamp() < cutoff) {
-                        keepFetching = false;
+                        reachedEnd = false;
                         break;
                     } else {
                         actionList.add(action);
@@ -1101,7 +1079,8 @@ public class SnipeIt4SyncAdapter implements SyncAdapter {
         }
 
         Log.d(TAG, String.format("Found %d action history records", actionList.size()));
-        return actionList;
+        ActionHistory actionHistory = new ActionHistory(actionList, !reachedEnd);
+        return actionHistory;
     }
 
     @Override

@@ -578,7 +578,7 @@ public class WeeklyStatisticsEmailBuilder implements StatisticsEmailBuilder {
         chart.setDescription(d);
 
         AssetUsageChartBuilder builder = new AssetUsageChartBuilder();
-        builder.buildThirtyDayChart(context, chart, statistics);
+        builder.buildThirtyDayChart(context, chart, statistics, asset);
 
         final String key = String.format("%d-%d-%s", asset.getModelID(), asset.getId(),
                 asset.getTag());

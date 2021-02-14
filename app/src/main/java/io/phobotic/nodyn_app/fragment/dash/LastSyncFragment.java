@@ -29,6 +29,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
@@ -64,6 +65,7 @@ public class LastSyncFragment extends Fragment {
     private static final String TAG = LastSyncFragment.class.getSimpleName();
     private static final int ANIM_DURATION = 1000;
     private static final int ANIM_DELAY = 1000;
+    private static final String STATUS_KEY = "status";
 
     // TODO: Rename and change types of parameters
     private TextSwitcher lastSyncTS;
@@ -71,7 +73,7 @@ public class LastSyncFragment extends Fragment {
     private CardView card;
     private BroadcastReceiver br;
     private View rootView;
-    private Status status;
+    private int status = -1;
     private TextView title;
 
 
@@ -96,8 +98,20 @@ public class LastSyncFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATUS_KEY, this.status);
+    }
+
+
+
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            this.status = savedInstanceState.getInt(STATUS_KEY, -1);
+        }
 
         br = new BroadcastReceiver() {
             @Override
@@ -194,22 +208,25 @@ public class LastSyncFragment extends Fragment {
 
         int newTextColor = 0;
         switch (status) {
-            case OK:
+            case Status.OK:
                 newTextColor = getContext().getResources().getColor(R.color.sync_status_ok);
                 break;
-            case CAUTION:
+            case Status.CAUTION:
                 newTextColor = getContext().getResources().getColor(R.color.sync_status_caution);
                 break;
-            case ERROR:
+            case Status.ERROR:
                 newTextColor = getContext().getResources().getColor(R.color.sync_status_error);
                 break;
         }
 
-        if (status == Status.ERROR) {
-            syncWarning.setVisibility(View.VISIBLE);
-        } else {
-            syncWarning.setVisibility(View.GONE);
-        }
+//        if (status == Status.ERROR) {
+//            syncWarning.setVisibility(View.VISIBLE);
+//        } else {
+//
+//        }
+
+        // TODO: 2/12/2021 is the warning message still needed?
+        syncWarning.setVisibility(View.GONE);
 
 //        animateCardColorChange(newCardColor);
         animateTextColorChange(newTextColor);
@@ -285,10 +302,10 @@ public class LastSyncFragment extends Fragment {
         return color;
     }
 
-    private enum Status {
-        OK,
-        CAUTION,
-        ERROR
+    private class Status {
+        public static final int OK = 0;
+        public static final int CAUTION = 1;
+        public static final int ERROR = 2;
     }
 
 }

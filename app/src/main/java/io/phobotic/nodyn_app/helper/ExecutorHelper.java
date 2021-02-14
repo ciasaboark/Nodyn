@@ -20,9 +20,11 @@ package io.phobotic.nodyn_app.helper;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import io.phobotic.nodyn_app.database.model.Asset;
+import io.phobotic.nodyn_app.reporting.CustomEvents;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
 
@@ -63,23 +66,31 @@ public class ExecutorHelper {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
+                Bundle b = new Bundle();
                 try {
                     Asset result = future.get(timeoutMs, TimeUnit.MILLISECONDS);
                     if (listener != null) {
                         if (result == null) {
-                            listener.onException(result, new SyncException(String.format("Unknown error fetching " +
-                                    "asset information for id %d. Returned asset was null.", asset.getId())));
+                            String message = String.format("Unknown error fetching " +
+                                    "asset information for id %d. Returned asset was null.", asset.getId());
+                            b.putString(CustomEvents.ASSET_AVAILABLITY_CHECK_RESULTS, message);
+                            FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.ASSET_AVAILABLITY_CHECK, b);
+                            listener.onException(result, new SyncException(message));
                         } else {
                             listener.onResult(result);
                         }
                     }
                 } catch (TimeoutException e) {
+                    b.putString(CustomEvents.ASSET_AVAILABLITY_CHECK_RESULTS, String.format("Timeout after %d ms", timeoutMs));
+                    FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.ASSET_AVAILABLITY_CHECK, b);
                     if (listener != null) {
                         listener.onTimeoutException(asset, e);
                     }
                 } catch (Exception e) {
                     String message = String.format("Caught exception while waiting for sync adapter to " +
                             "return asset information for id %d: %s", asset.getId(), e.getMessage());
+                    b.putString(CustomEvents.ASSET_AVAILABLITY_CHECK_RESULTS, message);
+                    FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.ASSET_AVAILABLITY_CHECK, b);
                     FirebaseCrashlytics.getInstance().recordException(e);
                     Log.e(TAG, message);
                     if (listener != null) {

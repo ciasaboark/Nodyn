@@ -19,9 +19,11 @@ package io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow;
 
 import com.google.gson.annotations.SerializedName;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 
 import io.phobotic.nodyn_app.database.sync.Action;
+import io.phobotic.nodyn_app.sync.HtmlEncoded;
 
 import static io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.TimeHelper.toTimestamp;
 
@@ -40,6 +42,8 @@ public class Snipeit4Activity {
 
     private Item item;
     private Item location;
+
+    @HtmlEncoded
     private String note;
     private Item target;
     private DateSnippet updatedAt;

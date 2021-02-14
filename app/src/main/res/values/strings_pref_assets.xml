@@ -30,7 +30,7 @@
     <string name="pref_description_asset_status_color">Color assets according to their asset status label color</string>
 
     <string name="pref_key_check_out_all_models">check_out_all_models</string>
-    <string name="pref_default_check_out_all_models">false</string>
+    <string name="pref_default_check_out_all_models">true</string>
     <string name="pref_title_check_out_all_models">Fetch all asset models</string>
     <string name="pref_description_check_out_all_models">Allow all asset models to be checked out</string>
 

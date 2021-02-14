@@ -36,6 +36,11 @@
     <dimen name="view_action_card_radius">0dp</dimen>
 
     <dimen name="view_asset_hero_size">48dp</dimen>
+    <dimen name="view_model_hero_size">36dp</dimen>
+    <dimen name="view_user_hero_size">36dp</dimen>
+
+    <integer name="model_fragment_grid_columns">1</integer>
+    <integer name="model_fragment_grid_max_records">5</integer>
 
     <dimen name="picasso_tiny_image_circle_border_width">1px</dimen>
     <dimen name="picasso_small_image_circle_border_width">1px</dimen>
@@ -46,6 +51,8 @@
     <dimen name="asset_header_box_outside_margin">0dp</dimen>
     <dimen name="asset_header_box_card_corner_radius">0dp</dimen>
     <dimen name="asset_header_box_hero_size">80dp</dimen>
+    <dimen name="asset_header_box_hero_margin">16dp</dimen>
+    <dimen name="asset_header_box_title_text_size">24sp</dimen>
 
 
     <dimen name="flex_horizontal_margin">0dp</dimen>

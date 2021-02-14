@@ -20,6 +20,7 @@ package io.phobotic.nodyn_app.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import us.feras.mdv.MarkdownView;
 
@@ -46,6 +47,20 @@ public class ObservableMarkdownView extends MarkdownView {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                if (onScrollChangeListener != null) {
+                    onScrollChangeListener.onPageFinished();
+                }
+            }
+        });
+    }
+
     public OnScrollChangeListener getOnScrollChangeListener() {
         return onScrollChangeListener;
     }
@@ -65,5 +80,6 @@ public class ObservableMarkdownView extends MarkdownView {
          * @param oldScrollY Previous vertical scroll origin.
          */
         void onScrollChange(WebView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY);
+        void onPageFinished();
     }
 }

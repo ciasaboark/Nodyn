@@ -37,13 +37,13 @@
             android:summary="@string/pref_description_user_statistics"
             android:title="@string/pref_title_user_statistics"/>
 
-        <CheckBoxPreference
+        <!-- <CheckBoxPreference
             android:defaultValue="@string/pref_default_asset_statistics"
             android:drawableTint="@color/grey600"
             android:icon="@drawable/ic_laptop_grey600_24dp"
             android:key="@string/pref_key_asset_statistics"
             android:summary="@string/pref_description_asset_statistics"
-            android:title="@string/pref_title_asset_statistics"/>
+            android:title="@string/pref_title_asset_statistics"/> -->
 
         <CheckBoxPreference
             android:defaultValue="@string/pref_default_activity_statistics"

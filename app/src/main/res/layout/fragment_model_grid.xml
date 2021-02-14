@@ -66,6 +66,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/overflow_box"
+        android:textColor="@color/white"
         android:layout_margin="16dp"
         android:background="?android:attr/selectableItemBackground"
         android:text="@string/view_more"/>

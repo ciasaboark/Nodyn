@@ -30,6 +30,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -97,6 +98,34 @@ public class AnimationHelper {
             }
         });
         animSetXY.start();
+    }
+
+    public static void fadeSwitchText(@NonNull Context context,
+                                      @NonNull final TextView tv, final String str) {
+        Animation fadeOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
+        final Animation fadeIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
+        fadeOut.setDuration(200);
+        fadeIn.setDuration(200);
+
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                tv.setText(str);
+                tv.startAnimation(fadeIn);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        tv.startAnimation(fadeOut);
     }
 
     public interface AnimateListener {

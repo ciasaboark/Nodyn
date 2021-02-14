@@ -66,6 +66,9 @@ public class AvatarHelper {
 
         List<AvatarProvider> loaders = new ArrayList<>();
         for (String className : enabledProviders) {
+            if (className == null || className.equals("")) {
+                continue;
+            }
             try {
                 Class<?> clazz = Class.forName(className);
                 Constructor<?> ctor = clazz.getConstructor();
@@ -119,7 +122,7 @@ public class AvatarHelper {
                     .resize(size, size)
                     .placeholder(R.drawable.grey_circle)
                     .transform(getTransformation(context, size))
-                    .transform(getSecondTransformation(context))
+//                    .transform(getSecondTransformation(context))
 //                    .transform(new DropShadowTransformation())
                     .into(imageView, new Callback() {
                         @Override

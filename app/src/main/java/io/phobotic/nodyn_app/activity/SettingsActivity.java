@@ -117,10 +117,11 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
      */
     private void setupActionBar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+//        toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(R.string.title_activity_settings);
         if (actionBar != null) {
             // Show the Up button in the action bar.
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -623,16 +624,15 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private void collapse(final View v, final boolean resetAnimated) {
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         final int height = v.getMeasuredHeight();
-        ValueAnimator anim = ValueAnimator.ofInt(height, 0);
+        ValueAnimator anim = ValueAnimator.ofFloat(1, 0);
         anim.setDuration(400);
         anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             public void onAnimationUpdate(ValueAnimator animation) {
-                Integer value = (Integer) animation.getAnimatedValue();
-                v.getLayoutParams().height = value.intValue();
+                float value = (Float) animation.getAnimatedValue();
+                int h = (int) (height * value);
+                v.getLayoutParams().height = h;
                 v.requestLayout();
-
-                float alpha = ((float) height / (float) value);
-                v.setAlpha(alpha);
+                v.setAlpha(value);
             }
         });
 
