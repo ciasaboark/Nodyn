@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,36 +18,41 @@
 package io.phobotic.nodyn_app.activity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
 import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
 import io.phobotic.nodyn_app.database.audit.model.AuditDefinition;
 import io.phobotic.nodyn_app.database.model.Group;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.fragment.UserAuthorizationFragment;
 import io.phobotic.nodyn_app.fragment.audit.AssetAuditFragment;
-import io.phobotic.nodyn_app.fragment.audit.AuditAuthorizationFragment;
 import io.phobotic.nodyn_app.fragment.audit.AuditDefinitionSelectorFragment;
 import io.phobotic.nodyn_app.fragment.audit.AuditStatusListener;
 import io.phobotic.nodyn_app.fragment.audit.OnAuditCreatedListener;
+import io.phobotic.nodyn_app.service.AuditEmailService;
 
-public class AuditActivity extends AppCompatActivity implements AuditStatusListener, OnAuditCreatedListener {
+public class AuditActivity extends AppCompatActivity implements AuditStatusListener, OnAuditCreatedListener, UserAuthorizationFragment.OnUserAuthorizedListener {
 
     private static final String TAG = AuditActivity.class.getSimpleName();
 
@@ -64,7 +69,7 @@ public class AuditActivity extends AppCompatActivity implements AuditStatusListe
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
     private void setupActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         setSupportActionBar(toolbar);
 
@@ -75,6 +80,13 @@ public class AuditActivity extends AppCompatActivity implements AuditStatusListe
         }
         toolbar.setFocusable(false);
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Intent i = new Intent(getApplicationContext(), AuditEmailService.class);
+        startService(i);
     }
 
     private void init() {
@@ -108,20 +120,20 @@ public class AuditActivity extends AppCompatActivity implements AuditStatusListe
                 }
             }
 
-            AuditAuthorizationFragment fragment = AuditAuthorizationFragment.newInstance(allowedGroups, allowAllGroups);
+            UserAuthorizationFragment fragment = UserAuthorizationFragment.newInstance(UserAuthorizationFragment.Role.AUDIT, allowedGroups, allowAllGroups);
             fragment.setListener(this);
             FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction().replace(R.id.frame, fragment).commit();
         } else {
             //skip past the authorization fragment if it is not required
-            onAuditAuthorized(null);
+            onUserAuthorized(null);
         }
     }
 
     @Override
-    public void onAuditAuthorized(User user) {
+    public void onUserAuthorized(User authorizedUser) {
         FragmentManager fm = getSupportFragmentManager();
-        AuditDefinitionSelectorFragment fragment = AuditDefinitionSelectorFragment.newInstance(user);
+        AuditDefinitionSelectorFragment fragment = AuditDefinitionSelectorFragment.newInstance(authorizedUser);
         fragment.setListener(this);
         fm.beginTransaction().replace(R.id.frame, fragment).commit();
     }
@@ -129,7 +141,8 @@ public class AuditActivity extends AppCompatActivity implements AuditStatusListe
     @Override
     public void onDefinedAuditChosen(User user, AuditDefinition auditDefinition) {
         AuditDatabase db = AuditDatabase.getInstance(this);
-        Audit audit = db.createAuditFromDefinition(user, auditDefinition);
+
+        AuditHeader audit = AuditHeader.fromDefinition(this, user, auditDefinition);
 
         AssetAuditFragment fragment = AssetAuditFragment.newInstance(auditDefinition, audit, user);
         fragment.setListener(this);
@@ -145,12 +158,13 @@ public class AuditActivity extends AppCompatActivity implements AuditStatusListe
     @Override
     public void onAuditComplete(Audit audit) {
         AuditDatabase db = AuditDatabase.getInstance(this);
-        audit.setEnd(System.currentTimeMillis());
-        db.storeAudit(audit);
+        audit.getHeader().setEnd(System.currentTimeMillis());
+        db.headerDao().insert(audit.getHeader());
+        db.detailDao().insert(audit.getDetails());
 
-        AlertDialog d = new AlertDialog.Builder(this)
+        AlertDialog d = new MaterialAlertDialogBuilder(this, R.style.Widgets_Dialog)
                 .setTitle("Audit complete")
-                .setMessage("Thank you. Audit results have been stored and will be transmitted during next sync")
+                .setMessage("Thank you. Audit results have been stored and will be transmitted soon")
                 .setPositiveButton(android.R.string.ok, null)
                 .create();
 
@@ -176,7 +190,7 @@ public class AuditActivity extends AppCompatActivity implements AuditStatusListe
     }
 
     private void showExitWarning() {
-        AlertDialog d = new AlertDialog.Builder(this)
+        AlertDialog d = new MaterialAlertDialogBuilder(this, R.style.Widgets_Dialog)
                 .setTitle("Cancel Audit?")
                 .setMessage("Cancel the current asset audit?")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {

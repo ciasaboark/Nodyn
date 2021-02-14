@@ -160,7 +160,7 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return name;
+        return String.format("\"%s\" <empl_id: %s>", name, employeeNum);
     }
 
     public class Columns {

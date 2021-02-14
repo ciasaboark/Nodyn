@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,20 +26,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,8 +41,16 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
+import androidx.annotation.ColorInt;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.fragment.preference.AssetPreferenceFragment;
 import io.phobotic.nodyn_app.fragment.preference.AuditPreferenceFragment;
@@ -62,9 +59,11 @@ import io.phobotic.nodyn_app.fragment.preference.CheckInPreferenceFragment;
 import io.phobotic.nodyn_app.fragment.preference.CheckOutPreferenceFragment;
 import io.phobotic.nodyn_app.fragment.preference.DataSyncPreferenceFragment;
 import io.phobotic.nodyn_app.fragment.preference.EmailPreferenceFragment;
+import io.phobotic.nodyn_app.fragment.preference.ExperimentalFragment;
 import io.phobotic.nodyn_app.fragment.preference.GeneralPreferenceFragment;
+import io.phobotic.nodyn_app.fragment.preference.StatisticsPreferenceFragment;
 import io.phobotic.nodyn_app.fragment.preference.UsersPreferenceFragment;
-import io.phobotic.nodyn_app.view.PreferenceSection;
+import io.phobotic.nodyn_app.view.PreferenceSectionView;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -81,6 +80,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private static final String TAG = SettingsActivity.class.getSimpleName();
     private static final String LULLABY = "453453";
     private static final String TIME = "312312";
+    private static final String BOLERO = "21213232";
     private LinearLayout holder;
     private View fragmentWrapper;
     private List<Integer> taps = new ArrayList<>();
@@ -92,6 +92,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private MediaPlayer note5;
     private boolean isAnimating = false;
     private boolean handleOnBack = false;
+    private boolean experimentalUnlocked = false;
 
     /**
      * Helper method to determine if the device has an extra-large screen. For
@@ -115,11 +116,12 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
     private void setupActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+//        toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(R.string.title_activity_settings);
         if (actionBar != null) {
             // Show the Up button in the action bar.
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -128,10 +130,16 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     private void init() {
         fragmentWrapper = findViewById(R.id.fragment_card);
-        holder = (LinearLayout) findViewById(R.id.holder);
+        holder = findViewById(R.id.holder);
 
         showHideBeta();
-        initNotes();
+        hideExperimental();
+    }
+
+
+    private void hideExperimental() {
+        View experimental = findViewById(R.id.experimental);
+        experimental.setVisibility(View.GONE);
     }
 
     private void showHideBeta() {
@@ -151,6 +159,12 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         note3 = MediaPlayer.create(this, R.raw.a);
         note4 = MediaPlayer.create(this, R.raw.b);
         note5 = MediaPlayer.create(this, R.raw.d2);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        releaseNotes();
     }
 
     @Override
@@ -193,9 +207,24 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         expandAllSections();
     }
 
+    private void releaseNotes() {
+        note1.release();
+        note2.release();
+        note3.release();
+        note4.release();
+        note5.release();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initNotes();
+    }
+
     private void expandAllSections() {
         //keep the beta settings hidden
         int betaID = R.id.beta;
+        int experimentalID = R.id.experimental;
         int count = holder.getChildCount();
         if (count > 0) {
             isAnimating = true;
@@ -212,6 +241,14 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                             expand(v, false);
                         }
                     }
+                } else if (v.getId() == experimentalID) {
+                    if (experimentalUnlocked) {
+                        if (i == count - 1) {
+                            expand(v, true);
+                        } else {
+                            expand(v, false);
+                        }
+                    }
                 } else if (v.getVisibility() != View.VISIBLE) {
                     if (i == count - 1) {
                         expand(v, true);
@@ -220,8 +257,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                     }
                 }
 
-                if (v instanceof PreferenceSection) {
-                    ((PreferenceSection) v).setHighlighted(false);
+                if (v instanceof PreferenceSectionView) {
+                    ((PreferenceSectionView) v).setHighlighted(false);
                 }
             }
         }
@@ -268,9 +305,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         });
 
 
-        Random random = new Random();
-        long offset = random.nextInt(500);
-        anim.setStartDelay(offset);
+//        Random random = new Random();
+//        long offset = random.nextInt(250);
+//        anim.setStartDelay(offset);
 
         anim.start();
     }
@@ -321,7 +358,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 || CheckInPreferenceFragment.class.getName().equals(fragmentName)
                 || CheckOutPreferenceFragment.class.getName().equals(fragmentName)
                 || AssetPreferenceFragment.class.getName().equals(fragmentName)
-                || GeneralPreferenceFragment.class.getName().equals(fragmentName);
+                || GeneralPreferenceFragment.class.getName().equals(fragmentName)
+                || EmailPreferenceFragment.class.getName().equals(fragmentName)
+                || BetaPreferenceFragment.class.getName().equals(fragmentName)
+                || ExperimentalFragment.class.getName().equals(fragmentName);
     }
 
     @Override
@@ -354,8 +394,14 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             case R.id.email:
                 fragment = new EmailPreferenceFragment();
                 break;
+            case R.id.statistics:
+                fragment = new StatisticsPreferenceFragment();
+                break;
             case R.id.beta:
                 fragment = new BetaPreferenceFragment();
+                break;
+            case R.id.experimental:
+                fragment = new ExperimentalFragment();
                 break;
             case R.id.icon1:
                 registerMagicTap(id, 1);
@@ -379,7 +425,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         //only load the new fragment if we are not currently animating
         if (fragment != null && !isAnimating) {
             Fragment curChildFragment = getSupportFragmentManager().findFragmentById(R.id.frame);
-            if (curChildFragment == null || !(curChildFragment instanceof PreferenceFragmentCompat)) {
+            //
+            if (curChildFragment == null ||
+                    !(curChildFragment instanceof PreferenceFragmentCompat ||
+                            curChildFragment instanceof ExperimentalFragment)) {
                 Log.d(TAG, "showing child fragment");
                 showChildFragment(id, fragment);
             } else {
@@ -391,15 +440,12 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void registerMagicTap(int id, int i) {
-        ImageView iv = (ImageView) findViewById(id);
+        ImageView iv = findViewById(id);
         iv.setSoundEffectsEnabled(false);
         ObjectAnimator colorAnimator = ObjectAnimator.ofObject(iv, "colorFilter", new ArgbEvaluator(),
                 0, 0);
-        TypedValue typedValue = new TypedValue();
-        Resources.Theme theme = getTheme();
-        theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
-        @ColorInt int startColor = typedValue.data;
-
+        @ColorInt int startColor = getResources().getColor(R.color.grey300);
+;
         int endColor = getHighlightColor(i, startColor);
         colorAnimator.setObjectValues(startColor, endColor, startColor);
         colorAnimator.setInterpolator(new FastOutSlowInInterpolator());
@@ -465,14 +511,25 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private void recordTap(int i) {
         //play the notes even if the setting is unlocked
         MediaPlayer notePlayer = getPlayer(i);
+
+        //if the user taps the same note twice the old one may still be playing
         if (notePlayer != null) {
+            if (notePlayer != null && notePlayer.isPlaying()) {
+                notePlayer.stop();
+                try {
+                    notePlayer.prepare();
+                } catch (Exception e) {
+                    //don't care
+                }
+            }
+
             notePlayer.start();
         }
 
 
         taps.add(i);
 
-        if (taps.size() > 6) {
+        if (taps.size() > 8) {
             taps.remove(0);
         }
 
@@ -483,7 +540,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         Log.d(TAG, "sequence: " + sequence);
 
-        if (sequence.equals(LULLABY)) {
+        //not all sequences are the same length.  Check the end of the sequence for the shorter ones first
+        if (sequence.endsWith(LULLABY)) {
             if (!betaUnlocked) {
                 Toast.makeText(this, "It's dangerous to go alone!  Take this.", Toast.LENGTH_LONG).show();
                 MediaPlayer mp = MediaPlayer.create(this, R.raw.success);
@@ -494,7 +552,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 View beta = findViewById(R.id.beta);
                 expand(beta, false);
             }
-        } else if (sequence.equals(TIME)) {
+        } else if (sequence.endsWith(TIME)) {
             if (betaUnlocked) {
 //                Toast.makeText(this, "It's dangerous to go alone!  Take this.", Toast.LENGTH_LONG).show();
                 MediaPlayer mp = MediaPlayer.create(this, R.raw.put_away);
@@ -504,6 +562,12 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 prefs.edit().putBoolean(getString(R.string.beta_settings_unlocked), false).commit();
                 View beta = findViewById(R.id.beta);
                 collapse(beta, false);
+            }
+        } else if (sequence.equals(BOLERO)) {
+            if (!experimentalUnlocked) {
+                experimentalUnlocked = true;
+                View experimental = findViewById(R.id.experimental);
+                expand(experimental, false);
             }
         }
     }
@@ -518,9 +582,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
 
                 if (v.getId() == sectionID) {
-                    if (v instanceof PreferenceSection) {
+                    if (v instanceof PreferenceSectionView) {
                         //let the preference section know it has been selected
-                        ((PreferenceSection) v).setHighlighted(true);
+                        ((PreferenceSectionView) v).setHighlighted(true);
                     }
                 } else if (v.getVisibility() != View.GONE) {
                     //skip over already hidden views
@@ -560,16 +624,15 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private void collapse(final View v, final boolean resetAnimated) {
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         final int height = v.getMeasuredHeight();
-        ValueAnimator anim = ValueAnimator.ofInt(height, 0);
+        ValueAnimator anim = ValueAnimator.ofFloat(1, 0);
         anim.setDuration(400);
         anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             public void onAnimationUpdate(ValueAnimator animation) {
-                Integer value = (Integer) animation.getAnimatedValue();
-                v.getLayoutParams().height = value.intValue();
+                float value = (Float) animation.getAnimatedValue();
+                int h = (int) (height * value);
+                v.getLayoutParams().height = h;
                 v.requestLayout();
-
-                float alpha = ((float) height / (float) value);
-                v.setAlpha(alpha);
+                v.setAlpha(value);
             }
         });
 
@@ -599,9 +662,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         });
 
 
-        Random random = new Random();
-        long offset = random.nextInt(500);
-        anim.setStartDelay(offset);
+//        Random random = new Random();
+//        long offset = random.nextInt(250);
+//        anim.setStartDelay(offset);
 
         anim.start();
     }

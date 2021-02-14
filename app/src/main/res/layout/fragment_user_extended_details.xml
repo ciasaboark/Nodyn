@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical"
               android:padding="16dp"
-              tools:context="io.phobotic.nodyn_app.fragment.AssetExtendedDetailsFragment">
+              tools:context="io.phobotic.nodyn_app.fragment.asset.AssetExtendedDetailsFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -43,12 +43,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Job Title:"/>
 
                 <TextView
                     android:id="@+id/job_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="TextView"/>
             </LinearLayout>
 
@@ -64,12 +66,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Location:"/>
 
                 <TextView
                     android:id="@+id/location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="TextView"/>
             </LinearLayout>
 
@@ -84,12 +88,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Manager:"/>
 
                 <TextView
                     android:id="@+id/manager"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="TextView"/>
             </LinearLayout>
 
@@ -105,12 +111,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Number of assets:"/>
 
                 <TextView
                     android:id="@+id/num_assets"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="TextView"/>
             </LinearLayout>
 
@@ -125,12 +133,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Employee number:"/>
 
                 <TextView
                     android:id="@+id/employee_no"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:fontFamily="monospace"
                     android:text="TextView"/>
             </LinearLayout>
@@ -145,6 +155,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:layout_marginRight="8dp"
                     android:text="Groups:"/>
 
@@ -152,6 +163,7 @@
                     android:id="@+id/groups"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="TextView"/>
             </LinearLayout>
 
@@ -165,6 +177,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:layout_marginRight="8dp"
                     android:text="Notes:"/>
 
@@ -172,6 +185,7 @@
                     android:id="@+id/notes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="TextView"/>
             </LinearLayout>
 
@@ -186,11 +200,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Company:"/>
 
                 <TextView
                     android:id="@+id/company_name"
                     android:layout_width="match_parent"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:layout_height="wrap_content"
                     android:text="TextView"/>
             </LinearLayout>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -20,42 +20,72 @@
 <resources>
     <string name="pref_header_check_out">Asset check Out</string>
 
+    <string name="pref_key_checkout_allow">checkouts_enable</string>
+    <string name="pref_default_checkout_allow">true</string>
+    <string name="pref_title_checkout_allow">Allow Asset Checkouts</string>
+    <string name="pref_description_checkout_allow">Allow this device to check out assets</string>
+
     <string name="pref_key_check_out_require_authorization">check_out_require_authorization</string>
     <string name="pref_default_check_out_require_authorization">false</string>
-    <string name="pref_title_check_out_require_authorization">Require authorization to check out assets</string>
+    <string name="pref_title_check_out_require_authorization">Require authorization</string>
+    <string name="pref_description_enabled_check_out_require_authorization">An authorized user must begin the self check out procedure</string>
+    <string name="pref_description_disabled_check_out_require_authorization">Users will be able to check out assets without supervision</string>
 
     <string name="pref_key_check_out_authorization_groups">check_out_authorization_group</string>
     <string name="pref_title_check_out_authorization_groups">Authorizing groups</string>
 
-    <string name="pref_key_check_out_all_models">check_out_all_models</string>
-    <string name="pref_default_check_out_all_models">false</string>
-    <string name="pref_title_check_out_all_models">All asset models</string>
-    <string name="pref_description_check_out_all_models">Allow all asset models to be checked out</string>
 
-    <string name="pref_key_check_out_models">check_out_allowed_models</string>
-    <string name="pref_title_check_out_models">Allowed models</string>
-    <string name="pref_description_check_out_models">Allow only selected asset models to be checked out</string>
+    <string name="pref_key_check_out_allow_duration_override">check_out_override_duration</string>
+    <string name="pref_default_check_out_allow_duration_override">false</string>
+    <string name="pref_title_check_out_allow_duration_override">Allow override</string>
+    <string name="pref_description_enabled_check_out_allow_duration_override">Users may select a different duration during checkout</string>
+    <string name="pref_description_disabled_check_out_allow_duration_override">Users cannot select a different duration during checkout</string>
+
 
     <string name="pref_key_check_out_verify">check_out_show_verify</string>
     <string name="pref_default_check_out_verify">false</string>
-    <string name="pref_title_check_out_verify">Require verification</string>
-    <string name="pref_description_check_out_verify">Require acceptance of EULA</string>
+    <string name="pref_title_check_out_verify">Show EULA</string>
+    <string name="pref_description_enabled_check_out_verify">Users will be required to accept the terms of the EULA to complete check out</string>
+    <string name="pref_description_disabled_check_out_verify">Asset check outs will be complete immediately after user authentication</string>
 
     <string name="pref_key_check_out_eula">check_out_eula</string>
-    <string name="pref_title_check_out_eula">Change EULA text</string>
+    <string name="pref_title_check_out_eula">Change default EULA text</string>
     <string name="pref_description_check_out_eula">Github flavored Markdown supported</string>
-    <string name="pref_default_check_out_eula">Equipment may be provided to certain employees for the purpose of performing job related tasks. All employees receiving equipment must abide by this agreement.\n\nEquipment may be checked out to employees in order to perform their assigned job duties. Equipment shall not be used by non-employees or for non-work related purposes. By checking out the equipment the employee certifies that he/she is authorized to check out the equipment and agrees to abide by all posted responsibilities.</string>
+    <string name="pref_default_check_out_eula">Equipment may be provided to employees for the purpose of performing job related tasks. All employees receiving equipment must abide by this agreement.\n\nEquipment may be checked out to employees in order to perform their assigned job duties. Equipment shall not be used by non-employees or for non-work related purposes. By checking out the equipment the employee certifies that he/she is authorized to check out the equipment and agrees to abide by all posted responsibilities.</string>
     <string name="eula_markdown_description">Github flavored <a href='https://guides.github.com/features/mastering-markdown/'>markdown</a> is supported</string>
 
-    <string name="pref_key_check_out_timeout_enabled">check_out_timeout_enabled</string>
-    <string name="pref_title_check_out_timeout_enabled">Deauthorize checkouts after inactivity</string>
-    <string name="pref_description_check_out_timeout_enabled">Automatically close the checkout authorization</string>
-    <string name="pref_default_check_out_timeout_enabled">false</string>
+    <string name="pref_key_check_out_eula_type">check_out_eula_type</string>
+    <string name="pref_title_check_out_eula_type">Which EULA to display</string>
+    <string name="pref_description_check_out_eula_type">Github flavored Markdown supported</string>
+    <string name="pref_default_check_out_eula_type">none</string>
+
 
     <string name="pref_key_check_out_timeout_limit">check_out_timeout_limit</string>
-    <string name="pref_title_check_out_timeout_limit">Set inactivity timeout</string>
-    <string name="pref_default_check_out_timeout_limit">5</string>
-    <string name="pref_summary_check_out_timeout_limit" formatted="false">De-authorize after %s minutes</string>
+    <string name="pref_title_check_out_timeout_limit">Deauthorize checkouts after inactivity</string>
+    <string name="pref_default_check_out_timeout_limit">0</string>
+    <string name="pref_summary_check_out_no_timeout_limit">Authorization must be revoked manually</string>
+    <string name="pref_summary_check_out_timeout_limit" formatted="false">De-authorize after %s minute%s</string>
+
+    <string name="pref_key_check_out_duration">check_out_duration</string>
+    <string name="pref_title_check_out_duration">Check out Duration</string>
+    <string name="pref_default_check_out_duration">1</string>
+    <string name="pref_summary_check_out_no_duration">Assets will be checked out indefinately</string>
+    <string name="pref_summary_check_out_duration" formatted="false">Checked out assets will be due after %s day%s</string>
+
+    <string name="pref_key_asset_status_allow_all">asset_status_allow_all</string>
+    <string name="pref_default_asset_status_allow_all">true</string>
+    <string name="pref_title_asset_status_allow_all">Allow checkouts of every asset status</string>
+    <string name="pref_description_asset_status_allow_all"></string>
 
 
+    <string name="pref_key_asset_status_allowed_statuses">asset_status_allowed_status</string>
+    <string name="pref_title_asset_status_allowed_statuses">Allowed Statuses</string>
+
+    <string name="pref_key_email_past_due_addresses">email_past_due_addresses</string>
+    <string name="pref_default_email_past_due_addresses"></string>
+    <string name="pref_title_email_past_due_addresses">Past due reminder recipients</string>
+
+    <string name="pref_key_past_due_include_owner">email_past_due_include_owner</string>
+    <string name="pref_title_past_due_include_owner">Also send reminder to current asset holder</string>
+    <string name="pref_default_past_due_include_owner">false</string>
 </resources>

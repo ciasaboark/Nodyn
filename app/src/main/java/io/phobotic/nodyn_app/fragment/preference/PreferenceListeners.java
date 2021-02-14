@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,20 +19,22 @@ package io.phobotic.nodyn_app.fragment.preference;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.v14.preference.MultiSelectListPreference;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import androidx.preference.ListPreference;
+import androidx.preference.MultiSelectListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
+import io.phobotic.nodyn_app.database.exception.CompanyNotFoundException;
 import io.phobotic.nodyn_app.database.exception.GroupNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.exception.StatusNotFoundException;
+import io.phobotic.nodyn_app.database.model.Company;
 import io.phobotic.nodyn_app.database.model.Group;
 import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.database.model.Status;
@@ -72,7 +74,7 @@ public class PreferenceListeners {
             }
 
             if (summary.length() == 0) {
-                summary = "No groups selected";
+                summary = "No user groups selected";
             }
 
             preference.setSummary(summary);
@@ -80,6 +82,44 @@ public class PreferenceListeners {
             return true;
         }
     };
+
+    /**
+     * A preference change listener specifically for converting company IDs into the company names
+     */
+    public static Preference.OnPreferenceChangeListener companiesChangeListener =
+            new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object value) {
+                    Database db = Database.getInstance(preference.getContext());
+                    String stringValue = value.toString();
+
+                    String summary = "";
+                    String prefix = "";
+
+                    if (value instanceof Set) {
+                        Set<String> values = (Set<String>) value;
+                        for (String s : values) {
+                            try {
+                                int id = Integer.parseInt(s);
+                                Company company = db.findCompanyById(id);
+                                summary += prefix + company.getName();
+                                prefix = ", ";
+                            } catch (CompanyNotFoundException e) {
+                                Log.d(TAG, "Unable to find company with ID :'" + s + "', this value will " +
+                                        "not be reflected in preference summary");
+                            }
+                        }
+                    }
+
+                    if (summary.length() == 0) {
+                        summary = "No companies selected";
+                    }
+
+                    preference.setSummary(summary);
+
+                    return true;
+                }
+            };
 
     /**
      * A preference change listener specifically for converting asset model IDs into the model names
@@ -144,6 +184,10 @@ public class PreferenceListeners {
                                 "not be reflected in preference summary");
                     }
                 }
+            }
+
+            if (summary.length() == 0) {
+                summary = "No statuses selected";
             }
 
             preference.setSummary(summary);
@@ -228,4 +272,22 @@ public class PreferenceListeners {
                             .getString(preference.getKey(), ""));
         }
     }
+
+//    public static void bindPreferenceSummaryToValue(Preference preference, String formatText) {
+//        // Set the listener to watch for value changes.
+//        preference.setOnPreferenceChangeListener(sGenericPreferenceListener);
+//
+//        // Trigger the listener immediately with the preference's
+//        // current value.
+//        if (preference instanceof MultiSelectListPreference) {
+//            sGenericPreferenceListener.onPreferenceChange(preference,
+//                    PreferenceManager.getDefaultSharedPreferences(preference.getContext())
+//                            .getStringSet(preference.getKey(), new HashSet<String>()));
+//        } else {
+//            sGenericPreferenceListener.onPreferenceChange(preference,
+//                    PreferenceManager
+//                            .getDefaultSharedPreferences(preference.getContext())
+//                            .getString(preference.getKey(), ""));
+//        }
+//    }
 }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2020 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+
+    <style name="DarkCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/generic_card_background_dark</item>
+        <item name="strokeColor">@color/generic_card_border_dark</item>
+        <item name="strokeWidth">1dp</item>
+
+        <item name="android:textViewStyle">@style/Card.TextDark</item>
+    </style>
+
+    <style name="LightCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/generic_card_background_light</item>
+        <item name="strokeColor">@color/generic_card_border_light</item>
+        <item name="strokeWidth">1dp</item>
+
+        <item name="android:textAppearance">@style/Card.TextLight</item>
+
+    </style>
+
+    <style name="Card.TextDark" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@android:color/primary_text_dark</item>
+        <item name="android:textColorSecondary">@android:color/secondary_text_dark</item>
+        <item name="android:textColorHighlight">@android:color/primary_text_dark</item>
+        <item name="android:textColorLink">@color/white</item>
+    </style>
+
+    <style name="Card.TextLight" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@android:color/primary_text_light</item>
+        <item name="android:textColorSecondary">@android:color/secondary_text_light</item>
+        <item name="android:textColorHighlight">@android:color/primary_text_light</item>
+        <item name="android:textColorLink">@color/text_link_color_light</item>
+    </style>
+
+</resources>

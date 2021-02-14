@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -29,6 +28,7 @@ import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.Asset;
 
@@ -60,10 +60,10 @@ public class UnauditedAssetView extends RelativeLayout {
 
     private void init() {
         rootView = inflate(context, R.layout.view_unaudited_asset, this);
-        tag = (TextView) rootView.findViewById(R.id.tag);
-        serial = (TextView) rootView.findViewById(R.id.serial);
-        model = (TextView) rootView.findViewById(R.id.model);
-        image = (ImageView) findViewById(R.id.image);
+        tag = rootView.findViewById(R.id.tag);
+        serial = rootView.findViewById(R.id.serial);
+        model = rootView.findViewById(R.id.model);
+        image = findViewById(R.id.image);
 
         setFields();
     }

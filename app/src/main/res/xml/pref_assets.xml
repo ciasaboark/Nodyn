@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -18,45 +18,61 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_asset_enable_browse"
+        android:icon="@drawable/ic_database_search_grey600_24dp"
+        android:key="@string/pref_key_asset_enable_browse"
+        android:summary="@string/pref_description_asset_enable_browse"
+        android:title="@string/pref_title_asset_enable_browse"/>
+
+    <SwitchPreferenceCompat
         android:defaultValue="true"
         android:icon="@drawable/ic_palette_grey600_24dp"
         android:key="@string/pref_key_asset_status_color"
         android:summary="@string/pref_description_asset_status_color"
         android:title="@string/pref_title_asset_status_color"/>
 
+    <PreferenceCategory
+        android:title="Synced Assets">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_check_out_all_models"
+            android:disableDependentsState="true"
+            android:key="@string/pref_key_check_out_all_models"
+            android:summary="@string/pref_description_check_out_all_models"
+            android:title="@string/pref_title_check_out_all_models"/>
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/empty_array"
+            android:dependency="@string/pref_key_check_out_all_models"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            android:key="@string/pref_key_check_out_models"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="OK"
+            android:title="@string/pref_title_check_out_models"/>
+    </PreferenceCategory>
+
+<PreferenceCategory
+    android:title="Synced Companies">
+
     <SwitchPreferenceCompat
-        android:defaultValue="@string/pref_default_asset_status_show_all"
+        android:icon="@drawable/ic_office_building_marker_grey600_24dp"
+        android:defaultValue="@string/pref_default_sync_all_companies"
         android:disableDependentsState="true"
-        android:icon="@drawable/ic_filter_grey600_24dp"
-        android:key="@string/pref_key_asset_status_show_all"
-        android:summary="@string/pref_description_asset_status_show_all"
-        android:title="@string/pref_title_asset_status_show_all"/>
+        android:key="@string/pref_key_sync_all_companies"
+        android:summary="@string/pref_description_sync_all_companies"
+        android:title="@string/pref_title_sync_all_companies"/>
 
     <MultiSelectListPreference
+        android:dependency="@string/pref_key_sync_all_companies"
         android:defaultValue="@array/empty_array"
-        android:dependency="@string/pref_key_asset_status_show_all"
         android:entries="@array/empty_array"
         android:entryValues="@array/empty_array"
-        android:key="@string/pref_key_asset_status_selected_statuses"
+        android:key="@string/pref_key_sync_companies"
         android:negativeButtonText="@null"
         android:positiveButtonText="OK"
-        android:title="@string/pref_title_asset_status_selected_statuses"/>
+        android:title="@string/pref_title_sync_companies"/>
 
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
-        android:disableDependentsState="true"
-        android:icon="@drawable/ic_tag_grey600_24dp"
-        android:key="@string/pref_key_asset_status_allow_all"
-        android:summary="@string/pref_description_asset_status_allow_all"
-        android:title="@string/pref_title_asset_status_allow_all"/>
+</PreferenceCategory>
 
-    <MultiSelectListPreference
-        android:defaultValue="@array/empty_array"
-        android:dependency="@string/pref_key_asset_status_allow_all"
-        android:entries="@array/empty_array"
-        android:entryValues="@array/empty_array"
-        android:key="@string/pref_key_asset_status_allowed_statuses"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="OK"
-        android:title="@string/pref_title_asset_status_allowed_statuses"/>
 </PreferenceScreen>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import com.google.gson.annotations.SerializedName;
 
 import io.phobotic.nodyn_app.database.model.MaintenanceRecord;
 import io.phobotic.nodyn_app.helper.URLHelper;
+import io.phobotic.nodyn_app.sync.HtmlEncoded;
 
 import static io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.TimeHelper.toTimestamp;
 
@@ -32,7 +33,7 @@ public class Snipeit4MaintenanceRecord {
     @SerializedName("asset_maintenance_type")
     private String type;
 
-    @SerializedName("asset_name")
+    @SerializedName(value = "asset", alternate = {"asset_name"})
     private Marker asset;
 
     @SerializedName("created_at")
@@ -48,6 +49,7 @@ public class Snipeit4MaintenanceRecord {
 
     private int id;
 
+    @HtmlEncoded
     private String notes;
 
     private Marker supplier;
@@ -72,7 +74,9 @@ public class Snipeit4MaintenanceRecord {
     }
 
     private class Marker {
+        @SerializedName("id")
         public int id;
+        @SerializedName("name")
         public String name;
     }
 

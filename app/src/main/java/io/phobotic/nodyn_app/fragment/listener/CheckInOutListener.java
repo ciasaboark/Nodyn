@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +19,11 @@ package io.phobotic.nodyn_app.fragment.listener;
 
 import android.view.View;
 
-import io.phobotic.nodyn_app.database.model.User;
-
 /**
  * Created by Jonathan Nelson on 8/8/17.
  */
 
 public interface CheckInOutListener {
-    void onCheckOutAuthorized(User authorizedUser);
 
     void onCheckOutFinished(View transitonView, String transitionName);
 

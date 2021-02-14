@@ -17,6 +17,7 @@
 
 package io.phobotic.nodyn_app.database.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,12 +32,24 @@ public class FullDataModel {
     private List<Category> categories;
     private List<Status> statuses;
     private List<Manufacturer> manufacturers;
+    private List<Company> companies;
+
+    public List<Company> getCompanies() {
+        return companies;
+    }
+
+    public FullDataModel setCompanies(List<Company> companies) {
+        if (companies == null) companies = new ArrayList<>();
+        this.companies = companies;
+        return this;
+    }
 
     public List<Status> getStatuses() {
         return statuses;
     }
 
     public FullDataModel setStatuses(List<Status> statuses) {
+        if (statuses == null) statuses = new ArrayList<>();
         this.statuses = statuses;
         return this;
     }
@@ -46,6 +59,7 @@ public class FullDataModel {
     }
 
     public FullDataModel setCategories(List<Category> categories) {
+        if (categories == null) categories = new ArrayList<>();
         this.categories = categories;
         return this;
     }
@@ -55,6 +69,7 @@ public class FullDataModel {
     }
 
     public FullDataModel setGroups(List<Group> groups) {
+        if (groups == null) groups = new ArrayList<>();
         this.groups = groups;
         return this;
     }
@@ -64,6 +79,7 @@ public class FullDataModel {
     }
 
     public FullDataModel setAssets(List<Asset> assets) {
+        if (assets == null) assets = new ArrayList<>();
         this.assets = assets;
         return this;
     }
@@ -73,6 +89,7 @@ public class FullDataModel {
     }
 
     public FullDataModel setModels(List<Model> models) {
+        if (models == null) models = new ArrayList<>();
         this.models = models;
         return this;
     }
@@ -82,6 +99,7 @@ public class FullDataModel {
     }
 
     public FullDataModel setUsers(List<User> users) {
+        if (users == null) users = new ArrayList<>();
         this.users = users;
         return this;
     }
@@ -91,6 +109,7 @@ public class FullDataModel {
     }
 
     public FullDataModel setManufacturers(List<Manufacturer> manufacturers) {
+        if (manufacturers == null) manufacturers = new ArrayList<>();
         this.manufacturers = manufacturers;
         return this;
     }

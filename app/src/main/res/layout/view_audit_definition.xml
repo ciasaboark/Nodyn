@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -16,13 +16,17 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="4dp"
-                                    android:layout_marginLeft="8dp"
-                                    android:layout_marginRight="8dp"
-                                    android:layout_marginTop="4dp">
+<com.google.android.material.card.MaterialCardView android:id="@+id/card"
+                                                   xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="wrap_content"
+                                                   android:layout_marginBottom="4dp"
+                                                   android:layout_marginLeft="8dp"
+                                                   android:layout_marginRight="8dp"
+                                                   android:layout_marginTop="4dp"
+                                                   android:foreground="?selectableItemBackground"
+                                                   app:strokeWidth="4dp">
 
     <RelativeLayout
         android:id="@+id/background"
@@ -49,10 +53,10 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="8dp"
                     android:drawablePadding="8dp"
-                    android:drawableStart="@drawable/ic_clipboard_check_grey600_24dp"
+                    android:drawableStart="@drawable/ic_clipboard_check_white_24dp"
                     android:text="@string/placeholder"
-                    android:textAppearance="@android:style/TextAppearance.Material.Medium"
-                    android:textColor="?android:attr/textColorPrimary"
+                    android:textAppearance="@style/Text.Title"
+                    android:textColor="?android:textColorPrimary"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -60,7 +64,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="@string/placeholder"/>
+                    android:text="@string/placeholder"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
 
@@ -71,8 +76,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginBottom="8dp"
                 android:drawablePadding="8dp"
-                android:drawableStart="@drawable/ic_eye_off_grey600_24dp"
-                android:drawableTint="@color/warning"
+                android:drawableStart="@drawable/ic_eye_off_white_24dp"
                 android:text="@string/audit_is_blind_audit"
                 android:textColor="?android:attr/textColorPrimary"/>
 
@@ -82,32 +86,30 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:drawablePadding="8dp"
-                android:drawableStart="@drawable/ic_comment_alert_outline_grey600_24dp"
-                android:text="@string/placeholder"/>
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="8dp"
-                android:clickable="false">
-
-                <LinearLayout
-                    android:id="@+id/models"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"/>
-            </HorizontalScrollView>
+                android:drawableStart="@drawable/ic_comment_alert_outline_white_24dp"
+                android:text="@string/placeholder"
+                />
 
             <TextView
                 android:id="@+id/statuses"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawablePadding="8dp"
-                android:drawableStart="@drawable/ic_tag_grey600_24dp"
+                android:drawableStart="@drawable/ic_tag_white_24dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:text="@string/placeholder"/>
+                android:text="@string/placeholder"
+                />
+
+            <LinearLayout
+                android:id="@+id/models"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clickable="false"
+                android:orientation="horizontal"/>
+
         </LinearLayout>
 
 
@@ -130,15 +132,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:drawablePadding="8dp"
-                    android:drawableStart="@drawable/ic_calendar_blank_grey600_24dp"
-                    android:text="Last audited date"/>
+                    android:drawableStart="@drawable/ic_calendar_blank_white_24dp"
+                    android:text="Last audited date"
+                    />
 
                 <TextView
                     android:id="@+id/last_audit_date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/placeholder"
-                    android:textAlignment="textEnd"/>
+                    android:textAlignment="textEnd"
+                    />
             </LinearLayout>
 
             <TextView
@@ -146,8 +150,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawablePadding="8dp"
-                android:drawableStart="@drawable/ic_update_grey600_24dp"
-                android:text="Next audited date"/>
+                android:drawableStart="@drawable/ic_update_white_24dp"
+                android:text="Next audited date"
+                />
 
         </LinearLayout>
 
@@ -171,4 +176,4 @@
     </RelativeLayout>
 
 
-</android.support.v7.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,11 @@
 package io.phobotic.nodyn_app.sync;
 
 import android.content.Context;
-import android.support.v7.preference.PreferenceManager;
 
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
+import io.phobotic.nodyn_app.database.sync.SyncAttempt;
+import io.phobotic.nodyn_app.database.sync.SyncDatabase;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.dummy.DummyAdapter;
 import io.phobotic.nodyn_app.sync.adapter.snipeit3.SnipeIt3SyncAdapter;
@@ -50,5 +53,24 @@ public class SyncManager {
         }
 
         return adapter;
+    }
+
+    public static boolean isFirstSyncComplete(Context context) {
+        SyncAttempt lastSuccess = getLastSuccessfulSync(context);
+        boolean isFirstSyncComplete = false;
+        if (lastSuccess != null) {
+            isFirstSyncComplete = true;
+        }
+
+        return isFirstSyncComplete;
+    }
+
+    public static @Nullable SyncAttempt getLastSuccessfulSync(Context context) {
+        SyncDatabase syncDatabase = SyncDatabase.getInstance(context);
+        //make sure we filter the list of successful sync attempts to the specific adapter that is chosen
+        SyncAdapter adapter = SyncManager.getPrefferedSyncAdapter(context);
+        SyncAttempt lastSuccess = syncDatabase.syncAttemptDao().findLastSuccessfulSync(adapter.getAdapterName());
+
+        return lastSuccess;
     }
 }

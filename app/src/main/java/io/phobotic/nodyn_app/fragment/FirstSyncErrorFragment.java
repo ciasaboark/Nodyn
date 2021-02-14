@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,9 +31,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.SpannableString;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
@@ -50,6 +47,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.activity.OnSetupCompleteListener;
 import io.phobotic.nodyn_app.helper.AnimationHelper;
@@ -72,7 +73,7 @@ import static io.phobotic.nodyn_app.service.SyncService.BROADCAST_SYNC_UPDATE;
 
 public class FirstSyncErrorFragment extends Fragment {
     private View rootView;
-    private FloatingActionButton syncFab;
+    private Button syncNowButton;
     private BroadcastReceiver br;
     private TextView debugText;
     private TransitionDrawable td;
@@ -83,9 +84,10 @@ public class FirstSyncErrorFragment extends Fragment {
     private View errorBox;
     private View syncNeededCard;
     private View syncSuccessCard;
-    private FloatingActionButton nextFab;
+
     private ProgressBar syncProgress;
     private OnSetupCompleteListener listener;
+    private ExtendedFloatingActionButton nextFab;
 
     public static FirstSyncErrorFragment newInstance() {
         FirstSyncErrorFragment fragment = new FirstSyncErrorFragment();
@@ -100,43 +102,18 @@ public class FirstSyncErrorFragment extends Fragment {
         this.listener = listener;
     }
 
-    private void animateCards() {
-        Animation moveDown = AnimationUtils.loadAnimation(getContext(), R.anim.bottom_down);
-        moveDown.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                syncNeededCard.setVisibility(View.GONE);
-                final Animation moveUp = AnimationUtils.loadAnimation(getContext(), R.anim.bottom_up);
-                moveUp.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                        syncSuccessCard.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-
-                syncSuccessCard.startAnimation(moveUp);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        syncNeededCard.startAnimation(moveDown);
+    private void findViews() {
+        syncNeededCard = rootView.findViewById(R.id.card_need_sync);
+        syncSuccessCard = rootView.findViewById(R.id.card_success);
+        syncNowButton = rootView.findViewById(R.id.sync_button);
+        nextFab = rootView.findViewById(R.id.next_button);
+        debugText = rootView.findViewById(R.id.sync_status_text);
+        circle = rootView.findViewById(R.id.circle);
+        syncStatusCard = rootView.findViewById(R.id.sync_status_card);
+        iv = rootView.findViewById(R.id.image);
+        errorBox = rootView.findViewById(R.id.sync_error);
+        settingsButton = rootView.findViewById(R.id.settings_button);
+        syncProgress = rootView.findViewById(R.id.sync_progress);
     }
 
 
@@ -253,28 +230,15 @@ public class FirstSyncErrorFragment extends Fragment {
         initCards();
     }
 
-    private void findViews() {
-        syncNeededCard = rootView.findViewById(R.id.card_need_sync);
-        syncSuccessCard = rootView.findViewById(R.id.card_success);
-        syncFab = (FloatingActionButton) rootView.findViewById(R.id.sync_button);
-        nextFab = (FloatingActionButton) rootView.findViewById(R.id.next_button);
-        debugText = (TextView) rootView.findViewById(R.id.sync_status_text);
-        circle = rootView.findViewById(R.id.circle);
-        syncStatusCard = rootView.findViewById(R.id.sync_status_card);
-        iv = (ImageView) rootView.findViewById(R.id.image);
-        errorBox = rootView.findViewById(R.id.sync_error);
-        settingsButton = (Button) rootView.findViewById(R.id.settings_button);
-        syncProgress = (ProgressBar) rootView.findViewById(R.id.sync_progress);
-    }
-
     private void initButtons() {
-        syncFab.setOnClickListener(new View.OnClickListener() {
+        syncNowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 hideSyncIntroText();
                 debugText.setText("");
                 AnimationHelper.expand(syncStatusCard);
-                syncFab.hide();
+                syncNowButton.setVisibility(View.GONE);
+                settingsButton.setVisibility(View.GONE);
                 AnimationHelper.collapse(errorBox);
                 AnimationHelper.fadeIn(getContext(), syncProgress);
                 Handler handler = new Handler();
@@ -290,7 +254,7 @@ public class FirstSyncErrorFragment extends Fragment {
                 }, 1000);
             }
         });
-        syncFab.setVisibility(View.GONE);
+        syncNowButton.setVisibility(View.VISIBLE);
 
 
         settingsButton.setOnClickListener(new View.OnClickListener() {
@@ -300,7 +264,7 @@ public class FirstSyncErrorFragment extends Fragment {
             }
         });
 
-        syncFab.show();
+        settingsButton.setVisibility(View.GONE);
 
         nextFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -310,6 +274,11 @@ public class FirstSyncErrorFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void hideSyncIntroText() {
+        TextView tv1 = rootView.findViewById(R.id.need_sync_text_1);
+        AnimationHelper.collapseAndFadeOut(getContext(), tv1);
     }
 
     private void initTextViews() {
@@ -323,22 +292,20 @@ public class FirstSyncErrorFragment extends Fragment {
         errorBox.setVisibility(View.GONE);
         syncProgress.setVisibility(View.GONE);
         syncStatusCard.setVisibility(View.GONE);
-        syncFab.setVisibility(View.VISIBLE);
-    }
-
-    private void hideSyncIntroText() {
-        TextView tv1 = (TextView) rootView.findViewById(R.id.need_sync_text_1);
-        AnimationHelper.collapseAndFadeOut(getContext(), tv1);
+        syncNowButton.setVisibility(View.VISIBLE);
+        settingsButton.setVisibility(View.GONE);
     }
 
     private void handleSyncFail(Intent intent) {
         String errorMsg = intent.getExtras().getString(
                 BROADCAST_SYNC_MESSAGE);
-        syncFab.setEnabled(true);
-        syncFab.show();
+        syncNowButton.setEnabled(true);
+        syncNowButton.setText("Try again");
+        syncNowButton.setVisibility(View.VISIBLE);
+        settingsButton.setVisibility(View.VISIBLE);
 
         Drawable d = getResources().getDrawable(R.drawable.sync_alert);
-        int color = getResources().getColor(R.color.warning_strong);
+        int color = getResources().getColor(R.color.sync_status_error);
         animateCircle(d, color);
         addLine("Sync process failed: " + errorMsg);
 
@@ -346,16 +313,25 @@ public class FirstSyncErrorFragment extends Fragment {
         AnimationHelper.expand(errorBox);
     }
 
+    private void handleSyncFinish(Context context) {
+        addLine("Sync process finished");
+        syncNowButton.setVisibility(View.GONE);
+        settingsButton.setVisibility(View.GONE);
+
+        animateCards();
+        Drawable d = getResources().getDrawable(R.drawable.check);
+        int color = getResources().getColor(R.color.sync_status_ok);
+        animateCircle(d, color);
+
+        //go ahead and unregister the broadcast receiver.  This will keep the text
+        //+ from scrolling pas the last message
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(br);
+    }
+
     private void handleSyncUpdateMessage(Intent intent) {
         try {
             String updateMessage = intent.getStringExtra(BROADCAST_SYNC_MESSAGE);
-            String progressString = intent.getStringExtra(BROADCAST_SYNC_PROGRESS_MAIN);
-            int progress;
-            if (progressString == null) {
-                progress = -1;
-            } else {
-                progress = Integer.parseInt(progressString);
-            }
+            int progress = intent.getIntExtra(BROADCAST_SYNC_PROGRESS_MAIN, -1);
 
             String subProgressString = intent.getStringExtra(BROADCAST_SYNC_PROGRESS_SUB);
             int subProgress;
@@ -381,18 +357,43 @@ public class FirstSyncErrorFragment extends Fragment {
         addLine("Debug: " + message);
     }
 
-    private void handleSyncFinish(Context context) {
-        addLine("Sync process finished");
-        syncFab.setVisibility(View.GONE);
+    private void animateCards() {
+        Animation moveDown = AnimationUtils.loadAnimation(getContext(), R.anim.exit_down);
+        moveDown.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
 
-        animateCards();
-        Drawable d = getResources().getDrawable(R.drawable.check);
-        int color = getResources().getColor(R.color.success);
-        animateCircle(d, color);
+            }
 
-        //go ahead and unregister the broadcast receiver.  This will keep the text
-        //+ from scrolling pas the last message
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(br);
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                syncNeededCard.setVisibility(View.GONE);
+                final Animation moveUp = AnimationUtils.loadAnimation(getContext(), R.anim.enter_from_bottom);
+                moveUp.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        syncSuccessCard.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+                syncSuccessCard.startAnimation(moveUp);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        syncNeededCard.startAnimation(moveDown);
     }
 
     private void handleSyncStart() {
@@ -400,7 +401,8 @@ public class FirstSyncErrorFragment extends Fragment {
         AnimationHelper.fadeOut(getContext(), syncProgress);
         debugText.setText("");
         AnimationHelper.collapse(errorBox);
-        syncFab.hide();
+        syncNowButton.setVisibility(View.GONE);
+        settingsButton.setVisibility(View.GONE);
         addLine("Starting sync process");
     }
 

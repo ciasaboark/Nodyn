@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -21,19 +21,27 @@
     <color name="default_secondary_dark">#c41c00</color>
     <color name="default_secondary_light">#ffcf6e</color>
 
-    <color name="default_primary">#9e9e9e</color>
-    <color name="default_primary_dark">#707070</color>
-    <color name="default_primary_light">#cfcfcf</color>
+    <color name="default_primary">#1F3A5A</color>
+    <color name="default_primary_dark">#305383</color>
+    <color name="default_primary_light">#35685D</color>
+
+    <color name="window_background">#FF121212</color>
+    <color name="window_background_light">#222325</color>
+    <!-- <color name="window_background">#FFFCF4</color> -->
 
 
-    <color name="default_accent">@color/default_secondary</color>
-    <color name="default_accent_light">#fd784e</color>
+    <color name="default_accent">#FF9100</color>
+    <color name="default_accent_light">#FFD180</color>
 
 
-    <color name="circleBorder">@color/default_primary</color>
-    <color name="circleBorderLarge">@color/white</color>
+    <color name="circleBorder">@color/default_accent</color>
+    <color name="circleBorderLight">#E9E9E9</color>
+    <color name="circleBorderLarge">#ff0000</color>
 
     <color name="grey600">#757575</color>
+    <color name="grey300">#E0E0E0</color>
+
+    <color name="default_icon_tint">#ffffff</color>
 
     <color name="errBackground">#f8bbd0</color>
     <color name="notificationBackground">@color/default_primary_dark</color>
@@ -44,10 +52,10 @@
     <color name="scanOn">#ffee00</color>
     <color name="scanOff">#ff8787</color>
 
-    <color name="delete">#ff8787</color>
+    <color name="delete">#FF5D5D</color>
 
     <color name="checkOut">#FF4081</color>
-    <color name="checkIn">#2196F3</color>
+    <color name="checkIn">#1FECFF</color>
 
 
     <color name="actionHighlight">@color/default_accent</color>
@@ -55,18 +63,26 @@
 
     <color name="check">#69F0AE</color>
     <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
     <color name="archived">#e4e4e4</color>
     <color name="text_error">#f8bbd0</color>
+
+    <color name="section_title">@color/white</color>
 
     <color name="refresh_progress_1">@color/default_accent</color>
     <color name="refresh_progress_2">@color/default_secondary_light</color>
     <color name="refresh_progress_3">@color/default_primary_light</color>
 
     <color name="text_link_color_light">#007668</color>
-    <color name="text_link_color_dark">#00efd3</color>
+    <color name="text_link_color_dark">#FFF4E1</color>
 
     <color name="chart_out">#8ceaff</color>
     <color name="chart_in">#ffd08c</color>
+    <color name="chart_audit">#F48FB1</color>
+    <color name="chart_grid">#41949494</color>
+    <color name="chart_in_use">#4FC3F7</color>
+    <color name="chart_available">#41949494</color>
+    <color name="chart_border">#4FC3F7</color>
 
     <color name="shadow">#cecece</color>
 
@@ -75,11 +91,20 @@
 
     <color name="warning">#c8ff8a80</color>
     <color name="warning_strong">#e7f74d3f</color>
-    <color name="generic_card_background">#fefefe</color>
+    <color name="caution">#FFAB40</color>
+
+
+    <color name="generic_card_background_light">#fefefe</color>
+    <color name="generic_card_border_light">#D9ECEC</color>
+
+    <color name="generic_card_background_dark">#32373D</color>
+    <color name="generic_card_border_dark">#667777</color>
 
     <color name="scroll_view_background">#f5f5f5</color>
 
     <color name="success">#43a047</color>
 
-    <color name="neutral_dark_background">#e0e0e0</color>
+    <color name="neutral_dark_background">#E1F5FE</color>
+
+    <color name="pref_icon_tint">@color/white</color>
 </resources>

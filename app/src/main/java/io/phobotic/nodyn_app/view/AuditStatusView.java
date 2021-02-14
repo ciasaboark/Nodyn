@@ -104,22 +104,7 @@ public class AuditStatusView extends RelativeLayout {
 
 
     private void setStatusColor(int color) {
-        ValueAnimator colorFade = ValueAnimator.ofObject(new ArgbEvaluator(),
-                getResources().getColor(android.R.color.white), color);
-        colorFade.setDuration(300);
-        colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int color = (int) animation.getAnimatedValue();
-                colorStripe.getDrawable().setTintMode(PorterDuff.Mode.MULTIPLY);
-                colorStripe.getDrawable().setTint(color);
-                colorStripe.setAlpha(180);
-            }
-        });
-
-        Random r = new Random();
-        long delay = (long) r.nextInt(300);
-        colorFade.setStartDelay(delay);
-        colorFade.start();
+        colorStripe.getDrawable().setTintMode(PorterDuff.Mode.MULTIPLY);
+        colorStripe.getDrawable().setTint(color);
     }
 }

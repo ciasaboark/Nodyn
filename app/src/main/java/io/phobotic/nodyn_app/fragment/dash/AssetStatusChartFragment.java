@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +20,11 @@ package io.phobotic.nodyn_app.fragment.dash;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,10 +44,14 @@ import com.github.mikephil.charting.utils.MPPointF;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.model.Asset;
@@ -99,7 +103,7 @@ public class AssetStatusChartFragment extends Fragment {
     }
 
     private void init() {
-        chart = (PieChart) rootView.findViewById(R.id.chart_detail);
+        chart = rootView.findViewById(R.id.chart_detail);
         progress = rootView.findViewById(R.id.progress);
         error = rootView.findViewById(R.id.error);
         initChart();
@@ -246,7 +250,24 @@ public class AssetStatusChartFragment extends Fragment {
             ArrayList<PieEntry> entries = new ArrayList<PieEntry>();
             List<Asset> allAssets = db.getAssets();
 
-            if (allAssets == null || allAssets.isEmpty()) {
+            //filter the list to only include models that this tablet can work with
+            List<Asset> filteredList = new ArrayList<>();
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            boolean allowAllModels = prefs.getBoolean(getString(R.string.pref_key_check_out_all_models), false);
+            if (allowAllModels) {
+                filteredList = allAssets;
+            } else {
+                Set<String> allowedModels = prefs.getStringSet(getString(R.string.pref_key_check_out_models), new HashSet<String>());
+
+                for (Asset a : allAssets) {
+                    int m = a.getModelID();
+                    if (allowedModels.contains(String.valueOf(m))) {
+                        filteredList.add(a);
+                    }
+                }
+            }
+
+            if (filteredList == null || filteredList.isEmpty()) {
                 showError();
             } else {
                 List<io.phobotic.nodyn_app.database.model.Status> allStatuses = db.getStatuses();
@@ -268,7 +289,7 @@ public class AssetStatusChartFragment extends Fragment {
 
                 //its possible the user navigated away from the activity holding this fragment while the data was loading.
                 //if the activity becomes null during processing we can just abort
-                for (Asset asset : allAssets) {
+                for (Asset asset : filteredList) {
                     if (activity == null) {
                         return null;
                     }

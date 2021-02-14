@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,11 +18,13 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import us.feras.mdv.MarkdownView;
 
@@ -44,16 +46,28 @@ public class VerifyCheckinView extends LinearLayout {
     }
 
     private void init() {
-        rootView = inflate(context, R.layout.view_markdown_wrapper, this);
+        rootView = inflate(context, R.layout.view_verify_checkin, this);
 
-        markdownView = (MarkdownView) rootView.findViewById(R.id.markdown);
+        markdownView = rootView.findViewById(R.id.markdown);
 
         initMarkdown();
     }
 
     private void initMarkdown() {
         if (!isInEditMode()) {
-            markdownView.loadMarkdownFile("file:///android_asset/check_in_verification.md");
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            String verifcationText = prefs.getString(context.getString(R.string.pref_key_check_in_verification_text), null);
+
+            //if no verification text has been set fall back to the default
+            if (verifcationText == null) {
+                verifcationText = getResources().getString(R.string.pref_default_check_in_verification_text);
+            } else if (verifcationText.length() == 0) {
+                //if the verification text has been set to an empty string then don't use the
+                //+ default, just indicate that no verification has been set
+                verifcationText = getResources().getString(R.string.check_in_no_verification_text);
+            }
+            markdownView.loadMarkdown(verifcationText, "file:///android_asset/markdown.css");
+            markdownView.setBackgroundColor(getContext().getResources().getColor(R.color.dialog_window_background));
         }
     }
 }

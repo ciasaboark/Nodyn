@@ -51,4 +51,7 @@
     <string name="pref_title_snipeit4_workarounds">Enable non-super user workarounds</string>
     <string name="pref_description_snipeit4_workarounds">Enable fetching group and manufacturer information without superuser access (see manual for information)</string>
 
+    <string name="pref_key_snipeit_4_name_change">pref_snipeit_4_name_change</string>
+    <string name="pref_default_snipeit_4_name_change"></string>
+    <string name="pref_title_snipeit_4_name_change">Change asset name during checkout</string>
 </resources>

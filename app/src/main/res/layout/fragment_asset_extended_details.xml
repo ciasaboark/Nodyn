@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical"
               android:padding="16dp"
-              tools:context="io.phobotic.nodyn_app.fragment.AssetExtendedDetailsFragment">
+              tools:context="io.phobotic.nodyn_app.fragment.asset.AssetExtendedDetailsFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -47,6 +47,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_created_at"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -58,7 +59,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
             <LinearLayout
@@ -74,6 +75,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_name"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -85,7 +87,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
             <LinearLayout
@@ -101,6 +103,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_company"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -112,7 +115,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
             <LinearLayout
@@ -128,6 +131,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_serial"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -140,7 +144,7 @@
                     android:layout_weight="1"
                     android:fontFamily="monospace"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
             <LinearLayout
@@ -156,6 +160,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_manufacturer"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -167,7 +172,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
             <LinearLayout
@@ -183,6 +188,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_model"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -194,7 +200,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
             <LinearLayout
@@ -210,6 +216,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_model_no"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -221,7 +228,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
             <LinearLayout
@@ -237,6 +244,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_purchase_date"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -248,7 +256,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
             <LinearLayout
@@ -264,6 +272,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_purchase_cost"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -275,7 +284,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
             <LinearLayout
@@ -291,6 +300,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_supplier"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -302,7 +312,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
             <LinearLayout
@@ -318,6 +328,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_notes"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -329,7 +340,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
 
@@ -346,6 +357,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_assigned_to"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -357,7 +369,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
 
@@ -374,6 +386,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_checkout_date"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -385,7 +398,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
 
@@ -402,6 +415,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:text="@string/asset_expected_checkin"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -413,7 +427,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/placeholder"
-                    />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             </LinearLayout>
 
         </LinearLayout>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import io.phobotic.nodyn_app.R;
 
@@ -30,10 +31,31 @@ import io.phobotic.nodyn_app.R;
 
 public class CloudErrorView extends RelativeLayout {
     private final View rootView;
+    private TextView messageView;
 
     public CloudErrorView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         rootView = inflate(context, R.layout.view_cloud_error, this);
+        init();
+    }
+
+    private void init() {
+        findViews();
+        messageView.setVisibility(View.GONE);
+    }
+
+    private void findViews() {
+        messageView = rootView.findViewById(R.id.message);
+    }
+
+    public void setMessage(String message) {
+        if (message == null || message.length() == 0) {
+            messageView.setText(null);
+            messageView.setVisibility(View.GONE);
+        } else {
+            messageView.setText(message);
+            messageView.setVisibility(View.VISIBLE);
+        }
     }
 }

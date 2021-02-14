@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,15 +22,18 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceManager;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 import io.phobotic.nodyn_app.sync.SyncManager;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
@@ -63,9 +66,7 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-
-        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
-                getString(R.string.pref_key_sync_backend)));
+        PreferenceListeners.bindPreferenceSummaryToValue(syncFrequencyPreference);
 
         Preference backendConfigurePreference = findPreference(
                 getString(R.string.pref_key_sync_backend_configure));
@@ -77,7 +78,7 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
                 DialogFragment dialog = syncAdapter.getConfigurationDialogFragment(getActivity());
 
                 if (dialog == null) {
-                    AlertDialog.Builder b = new AlertDialog.Builder(getActivity())
+                    AlertDialog.Builder b = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                             .setTitle(getString(R.string.sync_backend_dialog_title))
                             .setMessage(getString(R.string.sync_backend_dialog_no_configure))
                             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -96,6 +97,7 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
             }
         });
 
+
         //if the user changed the backed then the data model should be dumped, but the history should be kept
         Preference backendPreference = findPreference(getString(R.string.pref_key_sync_backend));
         backendPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -104,13 +106,13 @@ public class DataSyncPreferenceFragment extends PreferenceFragmentCompat {
                 Database db = Database.getInstance(getActivity());
                 db.dumpModel();
 
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-                prefs.edit().putBoolean(getString(R.string.sync_key_first_sync_completed), false).commit();
-
                 //Let the static listener update the summary.  This is ugly, but it will do
                 PreferenceListeners.sGenericPreferenceListener.onPreferenceChange(preference, newValue);
                 return true;
             }
         });
+        PreferenceListeners.bindPreferenceSummaryToValue(backendPreference);
+
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2017 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -16,23 +16,52 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp">
+<io.phobotic.nodyn_app.view.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                 xmlns:tools="http://schemas.android.com/tools"
+                                                 android:layout_width="300dp"
+                                                 android:layout_height="wrap_content"
+                                                 android:background="@drawable/circle_flat_grey"
+                                                 android:backgroundTint="@color/white"
+                                                 android:elevation="2dp"
+                                                 android:orientation="vertical"
+                                                 android:padding="16dp">
 
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/cloud_off_outline"
-        android:tint="@color/errBackground"/>
-
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/icon"
         android:layout_centerHorizontal="true"
-        android:text="Unable to connect"/>
-</RelativeLayout>
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/cloud_off_outline"
+            android:tint="@color/errBackground"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/icon"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="16dp"
+            android:text="Unable to connect"/>
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:maxLines="3"
+            android:paddingRight="30dp"
+            android:paddingStart="30dp"
+            android:text="asfd af asfd asdf asd adfsa asdf a sdaf as  asdlfkj asd fa "
+            android:textAlignment="center"
+            android:textAppearance="@android:style/TextAppearance.Material.Small"/>
+    </LinearLayout>
+
+
+</io.phobotic.nodyn_app.view.SquareRelativeLayout>

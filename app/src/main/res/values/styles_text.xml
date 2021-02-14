@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2020 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <style name="Text.Default" parent="TextAppearance.AppCompat">
+<!--        <item name="android:textSize">10sp</item>-->
+        <!--<item name="android:fontFamily">@font/source_sans_pro</item>-->
+
+<!--        <item name="android:textColor">#ffffff</item>-->
+<!--        <item name="android:textColorHighlight">#ffffff</item>-->
+        <!--<item name="android:textColorHint">?android:textColorPrimary</item>-->
+        <item name="android:textColorLink">@color/text_link_color_dark</item>
+    </style>
+
+
+    <style name="Text.AssetTitle" parent="Text.Default">
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:letterSpacing">.1</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="Text.Title" parent="Text.Default">
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.Heading" parent="Text.Default">
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.AssetStatus" parent="Text.Default">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.Mono" parent="Text.Default">
+        <item name="android:fontFamily">@font/source_code_pro</item>
+    </style>
+
+    <style name="Text.Card.Title" parent="Text.Default">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.Card.Small" parent="Text.Default">
+        <item name="android:textSize">12sp</item>
+    </style>
+</resources>

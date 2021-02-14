@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package io.phobotic.nodyn_app.list.adapter;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +27,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.fragment.listener.OnListFragmentInteractionListener;
 import io.phobotic.nodyn_app.list.RecyclerViewFastScroller;
 import io.phobotic.nodyn_app.view.ActionView;
@@ -128,7 +128,7 @@ public class ActionRecyclerViewAdapter extends
         public FooterViewHolder(View itemView) {
             super(itemView);
             this.view = itemView;
-            this.progressBar = (ProgressBar) itemView.findViewById(R.id.progress);
+            this.progressBar = itemView.findViewById(R.id.progress);
         }
     }
 }

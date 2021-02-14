@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,44 +18,68 @@
 package io.phobotic.nodyn_app.activity;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.Pair;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.navigation.NavigationView;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jsoup.helper.StringUtil;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.Asset;
+import io.phobotic.nodyn_app.database.model.Manufacturer;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.database.sync.SyncAttempt;
+import io.phobotic.nodyn_app.database.sync.SyncDatabase;
 import io.phobotic.nodyn_app.fragment.ActionHistoryFragment;
-import io.phobotic.nodyn_app.fragment.AssetListFragment;
 import io.phobotic.nodyn_app.fragment.BackendErrorFragment;
 import io.phobotic.nodyn_app.fragment.DashboardFragment;
 import io.phobotic.nodyn_app.fragment.FirstSyncErrorFragment;
-import io.phobotic.nodyn_app.fragment.UserListFragment;
+import io.phobotic.nodyn_app.fragment.asset.AssetListFragment;
+import io.phobotic.nodyn_app.fragment.dash.LastSyncFragment;
 import io.phobotic.nodyn_app.fragment.listener.OnListFragmentInteractionListener;
+import io.phobotic.nodyn_app.fragment.user.UserListFragment;
+import io.phobotic.nodyn_app.helper.AnimationHelper;
 import io.phobotic.nodyn_app.helper.SettingsHelper;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 import io.phobotic.nodyn_app.service.StatisticsService;
@@ -72,34 +96,38 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MAIN_FRAGMENT = "mainFragment";
     private Fragment currentFragment;
+    private ImageButton syncIcon;
+    private BroadcastReceiver br;
+    private ProgressBar syncProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        this.syncProgress = findViewById(R.id.progress);
+        this.syncProgress.setVisibility(View.GONE);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Nodyn");
 
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        final View v = findViewById(R.id.drawer_layout);
-
-        FrameLayout frame = (FrameLayout) findViewById(R.id.frame);
+        FrameLayout frame = findViewById(R.id.frame);
 
         Fragment newFragment = null;
 
         if (savedInstanceState == null) {
             //use the default fragment if we did not have a previous one (i.e. app first start)
             newFragment = getDefaultMainFragment();
+            updateMainFragment(newFragment);
         } else {
             //if we already had a fragment loaded then use that
             currentFragment = getSupportFragmentManager().getFragment(savedInstanceState, MAIN_FRAGMENT);
@@ -112,21 +140,72 @@ public class MainActivity extends AppCompatActivity
         }
 
         //override the new fragment if we need to show the sync adapter error
+        boolean hideSyncOverflowOption = false;
         if (shouldShowAdapterError()) {
             newFragment = BackendErrorFragment.newInstance();
+            hideSyncOverflowOption = true;
+            updateMainFragment(newFragment);
         } else if (shouldShowFirstSyncError()) {
             newFragment = FirstSyncErrorFragment.newInstance();
             ((FirstSyncErrorFragment) newFragment).setOnSetupCompleteListener(this);
+            hideSyncOverflowOption = true;
+            updateMainFragment(newFragment);
         }
-        updateMainFragment(newFragment);
+
+
 
         Intent i = getIntent();
-        boolean syncNow = i.getBooleanExtra(SYNC_NOW, false);
+        final boolean syncNow = i.getBooleanExtra(SYNC_NOW, false);
         if (syncNow) {
             Intent si = new Intent(this, SyncService.class);
             startService(si);
         }
 
+        syncIcon = (ImageButton) toolbar.findViewById(R.id.sync_icon);
+        syncIcon.setVisibility(View.INVISIBLE);
+        br = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                switch (action) {
+                    case SyncService.BROADCAST_SYNC_START:
+                        syncIcon.setImageDrawable(getResources().getDrawable(R.drawable.sync));
+                        AnimationHelper.fadeIn(MainActivity.this, syncIcon, new AnimationHelper.AnimateListener() {
+                            @Override
+                            public void onAnimationFinished() {
+                                syncIcon.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.rotate));
+                            }
+                        });
+                        syncProgress.setIndeterminate(true);
+                        AnimationHelper.fadeIn(MainActivity.this, syncProgress);
+                        break;
+                    case SyncService.BROADCAST_SYNC_FINISH:
+                        AnimationHelper.fadeOut(MainActivity.this, syncIcon, new AnimationHelper.AnimateListener() {
+                            @Override
+                            public void onAnimationFinished() {
+                                syncIcon.clearAnimation();
+                            }
+                        });
+                        AnimationHelper.fadeOut(MainActivity.this, syncProgress);
+                        break;
+                    case SyncService.BROADCAST_SYNC_FAIL:
+                        syncIcon.clearAnimation();
+                        syncIcon.setVisibility(View.VISIBLE);
+                        syncIcon.setImageDrawable(getResources().getDrawable(R.drawable.sync_alert));
+                        AnimationHelper.fadeOut(MainActivity.this, syncProgress);
+                        break;
+                    case SyncService.BROADCAST_SYNC_UPDATE:
+                        int progress = intent.getIntExtra(SyncService.BROADCAST_SYNC_PROGRESS_MAIN, -1);
+
+                        if (progress > 0) {
+                            syncProgress.setIndeterminate(false);
+                            syncProgress.setProgress(progress);
+                        }
+
+                        break;
+                }
+            }
+        };
     }
 
     @Override
@@ -158,16 +237,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putInt("foo", 1);
         super.onSaveInstanceState(outState);
+    }
 
-        Fragment curFragment = getSupportFragmentManager().findFragmentById(R.id.frame);
-        //Save the fragment's instance
-        if (curFragment == null) {
-            Log.e(TAG, "Main activity current fragment is null.  Unable to store current fragment");
-        } else {
-            getSupportFragmentManager().putFragment(outState, MAIN_FRAGMENT, curFragment);
-        }
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     private Fragment getDefaultMainFragment() {
@@ -192,32 +269,34 @@ public class MainActivity extends AppCompatActivity
     }
 
     private boolean shouldShowFirstSyncError() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean firstSyncComplete = prefs.getBoolean(getString(R.string.sync_key_first_sync_completed), false);
-        return !firstSyncComplete;
+        return !SyncManager.isFirstSyncComplete(this);
     }
 
     private void updateMainFragment(Fragment fragment) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (currentFragment == null) {
-            ft.add(R.id.frame, fragment).commit();
+            ft.add(R.id.frame, fragment, "main_fragment").commit();
         } else {
-            ft.replace(R.id.frame, fragment).commit();
+            ft.replace(R.id.frame, fragment, "main_fragment").commit();
         }
 
         currentFragment = fragment;
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
 
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
+        //hide the sync now button from the overflow menu if the backend has not been configured yet
+        if (currentFragment != null &&
+                (currentFragment instanceof FirstSyncErrorFragment || currentFragment instanceof BackendErrorFragment)) {
+            MenuItem item = menu.findItem(R.id.action_sync);
+            item.setVisible(false);
+        }
         return true;
     }
 
@@ -227,7 +306,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.action_sync) {
             Log.d(TAG, "Sync button clicked, starting fetchFullModel process in background");
-            Intent i = new Intent(MainActivity.this, SyncService.class);
+            Intent i = new Intent(this, SyncService.class);
+            i.putExtra(SyncService.SYNC_TYPE_KEY, SyncService.SYNC_TYPE_FULL);
             startService(i);
             return true;
         }
@@ -237,7 +317,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -248,6 +328,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(br);
     }
 
     @Override
@@ -271,13 +352,20 @@ public class MainActivity extends AppCompatActivity
 
         SyncScheduler scheduler = new SyncScheduler(this);
         scheduler.scheduleSyncIfNeeded();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(SyncService.BROADCAST_SYNC_START);
+        filter.addAction((SyncService.BROADCAST_SYNC_FINISH));
+        filter.addAction(SyncService.BROADCAST_SYNC_FAIL);
+        filter.addAction(SyncService.BROADCAST_SYNC_UPDATE);
+        LocalBroadcastManager.getInstance(this).registerReceiver(br, filter);
     }
 
     /**
      * Adjust the enabled/disabled state of the navigation drawer items for assets and users
      */
     private void setDrawerIconsState() {
-        NavigationView nav = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView nav = findViewById(R.id.nav_view);
         boolean itemEnabled = getMenuIconsState();
         Menu menu = nav.getMenu();
         MenuItem dash = menu.findItem(R.id.nav_dash);
@@ -301,12 +389,32 @@ public class MainActivity extends AppCompatActivity
      * Hide the asset audit navigation menu item if audits have been disabled in settings
      */
     private void hideDrawerIcons() {
-        NavigationView nav = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView nav = findViewById(R.id.nav_view);
+        Menu menu = nav.getMenu();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        boolean checkInEnabled = prefs.getBoolean(getString(R.string.pref_key_checkin_allow),
+                Boolean.parseBoolean(getString(R.string.pref_default_checkin_allow)));
+        MenuItem checkInItem = menu.findItem(R.id.nav_check_in);
+        checkInItem.setVisible(checkInEnabled);
+
+        boolean checkOutEnabled = prefs.getBoolean(getString(R.string.pref_key_checkout_allow),
+                Boolean.parseBoolean(getString(R.string.pref_default_checkout_allow)));
+        MenuItem checkOutItem = menu.findItem(R.id.nav_check_out);
+        checkOutItem.setVisible(checkOutEnabled);
+
+        boolean assetsEnabled = prefs.getBoolean(getString(R.string.pref_key_asset_enable_browse),
+                Boolean.parseBoolean(getString(R.string.pref_default_asset_enable_browse)));
+        MenuItem assetsItem = menu.findItem(R.id.nav_assets);
+        assetsItem.setVisible(assetsEnabled);
+
+        boolean usersEnabled = prefs.getBoolean(getString(R.string.pref_key_users_enable_browse),
+                Boolean.parseBoolean(getString(R.string.pref_default_users_enable_browse)));
+        MenuItem usersItem = menu.findItem(R.id.nav_users);
+        usersItem.setVisible(usersEnabled);
+
         boolean auditsEnabled = prefs.getBoolean(getString(R.string.pref_key_audit_enable_audits),
                 Boolean.parseBoolean(getString(R.string.pref_default_audit_enable_audits)));
-
-        Menu menu = nav.getMenu();
         MenuItem auditItem = menu.findItem(R.id.nav_audit);
         auditItem.setVisible(auditsEnabled);
     }
@@ -388,7 +496,7 @@ public class MainActivity extends AppCompatActivity
             updateMainFragment(newFragment);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return highlightItem;
     }
@@ -407,14 +515,14 @@ public class MainActivity extends AppCompatActivity
     public void onListFragmentInteraction(Asset asset, @Nullable Pair<View, String>... sharedElements) {
         //make sharedElements null safe
         int size = 0;
-        for (Pair p : sharedElements) {
+        for (Pair<View, String> p : sharedElements) {
             if (p != null) {
                 size++;
             }
         }
         Pair<View, String>[] safePairs = new Pair[size];
         int index = 0;
-        for (Pair p : sharedElements) {
+        for (Pair<View, String> p : sharedElements) {
             if (p != null) {
                 safePairs[index] = p;
                 index++;

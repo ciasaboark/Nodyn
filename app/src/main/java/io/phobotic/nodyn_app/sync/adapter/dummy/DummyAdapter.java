@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,18 @@
 package io.phobotic.nodyn_app.sync.adapter.dummy;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.phobotic.nodyn_app.database.model.Action;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
+import io.phobotic.nodyn_app.database.model.Company;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Category;
 import io.phobotic.nodyn_app.database.model.FullDataModel;
@@ -37,6 +42,7 @@ import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.sync.ActionSyncListener;
 import io.phobotic.nodyn_app.sync.CheckinException;
 import io.phobotic.nodyn_app.sync.CheckoutException;
+import io.phobotic.nodyn_app.sync.adapter.ActionHistory;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
 import io.phobotic.nodyn_app.sync.adapter.SyncNotSupportedException;
@@ -55,34 +61,22 @@ public class DummyAdapter implements SyncAdapter {
     }
 
     @Override
+    public String getAdapterName() {
+        return "fake backend";
+    }
+
+    @Override
     public FullDataModel fetchFullModel(Context context) throws SyncException {
         return new FullDataModel()
-                .setModels(fetchModels(context))
-                .setUsers(fetchUsers(context))
-                .setCategories(fetchCategories(context))
-                .setAssets(fetchAssets(context))
-                .setGroups(fetchGroups(context));
+                .setModels(new ArrayList<Model>())
+                .setUsers(new ArrayList<User>())
+                .setCategories(new ArrayList<Category>())
+                .setAssets(new ArrayList<Asset>())
+                .setGroups(new ArrayList<Group>())
+                .setCompanies((new ArrayList<Company>()));
     }
 
-    public List<Model> fetchModels(Context context) throws SyncException {
-        return new ArrayList<>();
-    }
 
-    public List<User> fetchUsers(Context context) throws SyncException {
-        return new ArrayList<>();
-    }
-
-    public List<Category> fetchCategories(Context context) throws SyncException {
-        return new ArrayList<>();
-    }
-
-    public List<Asset> fetchAssets(Context context) throws SyncException {
-        return new ArrayList<>();
-    }
-
-    public List<Group> fetchGroups(Context context) throws SyncException {
-        return new ArrayList<>();
-    }
 
     @Override
     public void checkoutAssetTo(Context context, int assetID, String assetTAg, int userID,
@@ -105,11 +99,6 @@ public class DummyAdapter implements SyncAdapter {
     }
 
     @Override
-    public void markActionItemsSynced(Context context, List<Action> actions) {
-        //nothing to do here
-    }
-
-    @Override
     public List<MaintenanceRecord> getMaintenanceRecords(Context context, Asset asset)
             throws SyncException,
             SyncNotSupportedException {
@@ -118,21 +107,39 @@ public class DummyAdapter implements SyncAdapter {
     }
 
     @Override
-    public List<Action> getAssetActivity(Context context, Asset asset, int page) throws SyncException,
+    public Asset getAsset(Context context, Asset asset) throws SyncNotSupportedException, SyncException {
+        throw new SyncNotSupportedException("No sync adapter selected",
+                "Dummy adapter does not support pulling individual asset records");
+    }
+
+    @Override
+    public ActionHistory getAssetActivity(Context context, Asset asset, int page) throws SyncException,
             SyncNotSupportedException {
         throw new SyncNotSupportedException("No sync adapter selected",
                 "Dummy adapter does not support pulling asset history records");
     }
 
     @Override
-    public List<Action> getUserActivity(Context context, User user, int page) throws SyncException,
+    public ActionHistory getUserActivity(Context context, User user, int page) throws SyncException,
             SyncNotSupportedException {
         throw new SyncNotSupportedException("No sync adapter selected",
                 "Dummy adapter does not support pulling user history records");
     }
 
     @Override
-    public List<Action> getActivity(Context context, int page) throws SyncException, SyncNotSupportedException {
+    public ActionHistory getActivity(Context context, int page) throws SyncException, SyncNotSupportedException {
+        throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
+                "Sync adapter does not support pulling asset history records");
+    }
+
+    @Override
+    public ActionHistory getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException {
+        throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
+                "Sync adapter does not support pulling asset history records");
+    }
+
+    @Override
+    public ActionHistory getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException {
         throw new SyncNotSupportedException("Sync adapter does not support pulling asset history records",
                 "Sync adapter does not support pulling asset history records");
     }
@@ -147,5 +154,10 @@ public class DummyAdapter implements SyncAdapter {
     @Override
     public DialogFragment getConfigurationDialogFragment(Context context) {
         return null;
+    }
+
+    @Override
+    public void recordAudit(@NotNull Context context, @NotNull Audit audit) {
+
     }
 }

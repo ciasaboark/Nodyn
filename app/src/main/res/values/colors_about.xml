@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -19,6 +19,6 @@
 <resources>
     <color name="about_source">#69F0AE</color>
     <color name="about_comments">#8ceaff</color>
-    <color name="about_issues">#ffd08c</color>
+    <color name="about_issues">#FFF08C</color>
     <color name="about_legal">#dea6fc</color>
 </resources>

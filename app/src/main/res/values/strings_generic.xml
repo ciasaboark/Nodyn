@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -33,9 +33,13 @@
     <string name="submit">submit</string>
     <string name="add">add</string>
     <string name="next">next</string>
+    <string name="i_agree_next">I Agree. View Next</string>
     <string name="finish">finish</string>
-    <string name="view_more">view more</string>
-    <string name="view_less">view less</string>
+    <string name="view_more">more</string>
+    <string name="view_less">less</string>
     <string name="got_it">Got it!</string>
     <string name="help">help</string>
+    <string name="please_wait_timer" formatted="true">Please wait %d seconds to continue</string>
+    <string name="permission_required_title">Permission Required</string>
+    <string name="grant_permission">Grant permission</string>
 </resources>

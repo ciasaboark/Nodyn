@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,29 +20,23 @@ package io.phobotic.nodyn_app.service;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.exception.UserNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
-import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.email.ActionHtmlFormatter;
-import io.phobotic.nodyn_app.email.EmailRecipient;
-import io.phobotic.nodyn_app.email.EmailSender;
-import io.phobotic.nodyn_app.email.PastDueAssetHtmlFormatter;
+import io.phobotic.nodyn_app.helper.PastDueEmailHelper;
 import io.phobotic.nodyn_app.reporting.CustomEvents;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
 
@@ -85,21 +79,23 @@ public class PastDueAlertService extends IntentService {
         List<Asset> pastDueAssets = getPastDueAssets();
 
         if (pastDueAssets.size() > 0) {
-            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.ASSET_PAST_DUE));
+            List<Asset> dueSoonAssets = getDueSoonAssets();
+            FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(CustomEvents.ASSET_PAST_DUE, null);
 
             //should we also send an alert to the current asset holder
             boolean includeCurrentHolder = prefs.getBoolean(
                     getString(R.string.pref_key_past_due_include_owner),
                     Boolean.parseBoolean(getString(R.string.pref_default_past_due_include_owner)));
 
+            PastDueEmailHelper emailHelper = new PastDueEmailHelper(this);
             if (includeCurrentHolder) {
                 for (Asset a : pastDueAssets) {
-                    sendCurrentOwnerReminder(a);
+                    emailHelper.sendCurrentOwnerReminder(a);
                 }
             }
 
 
-            sendBulkReminder(pastDueAssets);
+            emailHelper.sendBulkReminder(pastDueAssets, dueSoonAssets);
         }
 
         SyncScheduler scheduler = new SyncScheduler(this);
@@ -111,8 +107,6 @@ public class PastDueAlertService extends IntentService {
         List<Asset> allAssets = db.getAssets();
         List<Asset> pastDueAssets = new ArrayList<>();
 
-        // TODO: 10/19/17 should this be restricted to the models that can be checked out, or send notifications for everything?
-        // TODO: 10/25/17 this should have its own method in the database to avoid the overhead of looping through all assets
         long now = System.currentTimeMillis();
         for (Asset asset : allAssets) {
             if (asset.getAssignedToID() != -1) {
@@ -133,108 +127,35 @@ public class PastDueAlertService extends IntentService {
         return pastDueAssets;
     }
 
-    private void sendCurrentOwnerReminder(Asset asset) {
-        //we can only send a personalized reminder if the user that currently holds this asset
-        //+ has a valid email address
-        try {
-            User u = db.findUserByID(asset.getAssignedToID());
-            String userEmailAddress = u.getEmail();
+    @NonNull
+    private List<Asset> getDueSoonAssets() {
+        List<Asset> allAssets = db.getAssets();
+        List<Asset> dueSoonAssets = new ArrayList<>();
 
-            // TODO: 10/31/17 do address validation first, or just let the email fail quietly?
-            if (userEmailAddress != null && !userEmailAddress.equals("")) {
-                try {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(PastDueAssetHtmlFormatter.getHeader());
+        Calendar now = Calendar.getInstance();
+        now.setTimeInMillis(System.currentTimeMillis());
 
-                    PastDueAssetHtmlFormatter formatter = new PastDueAssetHtmlFormatter();
-                    sb.append(formatter.formatAssetAsHtml(this, asset));
-                    sb.append(ActionHtmlFormatter.getFooter());
+        Calendar tomorrow = Calendar.getInstance();
+        tomorrow.setTimeInMillis(System.currentTimeMillis());
+        tomorrow.add(Calendar.DATE, 1);
 
-                    List<EmailRecipient> recipients = new ArrayList<>();
-
-                    recipients.add(new EmailRecipient(userEmailAddress));
-
-
-                    EmailSender sender = new EmailSender(this)
-                            .setBody(sb.toString())
-                            .setSubject("Past Due Assets")
-                            .setRecipientList(recipients)
-                            .setFailedListener(new EmailSender.EmailStatusListener() {
-                                @Override
-                                public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
-                                    Log.e(TAG, "Past due assets reminder email failed with message: " + message);
-                                    Answers.getInstance().logCustom(new CustomEvent(CustomEvents.PAST_DUE_EMAIL_NOT_SENT));
-                                }
-                            }, null)
-                            .setSuccessListener(new EmailSender.EmailStatusListener() {
-                                @Override
-                                public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
-                                    Log.d(TAG, "Past due assets reminder email succeeded with message: " + message);
-                                    Answers.getInstance().logCustom(new CustomEvent(CustomEvents.PAST_DUE_EMAIL_SENT));
-                                }
-                            }, null)
-                            .send();
-                } catch (Exception e) {
-                    Crashlytics.logException(e);
-                    e.printStackTrace();
-                    Log.e(TAG, "Caught exception while sending bulk past-due asset " +
-                            "reminder email to address <" + userEmailAddress + ">: " + e.getMessage());
+        for (Asset asset : allAssets) {
+            if (asset.getAssignedToID() != -1) {
+                if (asset.getExpectedCheckin() != -1) {
+                    Calendar expectedCheckin = Calendar.getInstance();
+                    expectedCheckin.setTimeInMillis(asset.getExpectedCheckin());
+                    if (expectedCheckin.after(now) && expectedCheckin.before(tomorrow)) {
+                        Date d = new Date(asset.getExpectedCheckin());
+                        DateFormat df = DateFormat.getDateTimeInstance();
+                        String expectedDateString = df.format(d);
+                        Log.d(TAG, "Asset " + asset.getTag() + " is due within the next 24 hours.  Checkin expected " +
+                                "by " + expectedDateString);
+                        dueSoonAssets.add(asset);
+                    }
                 }
             }
-        } catch (UserNotFoundException e) {
-            e.printStackTrace();
-            Log.e(TAG, "Caught " + e.getClass().getSimpleName() + " for an asset that " +
-                    "is assigned.  Was the user deleted before the asset was checked in?");
         }
-    }
 
-    private void sendBulkReminder(List<Asset> pastDueAssets) {
-        try {
-            StringBuilder sb = new StringBuilder();
-            sb.append(PastDueAssetHtmlFormatter.getHeader());
-
-            PastDueAssetHtmlFormatter formatter = new PastDueAssetHtmlFormatter();
-            for (Asset asset : pastDueAssets) {
-                sb.append(formatter.formatAssetAsHtml(this, asset));
-            }
-
-            sb.append(ActionHtmlFormatter.getFooter());
-
-            List<EmailRecipient> recipients = new ArrayList<>();
-
-
-            String addressesString = prefs.getString(
-                    getString(R.string.pref_key_email_past_due_addresses),
-                    getString(R.string.pref_default_email_past_due_addresses));
-            String[] addresses = addressesString.split(",");
-            for (String address : addresses) {
-                recipients.add(new EmailRecipient(address));
-            }
-
-
-            EmailSender sender = new EmailSender(this)
-                    .setBody(sb.toString())
-                    .setSubject("Past Due Assets")
-                    .setRecipientList(recipients)
-                    .setFailedListener(new EmailSender.EmailStatusListener() {
-                        @Override
-                        public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
-                            Log.e(TAG, "Past due assets reminder email failed with message: " + message);
-                            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.PAST_DUE_EMAIL_NOT_SENT));
-                        }
-                    }, pastDueAssets)
-                    .setSuccessListener(new EmailSender.EmailStatusListener() {
-                        @Override
-                        public void onEmailSendResult(@Nullable String message, @Nullable Object tag) {
-                            Log.d(TAG, "Past due assets reminder email succeeded with message: " + message);
-                            Answers.getInstance().logCustom(new CustomEvent(CustomEvents.PAST_DUE_EMAIL_SENT));
-                        }
-                    }, pastDueAssets)
-                    .send();
-        } catch (Exception e) {
-            Crashlytics.logException(e);
-            e.printStackTrace();
-            Log.e(TAG, "Caught exception while sending bulk past-due asset reminder email: " + e.getMessage());
-        }
+        return dueSoonAssets;
     }
 }

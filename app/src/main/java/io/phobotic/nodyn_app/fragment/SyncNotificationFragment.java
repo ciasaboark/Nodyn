@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +35,9 @@ import com.github.lzyzsd.circleprogress.DonutProgress;
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.service.SyncService;
 
@@ -103,11 +103,13 @@ public class SyncNotificationFragment extends Fragment {
                         String updateMessage = intent.getStringExtra(SyncService.BROADCAST_SYNC_MESSAGE);
                         int progress = intent.getIntExtra(SyncService.BROADCAST_SYNC_PROGRESS_MAIN, -1);
                         int subProgress = intent.getIntExtra(SyncService.BROADCAST_SYNC_PROGRESS_SUB, -1);
+                        String subMessage = intent.getStringExtra(SyncService.BROADCAST_SYNC_SUB_MESSAGE);
                         String subProgressKey = intent.getStringExtra(SyncService.BROADCAST_SYNC_PROGRESS_SUB_KEY);
+
                         if (progress == -1) {
-                            showActiveMessage("Sync in progress", updateMessage);
+                            showActiveMessage(updateMessage, subMessage);
                         } else {
-                            showActiveMessage("Sync in progress", updateMessage, progress, subProgress, subProgressKey);
+                            showActiveMessage(updateMessage, subMessage, progress, subProgress, subProgressKey);
                         }
                 }
             }
@@ -134,7 +136,7 @@ public class SyncNotificationFragment extends Fragment {
         filter.addAction(SyncService.BROADCAST_SYNC_UPDATE);
         filter.addAction(BROADCAST_SYNC_DETAILS_SHOWN);
         filter.addAction(BROADCAST_SYNC_DETAILS_HIDDEN);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(br, filter);
+//        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(br, filter);
     }
 
     @Override
@@ -144,10 +146,10 @@ public class SyncNotificationFragment extends Fragment {
     }
 
     private void init() {
-        progressBar = (ProgressBar) rootView.findViewById(R.id.horz_progress);
-        message = (TextView) rootView.findViewById(R.id.message);
-        error = (TextView) rootView.findViewById(R.id.error);
-        subProgressBar = (DonutProgress) rootView.findViewById(R.id.donut_progress);
+        progressBar = rootView.findViewById(R.id.horz_progress);
+        message = rootView.findViewById(R.id.message);
+        error = rootView.findViewById(R.id.sub_message);
+        subProgressBar = rootView.findViewById(R.id.donut_progress);
         subProgressBar.setVisibility(View.GONE);
 
         rootView.setVisibility(View.GONE);
@@ -188,11 +190,11 @@ public class SyncNotificationFragment extends Fragment {
                 });
     }
 
-    private void showActiveMessage(@NotNull String msg, @Nullable String err) {
-        showActiveMessage(msg, err, null, null, null);
+    private void showActiveMessage(@NotNull String message, @Nullable String subMessage) {
+        showActiveMessage(message, subMessage, null, null, null);
     }
 
-    private void showActiveMessage(@NotNull String msg, @Nullable String err,
+    private void showActiveMessage(@NotNull String message, @Nullable String subMessage,
                                    @Nullable Integer progress, @Nullable Integer subProgress,
                                    @Nullable String subProgressKey) {
         if (hidePopup) {
@@ -200,8 +202,8 @@ public class SyncNotificationFragment extends Fragment {
         }
 
         progressBar.setVisibility(View.VISIBLE);
-        message.setVisibility(View.VISIBLE);
-        error.setVisibility(err == null ? View.INVISIBLE : View.VISIBLE);
+        this.message.setVisibility(View.VISIBLE);
+        error.setVisibility(subMessage == null ? View.INVISIBLE : View.VISIBLE);
 
         if (progress != null) {
             progressBar.setProgress(progress);
@@ -221,9 +223,9 @@ public class SyncNotificationFragment extends Fragment {
             subProgressBar.setProgress(0);
         }
 
-        message.setText(msg);
-        if (err != null) {
-            error.setText(err);
+        this.message.setText(message);
+        if (subMessage != null) {
+            error.setText(subMessage);
         }
 
         animateIn();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
 
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
+import io.phobotic.nodyn_app.service.StatisticsEmailService;
 import io.phobotic.nodyn_app.service.StatisticsService;
 
 /**
@@ -43,6 +45,7 @@ public class BetaPreferenceFragment extends PreferenceFragmentCompat {
         setHasOptionsMenu(true);
 
         init();
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
     private void init() {
@@ -53,6 +56,17 @@ public class BetaPreferenceFragment extends PreferenceFragmentCompat {
                 Intent i = new Intent(getContext(), StatisticsService.class);
                 getContext().startService(i);
                 rebuildStatisticsPreference.setEnabled(false);
+                return true;
+            }
+        });
+
+        final Preference statisticsEmailPreference = findPreference(getString(R.string.pref_key_beta_statistics_email));
+        statisticsEmailPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent i = new Intent(getContext(), StatisticsEmailService.class);
+                i.putExtra(StatisticsEmailService.TYPE_KEY, StatisticsEmailService.TYPE_WEEKLY);
+                getContext().startService(i);
                 return true;
             }
         });

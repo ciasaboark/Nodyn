@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,38 +18,50 @@
 package io.phobotic.nodyn_app.fragment;
 
 
+
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.model.Action;
+import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.list.RecyclerViewFastScroller;
-import io.phobotic.nodyn_app.list.VerticalSpaceItemDecoration;
 import io.phobotic.nodyn_app.list.adapter.ActionRecyclerViewAdapter;
+import io.phobotic.nodyn_app.list.decorator.VerticalSpaceItemDecoration;
 import io.phobotic.nodyn_app.sync.SyncManager;
+import io.phobotic.nodyn_app.sync.adapter.ActionHistory;
 import io.phobotic.nodyn_app.sync.adapter.SyncAdapter;
 import io.phobotic.nodyn_app.sync.adapter.SyncException;
 import io.phobotic.nodyn_app.sync.adapter.SyncNotSupportedException;
@@ -74,17 +86,17 @@ public class ActionHistoryFragment extends Fragment {
     private View localUpToDate;
     private View localOnlyWarning;
     private View emptyListWarning;
-    private VerticalSpaceItemDecoration decoration;
     private boolean isLoading = true;
-    //    private boolean fetchOlderRecords = true;
     private boolean canFetchMoreRecords = true;
     private int MAX_RECORDS = 30;
     private SwipeRefreshLayout swipeRefresh;
     private TextView remoteError;
-    private RecyclerViewFastScroller fastScroller;
     private RecyclerView recyclerView;
     private boolean scrollListenerAttached = false;
     private int curPage = 0;
+    private Set<String> allowedModelIDs = new HashSet<>();
+    private boolean allowAllModelIDs = false;
+    private Database db;
 
 
     public static ActionHistoryFragment newInstance() {
@@ -115,6 +127,16 @@ public class ActionHistoryFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("History");
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
@@ -134,27 +156,24 @@ public class ActionHistoryFragment extends Fragment {
     }
 
     private void init() {
-//        swipeRefresh = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh);
-//        swipeRefresh.setColorSchemeResources(R.color.refresh_progress_1);
-//        swipeRefresh.setRefreshing(false);
-//        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//                refresh();
-//                swipeRefresh.setRefreshing(false);
-//            }
-//        });
+        db = Database.getInstance(getContext());
 
-        fastScroller = (RecyclerViewFastScroller) rootView.findViewById(R.id.fastscroller);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        allowAllModelIDs = prefs.getBoolean(getString(
+                R.string.pref_key_check_out_all_models), Boolean.parseBoolean(
+                getString(R.string.pref_default_check_out_all_models)));
+
+        allowedModelIDs = prefs.getStringSet(
+                getString(R.string.pref_key_check_out_models), new HashSet<String>());
 
 
         list = rootView.findViewById(R.id.list);
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
+        recyclerView = rootView.findViewById(R.id.recyclerview);
         loading = rootView.findViewById(R.id.loading);
         localUpToDate = rootView.findViewById(R.id.sync_up_to_date);
         emptyListWarning = rootView.findViewById(R.id.empty_list_warning);
         localOnlyWarning = rootView.findViewById(R.id.local_only_warning);
-        remoteError = (TextView) rootView.findViewById(R.id.remote_error);
+        remoteError = rootView.findViewById(R.id.remote_error);
 
         initList();
         refresh();
@@ -163,30 +182,11 @@ public class ActionHistoryFragment extends Fragment {
     private void initList() {
         final float spacingTop = getResources().getDimension(R.dimen.list_item_spacing_top);
         final float spacingBottom = getResources().getDimension(R.dimen.list_item_spacing_bottom);
-        decoration = new VerticalSpaceItemDecoration(spacingTop, spacingBottom);
+        RecyclerView.ItemDecoration decoration = new VerticalSpaceItemDecoration(spacingTop, spacingBottom);
         final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false) {
-            @Override
-            public void onLayoutChildren(final RecyclerView.Recycler recycler, final RecyclerView.State state) {
-                super.onLayoutChildren(recycler, state);
-                //TODO if the items are filtered, considered hiding the fast scroller here
-                final int firstVisibleItemPosition = findFirstVisibleItemPosition();
-                if (firstVisibleItemPosition != 0) {
-                    // this avoids trying to handle un-needed calls
-                    if (firstVisibleItemPosition == -1)
-                        //not initialized, or no items shown, so hide fast-scroller
-                        fastScroller.setVisibility(View.GONE);
-                    return;
-                }
-                final int lastVisibleItemPosition = findLastVisibleItemPosition();
-                int itemsShown = lastVisibleItemPosition - firstVisibleItemPosition + 1;
-                //if all items are shown, hide the fast-scroller
-                fastScroller.setVisibility(recyclerView.getAdapter().getItemCount() > itemsShown ? View.VISIBLE : View.GONE);
-            }
-        });
-        fastScroller.setRecyclerView(recyclerView);
-        fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller__fast_scroller, R.id.fastscroller_bubble, R.id.fastscroller_handle);
         recyclerView.addItemDecoration(decoration);
+        recyclerView.setLayoutManager(layoutManager);
+
     }
 
     private void refresh() {
@@ -201,6 +201,7 @@ public class ActionHistoryFragment extends Fragment {
 
         actionList = new ArrayList<>();
         recyclerView.setAdapter(new ActionRecyclerViewAdapter(actionList, null));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
 
         FetchUnsyncedAsyncTask unsyncedAsyncTask = new FetchUnsyncedAsyncTask();
         if (asset != null) {
@@ -223,7 +224,7 @@ public class ActionHistoryFragment extends Fragment {
                     //+ remote records
                     actionList.addAll(0, unsyncedActions);
                     if (unsyncedActions.isEmpty()) {
-                        showView(localUpToDate);
+                        showLocalUpToDateMessage();
                     }
 
                     fetchPage();
@@ -232,21 +233,26 @@ public class ActionHistoryFragment extends Fragment {
         }
     }
 
-    private void showView(final View v) {
-        if (v.getVisibility() == View.VISIBLE) {
-            return;
-        }
-
-        Animation fadeIn = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
-        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+    /**
+     * Show the local up to date sync message for a few seconds
+     */
+    private void showLocalUpToDateMessage() {
+        Animation enterTop = AnimationUtils.loadAnimation(getContext(), R.anim.enter_from_top);
+        enterTop.setInterpolator(new AccelerateInterpolator());
+        enterTop.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                v.setVisibility(View.VISIBLE);
+                localUpToDate.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        hideLocalUptoDateMessage();
+                    }
+                }, 5000);
             }
 
             @Override
@@ -254,7 +260,85 @@ public class ActionHistoryFragment extends Fragment {
 
             }
         });
-        v.startAnimation(fadeIn);
+        enterTop.setDuration(1000);
+        localUpToDate.startAnimation(enterTop);
+    }
+
+    private void hideLocalUptoDateMessage() {
+        Context context = getContext();
+        if (context != null) {
+            Animation exitTop = AnimationUtils.loadAnimation(context, R.anim.exit_top);
+            exitTop.setInterpolator(new AccelerateInterpolator());
+            exitTop.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    localUpToDate.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            exitTop.setDuration(1000);
+            localUpToDate.startAnimation(exitTop);
+        }
+    }
+
+    private void showRemoteHistory(final ActionHistory actionHistory, final int page) {
+        //this will be called from the async task, so make sure we are running on the UI thread
+        final Activity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //if this is any page past the first (0) then we need to remove the null object
+                    //+ at the end of the list.
+                    if (page > 0) {
+                        actionList.remove(actionList.size() - 1);
+                        RecyclerView.Adapter adapter = recyclerView.getAdapter();
+                        adapter.notifyItemRemoved(actionList.size());
+                    }
+
+                    for (Action a : actionHistory.getList()) {
+                        actionList.add(a);
+                        recyclerView.getAdapter().notifyItemInserted(actionList.size());
+                    }
+
+                    //if we can fetch more records then add a null item to the end of the list
+                    //+ this will be replaced with a spinner
+                    if (canFetchMoreRecords) {
+                        actionList.add(null);
+                        recyclerView.getAdapter().notifyItemInserted(actionList.size() - 1);
+
+                        //its possible that the adapter had to filter out a large number of records
+                        //+ and we did not actually fill the page. Go ahead and trigger another fetch
+                        //+ if so
+                        loadNextPageIfNeeded();
+                    } else {
+
+                    }
+
+                    //if the remote history pull succeeded then show
+                    if (actionList.isEmpty()) {
+                        showView(emptyListWarning);
+                    } else {
+                        showList();
+                    }
+
+                    // TODO: 2/8/2021 this would be where we check if adding these records actually filled the page and trigger another another fetch cycle
+
+                    loading.setVisibility(View.GONE);
+                }
+            });
+        }
+
+        attachScrollListenerIfNeeded();
     }
 
     private void fetchPage() {
@@ -268,47 +352,8 @@ public class ActionHistoryFragment extends Fragment {
         }
     }
 
-    private void showRemoteHistory(final List<Action> remoteActions, final int page) {
-        //this will be called from the async task, so make sure we are running on the UI thread
-        final Activity activity = getActivity();
-        if (activity != null) {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //if this is any page past the first (0) then we need to remove the null object
-                    //+ at the end of the list.
-                    if (page > 0) {
-                        actionList.remove(actionList.size() - 1);
-                        recyclerView.getAdapter().notifyItemRemoved(actionList.size());
-                    }
-
-                    for (Action a : remoteActions) {
-                        actionList.add(a);
-                        recyclerView.getAdapter().notifyItemInserted(actionList.size());
-                    }
-
-                    //if we can fetch more records then add a null item to the end of the list
-                    //+ this will be replaced with a spinner
-                    if (canFetchMoreRecords) {
-                        actionList.add(null);
-                        recyclerView.getAdapter().notifyItemInserted(actionList.size() - 1);
-                    } else {
-
-                    }
-
-                    //if the remote history pull succeeded then show
-                    if (actionList.isEmpty()) {
-                        showView(emptyListWarning);
-                    } else {
-                        showList();
-                    }
-
-                    loading.setVisibility(View.GONE);
-                }
-            });
-        }
-
-        attachScrollListenerIfNeeded();
+    private void showView(final View v) {
+        v.setVisibility(View.VISIBLE);
     }
 
     private void showList() {
@@ -324,27 +369,35 @@ public class ActionHistoryFragment extends Fragment {
 
                 @Override
                 public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
-                    //trigger loading the next page before we actually reach the bottom
-                    LinearLayoutManager lm = (LinearLayoutManager) recyclerView.getLayoutManager();
-                    int totalItems = recyclerView.getAdapter().getItemCount();
-                    int bottomItem = lm.findLastVisibleItemPosition();
-
-//                    if (!recyclerView.canScrollVertically(1)) {
-                    if (totalItems - bottomItem <= 10) {
-                        //we have scrolled to the bottom
-                        if (isLoading) {
-                            Log.d(TAG, "List loading, skipping fetching older actions");
-                            return;
-                        } else if (!canFetchMoreRecords) {
-                            Log.d(TAG, "Will not fetch older items");
-                        } else {
-                            Log.d(TAG, "Scrollview has reached bottom");
-                            fetchNextPage();
-                        }
-                    }
+                    loadNextPageIfNeeded();
 
                 }
             });
+        }
+    }
+
+    /**
+     * Loads the next page of remote records only if the bottom most visible record is
+     * within 10 records of being the last in the list
+     */
+    private void loadNextPageIfNeeded() {
+        //trigger loading the next page before we actually reach the bottom
+        LinearLayoutManager lm = (LinearLayoutManager) recyclerView.getLayoutManager();
+        int totalItems = recyclerView.getAdapter().getItemCount();
+        int bottomItem = lm.findLastVisibleItemPosition();
+
+//                    if (!recyclerView.canScrollVertically(1)) {
+        if (totalItems - bottomItem <= 10) {
+            //we have scrolled to the bottom
+            if (isLoading) {
+                Log.d(TAG, "List loading, skipping fetching older actions");
+                return;
+            } else if (!canFetchMoreRecords) {
+                Log.d(TAG, "Will not fetch older items");
+            } else {
+                Log.d(TAG, "Scrollview has reached bottom");
+                fetchNextPage();
+            }
         }
     }
 
@@ -390,7 +443,6 @@ public class ActionHistoryFragment extends Fragment {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    //
                     actionList.addAll(syncedActions);
 
                     //show the actions if ther are any
@@ -467,7 +519,8 @@ public class ActionHistoryFragment extends Fragment {
                     obj = params[0];
                 }
 
-                Database db = Database.getInstance(getContext());
+
+
                 List<Action> actions = db.getUnsyncedActions();
                 if (obj == null) {
                     //pull all records
@@ -485,7 +538,7 @@ public class ActionHistoryFragment extends Fragment {
                 showUnsyncedActions(actions);
             } catch (Exception e) {
                 e.printStackTrace();
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
 
                 //make sure we call showUnsyncedActions so we can continue pulling records
                 showUnsyncedActions(new ArrayList<Action>());
@@ -505,7 +558,6 @@ public class ActionHistoryFragment extends Fragment {
                     obj = params[0];
                 }
 
-                Database db = Database.getInstance(getContext());
                 List<Action> actions = db.getSyncedActions();
                 if (obj == null) {
                     //keep all the records
@@ -523,7 +575,7 @@ public class ActionHistoryFragment extends Fragment {
                 showSyncedActions(actions);
             } catch (Exception e) {
                 e.printStackTrace();
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
 
                 //make sure we call showSyncedActions so the proper view can be shown
                 showSyncedActions(new ArrayList<Action>());
@@ -550,7 +602,7 @@ public class ActionHistoryFragment extends Fragment {
             }
 
             try {
-                List<Action> historyRecords;
+                ActionHistory historyRecords;
                 sleep(1000);
                 if (obj == null) {
                     //do not filter the list
@@ -561,17 +613,15 @@ public class ActionHistoryFragment extends Fragment {
                     historyRecords = tryPullUserPage(user, page);
                 } else {
                     //what were we passed?
-                    historyRecords = new ArrayList<>();
+                    historyRecords = new ActionHistory(new ArrayList<Action>(), false);
                 }
 
-                //no mas.  Check the record count before stripping the unknown record types
-                if (historyRecords == null || historyRecords.isEmpty()) {
-                    canFetchMoreRecords = false;
-                }
+
+                canFetchMoreRecords = historyRecords.isHasMoreRecords();
 
                 // Strip all records with an unknown action type so we only show check-in, check-out records
                 // TODO: 10/26/17 add additional views to cover the other action types
-                Iterator<Action> it = historyRecords.iterator();
+                Iterator<Action> it = historyRecords.getList().iterator();
                 while (it.hasNext()) {
                     Action a = it.next();
                     if (a.getDirection() != Action.Direction.CHECKIN &&
@@ -600,21 +650,21 @@ public class ActionHistoryFragment extends Fragment {
 
         private
         @NotNull
-        List<Action> tryPullAssetsPage(Asset asset, int page) throws SyncNotSupportedException, SyncException {
+        ActionHistory tryPullAssetsPage(Asset asset, int page) throws SyncNotSupportedException, SyncException {
             SyncAdapter adapter = SyncManager.getPrefferedSyncAdapter(getActivity());
             return adapter.getAssetActivity(getActivity(), asset, page);
         }
 
         private
         @NotNull
-        List<Action> tryPullUserPage(User user, int page) throws SyncNotSupportedException, SyncException {
+        ActionHistory tryPullUserPage(User user, int page) throws SyncNotSupportedException, SyncException {
             SyncAdapter adapter = SyncManager.getPrefferedSyncAdapter(getActivity());
             return adapter.getUserActivity(getActivity(), user, page);
         }
 
         private
         @NotNull
-        List<Action> tryPullAllRecordsPage(int page) throws SyncNotSupportedException, SyncException {
+        ActionHistory tryPullAllRecordsPage(int page) throws SyncNotSupportedException, SyncException {
             SyncAdapter adapter = SyncManager.getPrefferedSyncAdapter(getActivity());
             return adapter.getActivity(getActivity(), page);
         }

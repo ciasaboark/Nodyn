@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,20 +18,23 @@
 package io.phobotic.nodyn_app.activity;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.fragment.ShareSettingsChooserFragment;
+import io.phobotic.nodyn_app.fragment.ShareSettingsFileFragment;
 import io.phobotic.nodyn_app.fragment.ShareSettingsNFCFragment;
 import io.phobotic.nodyn_app.fragment.ShareSettingsQRCodeFragment;
 
-public class ShareSettingsActivity extends AppCompatActivity implements ShareSettingsChooserFragment.OnFragmentInteractionListener {
+public class ShareSettingsActivity extends AppCompatActivity implements ShareSettingsChooserFragment.OnShareMethodChosenListener {
 
     private static final String TAG = ShareSettingsActivity.class.getSimpleName();
     private ImageView qrcode;
@@ -42,8 +45,22 @@ public class ShareSettingsActivity extends AppCompatActivity implements ShareSet
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_settings);
-
+        setupActionBar();
         init();
+    }
+
+    private void setupActionBar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // Show the Up button in the action bar.
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setFocusable(false);
+
     }
 
     private void init() {
@@ -58,8 +75,8 @@ public class ShareSettingsActivity extends AppCompatActivity implements ShareSet
 
 
     @Override
-    public void onMethodChosen(ShareSettingsChooserFragment.Method method) {
-        switch (method) {
+    public void onMethodChosen(ShareSettingsChooserFragment.ShareMethod shareMethod) {
+        switch (shareMethod) {
             case NFC:
                 Fragment nfcFragment = ShareSettingsNFCFragment.newInstance();
                 loadFragment(nfcFragment);
@@ -68,13 +85,22 @@ public class ShareSettingsActivity extends AppCompatActivity implements ShareSet
                 Fragment qrFragment = ShareSettingsQRCodeFragment.newInstance();
                 loadFragment(qrFragment);
                 break;
+            case FILE_SHARE:
+                Fragment fileFragment = ShareSettingsFileFragment.newInstance();
+                loadFragment(fileFragment);
+                break;
             default:
-                Log.e(TAG, "Unknown share type: " + method.toString());
+                Log.e(TAG, "Unknown share type: " + shareMethod.toString());
         }
     }
 
     private void loadFragment(Fragment fragment) {
         FragmentManager fm = getSupportFragmentManager();
-        fm.beginTransaction().replace(R.id.frame, fragment).addToBackStack(fragment.getTag()).commit();
+        fm.beginTransaction().replace(R.id.frame, fragment).commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 }

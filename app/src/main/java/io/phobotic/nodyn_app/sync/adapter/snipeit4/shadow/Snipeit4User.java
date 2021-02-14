@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.helper.NumericCharacterReference;
 import io.phobotic.nodyn_app.helper.URLHelper;
 
 /**
@@ -54,15 +55,15 @@ public class Snipeit4User {
     public User toUser() {
         User user = new User()
                 .setId(id)
-                .setName(URLHelper.decode(name))
-                .setJobTitle(URLHelper.decode(jobTitle))
-                .setEmail(URLHelper.decode(email))
-                .setUsername(URLHelper.decode(username))
+                .setName(NumericCharacterReference.decode(URLHelper.decode(name), ' '))
+                .setJobTitle(NumericCharacterReference.decode(URLHelper.decode(jobTitle), ' '))
+                .setEmail(NumericCharacterReference.decode(URLHelper.decode(email), ' '))
+                .setUsername(NumericCharacterReference.decode(URLHelper.decode(username), ' '))
                 .setLocationID(location == null ? -1 : location.getId())
                 .setManagerID(manager == null ? -1 : manager.getId())
 //                .setNumAssets(numAssets)
                 .setEmployeeNum(employeeNum)
-                .setNotes(URLHelper.decode(notes))
+                .setNotes(NumericCharacterReference.decode(URLHelper.decode(notes), ' '))
                 .setCompanyID(company == null ? -1 : company.getId());
 
         if (groups != null) {

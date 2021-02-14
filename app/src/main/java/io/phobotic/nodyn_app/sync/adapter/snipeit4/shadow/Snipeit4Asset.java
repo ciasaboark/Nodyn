@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow;
 import com.google.gson.annotations.SerializedName;
 
 import io.phobotic.nodyn_app.database.model.Asset;
+import io.phobotic.nodyn_app.helper.NumericCharacterReference;
 import io.phobotic.nodyn_app.helper.URLHelper;
 
 import static io.phobotic.nodyn_app.sync.adapter.snipeit4.shadow.TimeHelper.toTimestamp;
@@ -71,9 +72,9 @@ public class Snipeit4Asset {
         Asset asset = new Asset()
                 .setId(id)
                 .setImage(URLHelper.decode(image))
-                .setName(URLHelper.decode(name))
-                .setTag(URLHelper.decode(tag))
-                .setSerial(URLHelper.decode(serial))
+                .setName(NumericCharacterReference.decode(URLHelper.decode(name), ' '))
+                .setTag(NumericCharacterReference.decode(URLHelper.decode(tag), ' '))
+                .setSerial(NumericCharacterReference.decode(URLHelper.decode(serial), ' '))
                 .setModelID(model == null ? -1 : model.getId())
                 .setStatusID(status == null ? -1 : status.getId())
                 .setAssignedToID(assignedTo == null ? -1 : assignedTo.getId())
@@ -81,7 +82,7 @@ public class Snipeit4Asset {
                 .setManufacturerID(manufacturer == null ? -1 : manufacturer.getId())
                 .setPurchaseCost(URLHelper.decode(purchaseCost))
                 .setPurchaseDate(purchaseDate == null ? null : purchaseDate.getDatetimme())
-                .setNotes(URLHelper.decode(notes))
+                .setNotes(NumericCharacterReference.decode(URLHelper.decode(notes), ' '))
                 .setOrderNumber(orderNumber)
                 .setLastCheckout(lastCheckout == null ? -1 : toTimestamp(
                         lastCheckout.getDatetimme(), isTimeUTC))

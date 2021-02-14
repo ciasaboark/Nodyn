@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,13 @@
 
 package io.phobotic.nodyn_app.list.adapter;
 
-import android.support.v4.util.Pair;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
 
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.fragment.listener.OnListFragmentInteractionListener;
 import io.phobotic.nodyn_app.view.UserView;
@@ -46,6 +46,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         UserView view = new UserView(parent.getContext(), null, null);
+        view.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT));
         return new ViewHolder(view);
     }
 

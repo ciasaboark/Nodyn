@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,38 +19,31 @@ package io.phobotic.nodyn_app.fragment.audit;
 
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.BounceInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -62,12 +55,20 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.audit.AuditDatabase;
 import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.audit.model.AuditHeader;
 import io.phobotic.nodyn_app.database.audit.model.AuditDefinition;
-import io.phobotic.nodyn_app.database.audit.model.AuditDetailRecord;
+import io.phobotic.nodyn_app.database.audit.model.AuditDetail;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.exception.StatusNotFoundException;
@@ -76,8 +77,8 @@ import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.database.model.Status;
 import io.phobotic.nodyn_app.database.model.User;
-import io.phobotic.nodyn_app.helper.AnimationHelper;
 import io.phobotic.nodyn_app.helper.GridColumnHelper;
+import io.phobotic.nodyn_app.helper.MediaHelper;
 import io.phobotic.nodyn_app.helper.TextHelper;
 import io.phobotic.nodyn_app.list.adapter.AuditedAssetRecyclerViewAdapter;
 import io.phobotic.nodyn_app.list.adapter.UnauditedAssetRecyclerViewAdapter;
@@ -101,7 +102,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     private Audit audit;
     private User user;
     private List<Asset> unscannedAssets;
-    private List<AuditDetailRecord> detailRecords = new ArrayList<>();
+    private List<AuditDetail> detailRecords = new ArrayList<>();
     private RecyclerView auditedAssetsRecyclerView;
     private RecyclerView unscannedAssetsRecyclerView;
     private View unscannedAssetsWrapper;
@@ -109,21 +110,21 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     private AuditStatusListener listener;
     private View error;
     private View listHolder;
-    private View headerDetails;
-    private TextView detailIntro;
-    private TextView detailModels;
-    private TextView detailStatuses;
+    private boolean listExpaned = false;
+    //    private View headerDetails;
+//    private TextView detailIntro;
+//    private TextView detailModels;
+//    private TextView detailStatuses;
     private TextView title;
-    private TextView detailBlind;
-    private FloatingActionButton submitButton;
+    //    private TextView detailBlind;
+    private ExtendedFloatingActionButton submitButton;
     private ScanInputView input;
-    private ImageView dragHandle;
-    private View dragHandleWrapper;
+    private View expandListWrapper;
     private boolean hasShownFirstCardShowcase = false;
     private View spacer;
     private View helpButton;
 
-    public static AssetAuditFragment newInstance(AuditDefinition auditDefinition, Audit audit, User user) {
+    public static AssetAuditFragment newInstance(AuditDefinition auditDefinition, AuditHeader audit, User user) {
         AssetAuditFragment f = new AssetAuditFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable(ARG_AUDIT_DEFINITION, auditDefinition);
@@ -148,7 +149,8 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
         if (getArguments() != null) {
             auditDefinition = (AuditDefinition) getArguments().getSerializable(ARG_AUDIT_DEFINITION);
-            audit = (Audit) getArguments().getSerializable(ARG_AUDIT);
+            AuditHeader header = (AuditHeader) getArguments().getSerializable(ARG_AUDIT);
+            audit = new Audit(header);
             user = (User) getArguments().getSerializable(ARG_USER);
         }
 
@@ -170,10 +172,6 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         setHasOptionsMenu(true);
         init();
 
-        AuditDatabase db = AuditDatabase.getInstance(getContext());
-        List<Audit> auditHeaders = db.getAudits();
-        List<AuditDetailRecord> details = db.getDetailRecords();
-
         return rootView;
     }
 
@@ -192,11 +190,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         Log.d(TAG, item.toString());
         switch (item.getItemId()) {
             case R.id.action_help:
-                if (headerDetails.getVisibility() == View.VISIBLE) {
-                    AnimationHelper.collapse(headerDetails);
-                } else {
-                    AnimationHelper.expand(headerDetails);
-                }
+                showHelp();
                 consumed = true;
                 break;
         }
@@ -241,27 +235,6 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                     unscannedAssetsWrapper.requestLayout();
                 }
             });
-            anim.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    dragHandle.getDrawable().setTint(getResources().getColor(R.color.white));
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    dragHandle.setImageTintList(null);
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            });
 
             anim.setDuration(2000);
             anim.setRepeatCount(1);
@@ -280,93 +253,59 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     }
 
     private void initDragHandle() {
-
-        dragHandleWrapper.setOnTouchListener(new View.OnTouchListener() {
-
-            float startY;
-            int startHeight;
-            ObjectAnimator cardElevationAnimator;
-            float startElevation;
-
-            public boolean onTouch(View v, MotionEvent e) {
-
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    dragHandle.getDrawable().setTint(getResources().getColor(R.color.audit_accent));
-                    // recalculate coordinates of starting point
-                    startY = e.getRawY();
-                    Log.d(TAG, "startY: " + startY);
-                    startHeight = unscannedAssetsWrapper.getHeight();
-                    Log.d(TAG, "start height: " + startHeight);
-                    startElevation = unscannedAssetsWrapper.getElevation();
-                    float endElevation = 8;
-                    cardElevationAnimator = ObjectAnimator.ofFloat(unscannedAssetsWrapper, "elevation", startElevation, endElevation);
-                    cardElevationAnimator.setDuration(300);
-                    cardElevationAnimator.start();
-
-                    //add a background color to the drag handle
-                    int colorFrom = Color.TRANSPARENT;
-                    int colorTo = getResources().getColor(R.color.drag_handle_overlay_light);
-                    ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-                    colorAnimation.setDuration(300); // milliseconds
-                    colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animator) {
-                            dragHandleWrapper.setBackgroundColor((int) animator.getAnimatedValue());
-                        }
-
-                    });
-                    colorAnimation.start();
-
-                } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
-                    // calculate new distance
-                    float newY = e.getRawY();
-                    Log.d(TAG, "newY: " + newY);
-
-                    float deltaY = startY - newY;
-                    Log.d(TAG, "delta: " + deltaY);
-
-                    int curHeight = unscannedAssetsWrapper.getHeight();
-                    Log.d(TAG, "cur height: " + curHeight);
-
-                    int newHeight = startHeight + ((int) deltaY);
-                    Log.d(TAG, "new height would be " + newHeight);
-                    newHeight = Math.min(Math.max(newHeight, MIN_CARD_HEIGHT), MAX_CARD_HEIGHT);
-                    Log.d(TAG, "new height after min/max:" + newHeight);
-
-                    unscannedAssetsWrapper.getLayoutParams().height = newHeight;
-                    unscannedAssetsWrapper.requestLayout();
-
-                } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                    dragHandle.setImageTintList(null);
-
-                    if (cardElevationAnimator.isRunning()) {
-                        cardElevationAnimator.pause();
-                    }
-                    float curElevation = unscannedAssetsWrapper.getElevation();
-                    cardElevationAnimator = ObjectAnimator.ofFloat(unscannedAssetsWrapper, "elevation", curElevation, startElevation);
-
-
-                    //remove the drag handle background color
-                    int colorFrom = getResources().getColor(R.color.drag_handle_overlay_light);
-                    int colorTo = Color.TRANSPARENT;
-                    ValueAnimator wrapperColorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-                    wrapperColorAnimator.setDuration(300); // milliseconds
-                    wrapperColorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animator) {
-                            dragHandleWrapper.setBackgroundColor((int) animator.getAnimatedValue());
-                        }
-
-                    });
-
-
-                    AnimatorSet set = new AnimatorSet();
-                    set.playTogether(wrapperColorAnimator, cardElevationAnimator);
-                    set.start();
+        expandListWrapper.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final ViewGroup.LayoutParams params = unscannedAssetsWrapper.getLayoutParams();
+                int fromHeight = params.height;
+                int toHeight;
+                if (listExpaned) {
+                    toHeight = 100;
+                } else {
+                    toHeight = 800;
                 }
-                return true;
+
+                listExpaned = !listExpaned;
+
+                ValueAnimator animator = ValueAnimator.ofInt(fromHeight, toHeight);
+                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        int h = (int) animation.getAnimatedValue();
+                        params.height = h;
+                        unscannedAssetsWrapper.setLayoutParams(params);
+                    }
+                });
+                animator.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        ImageView iv = rootView.findViewById(R.id.chevron);
+                        if (listExpaned) {
+                            iv.setImageDrawable(getContext().getResources().getDrawable(R.drawable.chevron_down));
+                        } else {
+                            iv.setImageDrawable(getContext().getResources().getDrawable(R.drawable.chevron_up));
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+                animator.setDuration(300);
+                animator.setInterpolator(new AccelerateInterpolator());
+                animator.start();
+
             }
         });
     }
@@ -416,23 +355,32 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         sequence.start();
     }
 
-    private void findViews() {
-        title = (TextView) rootView.findViewById(R.id.title);
-        headerDetails = rootView.findViewById(R.id.details_box);
-        detailIntro = (TextView) rootView.findViewById(R.id.details_intro);
-        detailModels = (TextView) rootView.findViewById(R.id.details_models);
-        detailStatuses = (TextView) rootView.findViewById(R.id.details_statuses);
-        detailBlind = (TextView) rootView.findViewById(R.id.details_blind);
-        auditedAssetsRecyclerView = (RecyclerView) rootView.findViewById(R.id.audited_assets_list);
-        unscannedAssetsRecyclerView = (RecyclerView) rootView.findViewById(R.id.unscanned_assets_list);
-        unscannedAssetsWrapper = rootView.findViewById(R.id.unscanned_assets_wrapper);
-        error = rootView.findViewById(R.id.error);
-        listHolder = rootView.findViewById(R.id.list_holder);
-        submitButton = (FloatingActionButton) rootView.findViewById(R.id.submit_button);
-        input = (ScanInputView) rootView.findViewById(R.id.input);
-        dragHandle = (ImageView) rootView.findViewById(R.id.drag_handle);
-        dragHandleWrapper = rootView.findViewById(R.id.drag_handle_wrapper);
-        spacer = rootView.findViewById(R.id.spacer);
+    private void showHelp() {
+        ConstraintLayout v = (ConstraintLayout) getLayoutInflater().inflate(R.layout.dialog_audit_help, null);
+        TextView detailIntro = v.findViewById(R.id.details_intro);
+        TextView detailModels = v.findViewById(R.id.details_models);
+        TextView detailStatuses = v.findViewById(R.id.details_statuses);
+        TextView detailBlind = v.findViewById(R.id.details_blind);
+        TextView manualLink = v.findViewById(R.id.manual_link);
+        manualLink.setMovementMethod(LinkMovementMethod.getInstance());
+
+        initIntroDescription(detailIntro);
+        initModelsDescription(detailModels);
+        initStatusesDescription(detailStatuses);
+        initBlindDescription(detailBlind);
+
+        AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
+                .setTitle("Audit Help")
+                .setView(v)
+                .setIcon(R.drawable.ic_help_circle_outline_white_36dp)
+                .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+        d.show();
     }
 
     private void initButtons() {
@@ -447,21 +395,38 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         submitButton.hide();
     }
 
-    private void initInput() {
-        input.setListener(new ScanInputView.OnTextInputListener() {
-            @Override
-            public void onTextInput(String text) {
-                handleInput(text);
+    private void initIntroDescription(TextView tv) {
+        String intro;
+        if (auditDefinition.getId() == -1) {
+            intro = getString(R.string.audit_detail_description_custom);
+        } else {
+            intro = getString(R.string.audit_detail_description_definition);
+            DateFormat df = DateFormat.getDateInstance();
+
+            //add in the detail line for the date this audit was created.
+            Date createdDate = new Date(auditDefinition.getCreateTimestamp());
+            String createdDateString = df.format(createdDate);
+
+            //add in the last time this audit has been completed
+            String lastAuditString = null;
+            if (auditDefinition.getLastAuditTimestamp() == -1) {
+                //this definition has never been used to complete an audit
+                lastAuditString = getString(R.string.audit_detail_description_definition_no_previous_audit);
+            } else {
+                Date lastAuditDate = new Date(auditDefinition.getLastAuditTimestamp());
+                DateFormat dtf = DateFormat.getDateTimeInstance();
+                String lastAuditDateString = dtf.format(lastAuditDate);
+                lastAuditString = String.format(getString(R.string.audit_detail_description_definition_previous_audit_date), lastAuditDateString);
             }
-        });
+
+            intro = String.format(intro, createdDateString, lastAuditString);
+        }
+
+        tv.setText(intro);
     }
 
     private void initDetails() {
         initTitle();
-        initIntroDescription();
-        initModelsDescription();
-        initStatusesDescription();
-        initBlindDescription();
     }
 
     private void addShowListener(final AlertDialog d) {
@@ -524,7 +489,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
     private void removeUnselectedStatuses() {
         //remove assets that do not match the asset status requirements
-        List<Integer> allowedStatusIDs = audit.getStatusIDs();
+        List<Integer> allowedStatusIDs = audit.getHeader().getStatusIDs();
         Iterator<Asset> it = unscannedAssets.iterator();
         while (it.hasNext()) {
             Asset a = it.next();
@@ -591,7 +556,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
             Asset a = it.next();
             boolean removeAsset = true;
             int modelID = a.getModelID();
-            if (audit.getModelIDs().contains(modelID)) {
+            if (audit.getHeader().getModelIDs().contains(modelID)) {
                 removeAsset = false;
             }
 
@@ -617,24 +582,210 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
     }
 
+    private void initModelsDescription(TextView tv) {
+        String modelsText;
+
+        if (auditDefinition.isAuditAllModels()) {
+            modelsText = getString(R.string.audit_detail_models_all);
+        } else {
+            modelsText = getString(R.string.audit_detail_models_list);
+        }
+
+        String modelListString = getModelsListString();
+
+        modelsText = String.format(modelsText, modelListString);
+        tv.setText(Html.fromHtml(modelsText));
+    }
+
+    private void initStatusesDescription(TextView tv) {
+        String statusText = null;
+        if (auditDefinition.isAuditAllStatuses()) {
+            statusText = getString(R.string.audit_detail_statuses_all);
+        } else {
+            Database db = Database.getInstance(getContext());
+            StringBuilder sb = new StringBuilder();
+            for (Integer i : auditDefinition.getRequiredStatusIDs()) {
+                try {
+                    Status s = db.findStatusByID(i);
+                    sb.append("&#8226; ");
+                    sb.append(s.getName());
+                    sb.append("<br/>");
+                } catch (StatusNotFoundException e) {
+                    // TODO: 2/4/18
+                }
+            }
+
+            statusText = getString(R.string.audit_detail_statuses_list);
+            statusText = String.format(statusText, sb.toString());
+        }
+
+        tv.setText(Html.fromHtml(statusText));
+    }
+
+    private void animateDownUnscannedCard() {
+        int height = unscannedAssetsWrapper.getHeight();
+        if (height > MIN_CARD_HEIGHT) {
+            ValueAnimator anim = ValueAnimator.ofInt(height, MIN_CARD_HEIGHT);
+            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    Integer value = (Integer) animation.getAnimatedValue();
+                    unscannedAssetsWrapper.getLayoutParams().height = value.intValue();
+                    unscannedAssetsWrapper.requestLayout();
+                }
+            });
+
+            anim.setDuration(500);
+            anim.setInterpolator(new AccelerateDecelerateInterpolator());
+            anim.start();
+        }
+    }
+
+    private void initBlindDescription(TextView tv) {
+        String blindText;
+        if (auditDefinition.isBlindAudit()) {
+            blindText = getString(R.string.audit_detail_description_blind_on);
+        } else {
+            blindText = getString(R.string.audit_detail_description_blind_off);
+        }
+
+        TextHelper.setTextOrHide(tv, tv, blindText);
+    }
+
+    private void findViews() {
+        title = rootView.findViewById(R.id.title);
+
+        auditedAssetsRecyclerView = rootView.findViewById(R.id.audited_assets_list);
+        unscannedAssetsRecyclerView = rootView.findViewById(R.id.unscanned_assets_list);
+        unscannedAssetsWrapper = rootView.findViewById(R.id.unscanned_assets_wrapper);
+        error = rootView.findViewById(R.id.error);
+        listHolder = rootView.findViewById(R.id.list_holder);
+        submitButton = rootView.findViewById(R.id.submit_button);
+        input = rootView.findViewById(R.id.input);
+        expandListWrapper = rootView.findViewById(R.id.drag_handle_wrapper);
+        spacer = rootView.findViewById(R.id.spacer);
+    }
+
+    /**
+     * Return true if the asset was filtered out because of the meta status filter.
+     *
+     * @param a
+     * @return
+     */
+    private boolean isAssetIncludedInMetaStatusFilter(Asset a) {
+        boolean assetFiltered = false;
+        switch (auditDefinition.getMetaStatus()) {
+            case "ALL":
+                break;
+            case "ASSIGNED":
+                if (a.getAssignedToID() == -1) assetFiltered = true;
+                break;
+            case "UNASSIGNED":
+                if (a.getAssignedToID() != -1) assetFiltered = true;
+                break;
+        }
+
+        return assetFiltered;
+    }
+
+    private void initInput() {
+        input.setListener(new ScanInputView.OnTextInputListener() {
+            @Override
+            public void onTextInputFinished(String text) {
+                handleInput(text);
+            }
+
+            @Override
+            public void onTextInputBegin() {
+                //nothing to do here
+            }
+        });
+    }
+
+    private String getUnexpectedMetaStatusReasonText(Asset a) {
+        String expected = "";
+        switch (auditDefinition.getMetaStatus()) {
+            case "ASSIGNED":
+                expected = getString(R.string.audit_meta_status_assigned);
+                break;
+            case "UNASSIGNED":
+                expected = getString(R.string.audit_meta_status_unassigned);
+                break;
+            default:
+                String err = String.format("Only expected statuses of 'ASSIGNED' or 'UNASSIGNED', " +
+                        "found status of %s", auditDefinition.getMetaStatus());
+                Log.d(TAG, err);
+                FirebaseCrashlytics.getInstance().recordException(new Exception(err));
+        }
+
+        String reason = "";
+        if (a.getAssignedToID() == -1) {
+            reason = getString(R.string.audit_meta_status_unassigned);
+        } else {
+            reason = getString(R.string.audit_meta_status_assigned_to_user);
+            Database db = Database.getInstance(getContext());
+            try {
+                User u = db.findUserByID(a.getAssignedToID());
+                reason = String.format(reason, u.getName());
+            } catch (UserNotFoundException e) {
+                reason = String.format(reason, "unknown user");
+            }
+        }
+
+        String line = getString(R.string.audit_unexpected_status_meta_status);
+        line = String.format(line, expected, reason);
+
+        return line;
+    }
+
+    private String getUnexpectedStatusReasonText(Asset a) {
+        String expectedStatusesString = getStatusesString();
+        String statusText = getString(R.string.audit_unexpected_status_statuses);
+        String assetStatus = "UNKNOWN";
+        try {
+            Database db = Database.getInstance(getContext());
+            Status s = db.findStatusByID(a.getStatusID());
+            assetStatus = s.getName();
+        } catch (StatusNotFoundException e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+        }
+        statusText = String.format(statusText, assetStatus, expectedStatusesString);
+        return statusText;
+    }
+
+    private String getStatusesString() {
+        StringBuilder sb = new StringBuilder("[");
+        String prefix = "";
+        Database db = Database.getInstance(getContext());
+        for (Integer id : audit.getHeader().getStatusIDs()) {
+            try {
+                Status s = db.findStatusByID(id);
+                sb.append(prefix);
+                sb.append(s.getName());
+                prefix = ", ";
+            } catch (StatusNotFoundException e) {
+                FirebaseCrashlytics.getInstance().recordException(e);
+            }
+        }
+
+        sb.append("]");
+        return sb.toString();
+    }
+
     private void confirmSubmitAuditResults() {
         View v = null;
         boolean requirePause = false;
 
         if (unscannedAssets.isEmpty()) {
+            v = View.inflate(getContext(), R.layout.view_audit_submit_dialog, null);
+        } else if (detailRecords.isEmpty()) {
             v = View.inflate(getContext(), R.layout.view_audit_submit_empty_dialog, null);
             requirePause = true;
         } else {
-            //if this was a blind audit we can provide a count of the items remaining
-            if (unscannedAssets.isEmpty()) {
-                v = View.inflate(getContext(), R.layout.view_audit_submit_dialog, null);
-            } else {
-                v = View.inflate(getContext(), R.layout.view_audit_submit_unfinished_dialog, null);
-                requirePause = true;
-            }
+            v = View.inflate(getContext(), R.layout.view_audit_submit_unfinished_dialog, null);
+            requirePause = true;
         }
 
-        final AlertDialog d = new AlertDialog.Builder(getContext())
+        final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setView(v)
                 .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                     @Override
@@ -649,7 +800,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                     }
                 })
                 .create();
-        final TextView waitTextView = (TextView) v.findViewById(R.id.wait);
+        final TextView waitTextView = v.findViewById(R.id.wait);
 
         if (requirePause) {
             d.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -693,6 +844,15 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         d.show();
     }
 
+    private void initTitle() {
+        String titleString = getString(R.string.audit_detail_title);
+        if (auditDefinition.getName() != null) {
+            titleString = auditDefinition.getName();
+        }
+
+        title.setText(titleString);
+    }
+
     private void handleInput(String text) {
         Database db = Database.getInstance(getContext());
         try {
@@ -706,6 +866,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
                 //if the asset is one of the models we were looking for we can give the auditor the option to add it to the audit
                 if (auditDefinition.getRequiredModelIDs().contains(a.getModelID()) || auditDefinition.isAuditAllModels()) {
+                    MediaHelper.playSoundEffect(getContext(), R.raw.original_sound__error_bleep_5);
                     showUnexpectedAssetDialog(a);
                 } else {
                     //otherwise just notify the auditor that an unexpected asset was scanned
@@ -729,15 +890,15 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
                 animateDownUnscannedCard();
 
-                addAuditedAsset(a, AuditDetailRecord.Status.UNDAMAGED);
+                addAuditedAsset(a, AuditDetail.Status.UNDAMAGED);
             }
 
         } catch (AssetNotFoundException e) {
             e.printStackTrace();
             Log.d(TAG, "Unable to find asset for scanned input string: '" + text + "'");
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
 
-            AlertDialog d = new AlertDialog.Builder(getContext())
+            AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                     .setTitle(getResources().getString(R.string.asset_scan_list_unknown_asset_title))
                     .setView(R.layout.view_unknown_asset)
                     .setNegativeButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -748,30 +909,14 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                     .create();
             d.setOnDismissListener(this);
             addShowListener(d);
+
+            MediaHelper.playSoundEffect(getContext(), R.raw.original_sound__error_bleep_5);
             d.show();
         }
     }
 
-    private void animateDownUnscannedCard() {
-        int height = unscannedAssetsWrapper.getHeight();
-        if (height > MIN_CARD_HEIGHT) {
-            ValueAnimator anim = ValueAnimator.ofInt(height, MIN_CARD_HEIGHT);
-            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    Integer value = (Integer) animation.getAnimatedValue();
-                    unscannedAssetsWrapper.getLayoutParams().height = value.intValue();
-                    unscannedAssetsWrapper.requestLayout();
-                }
-            });
-
-            anim.setDuration(500);
-            anim.setInterpolator(new AccelerateDecelerateInterpolator());
-            anim.start();
-        }
-    }
-
     private void showAlreadyScannedDialog() {
-        final AlertDialog d = new AlertDialog.Builder(getContext())
+        final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setTitle("Asset already scanned")
                 .setMessage("This asset has already been scanned")
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -783,11 +928,13 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                 }).create();
         d.setOnDismissListener(this);
         addShowListener(d);
+
+        MediaHelper.playSoundEffect(getContext(), R.raw.original_sound__error_bleep_5);
         d.show();
     }
 
     private void showUnwantedAssetDialog() {
-        AlertDialog d = new AlertDialog.Builder(getContext())
+        AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setTitle("Unexpected asset")
                 .setMessage("This asset is not one of the models selected for auditing.  Please scan another asset")
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -799,34 +946,40 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                 .create();
         d.setOnDismissListener(this);
         addShowListener(d);
+
+        MediaHelper.playSoundEffect(getContext(), R.raw.original_sound__error_bleep_5);
         d.show();
     }
 
-    /**
-     * Return true if the asset was filtered out because of the meta status filter.
-     *
-     * @param a
-     * @return
-     */
-    private boolean isAssetIncludedInMetaStatusFilter(Asset a) {
-        boolean assetFiltered = false;
-        switch (auditDefinition.getMetaStatus()) {
-            case "ALL":
-                break;
-            case "ASSIGNED":
-                if (a.getAssignedToID() == -1) assetFiltered = true;
-                break;
-            case "UNASSIGNED":
-                if (a.getAssignedToID() != -1) assetFiltered = true;
-                break;
+    private String getModelsListString() {
+        Database db = Database.getInstance(getContext());
+        List<Model> models = new ArrayList<>();
+        if (auditDefinition.isAuditAllModels()) {
+            models = db.getModels();
+        } else {
+            for (Integer i : auditDefinition.getRequiredModelIDs()) {
+                try {
+                    Model m = db.findModelByID(i);
+                    models.add(m);
+                } catch (ModelNotFoundException e) {
+                    // TODO: 2/4/18
+                }
+            }
         }
 
-        return assetFiltered;
+        StringBuilder sb = new StringBuilder();
+        for (Model m : models) {
+            sb.append("&#8226; ");
+            sb.append(m.getName());
+            sb.append("<br/>");
+        }
+
+        return sb.toString();
     }
 
     private void showUnexpectedAssetDialog(final Asset a) {
         View v = View.inflate(getContext(), R.layout.view_audit_unexpected_scan, null);
-        TextView tv = (TextView) v.findViewById(R.id.statuses);
+        TextView tv = v.findViewById(R.id.statuses);
 
         //give a summary reason why this asset was not expected.  This should be either because
         //+ it was filtered out by meta status (assigned/unassigned), or because the asset's
@@ -840,12 +993,12 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
         tv.setText(reasonText);
 
-        AlertDialog d = new AlertDialog.Builder(getContext())
+        AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setView(v)
                 .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        addAuditedAsset(a, AuditDetailRecord.Status.UNEXPECTED);
+                        addAuditedAsset(a, AuditDetail.Status.UNEXPECTED);
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -860,76 +1013,9 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         d.show();
     }
 
-    private String getUnexpectedMetaStatusReasonText(Asset a) {
-        String expected = "";
-        switch (auditDefinition.getMetaStatus()) {
-            case "ASSIGNED":
-                expected = getString(R.string.audit_meta_status_assigned);
-                break;
-            case "UNASSIGNED":
-                expected = getString(R.string.audit_meta_status_unassigned);
-                break;
-            default:
-                String err = String.format("Only expected statuses of 'ASSIGNED' or 'UNASSIGNED', " +
-                        "found status of %s", auditDefinition.getMetaStatus());
-                Log.d(TAG, err);
-                Crashlytics.logException(new Exception(err));
-        }
-
-        String reason = "";
-        if (a.getAssignedToID() == -1) {
-            reason = getString(R.string.audit_meta_status_unassigned);
-        } else {
-            reason = getString(R.string.audit_meta_status_assigned_to_user);
-            Database db = Database.getInstance(getContext());
-            try {
-                User u = db.findUserByID(a.getAssignedToID());
-                reason = String.format(reason, u.getName());
-            } catch (UserNotFoundException e) {
-                reason = String.format(reason, "unknown user");
-            }
-        }
-
-        String line = getString(R.string.audit_unexpected_status_meta_status);
-        line = String.format(line, expected, reason);
-
-        return line;
-    }
-
-    private String getUnexpectedStatusReasonText(Asset a) {
-        String expectedStatusesString = getStatusesString();
-        String statusText = getString(R.string.audit_unexpected_status_statuses);
-        String assetStatus = "UNKNOWN";
-        try {
-            Database db = Database.getInstance(getContext());
-            Status s = db.findStatusByID(a.getStatusID());
-            assetStatus = s.getName();
-        } catch (StatusNotFoundException e) {
-            Crashlytics.logException(e);
-        }
-        statusText = String.format(statusText, assetStatus, expectedStatusesString);
-        return statusText;
-    }
-
-    private String getStatusesString() {
-        StringBuilder statuses = new StringBuilder("[");
-        String prefix = "";
-        Database db = Database.getInstance(getContext());
-        for (Integer id : audit.getStatusIDs()) {
-            try {
-                Status s = db.findStatusByID(id);
-                statuses.append(prefix + s.getName());
-                prefix = ", ";
-            } catch (StatusNotFoundException e) {
-                Crashlytics.logException(e);
-            }
-        }
-        statuses.append("]");
-        return statuses.toString();
-    }
-
-    private void addAuditedAsset(Asset a, AuditDetailRecord.Status status) {
-        AuditDetailRecord record = new AuditDetailRecord(null, audit.getId(), a.getId(), System.currentTimeMillis(), status, null, false);
+    private void addAuditedAsset(Asset a, AuditDetail.Status status) {
+        MediaHelper.playSoundEffect(getContext(), R.raw.n_audioman__blip);
+        AuditDetail record = new AuditDetail(null, audit.getHeader().getId(), a.getId(), System.currentTimeMillis(), status, null, false);
         detailRecords.add(record);
         auditedAssetsRecyclerView.getAdapter().notifyItemInserted(detailRecords.size() - 1);
         auditedAssetsRecyclerView.smoothScrollToPosition(detailRecords.size() - 1);
@@ -963,130 +1049,12 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
         }
     }
 
-    private void initTitle() {
-        String titleString = getString(R.string.audit_detail_title);
-        if (auditDefinition.getName() != null) {
-            titleString = auditDefinition.getName();
-        }
-
-        title.setText(titleString);
-    }
-
-    private void initIntroDescription() {
-        String intro;
-        if (auditDefinition.getId() == -1) {
-            intro = getString(R.string.audit_detail_description_custom);
-        } else {
-            intro = getString(R.string.audit_detail_description_definition);
-            DateFormat df = DateFormat.getDateInstance();
-
-            //add in the detail line for the date this audit was created.
-            Date createdDate = new Date(auditDefinition.getCreateTimestamp());
-            String createdDateString = df.format(createdDate);
-
-            //add in the last time this audit has been completed
-            String lastAuditString = null;
-            if (auditDefinition.getLastAuditTimestamp() == -1) {
-                //this definition has never been used to complete an audit
-                lastAuditString = getString(R.string.audit_detail_description_definition_no_previous_audit);
-            } else {
-                Date lastAuditDate = new Date(auditDefinition.getLastAuditTimestamp());
-                DateFormat dtf = DateFormat.getDateTimeInstance();
-                String lastAuditDateString = dtf.format(lastAuditDate);
-                lastAuditString = String.format(getString(R.string.audit_detail_description_definition_previous_audit_date), lastAuditDateString);
-            }
-
-            intro = String.format(intro, createdDateString, lastAuditString);
-        }
-
-        detailIntro.setText(intro);
-    }
-
-    private void initModelsDescription() {
-        String modelsText;
-
-        if (auditDefinition.isAuditAllModels()) {
-            modelsText = getString(R.string.audit_detail_models_all);
-        } else {
-            modelsText = getString(R.string.audit_detail_models_list);
-        }
-
-        String modelListString = getModelsListString();
-
-        modelsText = String.format(modelsText, modelListString);
-        detailModels.setText(modelsText);
-    }
-
-    private String getModelsListString() {
-        Database db = Database.getInstance(getContext());
-        List<Model> models = new ArrayList<>();
-        if (auditDefinition.isAuditAllModels()) {
-            models = db.getModels();
-        } else {
-            for (Integer i : auditDefinition.getRequiredModelIDs()) {
-                try {
-                    Model m = db.findModelByID(i);
-                    models.add(m);
-                } catch (ModelNotFoundException e) {
-                    // TODO: 2/4/18
-                }
-            }
-        }
-
-        StringBuilder sb = new StringBuilder();
-        String prefix = "";
-        for (Model m : models) {
-            sb.append(prefix);
-            sb.append(m.getName());
-            prefix = ", ";
-        }
-
-        return sb.toString();
-    }
-
-    private void initStatusesDescription() {
-        String statusText = null;
-        if (auditDefinition.isAuditAllStatuses()) {
-            statusText = getString(R.string.audit_detail_statuses_all);
-        } else {
-            Database db = Database.getInstance(getContext());
-            StringBuilder sb = new StringBuilder();
-            String prefix = "";
-            for (Integer i : auditDefinition.getRequiredStatusIDs()) {
-                try {
-                    Status s = db.findStatusByID(i);
-                    sb.append(prefix);
-                    sb.append(s.getName());
-                    prefix = ", ";
-                } catch (StatusNotFoundException e) {
-                    // TODO: 2/4/18
-                }
-            }
-
-            statusText = getString(R.string.audit_detail_statuses_list);
-            statusText = String.format(statusText, sb.toString());
-        }
-
-        detailStatuses.setText(statusText);
-    }
-
-    private void initBlindDescription() {
-        String blindText;
-        if (auditDefinition.isBlindAudit()) {
-            blindText = getString(R.string.audit_detail_description_blind_on);
-        } else {
-            blindText = getString(R.string.audit_detail_description_blind_off);
-        }
-
-        TextHelper.setTextOrHide(detailBlind, detailBlind, blindText);
-    }
-
     private void updateLists() {
         AuditedAssetRecyclerViewAdapter auditedAdapter = new AuditedAssetRecyclerViewAdapter(
                 getContext(), detailRecords);
         auditedAdapter.setOnAuditRemovedListener(new AuditedAssetRecyclerViewAdapter.OnAuditRemovedListener() {
             @Override
-            public void onAssetRemoved(@NotNull AuditDetailRecord record) {
+            public void onAssetRemoved(@NotNull AuditDetail record) {
                 detailRecords.remove(record);
 
                 try {
@@ -1100,7 +1068,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
                     Log.e(TAG, "Could not find asset matching asset ID " + record.getAssetID()
                             + " from deleted asset audit detail record.  This asset will not be " +
                             "added back to list of unaudited assets");
-                    Crashlytics.logException(e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                 }
 
                 showHideIntro();
@@ -1124,15 +1092,15 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
 
     private void submitAuditResults() {
         for (Asset asset : unscannedAssets) {
-            AuditDetailRecord record = new AuditDetailRecord(null, audit.getId(), asset.getId(),
-                    System.currentTimeMillis(), AuditDetailRecord.Status.NOT_AUDITED,
+            AuditDetail record = new AuditDetail(null, audit.getHeader().getId(), asset.getId(),
+                    System.currentTimeMillis(), AuditDetail.Status.NOT_AUDITED,
                     "Asset was not found during audit", false);
             detailRecords.add(record);
         }
 
-        audit.setEnd(System.currentTimeMillis())
-                .setCompleted(true)
-                .setDetailRecords(detailRecords);
+        audit.getHeader().setEnd(System.currentTimeMillis());
+        audit.getHeader().setCompleted(true);
+        audit.setDetails(detailRecords);
 
         if (listener != null) {
             listener.onAuditComplete(audit);
@@ -1142,7 +1110,7 @@ public class AssetAuditFragment extends Fragment implements DialogInterface.OnDi
     private boolean detailRecordsContains(Asset a) {
         boolean containsAsset = false;
 
-        for (AuditDetailRecord record : detailRecords) {
+        for (AuditDetail record : detailRecords) {
             if (record.getAssetID() == a.getId()) {
                 containsAsset = true;
                 break;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -20,19 +20,17 @@
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@color/settings_header_background"
               android:clipChildren="false"
               android:clipToPadding="false"
               android:orientation="vertical"
               android:weightSum="1">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/AppToolbar"/>
+    <include
+        android:id="@+id/tb"
+        layout="@layout/content_toolbar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -47,14 +45,13 @@
             android:id="@+id/holder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/settings_header_background"
             android:clickable="false"
-            android:elevation="2dp"
+            android:elevation="0dp"
             android:focusable="false"
             android:orientation="vertical">
 
 
-            <io.phobotic.nodyn_app.view.PreferenceSection
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
                 android:id="@+id/general"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -63,7 +60,7 @@
                 app:title="General Preferences"
                 />
 
-            <io.phobotic.nodyn_app.view.PreferenceSection
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
                 android:id="@+id/user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -72,7 +69,7 @@
                 app:title="Users"
                 />
 
-            <io.phobotic.nodyn_app.view.PreferenceSection
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
                 android:id="@+id/asset"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -81,7 +78,7 @@
                 app:title="Assets"
                 />
 
-            <io.phobotic.nodyn_app.view.PreferenceSection
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
                 android:id="@+id/checkout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -91,7 +88,7 @@
                 />
 
 
-            <io.phobotic.nodyn_app.view.PreferenceSection
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
                 android:id="@+id/checkin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -101,7 +98,7 @@
                 />
 
 
-            <io.phobotic.nodyn_app.view.PreferenceSection
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
                 android:id="@+id/audit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -110,7 +107,7 @@
                 app:title="Audits"
                 />
 
-            <io.phobotic.nodyn_app.view.PreferenceSection
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
                 android:id="@+id/data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -119,7 +116,7 @@
                 app:title="Sync Backend"
                 />
 
-            <io.phobotic.nodyn_app.view.PreferenceSection
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -128,13 +125,32 @@
                 app:title="Email Preferences"
                 />
 
-            <io.phobotic.nodyn_app.view.PreferenceSection
+
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
+                android:id="@+id/statistics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"
+                app:icon="@drawable/chart_timeline_variant"
+                app:title="Statistics"
+                />
+
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
                 android:id="@+id/beta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
                 app:icon="@drawable/ic_beta_white_36dp"
                 app:title="Beta Preferences"
+                />
+
+            <io.phobotic.nodyn_app.view.PreferenceSectionView
+                android:id="@+id/experimental"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"
+                app:icon="@drawable/ic_flask_white_36dp"
+                app:title="Experimental"
                 />
 
             <LinearLayout
@@ -153,7 +169,7 @@
                     android:onClick="onClick"
                     android:soundEffectsEnabled="false"
                     android:src="@drawable/ic_tablet_ipad_white_24dp"
-                    android:tint="?colorPrimary"/>
+                    android:tint="@color/grey300"/>
 
                 <ImageView
                     android:id="@+id/icon2"
@@ -164,7 +180,7 @@
                     android:onClick="onClick"
                     android:soundEffectsEnabled="false"
                     android:src="@drawable/ic_printer_white_24dp"
-                    android:tint="?colorPrimary"/>
+                    android:tint="@color/grey300"/>
 
                 <ImageView
                     android:id="@+id/icon3"
@@ -175,7 +191,7 @@
                     android:onClick="onClick"
                     android:soundEffectsEnabled="false"
                     android:src="@drawable/ic_laptop_white_24dp"
-                    android:tint="?colorPrimary"/>
+                    android:tint="@color/grey300"/>
 
                 <ImageView
                     android:id="@+id/icon4"
@@ -186,7 +202,7 @@
                     android:onClick="onClick"
                     android:soundEffectsEnabled="false"
                     android:src="@drawable/ic_harddisk_white_24dp"
-                    android:tint="?colorPrimary"/>
+                    android:tint="@color/grey300"/>
 
                 <ImageView
                     android:id="@+id/icon5"
@@ -197,7 +213,7 @@
                     android:onClick="onClick"
                     android:soundEffectsEnabled="false"
                     android:src="@drawable/ic_cellphone_white_24dp"
-                    android:tint="?colorPrimary"/>
+                    android:tint="@color/grey300"/>
 
             </LinearLayout>
         </LinearLayout>
@@ -206,7 +222,7 @@
     <RelativeLayout
         android:id="@+id/fragment_card"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="?android:colorBackground"
         android:clickable="false"
         android:elevation="0dp"
@@ -216,7 +232,7 @@
         <FrameLayout
             android:id="@+id/frame"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
     </RelativeLayout>
 </LinearLayout>

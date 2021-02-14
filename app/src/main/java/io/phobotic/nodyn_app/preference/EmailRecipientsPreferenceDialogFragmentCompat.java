@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +17,36 @@
 
 package io.phobotic.nodyn_app.preference;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.preference.DialogPreference;
-import android.support.v7.preference.PreferenceDialogFragmentCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.DialogPreference;
+import androidx.preference.PreferenceDialogFragmentCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.view.EmailRecipientView;
+
+import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 
 
 /**
@@ -53,6 +61,7 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
     private Button addButton;
     private RecyclerView list;
     private EmailValidator validator;
+    private TextView error;
 
     public static EmailRecipientsPreferenceDialogFragmentCompat newInstance(
             String key) {
@@ -85,6 +94,17 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
         initInput();
         initButton();
         initList();
+        showListOrError();
+    }
+
+    private void showListOrError() {
+        if (recipientsList.isEmpty()) {
+            error.setVisibility(View.VISIBLE);
+            list.setVisibility(View.GONE);
+        } else {
+            error.setVisibility(View.GONE);
+            list.setVisibility(View.VISIBLE);
+        }
     }
 
     private void buildRecipientsList(String recipientsString) {
@@ -92,15 +112,18 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
         if (recipientsString != null) {
             String[] parts = recipientsString.split(",");
             for (String part : parts) {
-                recipientsList.add(part);
+                if (part.length() > 1) {
+                    recipientsList.add(part);
+                }
             }
         }
     }
 
     private void findViews() {
-        input = (EditText) rootView.findViewById(R.id.input);
-        addButton = (Button) rootView.findViewById(R.id.add_button);
-        list = (RecyclerView) rootView.findViewById(R.id.list);
+        input = rootView.findViewById(R.id.input);
+        addButton = rootView.findViewById(R.id.add_button);
+        list = rootView.findViewById(R.id.list);
+        error = rootView.findViewById(R.id.error);
     }
 
     private void initInput() {
@@ -124,6 +147,19 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
                 }
             }
         });
+
+        input.setImeActionLabel(getString(R.string.add), IME_ACTION_DONE);
+        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == IME_ACTION_DONE) {
+                    tryAddEmailAddress();
+                    return true;
+                }
+
+                return false;
+            }
+        });
     }
 
     private void initButton() {
@@ -131,42 +167,60 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String recipient = input.getText().toString();
-                if (recipientsList.contains(recipient)) {
-                    AlertDialog d = new AlertDialog.Builder(getContext())
-                            .setTitle("Duplicate address")
-                            .setMessage("The email address \"" + recipient + "\" has already been added")
-                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    input.setText(null);
-                                }
-                            })
-                            .create();
-                    d.show();
-                    ;
-                } else {
-                    addRecipient(recipient);
-                    input.setText(null);
-                }
+                tryAddEmailAddress();
             }
         });
     }
 
+    public void tryAddEmailAddress() {
+        String recipient = input.getText().toString();
+        if (recipientsList.contains(recipient)) {
+            AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
+                    .setTitle("Duplicate address")
+                    .setMessage("The email address \"" + recipient + "\" has already been added")
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            input.setText(null);
+                        }
+                    })
+                    .create();
+            d.show();
+            ;
+        } else {
+            addRecipient(recipient);
+            input.setText(null);
+        }
+    }
+
     private void initList() {
         list.setLayoutManager(new LinearLayoutManager(getContext()));
+        final LayoutAnimationController controller =
+                AnimationUtils.loadLayoutAnimation(getContext(), R.anim.layout_animation_fall_down);
+        list.setLayoutAnimation(controller);
+        list.setLayoutManager(new LinearLayoutManager(getContext()) {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return true;
+            }
+        });
+
+
         updateList();
     }
 
     private void addRecipient(String recipient) {
         if (recipient != null) {
             recipientsList.add(recipient);
-            updateList();
+            int index = recipientsList.size() - 1;
+            list.getAdapter().notifyItemInserted(index);
         }
     }
 
     private void updateList() {
         list.setAdapter(new EmailRecipientRecyclerViewAdapter(getContext(), recipientsList));
+        list.scheduleLayoutAnimation();
+        showListOrError();
     }
 
     @Override
@@ -185,7 +239,7 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
     }
 
     private String getRecipientsString() {
-        String recipientsString = null;
+        String recipientsString = "";
         String prefix = "";
         if (recipientsList.size() > 0) {
             recipientsString = "";
@@ -217,15 +271,15 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
         @Override
         public void onBindViewHolder(final EmailViewHolder holder, int position) {
             String recipient = recipients.get(position);
-            holder.position = position;
             holder.recipient = recipient;
             holder.view.setRecipient(recipient);
+            EmailRecipientRecyclerViewAdapter a = this;
 
             if (holder.deleteButton != null) {
                 holder.deleteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        removeAt(holder.position);
+                        removeAt(holder.getAdapterPosition());
                     }
                 });
             }
@@ -234,6 +288,7 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
         public void removeAt(int position) {
             recipients.remove(position);
             notifyItemRemoved(position);
+            showListOrError();
         }
 
         @Override
@@ -246,7 +301,6 @@ public class EmailRecipientsPreferenceDialogFragmentCompat extends PreferenceDia
         public final EmailRecipientView view;
         public String recipient;
         public View deleteButton;
-        public int position;
 
         public EmailViewHolder(EmailRecipientView view) {
             super(view);

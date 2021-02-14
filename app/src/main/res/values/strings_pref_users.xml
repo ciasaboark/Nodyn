@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -20,6 +20,10 @@
     <!-- User settings -->
     <string name="pref_header_users">Users</string>
 
+    <string name="pref_key_users_enable_browse">users_enable</string>
+    <string name="pref_default_users_enable_browse">true</string>
+    <string name="pref_title_users_enable_browse">Show User Browser</string>
+    <string name="pref_description_users_enable_browse">Show the user browser in the navigation menu</string>
 
     <string name="pref_key_users_enable_avatars">users_enable_avatars</string>
     <string name="pref_default_users_enable_avatars">false</string>
@@ -37,5 +41,5 @@
 
     <string name="pref_key_user_scan_field">check_in_validation_field</string>
     <string name="pref_default_user_scan_field">Username</string>
-    <string name="pref_title_user_scan_field">Validate users based on their</string>
+    <string name="pref_title_user_scan_field">Identify users based on their</string>
 </resources>

@@ -1,0 +1,26 @@
+<!--
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:viewportHeight="64"
+        android:viewportWidth="64">
+    <path
+        android:fillColor="#000000"
+        android:pathData="M61,57V1h-6v23h-2V8H35v16h-2V4H17v20H9V1H3v56H1v6h10v-6H9v-4h2h18h2h18h6v4h-2v6h10v-6H61zM43,10h2v4h-2V10zM37,10h4v6h6v-6h4v14H37V10zM24,6h2v4h-2V6zM19,6h3v6h6V6h3v18H19V6zM9,61H3v-2h6V61zM5,57V3h2v54H5zM13,51V37h4v6h6v-6h4v14H13zM19,37h2v4h-2V37zM33,51V39h4v6h6v-6h4v12H33zM39,39h2v4h-2V39zM55,49v2h-6V37H31v14h-2V35H11v16H9V26h8h16h2h18h2v21h2V3h2v54h-2v-8H55zM61,61h-6v-2h6V61z"/>
+</vector>

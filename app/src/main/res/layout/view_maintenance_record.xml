@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -16,15 +16,13 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-                                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="8dp"
-                                    android:layout_marginLeft="@dimen/view_action_outside_margin"
-                                    android:layout_marginRight="@dimen/view_action_outside_margin"
-                                    app:cardBackgroundColor="@color/white"
-                                    app:cardCornerRadius="@dimen/view_action_card_radius">
+<com.google.android.material.card.MaterialCardView
+                                    xmlns:android="http://schemas.android.com/apk/res/android"
+                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                   android:layout_width="match_parent"
+                                   android:layout_height="wrap_content"
+                                   android:layout_marginBottom="8dp"
+                                   app:cardCornerRadius="@dimen/view_action_card_radius">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -47,7 +45,9 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@string/placeholder"
-                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                android:textColor="?android:textColorPrimary"
+                android:textAppearance="@android:style/TextAppearance.Material.Medium"
+                />
 
             <TextView
                 android:id="@+id/create_date"
@@ -55,7 +55,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:text="@string/placeholder"/>
+                android:text="@string/placeholder"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
         </RelativeLayout>
 
 
@@ -76,12 +77,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Type: "/>
 
                 <TextView
                     android:id="@+id/type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
 
             </LinearLayout>
@@ -98,12 +101,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Created by: "/>
 
                 <TextView
                     android:id="@+id/user"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
             </LinearLayout>
 
@@ -118,12 +123,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Supplier: "/>
 
                 <TextView
                     android:id="@+id/supplier"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
             </LinearLayout>
 
@@ -138,12 +145,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Start date: "/>
 
                 <TextView
                     android:id="@+id/start_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
             </LinearLayout>
 
@@ -158,12 +167,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Complete date: "/>
 
                 <TextView
                     android:id="@+id/complete_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
             </LinearLayout>
 
@@ -178,15 +189,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Notes: "/>
 
                 <TextView
                     android:id="@+id/notes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="@string/placeholder"/>
             </LinearLayout>
 
         </LinearLayout>
     </RelativeLayout>
-</android.support.v7.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

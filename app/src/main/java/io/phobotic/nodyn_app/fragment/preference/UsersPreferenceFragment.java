@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +20,6 @@ package io.phobotic.nodyn_app.fragment.preference;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 
@@ -32,9 +27,15 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Verifiable;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
 import io.phobotic.nodyn_app.preference.ConfigureAvatarsDialogFragment;
 
 /**
@@ -60,6 +61,8 @@ public class UsersPreferenceFragment extends PreferenceFragmentCompat {
             }
         });
         initScanFieldSelect();
+
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
     private void initScanFieldSelect() {

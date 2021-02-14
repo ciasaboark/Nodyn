@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="import_dialog_title">Import settings?</string>
+    <string name="import_settings_read" formatted="false">A total of %d settings were read.</string>
+    <string name="import_warning_version" formatted="false">These preferences are from a %s version of Nodyn. For best results both devices should be running the latest version. You can continue importing at your own risk.</string>
+    <string name="import_warning_password">These preferences have a password set. You will need this password to open the settings page after importing.</string>
+    <string name="import_confirm">Do you want to import these settings?</string>
+    <string name="newer">newer</string>
+    <string name="older">older</string>
+</resources>

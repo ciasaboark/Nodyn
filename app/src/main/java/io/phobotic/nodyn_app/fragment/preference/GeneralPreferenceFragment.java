@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,15 +18,11 @@
 package io.phobotic.nodyn_app.fragment.preference;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -35,10 +31,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.Random;
 import java.util.UUID;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreferenceCompat;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.helper.Keyboardhelper;
+import io.phobotic.nodyn_app.helper.PreferenceHelper;
+import io.phobotic.nodyn_app.preference.EmailRecipientsPreference;
+import io.phobotic.nodyn_app.preference.EmailRecipientsPreferenceDialogFragmentCompat;
 import io.phobotic.nodyn_app.view.EnableKioskDialogView;
 import main.java.com.maximeroussy.invitrode.RandomWord;
 
@@ -53,6 +61,10 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.pref_general, rootKey);
         setHasOptionsMenu(true);
 
+
+//        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+//                getString(R.string.pref_key_equipment_managers_addresses)));
+
         final Preference deviceNamePreference = findPreference(getString(R.string.pref_key_general_id));
         PreferenceListeners.bindPreferenceSummaryToValue(deviceNamePreference);
         deviceNamePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -60,13 +72,13 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
                 View v = getLayoutInflater(null).inflate(R.layout.view_device_name, null);
-                final EditText input = (EditText) v.findViewById(R.id.input);
+                final EditText input = v.findViewById(R.id.input);
 
                 String curDeviceName = prefs.getString(getString(R.string.pref_key_general_id),
                         getString(R.string.pref_default_general_id));
                 input.setText(curDeviceName);
 
-                final AlertDialog d = new AlertDialog.Builder(getContext())
+                final AlertDialog d = new MaterialAlertDialogBuilder(getContext())
                         .setTitle("Device Name")
                         .setView(v)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -136,9 +148,57 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
             }
         });
 
-        SwitchPreferenceCompat kioskSwitch = (SwitchPreferenceCompat) findPreference(
-                getString(R.string.pref_key_general_kiosk));
-        kioskSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        final SwitchPreferenceCompat inputHardware = (SwitchPreferenceCompat) findPreference(
+                getResources().getString(R.string.pref_key_general_kiosk_input_mode_hardware));
+
+        final SwitchPreferenceCompat inputOSK = (SwitchPreferenceCompat) findPreference(
+                getResources().getString(R.string.pref_key_general_kiosk_input_mode_osk));
+
+        final SwitchPreferenceCompat inputCamera = (SwitchPreferenceCompat) findPreference(
+                getResources().getString(R.string.pref_key_general_kiosk_input_mode_camera));
+
+        Preference.OnPreferenceChangeListener inputMethodListener = new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                //only allow this switch to be disabled so long as we have at least one other switch enabled
+                boolean changeAllowed = false;
+                if ((Boolean) newValue == true) {
+                    changeAllowed = true;
+                } else {
+                    int activeInputs = 0;
+                    if (inputHardware.isChecked()) activeInputs++;
+                    if (inputOSK.isChecked()) activeInputs++;
+                    if (inputCamera.isChecked()) activeInputs++;
+
+                    if (activeInputs >= 2) {
+                        changeAllowed = true;
+                    } else {
+                        final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
+                                .setTitle("Input mode restriction")
+                                .setMessage("At least one input mode must remain active.")
+                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create();
+
+                        d.show();
+                    }
+                }
+
+                return changeAllowed;
+            }
+        };
+
+        inputHardware.setOnPreferenceChangeListener(inputMethodListener);
+        inputOSK.setOnPreferenceChangeListener(inputMethodListener);
+        inputCamera.setOnPreferenceChangeListener(inputMethodListener);
+
+        SwitchPreferenceCompat lockSettingsSwitch = (SwitchPreferenceCompat) findPreference(
+                getString(R.string.pref_key_general_kiosk_lock_settings));
+        lockSettingsSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean enabled = (boolean) newValue;
@@ -146,9 +206,9 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
                 //if kiosk mode was switched off we need to make sure to clear any previously
                 //+ set passwords
                 if (!enabled) {
-                    disableKioskMode();
+                    disableLockedSettingsMode();
                 } else {
-                    showKioskPasswordChangeDialog();
+                    showLockedSettingsChangePasswordDialog();
                 }
 
                 //go ahead and notify the preference manager that kiosk mode should be enabled
@@ -163,33 +223,35 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
         resetPasswordButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                showKioskPasswordChangeDialog();
+                showLockedSettingsChangePasswordDialog();
                 return true;
             }
         });
+
+        PreferenceHelper.tintIcons(getContext(), getPreferenceScreen());
     }
 
     /**
      * Disable kiosk mode by changing values in settings and unchecking the main switch
      */
-    private void disableKioskMode() {
+    private void disableLockedSettingsMode() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        prefs.edit().putBoolean(getString(R.string.pref_key_general_kiosk), false).apply();
+        prefs.edit().putBoolean(getString(R.string.pref_key_general_kiosk_lock_settings), false).apply();
         prefs.edit().putString(getString(R.string.pref_key_general_kiosk_password), null).apply();
 
-        SwitchPreferenceCompat kioskSwitch = (SwitchPreferenceCompat) findPreference(
-                getString(R.string.pref_key_general_kiosk));
+        SwitchPreferenceCompat lockSettingsSwitch = (SwitchPreferenceCompat) findPreference(
+                getString(R.string.pref_key_general_kiosk_lock_settings));
 
         //temporarily disable the listener to avoid a callback loop
-        Preference.OnPreferenceChangeListener oldListener = kioskSwitch.getOnPreferenceChangeListener();
-        kioskSwitch.setOnPreferenceChangeListener(null);
-        kioskSwitch.setChecked(false);
-        kioskSwitch.setOnPreferenceChangeListener(oldListener);
+        Preference.OnPreferenceChangeListener oldListener = lockSettingsSwitch.getOnPreferenceChangeListener();
+        lockSettingsSwitch.setOnPreferenceChangeListener(null);
+        lockSettingsSwitch.setChecked(false);
+        lockSettingsSwitch.setOnPreferenceChangeListener(oldListener);
     }
 
-    private void showKioskPasswordChangeDialog() {
+    private void showLockedSettingsChangePasswordDialog() {
         final EnableKioskDialogView view = new EnableKioskDialogView(getContext(), null);
-        final AlertDialog d = new AlertDialog.Builder(getContext())
+        final AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
@@ -203,8 +265,8 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-                        prefs.edit().putBoolean(getString(R.string.pref_key_general_kiosk), false).apply();
-                        disableKioskMode();
+                        prefs.edit().putBoolean(getString(R.string.pref_key_general_kiosk_lock_settings), false).apply();
+                        disableLockedSettingsMode();
                     }
                 })
                 .create();
@@ -237,6 +299,19 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
                         return false;
                     }
                 });
+
+                view.getPasswordInput().requestFocus();
+            }
+        });
+        d.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                Activity a = getActivity();
+                if (a != null) {
+                    View v = a.getCurrentFocus();
+                    Keyboardhelper.forceHideOSK(getContext(), v);
+                }
+
             }
         });
 
@@ -246,5 +321,29 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
     private void setKioskPassword(String password) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         prefs.edit().putString(getString(R.string.pref_key_general_kiosk_password), password).apply();
+    }
+
+    @Override
+    public void onDisplayPreferenceDialog(Preference preference) {
+        // Try if the preference is one of our custom Preferences
+        DialogFragment dialogFragment = null;
+        if (preference instanceof EmailRecipientsPreference) {
+            // Create a new instance of EmailRecipientsPreferenceDialogFragmentCompat with the key of the related
+            // Preference
+            dialogFragment = EmailRecipientsPreferenceDialogFragmentCompat
+                    .newInstance(preference.getKey());
+        }
+
+        // If it was one of our cutom Preferences, show its dialog
+        if (dialogFragment != null) {
+            dialogFragment.setTargetFragment(this, 0);
+            dialogFragment.show(this.getFragmentManager(),
+                    "android.support.v7.preference" +
+                            ".PreferenceFragment.DIALOG");
+        }
+        // Could not be handled here. Try with the super method.
+        else {
+            super.onDisplayPreferenceDialog(preference);
+        }
     }
 }

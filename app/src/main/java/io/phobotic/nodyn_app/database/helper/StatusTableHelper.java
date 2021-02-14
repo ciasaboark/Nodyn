@@ -22,7 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -90,7 +90,7 @@ public class StatusTableHelper extends TableHelper<Status> {
             Log.e(TAG, "Caught exception while searching for status with ID " + id + ": " +
                     e.getMessage());
             e.printStackTrace();
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -145,7 +145,7 @@ public class StatusTableHelper extends TableHelper<Status> {
             Log.e(TAG, "Caught exception while searching for statuses: " +
                     e.getMessage());
             e.printStackTrace();
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         } finally {
             if (cursor != null) {
                 cursor.close();

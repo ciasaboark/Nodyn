@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -22,16 +22,96 @@
         android:summary=""
         android:title="@string/pref_title_general_id"/>
 
-    <SwitchPreferenceCompat
-        android:defaultValue="@string/pref_default_general_kiosk"
-        android:disableDependentsState="false"
-        android:key="@string/pref_key_general_kiosk"
-        android:summary="@string/pref_description_general_kiosk"
-        android:title="@string/pref_title_general_kiosk"/>
+    <EditTextPreference
+        android:defaultValue=""
+        android:icon="@drawable/ic_shield_account_white_24dp"
+        android:key="@string/pref_key_equipment_managers_name"
+        android:summary="@string/pref_description_equipment_managers_name"
+        android:title="@string/pref_title_equipment_managers_name"/>
 
-    <Preference
-        android:dependency="@string/pref_key_general_kiosk"
-        android:key="@string/pref_key_general_kiosk_reset_password"
-        android:title="@string/pref_title_general_kiosk_reset_password"/>
+    <io.phobotic.nodyn_app.preference.EmailRecipientsPreference
+        android:defaultValue=""
+
+        android:icon="@drawable/ic_send_black_24dp"
+        android:key="@string/pref_key_equipment_managers_addresses"
+        android:title="@string/pref_title_equipment_managers_addresses"
+        android:theme="@style/Widgets.Dialog"/>
+
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_general_sounds_enabled"
+        android:icon="@drawable/volume_high"
+        android:key="@string/pref_key_general_sounds_enabled"
+        android:summary="@string/pref_description_general_sounds_enabled"
+        android:summaryOff="@string/pref_description_general_sounds_disabled"
+        android:title="@string/pref_title_general_sounds_enabled"/>
+
+
+    <PreferenceCategory
+        android:summary="Lock down stuff here"
+        android:title="Kiosk Mode">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_general_kiosk_echo"
+            android:icon="@drawable/eye_off"
+            android:key="@string/pref_key_general_kiosk_echo"
+            android:summary="@string/pref_description_general_kiosk_echo_enabled"
+            android:summaryOff="@string/pref_description_general_kiosk_echo_disabled"
+            android:title="@string/pref_title_general_kiosk_echo"/>
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_default_general_kiosk_lock_settings"
+            android:disableDependentsState="false"
+            android:icon="@drawable/key"
+            android:key="@string/pref_key_general_kiosk_lock_settings"
+            android:summary="@string/pref_description_general_kiosk_lock_settings_enabled"
+            android:summaryOff="@string/pref_description_general_kiosk_lock_settings_disabled"
+            android:title="@string/pref_title_general_kiosk_lock_settings"/>
+
+        <Preference
+            android:dependency="@string/pref_key_general_kiosk_lock_settings"
+            android:key="@string/pref_key_general_kiosk_reset_password"
+            android:title="@string/pref_title_general_kiosk_reset_password"/>
+
+
+        <PreferenceCategory
+            android:title="Input Methods">
+
+            <SwitchPreferenceCompat
+                android:defaultValue="@string/pref_default_general_kiosk_restrict_input_modes"
+                android:key="@string/pref_key_general_kiosk_restrict_input_modes"
+                android:summary="@string/pref_description_general_kiosk_restrict_input_modes_enabled"
+                android:summaryOff="@string/pref_description_general_kiosk_restrict_input_modes_disabled"
+                android:title="@string/pref_title_general_kiosk_restrict_input_modes"/>
+
+            <SwitchPreferenceCompat
+                android:defaultValue="@string/pref_default_general_kiosk_input_mode_hardware"
+                android:dependency="@string/pref_key_general_kiosk_restrict_input_modes"
+                android:icon="@drawable/scanner"
+                android:key="@string/pref_key_general_kiosk_input_mode_hardware"
+                android:summary="@string/pref_description_general_kiosk_input_mode_hardware_enabled"
+                android:summaryOff="@string/pref_description_general_kiosk_input_mode_hardware_disabled"
+                android:title="@string/pref_title_general_kiosk_input_mode_hardware"/>
+
+            <SwitchPreferenceCompat
+                android:defaultValue="@string/pref_default_general_kiosk_input_mode_osk"
+                android:dependency="@string/pref_key_general_kiosk_restrict_input_modes"
+                android:icon="@drawable/keyboard"
+                android:key="@string/pref_key_general_kiosk_input_mode_osk"
+                android:summary="@string/pref_description_general_kiosk_input_mode_osk_enabled"
+                android:summaryOff="@string/pref_description_general_kiosk_input_mode_osk_disabled"
+                android:title="@string/pref_title_general_kiosk_input_mode_osk"/>
+
+            <SwitchPreferenceCompat
+                android:defaultValue="@string/pref_default_general_kiosk_input_mode_camera"
+                android:dependency="@string/pref_key_general_kiosk_restrict_input_modes"
+                android:icon="@drawable/camera_front_variant"
+                android:key="@string/pref_key_general_kiosk_input_mode_camera"
+                android:summary="@string/pref_description_general_kiosk_input_mode_camera_enabled"
+                android:summaryOff="@string/pref_description_general_kiosk_input_mode_camera_disabled"
+                android:title="@string/pref_title_general_kiosk_input_mode_camera"/>
+
+        </PreferenceCategory>
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

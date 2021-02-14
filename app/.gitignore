@@ -1,1 +1,5 @@
-/build
+/build/
+fabric.properties
+/release/
+/schemas/
+proguard-rules.pro

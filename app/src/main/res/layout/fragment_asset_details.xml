@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -27,102 +27,105 @@
     android:orientation="vertical"
     android:weightSum="1">
 
-    <android.support.v7.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/asset_header_box_outside_margin"
         android:transitionName="card"
-        app:cardCornerRadius="@dimen/asset_header_box_card_corner_radius">
+        app:cardCornerRadius="@dimen/asset_header_box_card_corner_radius"
+        app:cardElevation="2dp">
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/header_box"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?colorAccent"
-            android:elevation="4dp"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:background="@color/default_accent"
+            android:elevation="4dp">
 
 
             <ImageView
                 android:id="@+id/image"
                 android:layout_width="@dimen/asset_header_box_hero_size"
                 android:layout_height="@dimen/asset_header_box_hero_size"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="8dp"
-                android:transitionName="image"/>
+                android:layout_margin="@dimen/asset_header_box_hero_margin"
+                android:transitionName="image"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
-                android:id="@+id/linearLayout2"
+
+            <TextView
+                android:id="@+id/tag"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:autoSizeTextType="uniform"
+                android:text="Asset Tag"
+                android:textAlignment="viewEnd"
+                android:textAllCaps="true"
+                android:textColor="@android:color/primary_text_dark"
+                android:textSize="@dimen/asset_header_box_title_text_size"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginRight="8dp"
-                android:orientation="vertical"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="status"
+                android:textAlignment="viewEnd"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-                <TextView
-                    android:id="@+id/tag"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:text="Asset Tag"
-                    android:textAlignment="viewEnd"
-                    android:textAllCaps="true"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large.Inverse"
-                    android:textStyle="bold"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
 
-                <TextView
-                    android:id="@+id/status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:text="status"
-                    android:textAlignment="viewEnd"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
-                    android:textStyle="bold"/>
-            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-        </RelativeLayout>
-    </android.support.v7.widget.CardView>
-
-    <android.support.design.widget.TabLayout
+    <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:background="@color/generic_card_background_dark"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:tabBackground="@color/generic_card_background_dark"
+        app:tabIndicatorColor="?colorAccent"
+        app:tabSelectedTextColor="?colorAccent"
         tools:layout_constraintLeft_creator="1">
 
-        <android.support.design.widget.TabItem
+        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Details">
 
-        </android.support.design.widget.TabItem>
+        </com.google.android.material.tabs.TabItem>
 
-        <android.support.design.widget.TabItem
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/foobar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Maintenance"/>
+            android:text="Statistics" />
 
-        <android.support.design.widget.TabItem
+        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="History"/>
-    </android.support.design.widget.TabLayout>
+            android:text="Maintenance" />
 
-    <android.support.v4.view.ViewPager
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="History" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -131,7 +134,7 @@
         app:layout_constraintRight_toRightOf="@+id/parent"
         app:layout_constraintTop_toBottomOf="@+id/tabs">
 
-    </android.support.v4.view.ViewPager>
+    </androidx.viewpager.widget.ViewPager>
 
 
 </LinearLayout>

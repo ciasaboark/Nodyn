@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -15,9 +15,17 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <SwitchPreferenceCompat
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tools="http://schemas.android.com/tools">
 
+    <SwitchPreferenceCompat
+        android:defaultValue="@string/pref_default_users_enable_browse"
+        android:icon="@drawable/ic_database_search_grey600_24dp"
+        android:key="@string/pref_key_users_enable_browse"
+        android:summary="@string/pref_description_users_enable_browse"
+        android:title="@string/pref_title_users_enable_browse"/>
+
+    <SwitchPreferenceCompat
         android:defaultValue="@string/pref_default_users_enable_avatars"
         android:icon="@drawable/ic_face_grey600_24dp"
         android:key="@string/pref_key_users_enable_avatars"
@@ -27,6 +35,7 @@
 
     <Preference
         android:dependency="@string/pref_key_users_enable_avatars"
+        android:icon="@drawable/ic_playlist_edit_grey600_24dp"
         android:key="@string/pref_key_users_enable_avatars_configure"
         android:title="@string/pref_title_users_enable_avatars_configure"/>
 
@@ -36,6 +45,7 @@
         android:defaultValue="@string/pref_default_user_scan_field"
         android:entries="@array/empty_array"
         android:entryValues="@array/empty_array"
+        android:icon="@drawable/ic_verified_grey600_24dp"
         android:key="@string/pref_key_user_scan_field"
         android:negativeButtonText="@null"
         android:positiveButtonText="OK"

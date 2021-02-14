@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,6 @@ package io.phobotic.nodyn_app.fragment.audit;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +31,10 @@ import android.widget.Spinner;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.model.Status;
@@ -95,9 +95,9 @@ public class AuditSelectStatusFragment extends Fragment {
     }
 
     private void findViews() {
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.list);
-        auditAllCheckbox = (CheckBox) rootView.findViewById(R.id.audit_all);
-        spinner = (Spinner) rootView.findViewById(R.id.spinner);
+        recyclerView = rootView.findViewById(R.id.list);
+        auditAllCheckbox = rootView.findViewById(R.id.audit_all);
+        spinner = rootView.findViewById(R.id.spinner);
     }
 
     private void initCheckbox() {
@@ -161,7 +161,7 @@ public class AuditSelectStatusFragment extends Fragment {
         Context context = rootView.getContext();
         if (columnCount <= 1) {
             LinearLayoutManager lm = new LinearLayoutManager(context);
-            lm.setOrientation(LinearLayoutManager.VERTICAL);
+            lm.setOrientation(RecyclerView.VERTICAL);
             recyclerView.setLayoutManager(lm);
 
         } else {
@@ -224,7 +224,7 @@ public class AuditSelectStatusFragment extends Fragment {
             public ViewHolder(AuditStatusView view) {
                 super(view);
                 this.view = view;
-                this.checkbox = (CheckBox) view.findViewById(R.id.check);
+                this.checkbox = view.findViewById(R.id.check);
             }
 
             public void bind(SelectableStatus selectableStatus) {

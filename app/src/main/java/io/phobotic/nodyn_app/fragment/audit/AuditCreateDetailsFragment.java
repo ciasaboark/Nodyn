@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package io.phobotic.nodyn_app.fragment.audit;
 
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -29,6 +28,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import androidx.fragment.app.Fragment;
 import io.phobotic.nodyn_app.R;
 
 /**
@@ -83,9 +83,9 @@ public class AuditCreateDetailsFragment extends Fragment {
     }
 
     private void findViews() {
-        name = (EditText) rootView.findViewById(R.id.name);
-        description = (EditText) rootView.findViewById(R.id.description);
-        blindCheckbox = (CheckBox) rootView.findViewById(R.id.blind_checkbox);
+        name = rootView.findViewById(R.id.name);
+        description = rootView.findViewById(R.id.description);
+        blindCheckbox = rootView.findViewById(R.id.blind_checkbox);
     }
 
     private void initListeners() {

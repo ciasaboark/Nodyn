@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,22 +18,23 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
-import io.phobotic.nodyn_app.database.model.Asset;
 
 /**
  * Created by Jonathan Nelson on 8/15/17.
@@ -42,84 +43,93 @@ import io.phobotic.nodyn_app.database.model.Asset;
 public class ScannedAssetView extends RelativeLayout {
     private static final String TAG = ScannedAssetView.class.getSimpleName();
     private final Context context;
-    private Asset asset;
+    private AssetScannerView.ScannedAsset scannedAsset;
     private View rootView;
     private TextView serial;
     private TextView model;
     private TextView tag;
-    private View serialBox;
-    private View modelBox;
     private ImageView image;
     private ImageButton deleteButton;
-    private ImageView checkButton;
+    private ImageView checkIcon;
     private boolean assetRemovable = true;
     private String modelName;
+    private MaterialCardView card;
+    private View availabilityBox;
+    private ProgressBar progress;
+    private TextView availability;
+    private ProgressBar progress_large;
+    private ImageView errorIcon;
 
     public ScannedAssetView(Context context, AttributeSet attrs) {
         this(context, attrs, null);
     }
 
-    public ScannedAssetView(@NotNull Context context, AttributeSet attrs, @Nullable Asset asset) {
+    public ScannedAssetView(@NotNull Context context, AttributeSet attrs, @Nullable AssetScannerView.ScannedAsset scannedAsset) {
         super(context, attrs);
         this.context = context;
-        this.asset = asset;
+        this.scannedAsset = scannedAsset;
         init();
     }
 
     private void init() {
         rootView = inflate(context, R.layout.view_scanned_asset, this);
-        tag = (TextView) rootView.findViewById(R.id.tag);
 
-        serial = (TextView) rootView.findViewById(R.id.serial);
-        serialBox = rootView.findViewById(R.id.serial_box);
+        if (!isInEditMode()) {
+            findViews();
+            setFields();
+        }
+    }
 
-        model = (TextView) rootView.findViewById(R.id.model);
-        modelBox = rootView.findViewById(R.id.model_box);
 
-        deleteButton = (ImageButton) findViewById(R.id.delete_button);
-        checkButton = (ImageView) findViewById(R.id.check_button);
-        image = (ImageView) findViewById(R.id.image);
 
-        setFields();
+    private void findViews() {
+        card = rootView.findViewById(R.id.card);
+        //asset specific views
+        tag = rootView.findViewById(R.id.tag);
+        serial = rootView.findViewById(R.id.serial);
+        model = rootView.findViewById(R.id.model);
+        image = findViewById(R.id.image);
+
+        //the small area at the bottom to show the current status
+        availabilityBox = rootView.findViewById(R.id.availability_box);
+        availabilityBox.setVisibility(View.GONE);
+        progress = rootView.findViewById(R.id.progress);
+        progress_large = rootView.findViewById(R.id.progress_large);
+        availability = rootView.findViewById(R.id.availability);
+
+        //the larger icons to the right
+        deleteButton = findViewById(R.id.delete_button);
+        deleteButton.setVisibility(View.GONE);
+        checkIcon = findViewById(R.id.check_button);
+        checkIcon.setVisibility(View.GONE);
+        errorIcon = findViewById(R.id.error_icon);
+        errorIcon.setVisibility(View.GONE);
+
     }
 
     private void setFields() {
-        if (!isInEditMode()) {
-            unHideAllViews();
-            if (asset != null) {
-                setTextOrHide(tag, tag, asset.getTag());
-                setTextOrHide(serialBox, serial, asset.getSerial());
-                setTextOrHide(modelBox, model, modelName);
-                loadImage();
-
-                if (!assetRemovable) {
-                    deleteButton.setVisibility(View.GONE);
-                    checkButton.setVisibility(View.VISIBLE);
-                } else {
-                    deleteButton.setVisibility(View.VISIBLE);
-                    checkButton.setVisibility(View.GONE);
-                }
-            }
+        if (scannedAsset != null) {
+            tag.setText(scannedAsset.getAsset().getTag());
+            serial.setText(scannedAsset.getAsset().getSerial() == null ? "No serial number" :
+                    scannedAsset.getAsset().getSerial());
+            model.setText(modelName == null ? "No model information" : modelName);
+            loadImage();
         }
-    }
 
-    private void unHideAllViews() {
-        tag.setVisibility(View.VISIBLE);
-        serialBox.setVisibility(View.VISIBLE);
-        modelBox.setVisibility(View.VISIBLE);
-    }
 
-    private void setTextOrHide(View view, TextView tv, @Nullable String text) {
-        if (text == null || text.equals("")) {
-            view.setVisibility(View.GONE);
+        if (!assetRemovable) {
+            deleteButton.setVisibility(View.GONE);
+            checkIcon.setVisibility(View.VISIBLE);
         } else {
-            view.setVisibility(View.VISIBLE);
-            tv.setText(text);
+            deleteButton.setVisibility(View.VISIBLE);
+            checkIcon.setVisibility(View.GONE);
         }
+
+
     }
 
     private void loadImage() {
-        String image = asset.getImage();
+        String image = scannedAsset.getAsset().getImage();
         //Picasso requires a non-empty path.  Just rely on the error handling
         if (image == null || image.equals("")) {
             image = "foobar";
@@ -154,12 +164,77 @@ public class ScannedAssetView extends RelativeLayout {
         return this;
     }
 
-    public Asset getAsset() {
-        return asset;
+    public ScannedAssetView showProgress() {
+        this.progress_large.setVisibility(View.VISIBLE);
+        this.checkIcon.setVisibility(View.GONE);
+        this.deleteButton.setVisibility(View.GONE);
+        this.errorIcon.setVisibility(View.GONE);
+        return this;
     }
 
-    public void setAsset(Asset asset) {
-        this.asset = asset;
+    public ScannedAssetView hideProgress() {
+        this.progress_large.setVisibility(View.GONE);
+        this.checkIcon.setVisibility(View.GONE);
+        this.deleteButton.setVisibility(View.GONE);
+        this.errorIcon.setVisibility(View.GONE);
+
+        return this;
+    }
+
+    public ScannedAssetView showAvailability() {
+        availabilityBox.setVisibility(View.VISIBLE);
+        return this;
+    }
+
+    public ScannedAssetView hideAvailability() {
+        availabilityBox.setVisibility(View.GONE);
+        return this;
+    }
+
+    public ScannedAssetView showCheck() {
+        this.progress_large.setVisibility(View.GONE);
+        this.availabilityBox.setVisibility(View.GONE);
+        this.checkIcon.setVisibility(View.VISIBLE);
+        this.deleteButton.setVisibility(View.GONE);
+        this.errorIcon.setVisibility(View.GONE);
+
+        return this;
+    }
+
+    public ScannedAssetView hideCheck() {
+        this.progress_large.setVisibility(View.GONE);
+        this.checkIcon.setVisibility(View.GONE);
+        this.deleteButton.setVisibility(View.GONE);
+        this.errorIcon.setVisibility(View.GONE);
+
+        return this;
+    }
+
+    public ScannedAssetView showError() {
+        this.progress_large.setVisibility(View.GONE);
+        this.checkIcon.setVisibility(View.GONE);
+        this.deleteButton.setVisibility(View.GONE);
+        this.errorIcon.setVisibility(View.VISIBLE);
+
+        return this;
+    }
+
+    public ScannedAssetView hideError() {
+        this.progress_large.setVisibility(View.GONE);
+        this.checkIcon.setVisibility(View.GONE);
+        this.deleteButton.setVisibility(View.GONE);
+        this.errorIcon.setVisibility(View.GONE);
+
+        return this;
+    }
+
+    public AssetScannerView.ScannedAsset getAsset() {
+        return scannedAsset;
+    }
+
+    public void setAsset(AssetScannerView.ScannedAsset scannedAsset) {
+        this.scannedAsset = scannedAsset;
         setFields();
     }
+
 }

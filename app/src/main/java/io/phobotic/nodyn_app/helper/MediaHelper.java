@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,10 @@ package io.phobotic.nodyn_app.helper;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
-import android.support.v7.preference.PreferenceManager;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 
 /**
@@ -42,7 +42,7 @@ public class MediaHelper {
                 final MediaPlayer mp = MediaPlayer.create(context, soundResID);
                 mp.start();
             } catch (Exception e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 e.printStackTrace();
             }
         }

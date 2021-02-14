@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -66,5 +66,8 @@
     <string name="sync_backend_dialog_title">Sync Backend Configure</string>
     <string name="sync_backend_dialog_no_configure">Chosen backend does not have any settings to configure</string>
 
-    <string name="sync_key_first_sync_completed">first_sync_completed</string>
+    <string name="pref_key_email_exceptions">email_sync_exceptions</string>
+    <string name="pref_default_email_exceptions">false</string>
+    <string name="pref_title_email_exceptions">Sync Exceptions</string>
+    <string name="pref_summary_email_exceptions">Send alert email to equipment managers if sync process encounters errors</string>
 </resources>

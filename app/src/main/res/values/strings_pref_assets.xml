@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -19,27 +19,32 @@
 <resources>
     <string name="pref_header_asset">Assets</string>
 
+    <string name="pref_key_asset_enable_browse">assets_enable</string>
+    <string name="pref_default_asset_enable_browse">true</string>
+    <string name="pref_title_asset_enable_browse">Show Assets Browser</string>
+    <string name="pref_description_asset_enable_browse">Show the asset browser in the navigation menu</string>
+
     <string name="pref_key_asset_status_color">asset_status_color</string>
     <string name="pref_default_asset_status_color">true</string>
     <string name="pref_title_asset_status_color">Use asset status color</string>
     <string name="pref_description_asset_status_color">Color assets according to their asset status label color</string>
 
+    <string name="pref_key_check_out_all_models">check_out_all_models</string>
+    <string name="pref_default_check_out_all_models">true</string>
+    <string name="pref_title_check_out_all_models">Fetch all asset models</string>
+    <string name="pref_description_check_out_all_models">Allow all asset models to be checked out</string>
 
-    <string name="pref_key_asset_status_show_all">asset_status_show_all</string>
-    <string name="pref_default_asset_status_show_all">true</string>
-    <string name="pref_title_asset_status_show_all">Show assets of every status</string>
-    <string name="pref_description_asset_status_show_all"></string>
-
-
-    <string name="pref_key_asset_status_selected_statuses">asset_status_selected_status</string>
-    <string name="pref_title_asset_status_selected_statuses">Viewable statuses</string>
-
-    <string name="pref_key_asset_status_allow_all">asset_status_allow_all</string>
-    <string name="pref_default_asset_status_allow_all">true</string>
-    <string name="pref_title_asset_status_allow_all">Allow checkouts of every asset status</string>
-    <string name="pref_description_asset_status_allow_all"></string>
+    <string name="pref_key_check_out_models">check_out_allowed_models</string>
+    <string name="pref_title_check_out_models">Allowed models</string>
+    <string name="pref_description_check_out_models">Allow only selected asset models to be checked out</string>
 
 
-    <string name="pref_key_asset_status_allowed_statuses">asset_status_allowed_status</string>
-    <string name="pref_title_asset_status_allowed_statuses">Allowed Statuses</string>
+    <string name="pref_key_sync_all_companies">sync_all_companies</string>
+    <string name="pref_default_sync_all_companies">true</string>
+    <string name="pref_title_sync_all_companies">Sync all companies</string>
+    <string name="pref_description_sync_all_companies">Fetch assets belonging to all companies</string>
+
+    <string name="pref_key_sync_companies">sync_allowed_companies</string>
+    <string name="pref_title_sync_companies">Synced companies</string>
+    <string name="pref_description_sync_companies">Only fetch assets tied to these companies</string>
 </resources>

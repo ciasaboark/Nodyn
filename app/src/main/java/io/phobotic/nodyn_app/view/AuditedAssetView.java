@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com> 
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -37,9 +36,10 @@ import com.squareup.picasso.Transformation;
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.audit.model.AuditDetailRecord;
+import io.phobotic.nodyn_app.database.audit.model.AuditDetail;
 import io.phobotic.nodyn_app.database.exception.AssetNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.helper.AnimationHelper;
@@ -52,7 +52,7 @@ import io.phobotic.nodyn_app.helper.ColorHelper;
 public class AuditedAssetView extends RelativeLayout {
     private static final String TAG = AuditedAssetView.class.getSimpleName();
     private final Context context;
-    private AuditDetailRecord detailRecord;
+    private AuditDetail detailRecord;
     private View rootView;
     private TextView serial;
     private TextView model;
@@ -75,7 +75,7 @@ public class AuditedAssetView extends RelativeLayout {
         this(context, attrs, null);
     }
 
-    public AuditedAssetView(@NotNull Context context, AttributeSet attrs, @Nullable AuditDetailRecord detalRecord) {
+    public AuditedAssetView(@NotNull Context context, AttributeSet attrs, @Nullable AuditDetail detalRecord) {
         super(context, attrs);
         this.context = context;
         this.detailRecord = detalRecord;
@@ -84,24 +84,24 @@ public class AuditedAssetView extends RelativeLayout {
 
     private void init() {
         rootView = inflate(context, R.layout.view_audited_asset, this);
-        tag = (TextView) rootView.findViewById(R.id.tag);
+        tag = rootView.findViewById(R.id.tag);
 
-        serial = (TextView) rootView.findViewById(R.id.serial);
+        serial = rootView.findViewById(R.id.serial);
         serialBox = rootView.findViewById(R.id.serial_box);
 
-        model = (TextView) rootView.findViewById(R.id.model);
+        model = rootView.findViewById(R.id.model);
         modelBox = rootView.findViewById(R.id.model_box);
 
-        deleteButton = (Button) findViewById(R.id.delete_button);
-        editButton = (ImageButton) findViewById(R.id.edit_button);
-        notes = (EditText) findViewById(R.id.notes);
+        deleteButton = findViewById(R.id.delete_button);
+        editButton = findViewById(R.id.edit_button);
+        notes = findViewById(R.id.notes);
         footer = findViewById(R.id.footer);
-        image = (ImageView) findViewById(R.id.image);
+        image = findViewById(R.id.image);
 
-        damagedRadioButton = (RadioButton) findViewById(R.id.radio_state_damaged);
-        undamagedRadioButton = (RadioButton) findViewById(R.id.radio_state_undamaged);
-        unknownRadioButton = (RadioButton) findViewById(R.id.radio_state_unknown);
-        unexpectedRadioButton = (RadioButton) findViewById(R.id.radio_state_unexpected);
+        damagedRadioButton = findViewById(R.id.radio_state_damaged);
+        undamagedRadioButton = findViewById(R.id.radio_state_undamaged);
+        unknownRadioButton = findViewById(R.id.radio_state_unknown);
+        unexpectedRadioButton = findViewById(R.id.radio_state_unexpected);
 
         setFields();
         initButtons();
@@ -273,7 +273,7 @@ public class AuditedAssetView extends RelativeLayout {
             if (footer.getVisibility() != View.VISIBLE) footer.setVisibility(View.VISIBLE);
         }
 
-        editButton.getDrawable().setTint(ColorHelper.fetchAccentColor(getContext()));
+        editButton.getDrawable().setTint(ColorHelper.getStyleAccentColor(getContext()));
     }
 
     public void collapse(boolean animate) {
@@ -294,19 +294,19 @@ public class AuditedAssetView extends RelativeLayout {
         switch (button.getId()) {
             case R.id.radio_state_damaged:
                 if (checked)
-                    detailRecord.setStatus(AuditDetailRecord.Status.DAMAGED);
+                    detailRecord.setStatus(AuditDetail.Status.DAMAGED);
                 break;
             case R.id.radio_state_undamaged:
                 if (checked)
-                    detailRecord.setStatus(AuditDetailRecord.Status.UNDAMAGED);
+                    detailRecord.setStatus(AuditDetail.Status.UNDAMAGED);
                 break;
             case R.id.radio_state_unknown:
                 if (checked)
-                    detailRecord.setStatus(AuditDetailRecord.Status.OTHER);
+                    detailRecord.setStatus(AuditDetail.Status.OTHER);
                 break;
             case R.id.radio_state_unexpected:
                 if (checked)
-                    detailRecord.setStatus(AuditDetailRecord.Status.UNEXPECTED);
+                    detailRecord.setStatus(AuditDetail.Status.UNEXPECTED);
                 break;
         }
     }
@@ -323,11 +323,11 @@ public class AuditedAssetView extends RelativeLayout {
         return this;
     }
 
-    public AuditDetailRecord getDetailRecord() {
+    public AuditDetail getDetailRecord() {
         return detailRecord;
     }
 
-    public AuditedAssetView setDetailRecord(AuditDetailRecord detailRecord) {
+    public AuditedAssetView setDetailRecord(AuditDetail detailRecord) {
         this.detailRecord = detailRecord;
         setFields();
         return this;

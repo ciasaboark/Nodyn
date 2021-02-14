@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +19,16 @@ package io.phobotic.nodyn_app.fragment;
 
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.fragment.app.Fragment;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.helper.SettingsHelper;
 
@@ -37,7 +39,7 @@ import io.phobotic.nodyn_app.helper.SettingsHelper;
  */
 public class BackendErrorFragment extends Fragment {
     private View rootView;
-    private FloatingActionButton buttonSettings;
+    private ExtendedFloatingActionButton buttonSettings;
 
     public static BackendErrorFragment newInstance() {
         BackendErrorFragment fragment = new BackendErrorFragment();
@@ -69,7 +71,7 @@ public class BackendErrorFragment extends Fragment {
     }
 
     private void initFab() {
-        buttonSettings = (FloatingActionButton) rootView.findViewById(R.id.settings_button);
+        buttonSettings = rootView.findViewById(R.id.settings_button);
 
         buttonSettings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,10 +82,10 @@ public class BackendErrorFragment extends Fragment {
     }
 
     private void initTextViews() {
-        TextView info1 = (TextView) rootView.findViewById(R.id.info1);
+        TextView info1 = rootView.findViewById(R.id.info1);
         info1.setMovementMethod(LinkMovementMethod.getInstance());
 
-        TextView info2 = (TextView) rootView.findViewById(R.id.info2);
+        TextView info2 = rootView.findViewById(R.id.info2);
         info2.setMovementMethod(LinkMovementMethod.getInstance());
     }
 

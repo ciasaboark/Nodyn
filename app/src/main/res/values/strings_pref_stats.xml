@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+
+    <string name="pref_key_stats_enable">stats_enable</string>
+    <string name="pref_default_stats_enable">false</string>
+    <string name="pref_title_stats_enable">Enable Statistics</string>
+    <string name="pref_description_stats_enabled">Statistics will be rebuilt nightly and cover the previous 30 days</string>
+    <string name="pref_description_stats_disabled">Statistics will not be built</string>
+
+    <string name="pref_key_user_statistics">user_stats_enable</string>
+    <string name="pref_default_user_statistics">false</string>
+    <string name="pref_title_user_statistics">User Statistics</string>
+    <string name="pref_description_user_statistics">Show user statistics.</string>
+
+    <string name="pref_key_asset_statistics">asset_stats_enable</string>
+    <string name="pref_default_asset_statistics">false</string>
+    <string name="pref_title_asset_statistics">Asset Statistics</string>
+    <string name="pref_description_asset_statistics">Show asset statistics</string>
+
+    <string name="pref_key_activity_statistics">activity_stats_enable</string>
+    <string name="pref_default_activity_statistics">false</string>
+    <string name="pref_title_activity_statistics">Activity Statistics</string>
+    <string name="pref_description_activity_statistics">Show check out and check in statistics</string>
+
+
+    <string name="pref_key_weekly_email_summary">stats_weekly_report_enable</string>
+    <string name="pref_default_weekly_email_summary">false</string>
+    <string name="pref_title_weekly_email_summary">Weekly Report</string>
+    <string name="pref_description_weekly_email_summary">Send a weekly report on asset model usage to the equipment managers</string>
+
+    <string name="pref_key_monthly_email_summary">stats_monthly_report_enable</string>
+    <string name="pref_default_monthly_email_summary">false</string>
+    <string name="pref_title_monthly_email_summary">Monthly Report</string>
+    <string name="pref_description_monthly_email_summary">Send a detailed monthly report on asset usage to the equipment mamagers</string>
+
+</resources>

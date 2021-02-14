@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/white"
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:orientation="vertical"
@@ -30,90 +29,60 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <LinearLayout
-        android:id="@+id/footer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@color/checkIn"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:orientation="vertical"
-        android:outlineProvider="bounds"
-        android:paddingBottom="40dp"
-        android:paddingEnd="16dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingStart="16dp"
-        android:paddingTop="40dp"
-        android:visibility="gone">
-
-
-        <TextSwitcher
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:theme="@style/TextAppearance.AppCompat.Large.Inverse"/>
-
-        <TextSwitcher
-            android:id="@+id/message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:theme="@style/TextAppearance.AppCompat.Medium.Inverse"/>
-
-    </LinearLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/checkout_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/footer"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="-26dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:elevation="4dp"
-        android:src="@drawable/ic_arrow_down_bold_hexagon_outline_white_24dp"
-        app:elevation="4dp"/>
-
     <RelativeLayout
-        android:id="@+id/warning"
+        android:id="@+id/countdown_warning"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:background="#ec407a"
+        android:background="?colorPrimaryDark"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:elevation="4dp"
+        android:orientation="vertical"
         android:outlineProvider="bounds"
-        android:padding="16dp"
         android:visibility="gone">
 
+        <ProgressBar
+            android:id="@+id/warning_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/warning_text_2"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="-7dp"
+            android:backgroundTint="#ec407a"
+            android:paddingBottom="0dp"
+            android:progressTint="@android:color/white" />
+
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/warning_text_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/warning_text_1"
+            android:layout_centerHorizontal="true"
+            android:padding="8dp"
+            android:text="@string/check_in_warning_message_2" />
+
+        <TextView
+            android:id="@+id/warning_text_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="@string/check_in_warning"
-            android:textAppearance="@android:style/TextAppearance.Material.Inverse"/>
+            android:padding="8dp"
+            android:text="@string/check_in_warning_message_1" />
     </RelativeLayout>
 
 
-    <io.phobotic.nodyn_app.view.AssetScanList
+    <io.phobotic.nodyn_app.view.AssetScannerView
         android:id="@+id/scan_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/footer"
-        android:layout_below="@id/warning"
+        android:layout_below="@id/countdown_warning"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:elevation="2dp"
         android:orientation="vertical"
         android:outlineProvider="bounds">
 
-    </io.phobotic.nodyn_app.view.AssetScanList>
+    </io.phobotic.nodyn_app.view.AssetScannerView>
 
 </RelativeLayout>

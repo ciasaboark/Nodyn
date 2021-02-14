@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -66,6 +67,7 @@ public class AuditDefinitionView extends RelativeLayout {
     private TextView nextAuditDate;
     private TextView blind;
     private TextView meta;
+    private MaterialCardView card;
 
     public AuditDefinitionView(Context context) {
         this(context, null);
@@ -83,6 +85,7 @@ public class AuditDefinitionView extends RelativeLayout {
     }
 
     private void findViews() {
+        card = rootView.findViewById(R.id.card);
         name = (TextView) rootView.findViewById(R.id.name);
         description = (TextView) rootView.findViewById(R.id.description);
         statuses = (TextView) rootView.findViewById(R.id.statuses);
@@ -141,9 +144,9 @@ public class AuditDefinitionView extends RelativeLayout {
         }
 
         if (highlighted) {
-            background.setBackgroundColor(getResources().getColor(R.color.selected_background));
+            card.setStrokeColor(getResources().getColor(R.color.selected_background));
         } else {
-            background.setBackground(null);
+            card.setStrokeColor(getResources().getColor(R.color.generic_card_border_dark));
         }
     }
 
@@ -184,7 +187,7 @@ public class AuditDefinitionView extends RelativeLayout {
     private void showModelIcons() {
         Database db = Database.getInstance(getContext());
         modelHolder.removeAllViews();
-        Drawable defaultDrawable = getResources().getDrawable(R.drawable.ic_devices_other_black_48dp);
+        Drawable defaultDrawable = getResources().getDrawable(R.drawable.circle_default_device);
 
         List<Model> modelList = new ArrayList<>();
         if (auditDefinition.isAuditAllModels()) {
@@ -245,8 +248,8 @@ public class AuditDefinitionView extends RelativeLayout {
 
         Picasso.with(getContext())
                 .load(image)
-                .placeholder(R.drawable.ic_important_devices_black_24dp)
-                .error(R.drawable.ic_important_devices_black_24dp)
+                .placeholder(R.drawable.circle_default_device)
+                .error(R.drawable.circle_default_device)
                 .fit()
                 .transform(transformation)
                 .into(iv);

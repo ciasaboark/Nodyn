@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.avatar.AvatarHelper;
 import io.phobotic.nodyn_app.database.Database;
@@ -66,55 +67,34 @@ public class UserView extends LinearLayout {
     private void init() {
         rootView = inflate(context, R.layout.view_user, this);
 
-        name = (TextView) rootView.findViewById(R.id.model);
-
-        username = (TextView) rootView.findViewById(R.id.username);
-        usernameBox = rootView.findViewById(R.id.username_box);
-
-        groups = (TextView) rootView.findViewById(R.id.groups);
-        groupsBox = rootView.findViewById(R.id.groups_box);
-
-        numAssets = (TextView) rootView.findViewById(R.id.num_assets);
-        numAssetsBox = rootView.findViewById(R.id.num_assets_box);
-
-        employeeNo = (TextView) rootView.findViewById(R.id.employee_no);
-        employeeNoBox = rootView.findViewById(R.id.employee_no_box);
-
-        image = (ImageView) rootView.findViewById(R.id.image);
+        name = rootView.findViewById(R.id.model);
+        username = rootView.findViewById(R.id.username);
+        groups = rootView.findViewById(R.id.groups);
+        numAssets = rootView.findViewById(R.id.num_assets);
+        employeeNo = rootView.findViewById(R.id.employee_no);
+        image = rootView.findViewById(R.id.image);
         setFields();
     }
 
     private void setFields() {
         if (!isInEditMode()) {
-            unHideAllViews();
             if (user != null) {
-                setTextOrHide(name, name, user.getName());
-                setTextOrHide(usernameBox, username, user.getUsername());
+                setTextOrHide(name, user.getName());
+                setTextOrHide(username, user.getUsername());
                 // TODO: 9/13/17 update this to use names instead of IDs
-                setTextOrHide(groupsBox, groups, getGroupString());
+                setTextOrHide(groups, getGroupString());
                 List<Asset> assetList = db.findAssetByUserID(user.getId());
-                setTextOrHide(numAssetsBox, numAssets, String.valueOf(assetList.size()));
-                setTextOrHide(employeeNoBox, employeeNo, user.getEmployeeNum());
+                setTextOrHide(numAssets, String.valueOf(assetList.size()));
+                setTextOrHide(employeeNo, user.getEmployeeNum());
                 loadImage();
             }
         }
     }
 
-    private void unHideAllViews() {
-        name.setVisibility(View.VISIBLE);
-        usernameBox.setVisibility(View.VISIBLE);
-        numAssetsBox.setVisibility(View.VISIBLE);
-        groupsBox.setVisibility(View.VISIBLE);
-        employeeNoBox.setVisibility(View.VISIBLE);
-    }
 
-    private void setTextOrHide(View view, TextView tv, @Nullable String text) {
-        if (text == null || text.equals("")) {
-            view.setVisibility(View.GONE);
-        } else {
-            view.setVisibility(View.VISIBLE);
-            tv.setText(text);
-        }
+
+    private void setTextOrHide(TextView tv, @Nullable String text) {
+        tv.setText(text);
     }
 
     private String getGroupString() {
@@ -122,8 +102,12 @@ public class UserView extends LinearLayout {
     }
 
     private void loadImage() {
-        AvatarHelper avatarHelper = new AvatarHelper();
-        avatarHelper.loadAvater(getContext(), user, image, 90);
+        boolean avatarEnabled = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+                context.getString(R.string.pref_key_users_enable_avatars), false);
+        if (avatarEnabled) {
+            AvatarHelper avatarHelper = new AvatarHelper();
+            avatarHelper.loadAvater(getContext(), user, image, 90);
+        }
     }
 
 

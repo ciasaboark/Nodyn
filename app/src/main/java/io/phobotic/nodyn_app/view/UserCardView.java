@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,18 +18,23 @@
 package io.phobotic.nodyn_app.view;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.avatar.AvatarHelper;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.helper.GroupTableHelper;
 import io.phobotic.nodyn_app.database.model.User;
+import io.phobotic.nodyn_app.helper.AnimationHelper;
 
 /**
  * Created by Jonathan Nelson on 8/29/17.
@@ -38,7 +43,8 @@ import io.phobotic.nodyn_app.database.model.User;
 public class UserCardView extends LinearLayout {
     private static final String TAG = UserCardView.class.getSimpleName();
     private final Context context;
-    private final Database db;
+    private boolean isMiniView = false;
+    private Database db;
     private User user;
     private View rootView;
     private TextView name;
@@ -49,6 +55,8 @@ public class UserCardView extends LinearLayout {
     private TextView employeeNo;
     private View employeeNoBox;
     private ImageView image;
+    private View placeholder;
+    private View content;
 
     public UserCardView(Context context) {
         this(context, null);
@@ -57,25 +65,37 @@ public class UserCardView extends LinearLayout {
     public UserCardView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
-        this.db = Database.getInstance(context);
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.UserCardView,
+                0, 0);
+
+        try {
+            this.isMiniView = a.getBoolean(R.styleable.UserCardView_useMini, false);
+        } finally {
+            a.recycle();
+        }
         init();
     }
 
     private void init() {
-        rootView = inflate(context, R.layout.view_user_card, this);
+        if (isMiniView) {
+            rootView = inflate(context, R.layout.view_user_card_mini, this);
+        } else {
+            rootView = inflate(context, R.layout.view_user_card, this);
+        }
         if (!isInEditMode()) {
-            name = (TextView) rootView.findViewById(R.id.model);
-
-            username = (TextView) rootView.findViewById(R.id.username);
+            this.db = Database.getInstance(context);
+            name = rootView.findViewById(R.id.model);
+            username = rootView.findViewById(R.id.username);
             usernameBox = rootView.findViewById(R.id.username_box);
-
-            groups = (TextView) rootView.findViewById(R.id.groups);
+            groups = rootView.findViewById(R.id.groups);
             groupsBox = rootView.findViewById(R.id.groups_box);
-
-            employeeNo = (TextView) rootView.findViewById(R.id.employee_no);
+            employeeNo = rootView.findViewById(R.id.employee_no);
             employeeNoBox = rootView.findViewById(R.id.employee_no_box);
-
-            image = (ImageView) rootView.findViewById(R.id.image);
+            image = rootView.findViewById(R.id.user_image);
+            placeholder = rootView.findViewById(R.id.placeholder);
+            content = rootView.findViewById(R.id.content);
 
             setFields();
         }
@@ -87,12 +107,50 @@ public class UserCardView extends LinearLayout {
             if (user != null) {
                 setTextOrHide(name, name, user.getName());
                 setTextOrHide(usernameBox, username, user.getUsername());
-                // TODO: 9/13/17 this will need to be updated to use group name
                 setTextOrHide(groupsBox, groups, getGroupString());
                 setTextOrHide(employeeNoBox, employeeNo, user.getEmployeeNum());
                 loadImage();
+            } else {
+                name.setText(null);
+                username.setText(null);
+                groups.setText(null);
+                employeeNo.setText(null);
+                Drawable d = getResources().getDrawable(R.drawable.circle_flat_grey, null);
+                image.setImageDrawable(d);
             }
         }
+    }
+
+    public void reveal(User user) {
+        this.user = user;
+        setFields();
+        //if we were given a non-null user we will need to fade out the placeholder view and fade in the text
+        AnimationHelper.fadeOut(context, placeholder);
+        AnimationHelper.fadeIn(context, content);
+    }
+
+    public void hideDetails() {
+        AnimationHelper.fadeOut(context, content);
+        AnimationHelper.fadeIn(context, placeholder);
+        Animation anim = AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                //once the content has faded out we need to unset the content and remove the user image
+                user = null;
+                setFields();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 
     private void unHideAllViews() {
@@ -120,9 +178,9 @@ public class UserCardView extends LinearLayout {
         avatarHelper.loadAvater(getContext(), user, image, 120);
     }
 
-    public void setUser(User user) {
-        this.user = user;
-        setFields();
-    }
+//    public void setUser(User user) {
+//        this.user = user;
+//        setFields();
+//    }
 
 }

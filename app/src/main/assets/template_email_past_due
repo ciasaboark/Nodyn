@@ -1,0 +1,202 @@
+<!doctype html>
+
+<head>
+    <title>Past Due Assets</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Just+Another+Hand" rel="stylesheet">
+    <style type="text/css">
+
+    body {
+    	margin: 0;
+    	padding: 0;
+    	color: white;
+    	font-weight: bold;
+    	font-size: 10pt;
+    	text-align: center;
+    	background-color: white;
+    	font-family: 'Open Sans', sans-serif;
+    }
+
+
+    .header {
+    	background-color: white;
+    	color: black;
+    	position: relative;
+    	padding: 3em;
+    	text-align: center;
+    }
+
+    .header-content {
+    	font-size: 20pt;
+    	text-align: center;
+	    display:flex;
+	    align-items: center;
+    }
+
+    .app_icon {
+		margin-right: 1em;
+	}
+
+    .past-due {
+    	background-color: #FF6B6C;
+    	color: white;
+    	position: relative;
+    	padding: 2em;
+    	text-align: center;
+    	/*min-height: 300px;*/
+    }
+
+    .due-soon {
+    	background-color: #FFC145;
+    	position: relative;
+    	padding: 2em;
+    	text-align: center;
+    }
+
+    .footer {
+    	background-color: #5B5F97;
+    	padding: 2em;
+    	position: relative;
+    }
+
+    .footer-content {
+    	position: absolute;
+    	bottom: 0;
+    	right: 0;
+    	padding: 1em;
+    	font-size: .6rem;
+    }
+
+
+    .title {
+    	font-size: 20pt;
+        margin-bottom: 30px;
+    }
+
+
+    .box {
+        background-size: cover;
+        background-color: #FAFAFA;
+        width: 600px;
+        height: 300px;
+        border-radius: 10px;
+        /*box-shadow: 2px 2px 4px #56565663;*/
+        text-align: left;
+        font-size: 1.0rem;
+        color: black;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .box-content {
+        padding: 30px;
+    }
+
+    .due-soon-asset {
+        background-image: url('due_soon_box.png');
+    }
+
+    .past-due-asset {
+        background-image: url('past_due_box.png');
+    }
+
+
+
+    .asset-header {
+    	text-align: left;
+    	display: block;
+    }
+
+    .asset-icon {
+    	z-index: 1;
+    	border-radius: 50%;
+    	width: 64px;
+    	height: 64px;
+    	margin-bottom: 16px;
+    	box-shadow: 2px 2px 4px #56565663;
+    }
+
+    .asset-tag {
+    	font-size: 23pt;
+    	font-weight: bold;
+    	vertical-align: top;
+    	line-height: 64px;
+    	margin-left: 16pt;
+    }
+
+    .serial {
+        font-family: monospace;
+        font-weight: bold;
+    }
+
+    .user {
+        font-weight: bold;
+    }
+
+    .smile {
+    	margin-bottom: .5em;
+    }
+
+    .chevron {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        margin-bottom: 2em;
+        width: 300px;
+    }
+
+    table {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    </style>
+</head>
+
+<body style="margin: 0;padding: 0;color: white;font-weight: bold;font-size: 10pt;text-align: center;background-color: white;font-family: 'Open Sans', sans-serif;">
+	<div class="header" style="background-color: white;color: black;position: relative;padding: 3em;text-align: center;">
+		<div class="header-content" style="font-size: 20pt;text-align: center;display: flex;align-items: center;">
+	        <img class="app_icon" src="%appicon%" style="margin-right: 1em;">
+	        <span class="title" style="font-size: 20pt;margin-bottom: 30px;">Nodyn Past Due Assets Reminder</span>
+	    </div>
+    </div>
+
+
+
+	<div class="intro"></div>
+
+
+
+    <div class="past-due" style="background-color: #FF6B6C;color: white;position: relative;padding: 2em;text-align: center;">
+		<h1 class="title" style="font-size: 20pt;margin-bottom: 30px;">Past due assets</h1>
+
+		<div class="container">
+            <table style="text-align: center;margin-left: auto;margin-right: auto;">
+                %pastdueassets%
+            </table>
+
+
+	    </div>
+    </div>
+
+    <div class="due-soon" style="background-color: #FFC145;position: relative;padding: 2em;text-align: center;">
+		<h1 class="title" style="font-size: 20pt;margin-bottom: 30px;">Due Soon</h1>
+
+        <div class="container">
+            <table style="text-align: center;margin-left: auto;margin-right: auto;">
+                %duesoonassets%
+            </table>
+        </div>
+
+    </div>
+
+    <div class="footer" style="background-color: #5B5F97;padding: 2em;position: relative;">
+    	<div class="footer-content" style="position: absolute;bottom: 0;right: 0;padding: 1em;font-size: .6rem;">
+    		<div><span class="bold">Generated: </span>%datetime%</div>
+    		<div><span class="bold">Device: </span>%devicename%</div>
+    	</div>
+    </div>
+</body>
+

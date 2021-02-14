@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ import io.phobotic.nodyn_app.database.model.User;
 
 public class TinyGraphAvatarProvider extends AvatarProvider {
     private static final String TAG = TinyGraphAvatarProvider.class.getSimpleName();
-    private static final String SOURCE = "http://tinygraphs.com/%s/%s?theme=%s&numcolors=4&size=%d&fmt=jpg";
+    private static final String SOURCE = "https://www.tinygraphs.com/%s/%s?theme=%s&numcolors=4&size=%d&fmt=jpg";
 
     @Override
     public String getName() {

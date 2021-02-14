@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,18 +19,12 @@ package io.phobotic.nodyn_app.avatar;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
-import android.text.method.LinkMovementMethod;
-import android.view.View;
-import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.helper.ColorHelper;
@@ -59,8 +53,7 @@ public class BackendAvatarProvider extends AvatarProvider {
     @Nullable
     @Override
     public Drawable getIconDrawable(@NotNull Context context) {
-        Drawable d = context.getDrawable(R.drawable.cloud_sync);
-        d.setTint(context.getResources().getColor(R.color.grey600));
+        Drawable d = context.getDrawable(R.drawable.ic_cloud_sync_white_48dp);
         return d;
     }
 

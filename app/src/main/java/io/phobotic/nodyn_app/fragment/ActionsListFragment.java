@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,12 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,11 +33,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
-import io.phobotic.nodyn_app.database.model.Action;
-import io.phobotic.nodyn_app.list.VerticalSpaceItemDecoration;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.list.adapter.ActionRecyclerViewAdapter;
+import io.phobotic.nodyn_app.list.decorator.VerticalSpaceItemDecoration;
 import io.phobotic.nodyn_app.service.SyncService;
 
 /**
@@ -126,7 +126,7 @@ public class ActionsListFragment extends Fragment {
     }
 
     private void init() {
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.list);
+        recyclerView = rootView.findViewById(R.id.list);
         errEmptyList = rootView.findViewById(R.id.empty_list);
         final float spacingTop = getResources().getDimension(R.dimen.list_item_spacing_top);
         final float spacingBottom = getResources().getDimension(R.dimen.list_item_spacing_bottom);

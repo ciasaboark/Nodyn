@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,15 @@
 package io.phobotic.nodyn_app.sync.adapter;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import io.phobotic.nodyn_app.database.model.Action;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import io.phobotic.nodyn_app.database.audit.model.Audit;
+import io.phobotic.nodyn_app.database.sync.Action;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.FullDataModel;
 import io.phobotic.nodyn_app.database.model.MaintenanceRecord;
@@ -37,6 +38,8 @@ import io.phobotic.nodyn_app.sync.ActionSyncListener;
  */
 
 public interface SyncAdapter {
+    String getAdapterName();
+
     FullDataModel fetchFullModel(Context context) throws SyncException;
 
     void checkoutAssetTo(Context context, int assetID, String assetTag, int userID, @Nullable Long checkout,
@@ -48,10 +51,19 @@ public interface SyncAdapter {
 
     void syncActionItems(Context context, List<Action> unsyncedActions, ActionSyncListener listener) throws SyncException;
 
-    void markActionItemsSynced(Context context, List<Action> actions);
-
     List<MaintenanceRecord> getMaintenanceRecords(Context context, Asset asset) throws SyncException,
             SyncNotSupportedException;
+
+    /**
+     * Fetches up-to-date information about the specified asset.
+     * @param context
+     * @param asset
+     * @return
+     * @throws SyncNotSupportedException if the backend does not support fetching information about
+     * individual assets
+     * @throws SyncException if any exception is encountered while fetching asset information
+     */
+    @NotNull Asset getAsset(@NotNull Context context, @NotNull Asset asset) throws SyncNotSupportedException, SyncException;
 
     /**
      * Fetch all activity records for the specified Asset.  Returned records should not be limited
@@ -65,7 +77,7 @@ public interface SyncAdapter {
      * @throws SyncException
      * @throws SyncNotSupportedException
      */
-    List<Action> getAssetActivity(Context context, @NotNull Asset asset, int page) throws SyncException,
+    ActionHistory getAssetActivity(Context context, @NotNull Asset asset, int page) throws SyncException,
             SyncNotSupportedException;
 
     /**
@@ -82,7 +94,7 @@ public interface SyncAdapter {
      * @throws SyncNotSupportedException if the SyncAdapter does not support fetching activity
      *                                   records
      */
-    List<Action> getUserActivity(@NotNull Context context, @NotNull User user, int page) throws SyncException,
+    ActionHistory getUserActivity(@NotNull Context context, @NotNull User user, int page) throws SyncException,
             SyncNotSupportedException;
 
     /**
@@ -97,11 +109,39 @@ public interface SyncAdapter {
      *                                   was encountered
      * @throws SyncNotSupportedException if the backend system has no ability to fetch actions
      */
-    List<Action> getActivity(@NotNull Context context, int page) throws SyncException, SyncNotSupportedException;
+     ActionHistory getActivity(@NotNull Context context, int page) throws SyncException, SyncNotSupportedException;
+
+
+    /**
+     * Fetch all activity records from now back to the UTC epoch cutoff
+     * @param context
+     * @param cutoff
+     * @return
+     */
+    ActionHistory getActivity(@NotNull Context context, long cutoff) throws SyncException, SyncNotSupportedException;
+
+    /**
+     * Fetch all activity records for the previous 30 days.
+     *
+     * @param context
+     * @return
+     * @throws SyncException             if the SyncAdapter supports fetching action records but an
+     *                                   unrecoverable Exception occurred while fetching action records
+     * @throws SyncNotSupportedException if the SyncAdapter does not support pulling action records
+     */
+    ActionHistory getThirtyDayActivity(@NotNull Context context) throws SyncException, SyncNotSupportedException;
 
     List<Asset> getAssets(Context context, User user) throws SyncException,
             SyncNotSupportedException;
 
     @Nullable
     DialogFragment getConfigurationDialogFragment(Context context);
+
+    /**
+     * Push the results of an audit to the backend service.  This function is non critical, so
+     * adapters that do not support recording audits should only implement a stub method
+     * @param context
+     * @param audit
+     */
+    void recordAudit(@NotNull Context context, @NotNull Audit audit);
 }

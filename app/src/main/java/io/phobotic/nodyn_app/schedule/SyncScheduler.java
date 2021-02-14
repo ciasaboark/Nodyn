@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -36,11 +35,13 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import androidx.annotation.Nullable;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.reporting.CustomEvents;
 import io.phobotic.nodyn_app.service.PastDueAlertService;
 import io.phobotic.nodyn_app.service.StatisticsService;
 import io.phobotic.nodyn_app.service.SyncService;
+import io.phobotic.nodyn_app.sync.SyncManager;
 
 /**
  * Created by Jonathan Nelson on 7/9/17.
@@ -63,16 +64,10 @@ public class SyncScheduler {
     }
 
     public void scheduleSyncIfNeeded() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Boolean firstSyncCompleted = prefs.getBoolean(context.getString(
-                R.string.sync_key_first_sync_completed), false);
-
-        if (!firstSyncCompleted) {
+        if (!SyncManager.isFirstSyncComplete(context)) {
             Log.d(TAG, "Skipping scheduling sync alarm.  Backend has not completed first sync yet");
-        } else if (isAlarmScheduled()) {
-            Log.d(TAG, "Skipping scheduling sync alarm, one is already set");
         } else {
-            Log.d(TAG, "No repeating sync alarm set.  Setting one now");
+            Log.d(TAG, "Scheduling alarm now");
             scheduleSync(getNewPendingIntent());
         }
     }
@@ -80,10 +75,10 @@ public class SyncScheduler {
     private boolean isAlarmScheduled() {
         //pi will be null if it already exists
         PendingIntent pi = getExistingPendingIntent();
-        return pi == null;
+        return pi != null;
     }
 
-    private void scheduleSync(@NotNull PendingIntent pi) {
+    public static Date getNextWakeTimestamp(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         int defaultPeriodInt = Integer.parseInt(context.getString(R.string.pref_default_sync_frequency));
         int wakePeriod = defaultPeriodInt;
@@ -98,14 +93,21 @@ public class SyncScheduler {
         long now = System.currentTimeMillis();
         long wakeAt = now + (1000 * 60 * wakePeriod);
 
-        DateFormat df = DateFormat.getDateTimeInstance();
         Date d = new Date();
         d.setTime(wakeAt);
+
+        return d;
+    }
+
+    private void scheduleSync(@NotNull PendingIntent pi) {
+        DateFormat df = DateFormat.getDateTimeInstance();
+        Date d = SyncScheduler.getNextWakeTimestamp(context);
+
         Log.d(TAG, "Scheduling next sync at " + df.format(d));
 
-        schedulePendingIntent(pi, wakeAt);
+        schedulePendingIntent(pi, d.getTime());
 
-        Answers.getInstance().logCustom(new CustomEvent(CustomEvents.SYNC_SCHEDULED));
+        FirebaseAnalytics.getInstance(context).logEvent(CustomEvents.SYNC_SCHEDULED, null);
     }
 
     private
@@ -125,7 +127,7 @@ public class SyncScheduler {
     private void schedulePendingIntent(@NotNull PendingIntent pi, long wakeAt) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, wakeAt, pi);
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, wakeAt, pi);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeAt, pi);
         } else {
@@ -155,30 +157,29 @@ public class SyncScheduler {
 
         long now = System.currentTimeMillis();
 
-        //gather statistics every 30 minutes
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date(now));
-        cal.set(Calendar.MINUTE, cal.getActualMinimum(Calendar.MINUTE));
-        cal.set(Calendar.SECOND, cal.getActualMinimum(Calendar.SECOND));
-        cal.set(Calendar.MILLISECOND, cal.getActualMinimum(Calendar.MILLISECOND));
+        cal.set(Calendar.HOUR_OF_DAY, cal.getActualMaximum(Calendar.HOUR_OF_DAY));
+        cal.set(Calendar.MINUTE, cal.getActualMaximum(Calendar.MINUTE));
+        cal.set(Calendar.SECOND, cal.getActualMaximum(Calendar.SECOND));
+        cal.set(Calendar.MILLISECOND, cal.getActualMaximum(Calendar.MILLISECOND));
         Date d;
         DateFormat df = DateFormat.getDateTimeInstance();
         long wakeAt = cal.getTimeInMillis();
-        int tryCount = 0;
 
-        while (wakeAt < now && tryCount < 2) {
+
+        while (wakeAt < now) {
             d = new Date(cal.getTimeInMillis());
             String dateString = df.format(d);
             Log.d(TAG, "Too late for statistics service wake time of " + dateString + ", pushing ahead by 30 minutes");
-            cal.add(Calendar.MINUTE, 30);
+            cal.add(Calendar.DAY_OF_MONTH, 1);
             wakeAt = cal.getTimeInMillis();
-            tryCount++;
         }
 
 
         d = new Date(cal.getTimeInMillis());
         String dateString = df.format(d);
-        Log.d(TAG, "Scheduleing statistics service wake at " + dateString);
+        Log.d(TAG, "Scheduling statistics service wake at " + dateString);
         schedulePendingIntent(pi, wakeAt);
     }
 

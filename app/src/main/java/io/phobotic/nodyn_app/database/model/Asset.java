@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -229,7 +229,7 @@ public class Asset implements Serializable {
         if (!(obj instanceof Asset)) {
             return false;
         } else {
-            return tag.equals(((Asset) obj).getTag());
+            return this.hashCode() == obj.hashCode();
         }
     }
 
@@ -268,5 +268,10 @@ public class Asset implements Serializable {
         public static final String EXPECTED_CHECKIN = "expected_checkin";
         public static final String CREATED_AT = "created_at";
         public static final String COMPANY_ID = "company_name";
+    }
+
+    @Override
+    public int hashCode() {
+        return String.format("%d%s", id, tag).hashCode();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
 package io.phobotic.nodyn_app.sync.adapter.snipeit4;
 
 import android.os.Bundle;
-import android.support.v7.preference.PreferenceFragmentCompat;
 
+import androidx.preference.PreferenceFragmentCompat;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.fragment.preference.PreferenceListeners;
 
@@ -45,5 +45,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                 getString(R.string.pref_key_snipeit_4_port)));
         PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
                 getString(R.string.pref_key_snipeit_4_api_key)));
+        PreferenceListeners.bindPreferenceSummaryToValue(findPreference(
+                getString(R.string.pref_key_snipeit_4_name_change)));
     }
 }

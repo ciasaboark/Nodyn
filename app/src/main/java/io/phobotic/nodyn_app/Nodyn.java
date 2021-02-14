@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,17 @@
 package io.phobotic.nodyn_app;
 
 import android.app.Application;
-import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 
-import io.fabric.sdk.android.Fabric;
+
+import androidx.preference.PreferenceManager;
+
+import io.phobotic.nodyn_app.database.RoomDBWrapper;
 import io.phobotic.nodyn_app.schedule.SyncScheduler;
+
+import com.google.firebase.BuildConfig;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Created by Jonathan Nelson on 10/19/17.
@@ -44,14 +48,12 @@ public class Nodyn extends Application {
 
         Log.d(TAG, "Starting Crashlytics");
         //start crashlytics only if not a debug build
-        Crashlytics crashlytics = new Crashlytics.Builder().disabled(BuildConfig.DEBUG).build();
-        try {
-            String id = Installation.id(this);
-            crashlytics.setUserIdentifier(id);
-        } catch (RuntimeException e) {
+        FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
 
-        }
-        Fabric.with(this, crashlytics);
+        //disable crashlytics on debug builds
+        Log.d(TAG, "Crashlytics collection is " + (BuildConfig.DEBUG ? "disabled" : "enabled"));
+        crashlytics.setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
+
 
         Log.d(TAG, "Forcing sync schedule reset");
         SyncScheduler scheduler = new SyncScheduler(this);
@@ -69,5 +71,9 @@ public class Nodyn extends Application {
         PreferenceManager.setDefaultValues(this, R.xml.pref_check_out, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_email, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_audit, false);
+
+        //initialize the Room databases
+        RoomDBWrapper roomDBWrapper = RoomDBWrapper.getInstance(getApplicationContext());
+        //System.out.println(scanRecords.size());
     }
 }

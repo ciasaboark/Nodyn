@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ public class UserTableHelper extends TableHelper<User> {
         int[] groupIDs = user.getGroupsIDs();
         if (groupIDs != null) {
             for (int g : groupIDs) {
-                groupsString += prefix + String.valueOf(g);
+                groupsString += prefix + g;
                 prefix = ",";
             }
         }
@@ -175,21 +175,32 @@ public class UserTableHelper extends TableHelper<User> {
         String notes = cursor.getString(cursor.getColumnIndex(User.Columns.NOTES));
         int companyID = cursor.getInt(cursor.getColumnIndex(User.Columns.COMPANY_ID));
         String avatarURL = cursor.getString(cursor.getColumnIndex(User.Columns.AVATAR_URL));
+        String employeeNum = cursor.getString(cursor.getColumnIndex(User.Columns.EMPLOYEE_NUM));
 
-        String[] numParts = groupsString.split(",");
-        int[] groupIDs = new int[numParts.length];
-        if (numParts.length > 0) {
-            for (int i = 0; i < groupIDs.length; i++) {
-                String part = numParts[i];
-                try {
-                    int num = Integer.parseInt(part);
-                    groupIDs[i] = num;
-                } catch (NumberFormatException e) {
-                    Log.d(TAG, "Unable to convert group ID: '" + part + "' into an int group " +
-                            "ID, skipping");
+        //Users can belong to multiple groups.  The group IDs are stored as a comma separated string
+        List<Integer> groupIDs = new ArrayList<>();
+        if (groupsString != null || groupsString.length() > 0) {
+            String[] groupParts = groupsString.split(",");
+            if (groupParts.length > 0) {
+                for (int i = 0; i < groupParts.length; i++) {
+                    String part = groupParts[i];
+                    try {
+                        int groupID = Integer.parseInt(part);
+                        groupIDs.add(groupID);
+                    } catch (NumberFormatException e) {
+                        Log.d(TAG, "Unable to convert group ID: '" + part + "' into an int group " +
+                                "ID, skipping");
+                    }
                 }
             }
         }
+
+        int[] groupIDArray = new int[groupIDs.size()];
+        for (int i = 0; i < groupIDs.size(); i++) {
+            groupIDArray[i] = groupIDs.get(i);
+        }
+
+
 
         return new User()
                 .setId(id)
@@ -199,8 +210,9 @@ public class UserTableHelper extends TableHelper<User> {
                 .setUsername(username)
                 .setLocationID(locationID)
                 .setManagerID(managerID)
+                .setEmployeeNum(employeeNum)
 //                .setNumAssets(numAssets)
-                .setGroupsIDs(groupIDs)
+                .setGroupsIDs(groupIDArray)
                 .setNotes(notes)
                 .setCompanyID(companyID)
                 .setAvatarURL(avatarURL);

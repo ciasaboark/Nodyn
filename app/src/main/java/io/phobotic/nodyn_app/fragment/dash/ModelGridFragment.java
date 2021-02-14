@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,26 +18,21 @@
 package io.phobotic.nodyn_app.fragment.dash;
 
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.GridLayout;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
+
+import com.google.android.material.button.MaterialButton;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +41,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.gridlayout.widget.GridLayout;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.ManufacturerNotFoundException;
@@ -55,7 +54,7 @@ import io.phobotic.nodyn_app.database.model.Manufacturer;
 import io.phobotic.nodyn_app.database.model.Model;
 import io.phobotic.nodyn_app.helper.AnimationHelper;
 import io.phobotic.nodyn_app.helper.ColorHelper;
-import io.phobotic.nodyn_app.view.OverviewCountView;
+import io.phobotic.nodyn_app.view.ModelOverviewCountView;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -68,12 +67,12 @@ public class ModelGridFragment extends Fragment {
     private GridLayout gridView;
     private Database db;
     private GridLayout gridOverflowView;
-    private Button button;
+    private MaterialButton button;
     private int[] colors;
     private HashMap<Model, Integer> overFlowModels;
     private View overflowBox;
 
-    public static ModelGridFragment newInstance(String param1, String param2) {
+    public static ModelGridFragment newInstance() {
         ModelGridFragment fragment = new ModelGridFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -96,7 +95,7 @@ public class ModelGridFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        rootView = inflater.inflate(R.layout.fragment_overview_grid, container, false);
+        rootView = inflater.inflate(R.layout.fragment_model_grid, container, false);
         init();
 
         return rootView;
@@ -104,9 +103,9 @@ public class ModelGridFragment extends Fragment {
 
     private void init() {
         db = Database.getInstance(getContext());
-        gridView = (GridLayout) rootView.findViewById(R.id.grid);
-        gridOverflowView = (GridLayout) rootView.findViewById(R.id.grid_overflow);
-        button = (Button) rootView.findViewById(R.id.more_button);
+        gridView = rootView.findViewById(R.id.grid);
+        gridOverflowView = rootView.findViewById(R.id.grid_overflow);
+        button = rootView.findViewById(R.id.more_button);
         overflowBox = rootView.findViewById(R.id.overflow_box);
 
         button.setOnClickListener(new View.OnClickListener() {
@@ -126,7 +125,7 @@ public class ModelGridFragment extends Fragment {
     }
 
     private void initColors() {
-        TypedArray ta = getContext().getResources().obtainTypedArray(R.array.material_colors);
+        TypedArray ta = getContext().getResources().obtainTypedArray(R.array.material_colors_light);
         colors = new int[ta.length()];
         for (int i = 0; i < ta.length(); i++) {
             colors[i] = ta.getColor(i, 0);
@@ -148,6 +147,11 @@ public class ModelGridFragment extends Fragment {
         Map<Model, Integer> modelCount = new HashMap<>();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
 
+        boolean allowAllModels = prefs.getBoolean(getString(R.string.pref_key_check_out_all_models),
+                false);
+        Set<String> allowedModels = prefs.getStringSet(getString(R.string.pref_key_check_out_models),
+                new HashSet<String>());
+
         boolean allStatusesAllowed = prefs.getBoolean(getString(
                 R.string.pref_key_asset_status_allow_all), Boolean.parseBoolean(
                 getString(R.string.pref_default_asset_status_allow_all)));
@@ -156,37 +160,37 @@ public class ModelGridFragment extends Fragment {
 
         for (Asset asset : allAssets) {
             int modelId = asset.getModelID();
-            if (modelId == -1) {
-                Log.d(TAG, "Asset " + asset.getTag() + " has no assigned model, skipping");
-            } else if (!isAssetStatusValid(asset)) {
-                Log.d(TAG, "Asset " + asset.getTag() + " does not have an allowed status, skipping");
-            } else {
-                try {
-                    Model m = db.findModelByID(modelId);
-                    Integer count = modelCount.get(m);
-                    if (count == null) count = 0;
+            if (allowAllModels || allowedModels.contains(String.valueOf(modelId))) {
+                if (modelId != -1 && isAssetStatusValid(asset)) {
+                    try {
+                        Model m = db.findModelByID(modelId);
+                        Integer count = modelCount.get(m);
+                        if (count == null) count = 0;
 
-                    count++;
-                    modelCount.put(m, count);
-                } catch (ModelNotFoundException e) {
-                    Log.e(TAG, "Model with id: " + modelId + " could not be found, asset " +
-                            asset.getTag() + " will be skipped");
+                        count++;
+                        modelCount.put(m, count);
+                    } catch (ModelNotFoundException e) {
+                        Log.e(TAG, "Model with id: " + modelId + " could not be found, asset " +
+                                asset.getTag() + " will be skipped");
+                    }
                 }
+            } else {
+                Log.d(TAG, String.format("Model id %d is not allowed, skipping", modelId));
             }
         }
 
         Random r = new Random(System.currentTimeMillis());
 
-
-        int maxItems = 8;
+        int maxItems = getContext().getResources().getInteger(R.integer.model_fragment_grid_max_records);;
         int itemCount = 0;
+        int maxColumns = getContext().getResources().getInteger(R.integer.model_fragment_grid_columns);
         for (Map.Entry<Model, Integer> entry : modelCount.entrySet()) {
             Model model = entry.getKey();
             int count = entry.getValue();
             if (itemCount >= maxItems) {
-                addModelToGrid(gridOverflowView, count, model);
+                addModelToGrid(gridOverflowView, count, model, maxColumns);
             } else {
-                addModelToGrid(gridView, count, model);
+                addModelToGrid(gridView, count, model, maxColumns);
 
             }
             itemCount++;
@@ -212,7 +216,7 @@ public class ModelGridFragment extends Fragment {
             statusValid = true;
         } else {
             Set<String> allowedStatusIDs = getAllowedStatusIDs();
-            if (allowedStatusIDs.contains(String.valueOf(String.valueOf(asset.getStatusID())))) {
+            if (allowedStatusIDs.contains(String.valueOf(asset.getStatusID()))) {
                 statusValid = true;
             }
         }
@@ -220,39 +224,36 @@ public class ModelGridFragment extends Fragment {
         return statusValid;
     }
 
-    private void addModelToGrid(GridLayout gridLayout, int count, Model model) {
+
+
+    private void addModelToGrid(GridLayout gridLayout, int count, Model model, int maxColumns) {
         LinearLayout container = null;
         if (gridLayout.getChildCount() == 0) {
             container = getNewContainer();
             gridLayout.addView(container);
         } else {
             LinearLayout l = (LinearLayout) gridLayout.getChildAt(gridLayout.getChildCount() - 1);
-            if (l.getChildCount() > 1) {
+            if (l.getChildCount() < maxColumns) {
+                //set each sub container hold 3 child cards
+                container = l;
+            } else {
                 container = getNewContainer();
                 gridLayout.addView(container);
-            } else {
-                container = l;
             }
         }
 
-        String manufacturer = "";
-        final OverviewCountView overviewCountView = new OverviewCountView(getContext(),
-                model.getName(), count);
+        Manufacturer manufacturer = null;
 
         try {
-            Manufacturer man = db.findManufacturerByID(model.getManufacturerID());
-            manufacturer = man.getName();
+            manufacturer = db.findManufacturerByID(model.getManufacturerID());
         } catch (ManufacturerNotFoundException e) {
             //just use a blank manufacturer field
         }
-
-        overviewCountView.setManufacturer(manufacturer);
 
         int color;
         if (colors != null && colors.length > 0) {
             int hash = Math.abs(model.hashCode());
             int index = hash % colors.length;
-            Log.d(TAG, model.getName() + " hash '" + hash + "' using color index " + index);
             color = colors[index];
         } else {
             TypedValue typedValue = new TypedValue();
@@ -261,63 +262,36 @@ public class ModelGridFragment extends Fragment {
             color = typedValue.data;
         }
 
-        int textColor = ColorHelper.getValueTextColorForBackground(getContext(), color);
-        overviewCountView.setTextColor(textColor);
-        overviewCountView.setColor(color);
 
-        overviewCountView.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f));
-        overviewCountView.setVisibility(View.INVISIBLE);
-        container.addView(overviewCountView);
+        final ModelOverviewCountView modelOverviewCountView = new ModelOverviewCountView(getContext(),
+                model, manufacturer, count, color);
 
+        modelOverviewCountView.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f));
+        modelOverviewCountView.setVisibility(View.INVISIBLE);
+        container.addView(modelOverviewCountView);
 
-//            Animation swingIn = AnimationUtils.loadAnimation(getContext(), R.anim.swinging);
-//            overviewCountView.startAnimation(swingIn);
-
-
-        ValueAnimator offsetX = ValueAnimator.ofFloat(.5f, 0);
-        offsetX.setTarget(overviewCountView);
-        offsetX.setDuration(300);
-        offsetX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float val = (float) animation.getAnimatedValue();
-                int height = overviewCountView.getHeight();
-                float offset = -(height * val);
-                overviewCountView.setTranslationY(offset);
-            }
-        });
-
-        ObjectAnimator flipIn = ObjectAnimator.ofFloat(overviewCountView, "rotationX", -90, 0)
-                .setDuration(300);
-        flipIn.setInterpolator(new LinearInterpolator());
-
-        AnimatorSet set = new AnimatorSet();
+        Animation fadeIn = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
         Random random = new Random(System.currentTimeMillis());
-        long delay = (long) random.nextInt(500);
-        set.setStartDelay(delay);
-        set.addListener(new Animator.AnimatorListener() {
+        long delay = (long) random.nextInt(250);
+        fadeIn.setStartOffset(delay);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animator animation) {
-                overviewCountView.setVisibility(View.VISIBLE);
+            public void onAnimationStart(Animation animation) {
+                modelOverviewCountView.setVisibility(View.VISIBLE);
             }
 
             @Override
-            public void onAnimationEnd(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
+            public void onAnimationEnd(Animation animation) {
 
             }
 
             @Override
-            public void onAnimationRepeat(Animator animation) {
+            public void onAnimationRepeat(Animation animation) {
 
             }
         });
-        set.playTogether(flipIn, offsetX);
-        set.start();
+        modelOverviewCountView.setAnimation(fadeIn);
+        modelOverviewCountView.animate();
     }
 
     @NonNull
@@ -332,6 +306,8 @@ public class ModelGridFragment extends Fragment {
         container = new LinearLayout(getContext());
         container.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 2f));
         container.setOrientation(LinearLayout.HORIZONTAL);
+        container.setClipChildren(false);
+        container.setClipToPadding(false);
         return container;
     }
 

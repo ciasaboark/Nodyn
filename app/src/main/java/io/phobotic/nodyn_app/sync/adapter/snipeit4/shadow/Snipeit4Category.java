@@ -33,14 +33,18 @@ public class Snipeit4Category {
     private String name;
     @SerializedName("category_type")
     private String categoryType;
+
+    // TODO: 2/2/2021 response also has an "item_count" field, should that be used instead
+    @SerializedName("assets_count")
     private int count;
 
     @SerializedName("require_acceptance")
     private String acceptance;
+
     private String eula;
 
-    @SerializedName("use_default_eula")
-    private boolean useDefaultEula;
+    @SerializedName("has_eula")
+    private boolean hasEULA;
 
     public Category toCategory() {
         Category category = new Category()
@@ -48,8 +52,8 @@ public class Snipeit4Category {
                 .setName(URLHelper.decode(name))
                 .setCategoryType(URLHelper.decode(categoryType))
                 .setCount(count)
-                .setEulaText(URLHelper.decode(eula))
-                .setUseDefaultEula(useDefaultEula);
+                .setEulaText(eula)
+                .setUseDefaultEula(!hasEULA);
 
         return category;
     }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -42,10 +42,6 @@
 
     <string name="pref_key_audit_required_models">audit_required_models</string>
     <string name="pref_title_audit_required_models">Asset models to audit</string>
-
-    <string name="pref_default_audit_results_email"></string>
-    <string name="pref_key_audit_results_email">audit_results_email</string>
-    <string name="pref_title_audit_results_email">Audit results recipient email</string>
 
     <string name="pref_key_audit_status_allow_all">audit_status_allow_all</string>
     <string name="pref_default_audit_status_allow_all">true</string>

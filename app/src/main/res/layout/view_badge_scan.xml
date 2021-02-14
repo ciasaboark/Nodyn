@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -23,26 +23,26 @@
               android:orientation="vertical"
               android:padding="16dp">
 
-    <TextSwitcher
-        android:id="@+id/error"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"/>
+    <!--<ImageView-->
+    <!--android:id="@+id/imageView7"-->
+    <!--android:layout_width="400dp"-->
+    <!--android:layout_height="300dp"-->
+    <!--android:layout_gravity="center_horizontal"-->
+    <!--android:layout_margin="16dp"-->
+    <!--android:contentDescription="Assicate ID badge"-->
+    <!--android:src="@drawable/badge"/>-->
 
-    <ImageView
-        android:id="@+id/imageView7"
+    <io.phobotic.nodyn_app.view.UserCardView
+        android:id="@+id/user_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="16dp"
-        app:srcCompat="@drawable/badge"/>
+        android:layout_marginBottom="16dp"
+        app:useMini="false"/>
 
     <io.phobotic.nodyn_app.view.ScanInputView
         android:id="@+id/input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

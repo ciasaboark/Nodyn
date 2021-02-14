@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -15,88 +15,71 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <!-- Top most widget, show a grid of assets by category -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:layout_marginStart="16dp"
-            android:text="Available Models"
-            android:textAppearance="@android:style/TextAppearance.Material.Title"
-            android:textColor="?colorAccent"/>
-
-        <fragment
-            android:id="@+id/overview_grid_fragment"
-            android:name="io.phobotic.nodyn_app.fragment.dash.ModelGridFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:tag=".OverviewGridFragment"/>
-
-    </LinearLayout>
+    android:background="@color/window_background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:layout_marginStart="16dp"
-            android:text="30 Day Activity"
-            android:textAppearance="@android:style/TextAppearance.Material.Title"
-            android:textColor="?colorAccent"/>
 
-        <fragment
-            android:id="@+id/history_chart_fragment"
-            android:name="io.phobotic.nodyn_app.fragment.dash.HistoryChartFragment"
+
+        <!-- Top most widget, show a grid of assets by category -->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/last_sync_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:tag=".HistoryChartFragment"/>
-    </LinearLayout>
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginStart="16dp"
+                android:text="Available Models"
+                android:textAppearance="@android:style/TextAppearance.Material.Title"
+                android:textColor="@color/section_title"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:layout_marginStart="16dp"
-            android:text="Assets by Status"
-            android:textAppearance="@android:style/TextAppearance.Material.Title"
-            android:textColor="?colorAccent"/>
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/model_grid_fragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"/>
 
-        <fragment
-            android:id="@+id/status_chart_fragment"
-            android:name="io.phobotic.nodyn_app.fragment.dash.AssetStatusChartFragment"
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:tag=".AssetStatusChartFragment"/>
-    </LinearLayout>
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
 
-</LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginStart="16dp"
+                android:text="Check out Overview"
+                android:textAppearance="@android:style/TextAppearance.Material.Title"
+                android:textColor="@color/section_title"/>
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/checkout_overview_fragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

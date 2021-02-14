@@ -1,0 +1,35 @@
+<!--
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="55dp"
+        android:height="55dp"
+        android:viewportHeight="55"
+        android:viewportWidth="55">
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="nonZero"
+        android:pathData="M53,30.1667C53,24.4717 48.6238,19.8553 43.2251,19.8553C42.7854,19.8553 42.3559,19.8962 41.9324,19.9562C41.5587,12.7349 35.892,7 28.956,7C23.2926,7 18.9799,11.3497 17.1981,16.679C16.2472,16.417 14.7476,15.7473 13.7191,15.7473C7.2459,15.7473 2,21.2831 2,28.1131C2,34.1274 6.0692,39.1322 11.4607,40.2439L11.4607,44.2681L9.3692,44.2681C8.4726,44.2681 7.7439,45.0341 7.7439,45.9808C7.7439,47.4444 8.7479,49 10.6078,49L44.665,49C46.5252,49 47.5279,47.4444 47.5279,45.9808C47.5279,45.0341 46.8019,44.2681 45.9052,44.2681L43.8127,44.2681L43.8127,40.4471C48.9378,40.1256 53,35.6535 53,30.1667ZM13.0829,25.8314C13.0829,25.256 13.5293,24.7868 14.0743,24.7868L41.1983,24.7868C41.7437,24.7868 42.189,25.256 42.189,25.8314L42.189,40.4783L42.189,43.9945C42.189,44.1337 42.1621,44.2652 42.1146,44.3864L13.1595,44.3864C13.1107,44.2652 13.0829,44.1337 13.0829,43.9945L13.0829,40.4447L13.0829,25.8314ZM45.9052,45.9808C45.9052,45.9808 45.9052,47.2868 44.665,47.2868C43.4286,47.2868 11.8465,47.2868 10.6078,47.2868C9.3692,47.2868 9.3692,45.9808 9.3692,45.9808L13.1595,45.9808L42.1145,45.9808L45.9052,45.9808Z"
+        android:strokeColor="#00000000"
+        android:strokeWidth="1"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="nonZero"
+        android:pathData="M41,40.5305l0,-14.5305l-27,0l0,14.5305l0,2.4695l27,0z"
+        android:strokeColor="#00000000"
+        android:strokeWidth="1"/>
+</vector>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,49 +17,49 @@
 
 package io.phobotic.nodyn_app.fragment;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.BounceInterpolator;
+import android.widget.ProgressBar;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
+
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import io.phobotic.nodyn_app.R;
+import io.phobotic.nodyn_app.animation.ProgressBarAnimation;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.database.exception.ModelNotFoundException;
 import io.phobotic.nodyn_app.database.model.Asset;
 import io.phobotic.nodyn_app.database.model.User;
 import io.phobotic.nodyn_app.fragment.listener.CheckInOutListener;
 import io.phobotic.nodyn_app.helper.AnimationHelper;
-import io.phobotic.nodyn_app.view.AssetScanList;
-import io.phobotic.nodyn_app.view.BadgeScanView;
-import io.phobotic.nodyn_app.view.VerifyCheckinView;
+import io.phobotic.nodyn_app.view.AssetScannerView;
 
 import static io.phobotic.nodyn_app.helper.MediaHelper.playSoundEffect;
 
@@ -74,23 +74,25 @@ import static io.phobotic.nodyn_app.helper.MediaHelper.playSoundEffect;
 public class CheckInFragment extends Fragment {
     private static final String TAG = CheckInFragment.class.getSimpleName();
     private static final String ARG_AUTHORIZATION = "authorization";
+    private static final String ARGS_VERIFIED = "verified";
+    private static final int MAX_PROGRESS = 1000;
     private CheckInOutListener listener;
     private View rootView;
-    private AssetScanList scanner;
-    private TextSwitcher title;
-    private TextSwitcher message;
+    private AssetScannerView scanner;
     private User authorizingUser;
-    private boolean authorizationRequired;
-    private boolean verificationRequired;
     private SharedPreferences prefs;
     private FloatingActionButton checkinButton;
-    private View footer;
     private View warning;
+    private CountDownTimer timer;
+    private ProgressBar warningProgress;
+    private TextView warningMessage;
+    private boolean checkInsVerified;
 
-    public static CheckInFragment newInstance(User authorizingUser) {
+    public static CheckInFragment newInstance(User authorizingUser, boolean checkInsVerified) {
         CheckInFragment fragment = new CheckInFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_AUTHORIZATION, authorizingUser);
+        args.putBoolean(ARGS_VERIFIED, checkInsVerified);
         fragment.setArguments(args);
         return fragment;
     }
@@ -113,6 +115,7 @@ public class CheckInFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             authorizingUser = (User) getArguments().getSerializable(ARG_AUTHORIZATION);
+            checkInsVerified = getArguments().getBoolean(ARGS_VERIFIED, false);
         }
     }
 
@@ -141,19 +144,27 @@ public class CheckInFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         listener = null;
+        if (timer != null) {
+            timer.cancel();
+        }
+    }
+
+    private void init() {
+        warning = rootView.findViewById(R.id.warning);
+        warning = rootView.findViewById(R.id.countdown_warning);
+        warningProgress = rootView.findViewById(R.id.warning_progress);
+        warningProgress.setMax(MAX_PROGRESS);
+        warningProgress.setProgress(MAX_PROGRESS);
+        warningMessage = rootView.findViewById(R.id.warning_text_1);
+        initScanner();
+
+        resetCountdown();
     }
 
     public void setListener(@Nullable CheckInOutListener listener) {
         this.listener = listener;
     }
 
-    private void init() {
-        footer = rootView.findViewById(R.id.footer);
-        warning = rootView.findViewById(R.id.warning);
-        initTextSwitchers();
-        initScanner();
-        initCheckinFab();
-    }
 
     private void fadeInText(TextSwitcher view, String newText) {
         Animation in = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
@@ -164,24 +175,16 @@ public class CheckInFragment extends Fragment {
     }
 
     private void initScanner() {
-        scanner = (AssetScanList) rootView.findViewById(R.id.scan_list);
-        scanner.setListener(new AssetScanList.OnAssetScannedListener() {
+        scanner = rootView.findViewById(R.id.scan_list);
+        scanner.setListener(new AssetScannerView.OnAssetScannedListener() {
             @Override
             public void onAssetScanned(Asset asset) {
                 processAssetScan(asset);
             }
 
             @Override
-            public void onAssetScanListChanged(@NotNull List<Asset> assets) {
+            public void onAssetScanListChanged(@NotNull List<AssetScannerView.ScannedAsset> assets) {
                 if (assets.isEmpty() && checkinButton.getVisibility() != View.GONE) {
-                    if (footer.getVisibility() != View.GONE) {
-                        hideFooter();
-                    }
-
-                    if (warning.getVisibility() != View.GONE) {
-                        hideWarning();
-                    }
-
                     scanner.requestFocus();
                 }
             }
@@ -192,287 +195,152 @@ public class CheckInFragment extends Fragment {
             }
         });
 
-        authorizationRequired = prefs.getBoolean(
-                getString(R.string.pref_key_check_in_require_scan), Boolean.parseBoolean(
-                        getString(R.string.pref_default_check_in_require_scan)));
-        verificationRequired = prefs.getBoolean(getString(R.string.pref_key_check_in_show_verify),
-                Boolean.parseBoolean(getString(R.string.pref_default_check_in_show_verify)));
-
-        //if authorization is not required then there is no need to be able to remove assets once
-        //+ they are scanned
-        scanner.setAssetsRemovable(authorizationRequired);
+        //the check-in fragment will immediately check in assets as they are scanned
+        scanner.setAssetsRemovable(false);
     }
 
-    private void initTextSwitchers() {
-        title = (TextSwitcher) rootView.findViewById(R.id.title);
-        title.setFactory(new ViewSwitcher.ViewFactory() {
-            @Override
-            public View makeView() {
-                TextView t = new TextView(getContext());
-                t.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-                t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material_Large_Inverse);
-                return t;
-            }
-        });
-        title.setCurrentText(getResources().getString(R.string.check_in_title_scan_an_asset));
-
-        message = (TextSwitcher) rootView.findViewById(R.id.message);
-        message.setFactory(new ViewSwitcher.ViewFactory() {
-            @Override
-            public View makeView() {
-                TextView t = new TextView(getContext());
-                t.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-                t.setTextAppearance(getContext(), android.R.style.TextAppearance_Material_Inverse);
-                return t;
-            }
-        });
-        message.setCurrentText(getResources().getString(R.string.blank));
-    }
-
-    private void processUserScan(User user) {
-        if (!authorizationRequired) {
-            //show a warning dialog
-            AlertDialog d = new AlertDialog.Builder(getContext())
-                    .setTitle("User scanned")
-                    .setMessage("User scan is not required to check in assets.  Assets will be checked in immediately once scanned")
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //nothing to do here
-                        }
-                    })
-                    .create();
-            d.show();
-        } else {
-            if (scanner.getScannedAssets().isEmpty()) {
-                AlertDialog d = new AlertDialog.Builder(getContext())
-                        .setTitle("No assets scanned")
-                        .setMessage("Unable to checkin assets.  No assets have been scanned")
-                        .setNegativeButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //nothing to do here
-                            }
-                        })
-                        .create();
-                d.show();
-                playSoundEffect(getContext(), R.raw.correct);
-
-            } else {
-                verifyAuthorizationAndCheckin(user);
-            }
+    private void resetCountdown() {
+        if (timer != null) {
+            timer.cancel();
         }
-    }
+        warningProgress.setProgress(MAX_PROGRESS);
 
-    private void verifyAuthorizationAndCheckin(final User user) {
-        if (!isUserAuthenticated(user)) {
-            AlertDialog d = new AlertDialog.Builder(getContext())
-                    .setTitle("Not authenticated")
-                    .setMessage("User " + user.getName() + " is not authenticated to check in assets.")
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //nothing to do here
-                        }
-                    })
-                    .create();
-            d.show();
-        } else {
-            if (!verificationRequired) {
-                checkinAssets(user, false);
-            } else {
-                verifyAssetCheckin(user);
-            }
-        }
-    }
+        AnimationHelper.collapse(warning);
 
-    private void verifyAssetCheckin(final User user) {
-        View markdownView = new VerifyCheckinView(getContext(), null);
-        AlertDialog d = new AlertDialog.Builder(getContext())
-                .setTitle("Confirm Checkin")
-                .setView(markdownView)
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //nothing to do here
-                    }
-                })
-                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        checkinAssets(user, true);
-                    }
-                })
-                .create();
-        d.show();
-    }
-
-    private boolean isUserAuthenticated(User user) {
-        int[] groups = user.getGroupsIDs();
-        if (groups == null) {
-            groups = new int[]{};
-        }
-
-        List<String> userGroups = new ArrayList<>();
-        for (int i : groups) {
-            userGroups.add(String.valueOf(i));
-        }
-
-        boolean userAuthenticated = false;
-        Set<String> allowedGroupSet = prefs.getStringSet(getString(
-                R.string.pref_key_check_in_authenticating_groups), new HashSet<String>());
-        List<String> allowedGroups = new ArrayList<>();
-        allowedGroups.addAll(allowedGroupSet);
-
-        allowedGroups.retainAll(userGroups);
-        if (allowedGroups.size() > 0) {
-            userAuthenticated = true;
-        }
-
-        return userAuthenticated;
-    }
-
-    private void checkinAssets(User user, boolean isVerified) {
-        Database db = Database.getInstance(getContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String timeLimitString = prefs.getString(
+                getString(R.string.pref_key_check_out_timeout_limit),
+                getString(R.string.pref_default_check_out_timeout_limit));
+        int minutes = 0;
         try {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(System.currentTimeMillis());
-            // TODO: 8/20/17 pull hours from settings
-            cal.add(Calendar.HOUR_OF_DAY, 24);
-            long expectedCheckin = cal.getTimeInMillis();
-            List<Asset> scannedAssetsList = scanner.getScannedAssets();
-            scannedAssetsList = removeAlreadyCheckedInAssets(scannedAssetsList);
-            db.checkinAssets(scannedAssetsList, user, System.currentTimeMillis(), user, isVerified);
-            String username = user == null ? "" : user.getName() + " ";
-            showNotification(username + " checked in " + scannedAssetsList.size() + " assets");
+            minutes = Integer.parseInt(timeLimitString);
+        } catch (NumberFormatException e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+        }
 
-            //if authorization was not required then leave scanned items in the list
-            if (authorizationRequired) {
-                scanner.reset();
-            } else {
-                //mark assets in the list as checked in.  this is to prevent the assets from being
-                //+ checked in again if the list was not cleared
-                for (Asset asset : scannedAssetsList) {
-                    asset.setAssignedToID(-1);
+        if (minutes > 0 && authorizingUser != null) {
+            final int timeout = minutes * 1000 * 60;
+
+            //show the warning when we at 50% of the alloted time (with a minimum 50 second warning)
+            final long showWarningAt = Math.max(50000l, (long) (timeout * .5));
+
+            timer = new CountDownTimer(timeout, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    //                Log.d(TAG, "tick");
+                    if (millisUntilFinished <= showWarningAt) {
+                        //animate in the warning if it is not already visible
+                        AnimationHelper.expand(warning);
+
+                        //update the progressbar
+                        float percentPerMs = (float) MAX_PROGRESS / (float) timeout;
+                        float progress = ((float) millisUntilFinished * percentPerMs);
+                        int curProgress = warningProgress.getProgress();
+                        ProgressBarAnimation anim = new ProgressBarAnimation(warningProgress, curProgress, progress);
+                        anim.setDuration(1000);
+                        warningProgress.startAnimation(anim);
+
+                        String warningText = getString(R.string.check_in_warning_message_1);
+                        int remainingSeconds = Math.round(millisUntilFinished / 1000);
+
+                        int value;
+                        String measurement;
+
+                        if (remainingSeconds < 60) {
+                            value = remainingSeconds;
+                            if (value == 1) {
+                                measurement = getString(R.string.second);
+                            } else {
+                                measurement = getString(R.string.seconds);
+                            }
+                        } else {
+                            value = remainingSeconds / 60;
+
+                            if (value == 1) {
+                                measurement = getString(R.string.minute);
+                            } else {
+                                measurement = getString(R.string.minutes);
+                            }
+                        }
+
+                        warningText = String.format(warningText, String.valueOf(value), measurement);
+                        warningMessage.setText(warningText);
+                    }
                 }
 
-                fadeInText(title, getResources().getString(R.string.check_in_title_scan_an_asset));
-                fadeInText(message, getResources().getString(R.string.blank));
-            }
+                @Override
+                public void onFinish() {
+                    Activity a = getActivity();
+                    if (a != null) {
+                        a.finish();
+                    }
+                }
+            };
 
-            //hide the header and footer to reset the view
-            if (footer.getVisibility() != View.GONE) {
-                hideFooter();
-            }
-
-            if (warning.getVisibility() != View.GONE) {
-                hideWarning();
-            }
-
-            playSoundEffect(getContext(), R.raw.brd3);
-
-            scanner.requestFocus();
-        } catch (Exception e) {
-            e.printStackTrace();
-            showNotification("Caught exception " + e.getClass().getSimpleName() +
-                    " checking out assets");
+            timer.start();
         }
     }
 
-    private List<Asset> removeAlreadyCheckedInAssets(List<Asset> assets) {
-        List<Asset> newList = new ArrayList<>();
+    private void processAssetScan(Asset asset) {
+        //the de-authorization timer should only be active when the check-in list is empty
+        resetCountdown();
 
-        for (Asset asset : assets) {
-            if (asset.getAssignedToID() != -1) {
-                newList.add(asset);
+        //we need to be careful to only allow assets to be checked-in if that asset model is allowed
+        //+ to be checked out
+        if (!modelCanBeCheckedOut(asset)) {
+            String modelName = "";
+            try {
+                Database db = Database.getInstance(getContext());
+                modelName = " '" + db.findModelByID(asset.getModelID()).getName() + "'";
+            } catch (ModelNotFoundException e) {
             }
-        }
 
-        return newList;
-    }
+            View v = getLayoutInflater(null).inflate(R.layout.view_model_unavailable, null);
 
-    private void showNotification(String err) {
-        Snackbar snackbar = Snackbar.make(rootView, err, Snackbar.LENGTH_LONG);
-        snackbar.show();
-    }
+            AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
+                    .setTitle("Model not available")
+                    .setView(v)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //do nothing here
+                        }
+                    }).create();
+            d.show();
+        } else {
+            try {
+                tryAddAssetToScannedList(asset);
+                checkinAsset(asset);
+            } catch (AssetAlreadyScannedException e) {
+                AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
+                        .setTitle("Asset Not Available")
+                        .setMessage("Asset '" + asset.getTag() + "' has already been scanned")
+                        .setPositiveButton(getResources().getString(android.R.string.ok),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //nothing to do here
+                                    }
+                                }).create();
+                playSoundEffect(getContext(), R.raw.original_sound__error_bleep_5);
+                d.show();
 
-    private void initCheckinFab() {
-        checkinButton = (FloatingActionButton) rootView.findViewById(R.id.checkout_button);
-        checkinButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final BadgeScanView badgeScanView = new BadgeScanView(getContext(), null);
-
-                final AlertDialog d = new AlertDialog.Builder(getContext())
-                        .setTitle("Scan associate ID badge")
-                        .setView(badgeScanView)
-                        .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //nothing to do here, dialog will dismiss
-                            }
-                        })
-                        .create();
-
-                badgeScanView.setOnUserScannedListener(new BadgeScanView.OnUserScannedListener() {
-                    @Override
-                    public void onUserScanned(@NotNull User user) {
-                        d.dismiss();
-                        processUserScan(user);
-                    }
-
-                    @Override
-                    public void onUserScanError(@NotNull String message) {
-                        //let the badge scanner handle bad input
-                    }
-                });
-
+            } catch (AssetNotCheckedOutException e) {
+                AlertDialog d = new MaterialAlertDialogBuilder(getContext(), R.style.Widgets_Dialog)
+                        .setTitle("Asset Not Checked Out")
+                        .setMessage("Asset '" + asset.getTag() + "' is not checked out and can not " +
+                                "be checked back in")
+                        .setPositiveButton(getResources().getString(android.R.string.ok),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //nothing to do here
+                                    }
+                                }).create();
+                playSoundEffect(getContext(), R.raw.original_sound__error_bleep_5);
                 d.show();
             }
-        });
-        checkinButton.hide();
-    }
-
-    private void showCheckInButton() {
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(checkinButton, "scaleX", 0, 1);
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(checkinButton, "scaleY", 0, 1);
-        AnimatorSet animSetXY = new AnimatorSet();
-        animSetXY.playTogether(scaleX, scaleY);
-        animSetXY.setInterpolator(new BounceInterpolator());
-        animSetXY.setDuration(500);
-        checkinButton.setVisibility(View.VISIBLE);
-        animSetXY.start();
-    }
-
-    private void hideCheckInButton() {
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(checkinButton, "scaleX", 1, 0);
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(checkinButton, "scaleY", 1, 0);
-        AnimatorSet animSetXY = new AnimatorSet();
-        animSetXY.playTogether(scaleX, scaleY);
-        animSetXY.setInterpolator(new BounceInterpolator());
-        animSetXY.setDuration(500);
-        animSetXY.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                checkinButton.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        animSetXY.start();
+        }
     }
 
     /**
@@ -494,7 +362,7 @@ public class CheckInFragment extends Fragment {
         } else {
             Set<String> allowedModelIDs = prefs.getStringSet(
                     getString(R.string.pref_key_check_out_models), new HashSet<String>());
-            if (allowedModelIDs.contains(String.valueOf(String.valueOf(asset.getModelID())))) {
+            if (allowedModelIDs.contains(String.valueOf(asset.getModelID()))) {
                 modelValid = true;
             }
         }
@@ -502,72 +370,36 @@ public class CheckInFragment extends Fragment {
         return modelValid;
     }
 
-    private void processAssetScan(Asset asset) {
-        //if the model could not be checked out then we also should not be able to check it in
-        if (!modelCanBeCheckedOut(asset)) {
-            String modelName = "";
-            try {
-                Database db = Database.getInstance(getContext());
-                modelName = " '" + db.findModelByID(asset.getModelID()).getName() + "'";
-            } catch (ModelNotFoundException e) {
-            }
+    private void showNotification(String err) {
+        Snackbar snackbar = Snackbar.make(rootView, err, Snackbar.LENGTH_LONG);
+        snackbar.show();
+    }
 
-            View v = getLayoutInflater(null).inflate(R.layout.view_model_unavailable, null);
+    private void checkinAsset(Asset asset) {
+        Database db = Database.getInstance(getContext());
+        try {
+            asset.setAssignedToID(-1);
+            List<Asset> l = new ArrayList<>();
+            l.add(asset);
 
-            AlertDialog d = new AlertDialog.Builder(getContext())
-                    .setTitle("Model not available")
-                    .setView(v)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //do nothing here
-                        }
-                    }).create();
-            d.show();
-        } else {
-            try {
-                tryAddAssetToScannedList(asset);
-                fadeInText(title, getResources().getString(R.string.check_in_title_continue_scan_assets));
+            db.checkinAssets(l, authorizingUser, System.currentTimeMillis(), authorizingUser, checkInsVerified);
+            String username = authorizingUser == null ? "" : authorizingUser.getName() + " ";
 
-                //if authorization is not required then go ahead and check the asset back in
-                if (!authorizationRequired) {
-                    checkinAssets(null, false);
-                    fadeInText(message, getResources().getString(R.string.check_in_message_check_in_immediate));
-                } else {
-                    fadeInText(message, getResources().getString(R.string.check_in_message_scan_badge_to_complete));
-                }
+            playSoundEffect(getContext(), R.raw.n_audioman__blip);
 
-
-            } catch (AssetAlreadyScannedException e) {
-                AlertDialog d = new AlertDialog.Builder(getContext())
-                        .setTitle("Asset Not Available")
-                        .setMessage("Asset '" + asset.getTag() + "' has already been scanned")
-                        .setPositiveButton(getResources().getString(android.R.string.ok),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        //nothing to do here
-                                    }
-                                }).create();
-                playSoundEffect(getContext(), R.raw.bassy_chirp);
-                d.show();
-
-            } catch (AssetNotCheckedOutException e) {
-                AlertDialog d = new AlertDialog.Builder(getContext())
-                        .setTitle("Asset Not Checked Out")
-                        .setMessage("Asset '" + asset.getTag() + "' is not checked out and can not " +
-                                "be checked back in")
-                        .setPositiveButton(getResources().getString(android.R.string.ok),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        //nothing to do here
-                                    }
-                                }).create();
-                playSoundEffect(getContext(), R.raw.bassy_chirp);
-                d.show();
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showNotification("Caught exception " + e.getClass().getSimpleName() +
+                    " checking out assets");
         }
+    }
+
+    private void stopCountdown() {
+        if (timer != null) {
+            timer.cancel();
+        }
+
+        AnimationHelper.collapse(warning);
     }
 
     private void tryAddAssetToScannedList(Asset asset) throws AssetAlreadyScannedException,
@@ -577,50 +409,14 @@ public class CheckInFragment extends Fragment {
             throw new AssetAlreadyScannedException("Asset " + asset.getTag() + " already scanned");
         }
 
-
         //if the asset is not checked out it can't be checked back in
         if (asset.getAssignedToID() == -1) {
             throw new AssetNotCheckedOutException("Asset " + asset.getTag() + " is not checked out and can not be checked in");
         } else {
             scanner.addAsset(asset);
-
-            //if this was the first asset scanned then transition the instructions
-            if (scanner.getScannedAssets().size() == 1) {
-                fadeInText(title, getResources().getString(R.string.check_in_title_continue_scan_assets));
-                fadeInText(message, getResources().getString(R.string.check_in_message_scan_badge_to_complete));
-
-                showFooter();
-
-                if (authorizationRequired) {
-                    showWarning();
-                }
-
-            }
         }
     }
 
-    private void showWarning() {
-        AnimationHelper.expand(warning);
-    }
-
-    private void hideWarning() {
-        AnimationHelper.collapse(warning);
-    }
-
-    private void showFooter() {
-        AnimationHelper.expand(footer);
-        //only show the checkin FAB if authorization is required
-        if (authorizationRequired) {
-            showCheckInButton();
-        }
-    }
-
-    private void hideFooter() {
-        if (checkinButton.getVisibility() == View.VISIBLE) {
-            hideCheckInButton();
-        }
-        AnimationHelper.collapse(footer);
-    }
 
     private class AssetAlreadyScannedException extends Exception {
         public AssetAlreadyScannedException(String message) {

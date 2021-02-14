@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,11 +31,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import io.phobotic.nodyn_app.R;
 import io.phobotic.nodyn_app.database.Database;
 import io.phobotic.nodyn_app.fragment.dash.AssetStatusChartFragment;
+import io.phobotic.nodyn_app.fragment.dash.CheckoutOverviewFragment;
 import io.phobotic.nodyn_app.fragment.dash.HistoryChartFragment;
+import io.phobotic.nodyn_app.fragment.dash.LastSyncFragment;
 import io.phobotic.nodyn_app.fragment.dash.ModelGridFragment;
+import io.phobotic.nodyn_app.helper.Keyboardhelper;
 import io.phobotic.nodyn_app.service.SyncService;
 
 /**
@@ -49,14 +54,16 @@ import io.phobotic.nodyn_app.service.SyncService;
  */
 public class DashboardFragment extends Fragment {
     private static final String TAG = DashboardFragment.class.getSimpleName();
+    private static final String KEY_FRAGMENT_LAST_SYNC = "last_sync_fragment";
+    private static final String KEY_FRAGMENT_MODEL_GRID = "model_grid_fragment";
+    private static final String KEY_FRAGMENT_CHECKOUT_OVERVIEW = "checkout_overview_fragment";
     private View rootView;
     private boolean isLoading = false;
     private Database db;
     private BroadcastReceiver br;
-    private AssetStatusChartFragment assetStatusChartFragment;
     private ModelGridFragment modelGridFragment;
-    //    private ShortActionHistoryFragment actionHistoryFragment;
-    private HistoryChartFragment historyChartFragment;
+    private CheckoutOverviewFragment overviewFragment;
+    private LastSyncFragment lastSyncFragment;
 
 
     public static DashboardFragment newInstance() {
@@ -85,8 +92,22 @@ public class DashboardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if (getArguments() != null) {
+        FragmentManager fm = getChildFragmentManager();
+        if (savedInstanceState == null) {
 
+            this.lastSyncFragment = LastSyncFragment.newInstance();
+            this.modelGridFragment = ModelGridFragment.newInstance();
+            this.overviewFragment = CheckoutOverviewFragment.newInstance();
+
+            fm.beginTransaction().setReorderingAllowed(true)
+                    .add(R.id.last_sync_fragment, this.lastSyncFragment, "last_sync")
+                    .add(R.id.model_grid_fragment, this.modelGridFragment, "model_grid")
+                    .add(R.id.checkout_overview_fragment, this.overviewFragment, "checkout_overview")
+                    .commit();
+        } else {
+            lastSyncFragment = (LastSyncFragment) fm.findFragmentByTag("last_sync");
+            modelGridFragment = (ModelGridFragment) fm.findFragmentByTag("model_grid");
+            overviewFragment = (CheckoutOverviewFragment) fm.findFragmentByTag("checkout_overview");
         }
     }
 
@@ -100,14 +121,6 @@ public class DashboardFragment extends Fragment {
     }
 
     private void init() {
-        FragmentManager fm = getChildFragmentManager();
-        modelGridFragment = (ModelGridFragment) fm.findFragmentById(R.id.overview_grid_fragment);
-        assetStatusChartFragment = (AssetStatusChartFragment) fm.findFragmentById(R.id.status_chart_fragment);
-        historyChartFragment = (HistoryChartFragment) fm.findFragmentById(R.id.history_chart_fragment);
-
-//        actionHistoryFragment = (ShortActionHistoryFragment) fm.findFragmentById(R.id.action_history_fragment);
-//        actionHistoryFragment.setColumnCount(2);
-
         br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -122,17 +135,23 @@ public class DashboardFragment extends Fragment {
                 }
             }
         };
+
     }
 
     /**
      * Force the internal fragments to re-load their data
      */
     private void refresh() {
+        Log.d(TAG, "refresh()");
         modelGridFragment.refresh();
-        assetStatusChartFragment.refresh();
-//        actionHistoryFragment.refresh();
-        historyChartFragment.refresh();
+        overviewFragment.refresh();
         isLoading = false;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        getChildFragmentManager().putFragment(outState, KEY_FRAGMENT_LAST_SYNC, this.lastSyncFragment);
     }
 
     @Override
@@ -142,7 +161,7 @@ public class DashboardFragment extends Fragment {
         filter.addAction((SyncService.BROADCAST_SYNC_FINISH));
         filter.addAction(SyncService.BROADCAST_SYNC_FAIL);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(br, filter);
-
+        Keyboardhelper.forceHideOSK(getContext(), rootView);
         refresh();
     }
 
@@ -161,13 +180,6 @@ public class DashboardFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean itemHandled = false;
-
-        switch (item.getItemId()) {
-            case R.id.menu_refresh:
-                refreshIfNeeded();
-                itemHandled = true;
-                break;
-        }
 
         return itemHandled;
     }

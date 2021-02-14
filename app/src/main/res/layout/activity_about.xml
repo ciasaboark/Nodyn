@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+  ~ Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -28,13 +28,12 @@
               android:paddingTop="0dp"
               tools:context=".AboutActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/AppToolbar"/>
+    <include
+        android:id="@+id/tb"
+        layout="@layout/content_toolbar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -101,7 +100,6 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="16dp"
                     android:text="@string/placeholder"
-                    android:textAppearance="@android:style/TextAppearance.Material.Small"
                     android:textSize="10sp"/>
 
 
@@ -118,18 +116,19 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:text="@string/about_intro"
-                        android:textColorLink="@color/text_link_color_light"/>
+                        />
 
                     <TextView
                         android:id="@+id/about_intro_continued"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/about_intro_continued"
-                        android:textColorLink="@color/text_link_color_light"/>
+                        />
                 </LinearLayout>
 
-                <android.support.v7.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_source"
+                    style="@style/LightCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -137,7 +136,7 @@
                     android:minWidth="500dp"
                     android:orientation="horizontal"
                     app:cardBackgroundColor="@color/check"
-                    app:cardCornerRadius="0dp">
+                    app:cardCornerRadius="@dimen/card_corner_radius">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -156,7 +155,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginRight="16dp"
-                                android:src="@drawable/ic_github_face_grey600_24dp"/>
+                                android:src="@drawable/ic_github_face_grey600_24dp" />
 
                             <TextView
                                 android:id="@+id/about_source_title"
@@ -164,7 +163,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:text="@string/about_source_title"
-                                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                                android:textAppearance="@style/Text.Card.Title" />
 
                         </LinearLayout>
 
@@ -174,21 +173,22 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:text="@string/about_source_text1"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small"
+                            />
 
                         <TextView
                             android:id="@+id/about_source_text2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/about_source_text2"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small"
+                            />
                     </LinearLayout>
-                </android.support.v7.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
-                <android.support.v7.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_bugs"
+                    style="@style/LightCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -197,7 +197,7 @@
                     android:orientation="horizontal"
                     android:padding="16dp"
                     app:cardBackgroundColor="@color/about_issues"
-                    app:cardCornerRadius="0dp">
+                    app:cardCornerRadius="@dimen/card_corner_radius">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -216,7 +216,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginRight="16dp"
-                                android:src="@drawable/ic_android_debug_bridge_grey600_24dp"/>
+                                android:src="@drawable/ic_android_debug_bridge_grey600_24dp" />
 
                             <TextView
                                 android:id="@+id/about_bugs_title"
@@ -224,7 +224,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:text="@string/about_bugs_title"
-                                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                                android:textAppearance="@style/Text.Card.Title" />
 
                         </LinearLayout>
 
@@ -234,22 +234,23 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:text="@string/about_bugs_text1"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small"
+                            />
 
                         <TextView
                             android:id="@+id/about_bugs_text2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/about_bugs_text2"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small"
+                            />
                     </LinearLayout>
 
-                </android.support.v7.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
-                <android.support.v7.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_contact"
+                    style="@style/LightCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -257,7 +258,7 @@
                     android:minWidth="500dp"
                     android:orientation="horizontal"
                     app:cardBackgroundColor="@color/about_comments"
-                    app:cardCornerRadius="0dp">
+                    app:cardCornerRadius="@dimen/card_corner_radius">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -276,7 +277,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginRight="16dp"
-                                android:src="@drawable/ic_mail_ru_grey600_24dp"/>
+                                android:src="@drawable/ic_mail_ru_grey600_24dp" />
 
                             <TextView
                                 android:id="@+id/about_comments_title"
@@ -284,7 +285,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:text="@string/about_comments_title"
-                                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                                android:textAppearance="@style/Text.Card.Title" />
 
                         </LinearLayout>
 
@@ -295,22 +296,22 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:text="@string/about_comments_text1"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
 
                         <TextView
                             android:id="@+id/about_comments_text2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/about_comments_text2"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small"
+                            />
                     </LinearLayout>
-                </android.support.v7.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
 
-                <android.support.v7.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_license"
+                    style="@style/LightCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -318,7 +319,7 @@
                     android:minWidth="500dp"
                     android:orientation="horizontal"
                     app:cardBackgroundColor="@color/about_legal"
-                    app:cardCornerRadius="0dp">
+                    app:cardCornerRadius="@dimen/card_corner_radius">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -337,7 +338,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:layout_marginRight="16dp"
-                                android:src="@drawable/ic_copyright_grey600_24dp"/>
+                                android:src="@drawable/ic_copyright_grey600_24dp" />
 
                             <TextView
                                 android:id="@+id/about_license_title"
@@ -345,7 +346,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:text="@string/about_license_title"
-                                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                                android:textAppearance="@style/Text.Card.Title" />
 
                         </LinearLayout>
 
@@ -355,18 +356,16 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:text="@string/about_license_text1"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
 
                         <TextView
                             android:id="@+id/about_license_text2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/about_license_text2"
-                            android:textAppearance="@android:style/TextAppearance.Material.Small"
-                            android:textColorLink="@color/text_link_color_light"/>
+                            android:textAppearance="@style/Text.Card.Small" />
                     </LinearLayout>
-                </android.support.v7.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
         </ScrollView>

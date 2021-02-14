@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Jonathan Nelson <ciasaboark@gmail.com>
+ * Copyright (c) 2019 Jonathan Nelson <ciasaboark@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -131,7 +131,7 @@ public class Model {
 
     @Override
     public int hashCode() {
-        return name.hashCode() + manufacturerID;
+        return String.format("%d%s%d", id, name, manufacturerID).hashCode();
     }
 
     @Override
@@ -139,8 +139,7 @@ public class Model {
         if (!(obj instanceof Model)) {
             return false;
         } else {
-            return this.getId() == ((Model) obj).getId() &&
-                    this.manufacturerID == ((Model) obj).getManufacturerID();
+            return this.hashCode() == obj.hashCode();
         }
     }
 
@@ -182,4 +181,5 @@ public class Model {
         public static final String FIELDSET_ID = "fieldset";
         public static final String CREATED_AT = "createdAt";
     }
+
 }
